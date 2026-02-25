@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { userService } from "../services";
-import type { User } from "../types";
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { userService } from '../services';
+import type { User } from '../types';
 
 // TODO: these hooks are just examples, you can customize them as needed
 /**
@@ -8,7 +8,7 @@ import type { User } from "../types";
  */
 export const useGetUsers = () => {
   return useQuery({
-    queryKey: ["users-list"],
+    queryKey: ['users-list'],
     queryFn: userService.getUsers,
   });
 };
@@ -18,7 +18,7 @@ export const useGetUsers = () => {
  */
 export const useCreateUser = () => {
   return useMutation({
-    mutationFn: (userData: Omit<User, "id" | "createdAt">) =>
+    mutationFn: (userData: Omit<User, 'id' | 'createdAt'>) =>
       userService.createUser(userData),
     onSuccess: () => {},
   });
