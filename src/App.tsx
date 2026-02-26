@@ -1,9 +1,10 @@
-import { Home } from "./pages";
+import { RouterProvider } from "@tanstack/react-router";
+import { router } from "./lib/router";
 
 function App() {
   return (
-    <div className="w-screen h-screen flex items-center justify-center gap-4">
-      <Home />
+    <div className="h-screen w-screen">
+      <RouterProvider router={router} />
     </div>
   );
 }
