@@ -84,7 +84,7 @@ Services handle API communication:
 // services/userService.ts
 export const userService = {
   getUsers: async (): Promise<User[]> => {
-    const response = await apiClient.get<ApiResponse<User[]>>("/users");
+    const response = await apiClient.get<ApiResponse<User[]>>('/users');
     return response.data;
   },
 };
@@ -116,7 +116,7 @@ export const queryClient = new QueryClient({
 ```typescript
 export const userService = {
   getUsers: async (): Promise<User[]> => {
-    const response = await apiClient.get<ApiResponse<User[]>>("/users");
+    const response = await apiClient.get<ApiResponse<User[]>>('/users');
     return response.data;
   },
 };
@@ -127,7 +127,7 @@ export const userService = {
 ```typescript
 export function useGetUsers() {
   return useQuery({
-    queryKey: ["query-key"],
+    queryKey: ['query-key'],
     queryFn: userService.getUsers,
   });
 }
@@ -155,7 +155,7 @@ export const MyComponent = () => {
 Tailwind is configured and ready to use. Example usage:
 
 ```tsx
-<div className="flex items-center gap-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+<div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
   <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
     Hello Tailwind!
   </h1>

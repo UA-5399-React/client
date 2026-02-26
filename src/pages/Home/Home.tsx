@@ -1,10 +1,10 @@
-import reactLogo from "../../assets/react.svg";
-import viteLogo from "/vite.svg";
-import { Button } from "../../components";
-import { useCreateUser, useGetUsers } from "../../hooks";
-import type { User } from "../../types";
+import reactLogo from '../../assets/react.svg';
+import viteLogo from '/vite.svg';
+import { Button } from '../../components';
+import { useCreateUser, useGetUsers } from '../../hooks';
+import type { User } from '../../types';
 
-import "./Home.css";
+import './Home.css';
 
 export const Home = () => {
   const { data: users } = useGetUsers();
@@ -12,7 +12,7 @@ export const Home = () => {
 
   const handleCreateUser = () => {
     createUser.mutate({
-      name: "John Doe",
+      name: 'John Doe',
       email: `john.doe.${Date.now()}@example.com`,
     });
   };
@@ -38,7 +38,7 @@ export const Home = () => {
 
       <div className="actions">
         <Button onClick={handleCreateUser} disabled={createUser.isPending}>
-          {createUser.isPending ? "Creating..." : "Create User"}
+          {createUser.isPending ? 'Creating...' : 'Create User'}
         </Button>
       </div>
 
