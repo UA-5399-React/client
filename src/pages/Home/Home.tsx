@@ -6,19 +6,6 @@ import type { User } from '../../types';
 
 import './Home.css';
 
-import { ProductCard } from '../../components/ProductCard/ProductCard';
-import type { Product } from '../../types';
-
-// додай мок перед return
-const mockProduct: Product = {
-  id: '1',
-  title: 'iPhone 15 Pro',
-  description: 'Apple smartphone with A17 Pro chip',
-  price: 45999,
-  imageUrl: 'https://picsum.photos/300/200',
-  status: 'active',
-  tags: ['apple', 'smartphone', 'ios'],
-};
 export const Home = () => {
   const { data: users } = useGetUsers();
   const createUser = useCreateUser();
@@ -77,10 +64,6 @@ export const Home = () => {
         ) : (
           <p>No users found. Create one to get started!</p>
         )}
-      </div>
-       <div>
-        <h2>Product Card</h2>
-        <ProductCard product={mockProduct} />
       </div>
     </div>
   );
