@@ -7,3 +7,6 @@ export const ROUTES = {
   ABOUT: '/about',
   CONTACT: '/contact',
 } as const;
+
+
+export * from "./theme";
