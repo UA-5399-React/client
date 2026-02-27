@@ -11,6 +11,7 @@ export const ProductDetails = () => {
   );
 };
 
+// @todo: Replace dummy components with real ones when they are ready.
 export const ContactUs = () => <div>Contact Us Page</div>;
 
 export const Cart = () => <div>Cart Page</div>;

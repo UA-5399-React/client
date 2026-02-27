@@ -1,21 +1,29 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { MainLayout } from './components/MainLayout/MainLayout';
-import { Home } from './pages/Home/Home';
+import { MainLayout } from './components';
+import { Home } from './pages';
 import { ROUTES } from './constants';
-import * as Mocks from './pages/Mocks';
+import {
+  Shop,
+  ProductDetails,
+  ContactUs,
+  Cart,
+  Login,
+  NotFound,
+} from './pages/Mocks';
 
 function App() {
+  const { HOME, SHOP, PRODUCT, CONTACT_US, LOGIN, CART } = ROUTES;
   return (
     <BrowserRouter>
       <Routes>
-        <Route path={ROUTES.HOME} element={<MainLayout />}>
+        <Route path={HOME} element={<MainLayout />}>
           <Route index element={<Home />} />
-          <Route path={ROUTES.SHOP} element={<Mocks.Shop />} />
-          <Route path={ROUTES.PRODUCT} element={<Mocks.ProductDetails />} />
-          <Route path={ROUTES.CONTACT_US} element={<Mocks.ContactUs />} />
-          <Route path={ROUTES.LOGIN} element={<Mocks.Login />} />
-          <Route path={ROUTES.CART} element={<Mocks.Cart />} />
-          <Route path="*" element={<Mocks.NotFound />} />
+          <Route path={SHOP} element={<Shop />} />
+          <Route path={PRODUCT} element={<ProductDetails />} />
+          <Route path={CONTACT_US} element={<ContactUs />} />
+          <Route path={LOGIN} element={<Login />} />
+          <Route path={CART} element={<Cart />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
