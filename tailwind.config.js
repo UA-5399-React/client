@@ -1,8 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: "class",
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        background: "rgb(var(--color-bg) / <alpha-value>)",
+        text: "rgb(var(--color-text) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        primary: "rgb(var(--color-primary) / <alpha-value>)",
+      },
+    },
   },
   plugins: [],
 };
