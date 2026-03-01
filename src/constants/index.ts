@@ -10,3 +10,6 @@ export const ROUTES = {
   LOGIN: '/login',
   CART: '/cart',
 } as const;
+
+
+export * from "./theme";
