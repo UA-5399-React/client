@@ -1,14 +1,15 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route,Routes } from 'react-router-dom';
+
 import { MainLayout } from './components';
-import { Home } from './pages';
 import { ROUTES } from './constants';
+import { Home } from './pages';
 import {
-  Shop,
-  ProductDetails,
-  ContactUs,
   Cart,
+  ContactUs,
   Login,
   NotFound,
+  ProductDetails,
+  Shop,
 } from './pages/Mocks';
 
 function App() {
