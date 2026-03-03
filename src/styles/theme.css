@@ -1,9 +1,9 @@
 :root {
   /* Light theme */
-  --color-bg: 255 255 255;        
-  --color-text: 20 23 24;         /* #141718 */
-  --color-muted: 108 114 117;     /* #6C7275 */
-  --color-primary: 56 203 137;    /* #38CB89 */
+  --color-bg: 255 255 255;
+  --color-text: 20 23 24; /* #141718 */
+  --color-muted: 108 114 117; /* #6C7275 */
+  --color-primary: 56 203 137; /* #38CB89 */
 }
 
 .dark {
