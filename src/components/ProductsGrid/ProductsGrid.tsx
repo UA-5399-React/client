@@ -86,7 +86,9 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
             product={product}
           />
         ) : (
-          <ProductCard key={product.id} product={product} />
+          <div key={product.id} className="w-full min-w-0 overflow-hidden">
+            <ProductCard product={product} />
+          </div>
         ),
       )}
     </div>

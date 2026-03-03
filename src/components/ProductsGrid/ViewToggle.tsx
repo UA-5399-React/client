@@ -7,29 +7,30 @@ interface ViewToggleProps {
   isMobile: boolean;
 }
 
+const mobileViews = [
+  { type: 'list' as ViewType, icon: <List size={20} /> },
+  { type: 'grid-2' as ViewType, icon: <Grid2x2 size={20} /> },
+];
+
+const desktopViews = [
+  { type: 'grid-4' as ViewType, icon: <Grid3x3 size={20} /> },
+  { type: 'grid-2' as ViewType, icon: <Grid2x2 size={20} /> },
+  { type: 'grid-1' as ViewType, icon: <Columns size={20} /> },
+  { type: 'list' as ViewType, icon: <List size={20} /> },
+];
+
 const ViewToggle: React.FC<ViewToggleProps> = ({
   value,
   onChange,
   isMobile,
 }) => {
-  const mobileViews = [
-    { type: 'list' as ViewType, icon: <List size={20} /> },
-    { type: 'grid-2' as ViewType, icon: <Grid2x2 size={20} /> },
-  ];
-
-  const desktopViews = [
-    { type: 'grid-4' as ViewType, icon: <Grid3x3 size={20} /> },
-    { type: 'grid-2' as ViewType, icon: <Grid2x2 size={20} /> },
-    { type: 'grid-1' as ViewType, icon: <Columns size={20} /> },
-    { type: 'list' as ViewType, icon: <List size={20} /> },
-  ];
 
   const views = isMobile ? mobileViews : desktopViews;
 
   return (
     <div className="bg-color-bg flex w-full items-center justify-end gap-1 rounded-lg py-5">
       {views.map((view) => (
-        <button
+        <div
           key={view.type}
           onClick={() => onChange(view.type)}
           className={`flex items-center justify-center rounded-md p-2 transition-all duration-200 ${
@@ -40,7 +41,7 @@ const ViewToggle: React.FC<ViewToggleProps> = ({
           title={view.type}
         >
           {view.icon}
-        </button>
+        </div>
       ))}
     </div>
   );
