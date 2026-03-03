@@ -1,3 +1,3 @@
-export type Theme = "light" | "dark" | "system";
+export type Theme = 'light' | 'dark' | 'system';
 
-export const THEME_STORAGE_KEY = "app-theme";
+export const THEME_STORAGE_KEY = 'app-theme';

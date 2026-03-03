@@ -1,4 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+
 import { Button } from './Button';
 
 const meta = {
@@ -11,14 +12,13 @@ const meta = {
   // Add tags and argTypes for better documentation and controls
   tags: ['autodocs'],
   argTypes: {
-    variant: {
-      control: 'select',
-      options: ['primary', 'secondary', 'outline'],
-      description: 'Внешний вид кнопки',
-    },
     disabled: {
       control: 'boolean',
-      description: 'Отключает кнопку',
+      description: 'Disables the button',
+    },
+    children: {
+      control: 'text',
+      description: 'Button text content',
     },
   },
 } satisfies Meta<typeof Button>;
@@ -29,32 +29,14 @@ type Story = StoryObj<typeof meta>;
 // 1. Main button
 export const Primary: Story = {
   args: {
-    variant: 'primary',
-    children: 'Primary Button',
+    children: 'Click me',
   },
 };
 
-// 2. Secondary button
-export const Secondary: Story = {
-  args: {
-    variant: 'secondary',
-    children: 'Secondary Button',
-  },
-};
-
-// 3. Outline button
-export const Outline: Story = {
-  args: {
-    variant: 'outline',
-    children: 'Outline Button',
-  },
-};
-
-// 4. Disabled button
+// 2. Disabled button
 export const Disabled: Story = {
   args: {
-    variant: 'primary',
-    children: 'Not Allowed',
+    children: 'Disabled Button',
     disabled: true,
   },
 };
