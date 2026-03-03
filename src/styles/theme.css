@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 :root {
   /* Light theme */
   --color-bg: 255 255 255;
