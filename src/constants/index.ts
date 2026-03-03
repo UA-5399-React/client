@@ -11,5 +11,4 @@ export const ROUTES = {
   CART: '/cart',
 } as const;
 
-
-export * from "./theme";
+export * from './theme';

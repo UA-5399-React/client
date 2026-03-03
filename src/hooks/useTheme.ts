@@ -1,7 +1,7 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-import type { Theme } from "../constants";
-import { THEME_STORAGE_KEY } from "../constants";
+import type { Theme } from '../constants';
+import { THEME_STORAGE_KEY } from '../constants';
 
 interface ThemeState {
   theme: Theme;
@@ -9,7 +9,7 @@ interface ThemeState {
 }
 
 export const useTheme = create<ThemeState>((set) => ({
-  theme: (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "system",
+  theme: (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'system',
   setTheme: (theme) => {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
     set({ theme });
