@@ -2,7 +2,7 @@ import { Button as BaseButton } from '@base-ui/react/button';
 
 import styles from './Button.module.css';
 
-type ButtonProps = React.ComponentProps<typeof BaseButton>;
+export type ButtonProps = React.ComponentProps<typeof BaseButton>;
 
 export function Button({ children, className, ...props }: ButtonProps) {
   return (
