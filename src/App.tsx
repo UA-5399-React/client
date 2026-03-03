@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
 import { MainLayout } from './components';
-import { Home } from './pages';
 import { ROUTES } from './constants';
+import { Home } from './pages';
 import Login from './pages/Login/Login';
-import { Shop, ProductDetails, ContactUs, Cart, NotFound } from './pages/Mocks';
+import { Cart, ContactUs, NotFound,ProductDetails, Shop } from './pages/Mocks';
 
 function App() {
   const { HOME, SHOP, PRODUCT, CONTACT_US, LOGIN, CART } = ROUTES;

@@ -1,5 +1,5 @@
+import type { ApiResponse, User } from '../types';
 import { apiClient } from './api';
-import type { User, ApiResponse } from '../types';
 
 // TODO: this is just an example service, you can customize it as needed
 
