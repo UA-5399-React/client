@@ -1,7 +1,8 @@
-import styles from './Button.module.css';
 import { Button as BaseButton } from '@base-ui/react/button';
 
-type ButtonProps = React.ComponentProps<typeof BaseButton>;
+import styles from './Button.module.css';
+
+export type ButtonProps = React.ComponentProps<typeof BaseButton>;
 
 export function Button({ children, className, ...props }: ButtonProps) {
   return (
