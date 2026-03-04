@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+echo "🚀 Checking changed files before push..."
+
+# Run Vitest only for the files that have been changed or added (against develop branch).
+# The --passWithNoTests flag is required to prevent the push from being blocked,
+# if you have changed a file without any logic (e.g., README.md or .css).
+pnpm exec vitest run --changed develop --passWithNoTests
