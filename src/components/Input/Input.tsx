@@ -22,9 +22,17 @@ const VARIANT_STYLES = {
 
 const STATE_STYLES = {
   default: {
-    outlined: 'border-muted hover:border-text focus:border-text',
-    underlined: 'border-muted focus:border-text',
+    outlined:
+      'border-neutral-300 dark:border-neutral-700 ' +
+      'hover:border-neutral-400 dark:hover:border-neutral-500 ' +
+      'focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950/10 ' +
+      'dark:focus:border-neutral-100 dark:focus:ring-neutral-100/10',
+    underlined:
+      'border-neutral-300 dark:border-neutral-700 ' +
+      'hover:border-neutral-400 dark:hover:border-neutral-500 ' +
+      'focus:border-neutral-950 dark:focus:border-neutral-100',
   },
+
   success: 'border-green-600 text-green-700 ',
   error: 'border-red-600 text-red-600',
 };
