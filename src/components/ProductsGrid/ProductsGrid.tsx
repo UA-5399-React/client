@@ -1,7 +1,8 @@
-import type { Product } from '../../types';
-import type { ViewType,  } from './types';
-import ProductCard from '../ProductCard';
 import { AlertCircle } from 'lucide-react';
+
+import type { Product } from '../../types';
+import ProductCard from '../ProductCard';
+import type { ViewType,  } from './types';
 
 interface ProductGridProps {
   products: Product[];
