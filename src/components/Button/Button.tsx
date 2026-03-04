@@ -5,8 +5,12 @@ import styles from './Button.module.css';
 export type ButtonProps = React.ComponentProps<typeof BaseButton>;
 
 export function Button({ children, className, ...props }: ButtonProps) {
+  const buttonClass = className
+    ? `${styles.button} ${className}`
+    : styles.button;
+
   return (
-    <BaseButton className={`${styles.button} ${className}`} {...props}>
+    <BaseButton className={buttonClass} {...props}>
       {children}
     </BaseButton>
   );
