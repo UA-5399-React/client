@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
+import clsx from 'clsx';
 
 const BASE_CHECKBOX_CLASSES =
   'bg-background border-muted aria-[checked=true]:bg-text aria-[checked=true]:border-text ' +
@@ -28,11 +29,11 @@ export function Checkbox({
 }: CheckboxProps) {
   const labelId = React.useId();
   return (
-    <label className={`${BASE_WRAPPER_CLASSES}`}>
+    <label className={BASE_WRAPPER_CLASSES}>
       <BaseCheckbox.Root
         {...props}
         aria-labelledby={label ? labelId : undefined}
-        className={`${BASE_CHECKBOX_CLASSES} ${checkboxClassName}`}
+        className={clsx(BASE_CHECKBOX_CLASSES, checkboxClassName)}
       >
         <BaseCheckbox.Indicator className="flex items-center justify-center">
           <CheckIcon className={checkmarkClassName} />
@@ -40,10 +41,7 @@ export function Checkbox({
       </BaseCheckbox.Root>
 
       {label && (
-        <span
-          id={labelId}
-          className={`${BASE_LABEL_CLASSES} ${labelClassName}`}
-        >
+        <span id={labelId} className={clsx(BASE_LABEL_CLASSES, labelClassName)}>
           {label}
         </span>
       )}
