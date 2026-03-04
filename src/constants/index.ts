@@ -12,5 +12,4 @@ export const ROUTES = {
   BLOG: '/blog',
 } as const;
 
-
-export * from "./theme";
+export * from './theme';

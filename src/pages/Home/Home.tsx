@@ -1,10 +1,11 @@
 import reactLogo from '../../assets/react.svg';
-import viteLogo from '/vite.svg';
 import { Button } from '../../components';
 import { useCreateUser, useGetUsers } from '../../hooks';
 import type { User } from '../../types';
 
 import './Home.css';
+
+import viteLogo from '/vite.svg';
 
 export const Home = () => {
   const { data: users } = useGetUsers();
