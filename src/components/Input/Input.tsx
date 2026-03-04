@@ -1,5 +1,38 @@
 import * as React from 'react';
 import { Input as BaseInput } from '@base-ui/react/input';
+import clsx from 'clsx';
+
+const BASE_INPUT_CLASSES =
+  'w-full bg-transparent transition-colors outline-none ' +
+  'placeholder-muted-foreground dark:placeholder-neutral-400 ' +
+  'text-text dark:text-neutral-500 ' +
+  'disabled:cursor-not-allowed ';
+
+const WRAPPER_CLASSES =
+  'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+
+const LABEL_CLASSES = 'text-sm font-medium text-text';
+
+const HELPER_TEXT_CLASSES = 'mt-0 ml-2 text-xs';
+
+const VARIANT_STYLES = {
+  outlined: 'border rounded-md px-3 py-2',
+  underlined: 'border-0 border-b pb-2 px-0',
+};
+
+const STATE_STYLES = {
+  default: {
+    outlined: 'border-muted hover:border-text focus:border-text',
+    underlined: 'border-muted focus:border-text',
+  },
+  success: 'border-green-600 text-green-700 ',
+  error: 'border-red-600 text-red-600',
+};
+
+const ICON_WRAPPER_CLASSES =
+  'pointer-events-none absolute left-0 flex items-center text-gray-600';
+const RIGHT_ELEMENT_CLASSES =
+  'absolute right-0 flex items-center text-gray-600 transition-colors dark:text-neutral-50';
 
 export interface InputProps extends React.ComponentPropsWithoutRef<
   typeof BaseInput
@@ -36,37 +69,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const isPassword = type === 'password';
     const inputType = isPassword && isPasswordVisible ? 'text' : type;
 
-    const baseStyles =
-      'w-full bg-transparent transition-colors outline-none placeholder-gray-300 text-neutral-800 dark:text-neutral-50 dark:placeholder-gray-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const paddingClasses = clsx({
+      'pl-10': leftIcon,
+      'pr-12': rightElement || isPassword,
+    });
 
-    const variantStyles: Record<'outlined' | 'underlined', string> = {
-      outlined: 'border rounded-md px-3 py-2',
-      underlined: 'border-b pb-2 px-0',
-    };
-
-    const stateStyles: Record<'default' | 'success' | 'error', string> = {
-      default:
-        variant === 'outlined'
-          ? 'border-gray-300 hover:border-gray-600 focus:border-neutral-800 dark:border-gray-300 dark:hover:border-white dark:focus:border-neutral-50'
-          : 'border-gray-600/50 focus:border-neutral-800 dark:border-gray-600 dark:focus:border-white',
-      success: 'border-green-500 text-green-500 focus:border-green-500',
-      error: 'border-red-600 text-gray-500 focus:border-red-600',
-    };
-
-    const paddingStyles = `
-      ${leftIcon ? 'pl-10' : ''} 
-      ${rightElement || isPassword ? 'pr-12' : ''}
-    `.trim();
+    const currentStateStyles =
+      state === 'default' ? STATE_STYLES.default[variant] : STATE_STYLES[state];
 
     return (
-      <div
-        className={`group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 ${className}`}
-      >
+      <div className={clsx(WRAPPER_CLASSES, className)}>
         {label && (
-          <label
-            htmlFor={inputId}
-            className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-white"
-          >
+          <label htmlFor={inputId} className={LABEL_CLASSES}>
             {label}
           </label>
         )}
@@ -74,7 +88,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <div className="relative flex w-full items-center">
           {leftIcon && (
             <div
-              className={`${variant === 'underlined' ? 'pb-2' : ''} pointer-events-none absolute left-0 flex items-center text-gray-600`}
+              className={clsx(
+                ICON_WRAPPER_CLASSES,
+                variant === 'underlined' && 'pb-2',
+              )}
             >
               {leftIcon}
             </div>
@@ -85,18 +102,27 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             ref={ref}
             type={inputType}
-            className={`${baseStyles} ${variantStyles[variant]} ${stateStyles[state]} ${paddingStyles} ${inputClassName}`}
+            className={clsx(
+              BASE_INPUT_CLASSES,
+              VARIANT_STYLES[variant],
+              currentStateStyles,
+              paddingClasses,
+              inputClassName,
+            )}
           />
 
           {(isPassword || rightElement) && (
             <div
-              className={`absolute right-0 ${variant === 'outlined' ? 'pr-3' : 'pr-0'} flex items-center text-gray-600 transition-colors dark:text-neutral-50`}
+              className={clsx(
+                RIGHT_ELEMENT_CLASSES,
+                variant === 'outlined' ? 'pr-3' : 'pr-0',
+              )}
             >
               {isPassword ? (
                 <button
                   type="button"
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                  className="text-gray-600 transition-colors hover:cursor-pointer hover:text-neutral-800 focus:outline-none dark:text-gray-200 dark:hover:text-white dark:focus:text-white"
+                  className="flex items-center justify-center border-none bg-transparent p-0 text-gray-600 transition-colors hover:cursor-pointer hover:text-neutral-800 focus:outline-none dark:text-gray-200 dark:hover:text-white dark:focus:text-white"
                   aria-label={
                     isPasswordVisible ? 'Hide password' : 'Show password'
                   }
@@ -108,7 +134,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   )}
                 </button>
               ) : (
-                <div className="flex items-center text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-50">
+                <div className="flex cursor-pointer items-center text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-50">
                   {rightElement}
                 </div>
               )}
@@ -119,7 +145,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {helperText && (
           <span
             id={`${inputId}-helper`}
-            className={`mt-0 ml-2 text-xs ${state === 'error' ? 'text-red-600' : 'text-gray-600'}`}
+            className={clsx(
+              HELPER_TEXT_CLASSES,
+              state === 'error' ? 'text-red-600' : 'text-gray-600',
+            )}
           >
             {helperText}
           </span>
