@@ -42,7 +42,8 @@ jobs:
         name: Unit Tests & Coverage
         runs-on: ubuntu-latest
         
-        steps: - name: Checkout
+        steps: 
+            - name: Checkout
               uses: actions/checkout@v4
 
             - name: Setup pnpm
@@ -78,7 +79,8 @@ jobs:
             test
         ]
         
-        steps: - name: Checkout
+        steps: 
+            - name: Checkout
               uses: actions/checkout@v4
 
             - name: Setup pnpm
