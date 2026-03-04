@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ROUTES } from '../../constants';
@@ -8,17 +8,35 @@ export const LoginForm: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const expires = localStorage.getItem('token_expires');
+    if (token && expires && Date.now() < Number(expires)) {
+      navigate(ROUTES.ADMIN_PRODUCTS);
+    } else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('token_expires');
+      localStorage.removeItem('role');
+    }
+  }, [navigate]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let role = 'customer';
-    if (email === 'admin@gmail.com') {
-      role = 'admin';
+    if (email === 'admin@gmail.com' && password === 'admin123') {
+      const role = 'admin';
+
+      localStorage.setItem('token', 'mock-jwt-token');
+      const expires = Date.now() + 60 * 60 * 1000;
+      localStorage.setItem('token_expires', expires.toString());
+      localStorage.setItem('role', role);
+
+      console.log(`User logged in. Email: ${email}, Role: ${role}`);
+      navigate(ROUTES.ADMIN_PRODUCTS);
+    } else {
+      console.log('Invalid credentials');
+      alert('Invalid credentials');
     }
-
-    console.log(`User logged in. Email: ${email}, Role: ${role}`);
-
-    navigate(ROUTES.HOME);
   };
 
   return (

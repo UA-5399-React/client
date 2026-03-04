@@ -9,6 +9,9 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN_PRODUCTS: '/admin/products',
 } as const;
 
 export * from './theme';
