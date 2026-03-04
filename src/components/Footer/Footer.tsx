@@ -9,17 +9,12 @@ const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home' },
   { path: ROUTES.SHOP, label: 'Shop' },
   { path: ROUTES.PRODUCT, label: 'Product' },
-  { path: '/blog', label: 'Blog' },
+  { path: ROUTES.BLOG, label: 'Blog' },
   { path: ROUTES.CONTACT_US, label: 'Contact Us' },
 ];
 
 export const Footer = () => {
-  const { theme } = useTheme();
-
-  const isDark =
-    theme === 'dark' ||
-    (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const { isDark } = useTheme();
 
   const iconStyle = {
     filter: isDark ? 'brightness(0)' : 'brightness(0) invert(1)',

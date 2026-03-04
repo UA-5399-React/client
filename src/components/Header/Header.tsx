@@ -14,12 +14,7 @@ const NAV_LINKS = [
 ];
 
 export const Header = () => {
-  const { theme, setTheme } = useTheme();
-
-  const isDark =
-    theme === 'dark' ||
-    (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const { theme, setTheme, isDark } = useTheme();
 
   const handleToggleTheme = () => {
     if (theme === 'system') {
@@ -56,12 +51,8 @@ export const Header = () => {
                   className="text-base font-semibold no-underline transition-colors duration-300"
                   style={({ isActive }) => ({
                     color: isActive
-                      ? isDark
-                        ? '#ffffff'
-                        : '#000000'
-                      : isDark
-                        ? '#9ca3af'
-                        : '#6b7280',
+                      ? 'rgb(var(--color-text))'
+                      : 'rgb(var(--color-muted))',
                   })}
                 >
                   {label}
