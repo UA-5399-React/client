@@ -1,14 +1,22 @@
+import { Pencil, Trash } from 'lucide-react';
+
 import { Button, Checkbox } from '@/components';
+import { useTheme } from '@/hooks/useTheme';
 
 export function AdminProducts() {
+  const { isDark } = useTheme();
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold">Hello, Admin</h1>
+        <h1
+          className={`${isDark ? 'text-black' : 'text-white'} text-2xl font-bold`}
+        >
+          Hello, Admin
+        </h1>
       </div>
 
-      <div className="mx-5 mt-5 rounded-lg border border-[#e5e7eb] shadow-md">
-        <table className="w-full overflow-hidden rounded-lg border [&_thead_th]:px-4">
+      <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
+        <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
           <thead className="h-[50px] bg-[#F9FAFB] px-[12px] text-[#8A92A6]">
             <tr>
               <th>
@@ -25,8 +33,10 @@ export function AdminProducts() {
             </tr>
           </thead>
 
-          <tbody className="text-black [&_td]:px-4 [&_td]:text-center">
-            <tr className="text-center">
+          <tbody
+            className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
+          >
+            <tr className="h-[80px] text-center">
               <td>
                 <div className="flex items-center gap-2">
                   <Checkbox className="h-[20px] w-[20px]" />
@@ -39,11 +49,16 @@ export function AdminProducts() {
               <td>$10</td>
               <td>lorem ipsum dolor sit amet</td>
               <td>
-                <Button>Edit</Button>
-                <Button>Delete</Button>
+                <Button className="hover:bg- bg-transparent text-[#DB162D]">
+                  <Trash className="h-[20px] w-[20px]" />
+                </Button>
+
+                <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
+                  <Pencil />
+                </Button>
               </td>
             </tr>
-            <tr className="text-center">
+            <tr className="h-[80px] text-center">
               <td>
                 <div className="flex items-center gap-2">
                   <Checkbox className="h-[20px] w-[20px]" />
@@ -56,16 +71,24 @@ export function AdminProducts() {
               <td>$10</td>
               <td>lorem ipsum dolor sit amet</td>
               <td>
-                <Button>Edit</Button>
-                <Button>Delete</Button>
+                <Button className="hover:bg- bg-transparent text-[#DB162D]">
+                  <Trash className="h-[20px] w-[20px]" />
+                </Button>
+
+                <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
+                  <Pencil />
+                </Button>
               </td>
             </tr>
           </tbody>
         </table>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between p-4">
           <Button>Previous</Button>
-          <span> Page 1 of 10</span>
+          <span className={`${isDark ? 'text-black' : 'text-white'}`}>
+            {' '}
+            Page 1 of 10
+          </span>
           <Button>Next</Button>
         </div>
       </div>
