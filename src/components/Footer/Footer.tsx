@@ -1,9 +1,10 @@
 import { Link, NavLink } from 'react-router-dom';
-import { useTheme } from '../../hooks/useTheme';
-import { ROUTES } from '../../constants';
-import instagramIcon from '../../assets/icons/instagram-logo.svg';
+
 import facebookIcon from '../../assets/icons/facebook-logo.svg';
+import instagramIcon from '../../assets/icons/instagram-logo.svg';
 import youtubeIcon from '../../assets/icons/youtube-logo.svg';
+import { ROUTES } from '../../constants';
+import { useTheme } from '../../hooks/useTheme';
 
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home' },

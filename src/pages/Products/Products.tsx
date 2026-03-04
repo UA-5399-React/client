@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+
 import { mockProducts } from '../../components/ProductsGrid/mock';
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
 import ViewToggle from '../../components/ProductsGrid/ViewToggle';
+
 import './Products.css';
 
 export const Products = () => {
