@@ -11,9 +11,14 @@ export const LoginForm: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const expires = localStorage.getItem('token_expires');
+    const role = localStorage.getItem('role');
+
     if (token && expires && Date.now() < Number(expires)) {
-      navigate(ROUTES.ADMIN_PRODUCTS);
-    } else {
+      if (role === 'admin') {
+        navigate(ROUTES.ADMIN_PRODUCTS);
+      } else {
+        navigate(ROUTES.HOME);
+      }
       localStorage.removeItem('token');
       localStorage.removeItem('token_expires');
       localStorage.removeItem('role');
@@ -33,9 +38,16 @@ export const LoginForm: React.FC = () => {
 
       console.log(`User logged in. Email: ${email}, Role: ${role}`);
       navigate(ROUTES.ADMIN_PRODUCTS);
+    } else if (password.length >= 6) {
+      localStorage.setItem('token', 'mock-user-token');
+      const expires = Date.now() + 60 * 60 * 1000;
+      localStorage.setItem('token_expires', expires.toString());
+      localStorage.setItem('role', 'user');
+
+      console.log(`User logged in: ${email}`);
+      navigate(ROUTES.HOME);
     } else {
-      console.log('Invalid credentials');
-      alert('Invalid credentials');
+      alert('Password must be at least 6 characters');
     }
   };
 
