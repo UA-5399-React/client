@@ -12,6 +12,7 @@ export const ROUTES = {
   ADMIN: '/admin',
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_SETTING: '/admin/setting',
+  BLOG: '/blog',
 } as const;
 
 export * from './theme';
