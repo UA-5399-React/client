@@ -1,31 +1,47 @@
 import * as React from 'react';
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
+import clsx from 'clsx';
 
+const BASE_CHECKBOX_CLASSES =
+  'bg-background border-muted aria-[checked=true]:bg-text aria-[checked=true]:border-text ' +
+  'dark:aria-[checked=false]:hover:bg-background flex h-6 w-6 shrink-0 items-center ' +
+  'justify-center rounded-md border-2 transition-colors aria-[checked=false]:hover:bg-gray-100';
+
+const BASE_WRAPPER_CLASSES =
+  'group flex w-fit cursor-pointer items-start select-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+
+const BASE_LABEL_CLASSES = 'text-text ml-3 text-base leading-6 font-normal';
 export interface CheckboxProps extends React.ComponentPropsWithoutRef<
   typeof BaseCheckbox.Root
 > {
   label?: string;
-  iconClassName?: string;
+  checkboxClassName?: string;
+  checkmarkClassName?: string;
+  labelClassName?: string;
 }
 
 export function Checkbox({
   label = '',
-  iconClassName = '',
+  checkboxClassName = '',
+  checkmarkClassName = 'text-background',
+  labelClassName = '',
   ...props
 }: CheckboxProps) {
+  const labelId = React.useId();
   return (
-    <label className="group flex w-fit cursor-pointer items-start select-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
+    <label className={BASE_WRAPPER_CLASSES}>
       <BaseCheckbox.Root
         {...props}
-        className={`bg-background border-muted aria-[checked=true]:bg-text aria-[checked=true]:border-text dark:aria-[checked=false]:hover:bg-background flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors aria-[checked=false]:hover:bg-gray-100 ${iconClassName}`}
+        aria-labelledby={label ? labelId : undefined}
+        className={clsx(BASE_CHECKBOX_CLASSES, checkboxClassName)}
       >
         <BaseCheckbox.Indicator className="flex items-center justify-center">
-          <CheckIcon className="text-background" />
+          <CheckIcon className={checkmarkClassName} />
         </BaseCheckbox.Indicator>
       </BaseCheckbox.Root>
 
       {label && (
-        <span className="text-text ml-3 text-base leading-6 font-normal">
+        <span id={labelId} className={clsx(BASE_LABEL_CLASSES, labelClassName)}>
           {label}
         </span>
       )}
