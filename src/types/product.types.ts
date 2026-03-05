@@ -8,6 +8,8 @@ export interface Product {
   status: ProductStatus;
   tags?: string[];
   description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -27,7 +29,8 @@ export interface ProductQueryParams {
   category?: string;
   minPrice?: number;
   maxPrice?: number;
-  
+}
+
 export interface ProductsPageResult {
   total: number;
   totalPages: number;

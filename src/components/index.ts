@@ -7,4 +7,8 @@ export * from './LoginForm/LoginForm';
 export { MainLayout } from './MainLayout';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
+export { CategoryFilter } from './ProductsFilters/CategoryFilter';
+export { PriceRangeFilter } from './ProductsFilters/PriceRangeFilter';
+export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
+export { StatusFilter } from './ProductsFilters/StatusFilter';
 export { TableProducts } from './TableProducts/TableProducts';
