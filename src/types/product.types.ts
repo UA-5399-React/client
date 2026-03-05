@@ -9,3 +9,22 @@ export interface Product {
   tags?: string[];
   description?: string;
 }
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+export interface ProductQueryParams {
+  page: number;
+  limit: number;
+  search?: string;
+  sort?: 'price' | 'title';
+  order?: 'asc' | 'desc';
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
