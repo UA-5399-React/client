@@ -1,10 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
-import { useTheme } from '../../hooks/useTheme';
-import { ROUTES } from '../../constants';
+
 import searchIcon from '../../assets/icons/search-icon.svg';
-import userIcon from '../../assets/icons/user-circle.svg';
-import themeIcon from '../../assets/icons/theme-interface.svg';
 import cartIcon from '../../assets/icons/shopping-bag.svg';
+import themeIcon from '../../assets/icons/theme-interface.svg';
+import userIcon from '../../assets/icons/user-circle.svg';
+import { ROUTES } from '../../constants';
+import { useTheme } from '../../hooks/useTheme';
 
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home', end: true },

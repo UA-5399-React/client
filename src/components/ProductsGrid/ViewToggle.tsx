@@ -1,5 +1,6 @@
+import { Columns, Grid2x2, Grid3x3, List } from 'lucide-react';
+
 import type { ViewType } from './types';
-import { Grid3x3, Grid2x2, Columns, List } from 'lucide-react';
 
 interface ViewToggleProps {
   value: ViewType;

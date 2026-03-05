@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { THEME_STORAGE_KEY } from '../constants';
+
 import type { Theme } from '../constants';
+import { THEME_STORAGE_KEY } from '../constants';
 
 interface ThemeState {
   theme: Theme;
