@@ -1,10 +1,8 @@
 import { Link, NavLink } from 'react-router-dom';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 
-import facebookIcon from '../../assets/icons/facebook-logo.svg';
-import instagramIcon from '../../assets/icons/instagram-logo.svg';
-import youtubeIcon from '../../assets/icons/youtube-logo.svg';
-import { ROUTES } from '../../constants';
-import { useTheme } from '../../hooks/useTheme';
+import { ROUTES } from '@/constants';
+import { useTheme } from '@/hooks/useTheme';
 
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home' },
@@ -16,10 +14,6 @@ const NAV_LINKS = [
 
 export const Footer = () => {
   const { isDark } = useTheme();
-
-  const iconStyle = {
-    filter: isDark ? 'brightness(0)' : 'brightness(0) invert(1)',
-  };
 
   return (
     <footer
@@ -98,28 +92,13 @@ export const Footer = () => {
 
         <div className="flex items-center gap-6">
           <Link to="#" className="transition-opacity hover:opacity-70">
-            <img
-              src={instagramIcon}
-              alt="Instagram"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <Instagram className="h-6 w-6 transition-all duration-300" />
           </Link>
           <Link to="#" className="transition-opacity hover:opacity-70">
-            <img
-              src={facebookIcon}
-              alt="Facebook"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <Facebook className="h-6 w-6 transition-all duration-300" />
           </Link>
           <Link to="#" className="transition-opacity hover:opacity-70">
-            <img
-              src={youtubeIcon}
-              alt="YouTube"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <Youtube className="h-6 w-6 transition-all duration-300" />
           </Link>
         </div>
       </div>
