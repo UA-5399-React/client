@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useProducts } from '@/hooks/useProducts';
 
-import { mockProducts } from '../../components/ProductsGrid/mock';
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
 import ViewToggle from '../../components/ProductsGrid/ViewToggle';
@@ -10,7 +10,7 @@ import './Products.css';
 export const Products = () => {
   const [viewType, setViewType] = useState<ViewType>('grid-4');
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -25,10 +25,23 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
+  const { data, isLoading, isError } = useProducts();
+
+  if (isLoading)
+    return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  if (isError)
+    return (
+      <div className="p-8 text-center text-red-500">Something went wrong.</div>
+    );
+  if (!data?.length)
+    return (
+      <div className="p-8 text-center text-gray-500">No products found.</div>
+    );
+
   return (
     <>
       <ViewToggle value={viewType} onChange={setViewType} isMobile={isMobile} />
-      <ProductsGrid products={mockProducts} viewType={viewType} />
+      <ProductsGrid products={data} viewType={viewType} />
     </>
   );
 };
