@@ -1,4 +1,7 @@
-import type { Product } from '../../types';
+import { Heart } from 'lucide-react';
+
+import type { Product } from '@/types';
+
 import { Button } from '../Button/Button';
 
 interface ProductCardProps {
@@ -23,21 +26,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <button
           aria-label="Add to wishlist"
-          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-110"
+          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-110"
         >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
+          <Heart className="h-4 w-4" />
         </button>
       </div>
       <div className="flex flex-col">
