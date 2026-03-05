@@ -43,10 +43,7 @@ function App() {
         <Route path={LOGIN} element={<Login />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route
-            path={ADMIN_PRODUCTS || '/admin/products'}
-            element={<AdminProductsPlaceholder />}
-          />
+          <Route path={ADMIN_PRODUCTS} element={<AdminProductsPlaceholder />} />
         </Route>
       </Routes>
     </BrowserRouter>

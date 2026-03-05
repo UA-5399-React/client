@@ -1,19 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-
 import { ROUTES } from '../../constants';
+import { useAuth } from '../../hooks/useAuth';
 
 export const ProtectedRoute: React.FC = () => {
-  const token = localStorage.getItem('token');
-  const expires = localStorage.getItem('token_expires');
-
-  const [isAuth] = useState(() => {
-    if (!token || !expires) return false;
-    return Date.now() < Number(expires);
-  });
+  const { isAuth, logout } = useAuth();
 
   if (!isAuth) {
-    localStorage.clear();
+    logout();
     return <Navigate to={ROUTES.ADMIN_LOGIN} replace />;
   }
 
