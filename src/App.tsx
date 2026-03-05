@@ -14,7 +14,6 @@ function App() {
     SHOP,
     PRODUCT,
     CONTACT_US,
-
     CART,
     ADMIN,
     ADMIN_PRODUCTS,
