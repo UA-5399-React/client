@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
