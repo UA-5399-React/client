@@ -1,10 +1,16 @@
 import { Pencil, Trash } from 'lucide-react';
 
 import { Button, Checkbox } from '@/components';
+import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useTheme } from '@/hooks/useTheme';
 
 export function AdminProducts() {
   const { isDark } = useTheme();
+  const { items, loading, error } = useAdminProducts();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">
@@ -36,50 +42,30 @@ export function AdminProducts() {
           <tbody
             className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
           >
-            <tr className="h-[80px] text-center">
-              <td>
-                <div className="flex items-center gap-2">
-                  <Checkbox className="h-[20px] w-[20px]" />
-                  <span>Image</span>
-                </div>
-              </td>
+            {items.map((item) => (
+              <tr className="h-[80px] text-center" key={item.id}>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <Checkbox className="h-[20px] w-[20px]" />
+                    <span>Image</span>
+                  </div>
+                </td>
 
-              <td>Product 1</td>
-              <td>Active</td>
-              <td>$10</td>
-              <td>lorem ipsum dolor sit amet</td>
-              <td>
-                <Button className="hover:bg- bg-transparent text-[#DB162D]">
-                  <Trash className="h-[20px] w-[20px]" />
-                </Button>
+                <td>{item.title}</td>
+                <td>{item.status}</td>
+                <td>{item.price}</td>
+                <td>{item.description}</td>
+                <td>
+                  <Button className="hover:bg- bg-transparent text-[#DB162D]">
+                    <Trash className="h-[20px] w-[20px]" />
+                  </Button>
 
-                <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
-                  <Pencil />
-                </Button>
-              </td>
-            </tr>
-            <tr className="h-[80px] text-center">
-              <td>
-                <div className="flex items-center gap-2">
-                  <Checkbox className="h-[20px] w-[20px]" />
-                  <span>Image</span>
-                </div>
-              </td>
-
-              <td>Product 1</td>
-              <td>Draft</td>
-              <td>$10</td>
-              <td>lorem ipsum dolor sit amet</td>
-              <td>
-                <Button className="hover:bg- bg-transparent text-[#DB162D]">
-                  <Trash className="h-[20px] w-[20px]" />
-                </Button>
-
-                <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
-                  <Pencil />
-                </Button>
-              </td>
-            </tr>
+                  <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
+                    <Pencil />
+                  </Button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
