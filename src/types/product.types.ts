@@ -27,7 +27,7 @@ export interface ProductQueryParams {
   category?: string;
   minPrice?: number;
   maxPrice?: number;
-  
+}
 export interface ProductsPageResult {
   total: number;
   totalPages: number;
