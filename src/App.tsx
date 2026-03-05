@@ -1,13 +1,12 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { MainLayout } from './components';
+import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
-import Login from './pages/Login/Login';
-import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
-import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
+import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
 
 function App() {
   const {
@@ -15,7 +14,7 @@ function App() {
     SHOP,
     PRODUCT,
     CONTACT_US,
-    LOGIN,
+
     CART,
     ADMIN,
     ADMIN_PRODUCTS,
