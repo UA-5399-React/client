@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useGetProducts } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
@@ -26,7 +26,7 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
-  const { data, isLoading, isError } = useGetProducts();
+  const { data, isLoading, isError } = useProducts();
 
   if (isLoading)
     return <div className="p-8 text-center text-gray-500">Loading...</div>;
