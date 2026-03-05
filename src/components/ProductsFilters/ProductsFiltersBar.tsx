@@ -3,6 +3,8 @@ import { Dropdown } from '@/components/Dropdown';
 import { Input } from '@/components/Input';
 import type { ProductsFilters } from '@/types/filters';
 
+import type { DropdownOption } from '../Dropdown/Dropdown.types';
+
 const TAG_OPTIONS = [
   { label: 'Laptop', value: 'Laptop' },
   { label: 'Apple', value: 'Apple' },
@@ -32,20 +34,22 @@ export function ProductFiltersBar({
       <Dropdown
         label="Category"
         options={TAG_OPTIONS}
-        onChange={(tags: string[]) => update({ tags })}
+        onChange={(values: DropdownOption[]) =>
+          update({ tags: values.map((v) => v.value) })
+        }
         placeholder="All categories"
       />
       <div className="flex flex-col gap-1.5">
-        <span className="text-text text-sm font-medium">Price</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
           <Input
+            label="Price"
             type="number"
             placeholder="Min"
             value={filters.minPrice}
             onChange={(e) => update({ minPrice: e.target.value })}
             inputClassName="w-24"
           />
-          <span className="text-gray-400">—</span>
+          <span className="mb-2 text-gray-400">—</span>
           <Input
             type="number"
             placeholder="Max"
@@ -74,17 +78,6 @@ export function ProductFiltersBar({
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <span className="text-text text-sm font-medium">Date</span>
-
-          <Checkbox
-            label="Updated"
-            checked={filters.dateField === 'updatedAt'}
-            onCheckedChange={(checked) =>
-              update({ dateField: checked ? 'updatedAt' : 'createdAt' })
-            }
-          />
-        </div>
-        <div className="flex items-center gap-2">
           <Input
             type="date"
             label="From"
@@ -100,6 +93,21 @@ export function ProductFiltersBar({
             onChange={(e) => update({ dateTo: e.target.value })}
             inputClassName="w-36"
           />
+
+          <div className="flex items-center gap-2">
+            <span className="text-text text-sm font-medium">Date</span>
+
+            <Checkbox
+              label="Created"
+              checked={filters.dateField === 'createdAt'}
+              onCheckedChange={() => update({ dateField: 'createdAt' })}
+            />
+            <Checkbox
+              label="Updated"
+              checked={filters.dateField === 'updatedAt'}
+              onCheckedChange={() => update({ dateField: 'updatedAt' })}
+            />
+          </div>
         </div>
       </div>
     </div>
