@@ -25,7 +25,6 @@ const ViewToggle: React.FC<ViewToggleProps> = ({
   onChange,
   isMobile,
 }) => {
-
   const views = isMobile ? mobileViews : desktopViews;
 
   return (

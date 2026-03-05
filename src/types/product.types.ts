@@ -9,3 +9,11 @@ export interface Product {
   tags?: string[];
   description?: string;
 }
+
+export interface ProductsPageResult {
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  items: Product[];
+}
