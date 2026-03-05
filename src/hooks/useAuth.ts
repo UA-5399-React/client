@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { MOCK_AUTH } from '../constants';
 
 export const useAuth = () => {
