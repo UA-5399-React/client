@@ -1,11 +1,8 @@
 import { Link, NavLink } from 'react-router-dom';
+import { Moon, Search, ShoppingBag, Sun, UserCircle } from 'lucide-react';
 
-import searchIcon from '../../assets/icons/search-icon.svg';
-import cartIcon from '../../assets/icons/shopping-bag.svg';
-import themeIcon from '../../assets/icons/theme-interface.svg';
-import userIcon from '../../assets/icons/user-circle.svg';
-import { ROUTES } from '../../constants';
-import { useTheme } from '../../hooks/useTheme';
+import { ROUTES } from '@/constants';
+import { useTheme } from '@/hooks/useTheme';
 
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home', end: true },
@@ -28,10 +25,6 @@ export const Header = () => {
     }
   };
 
-  const iconStyle = {
-    filter: isDark ? 'brightness(0) invert(1)' : 'brightness(0)',
-  };
-
   return (
     <header className="bg-background text-text transition-colors duration-300">
       <div className="flex h-20 items-center justify-between px-16">
@@ -41,7 +34,6 @@ export const Header = () => {
         >
           TechnoWorld.
         </Link>
-
         <nav>
           <ul className="m-0 flex list-none gap-8 p-0">
             {NAV_LINKS.map(({ path, label, end }) => (
@@ -66,51 +58,35 @@ export const Header = () => {
         <div className="flex items-center gap-6">
           <button
             aria-label="Search"
-            className="cursor-pointer border-none bg-transparent p-0 transition-opacity hover:opacity-70"
+            className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
           >
-            <img
-              src={searchIcon}
-              alt="search"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <Search className="h-6 w-6 transition-all duration-300" />
           </button>
 
           <button
             aria-label="User"
-            className="cursor-pointer border-none bg-transparent p-0 transition-opacity hover:opacity-70"
+            className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
           >
-            <img
-              src={userIcon}
-              alt="user"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <UserCircle className="h-6 w-6 transition-all duration-300" />
           </button>
 
           <button
             aria-label="Theme"
             onClick={handleToggleTheme}
-            className="cursor-pointer border-none bg-transparent p-0 transition-opacity hover:opacity-70"
+            className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
           >
-            <img
-              src={themeIcon}
-              alt="theme"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            {isDark ? (
+              <Sun className="h-6 w-6 transition-all duration-300" />
+            ) : (
+              <Moon className="h-6 w-6 transition-all duration-300" />
+            )}
           </button>
 
           <Link
             to={ROUTES.CART}
-            className="flex items-center gap-2 no-underline transition-opacity hover:opacity-70"
+            className="flex items-center gap-2 text-inherit no-underline transition-opacity hover:opacity-70"
           >
-            <img
-              src={cartIcon}
-              alt="cart"
-              className="h-6 w-6 transition-all duration-300"
-              style={iconStyle}
-            />
+            <ShoppingBag className="h-6 w-6 transition-all duration-300" />
             <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300"></span>
           </Link>
         </div>

@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 
 import { Products } from './Products/Products';
 
-export const Shop = () => <Products/>;
+export const Shop = () => <Products />;
 
 export const ProductDetails = () => {
   const { id } = useParams();
