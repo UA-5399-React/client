@@ -1,6 +1,4 @@
-import { Pencil, Trash } from 'lucide-react';
-
-import { Button, Checkbox } from '@/components';
+import { Button, TableProducts } from '@/components';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -9,7 +7,6 @@ export function AdminProducts() {
   const { items, loading, error } = useAdminProducts();
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
@@ -22,52 +19,7 @@ export function AdminProducts() {
       </div>
 
       <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
-        <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
-          <thead className="h-[50px] bg-[#F9FAFB] px-[12px] text-[#8A92A6]">
-            <tr>
-              <th>
-                <div className="flex items-center gap-2">
-                  <Checkbox className="h-[20px] w-[20px]" />
-                  <span>Image</span>
-                </div>
-              </th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Price</th>
-              <th>Description</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody
-            className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
-          >
-            {items.map((item) => (
-              <tr className="h-[80px] text-center" key={item.id}>
-                <td>
-                  <div className="flex items-center gap-2">
-                    <Checkbox className="h-[20px] w-[20px]" />
-                    <span>Image</span>
-                  </div>
-                </td>
-
-                <td>{item.title}</td>
-                <td>{item.status}</td>
-                <td>{item.price}</td>
-                <td>{item.description}</td>
-                <td>
-                  <Button className="hover:bg- bg-transparent text-[#DB162D]">
-                    <Trash className="h-[20px] w-[20px]" />
-                  </Button>
-
-                  <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
-                    <Pencil />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <TableProducts items={items} loading={loading} error={error} />
 
         <div className="flex items-center justify-between p-4">
           <Button>Previous</Button>
