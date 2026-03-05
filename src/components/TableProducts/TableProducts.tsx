@@ -12,6 +12,76 @@ interface TableProductsProps {
   error?: Error | null;
 }
 
+function renderBodyContent(
+  loading: boolean,
+  error: Error | null,
+  items: Product[] | [],
+  isDark: boolean,
+) {
+  if (loading) {
+    return (
+      <tr>
+        <td colSpan={6}>Loading...</td>
+      </tr>
+    );
+  }
+  if (error) {
+    return (
+      <tr role="alert">
+        <td colSpan={6} className="py-8">
+          <div
+            className={`mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4 ${
+              isDark
+                ? 'border-red-900/50 bg-red-950/30 text-red-300'
+                : 'border-red-200 bg-red-50 text-red-800'
+            }`}
+          >
+            <AlertCircle className="h-6 w-6 shrink-0" />
+            <div className="text-left">
+              <p className="font-medium">Failed to load products</p>
+              <p className="text-sm">{error.message}</p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+  if (!items?.length) {
+    return (
+      <tr>
+        <td
+          colSpan={6}
+          className={`py-8 text-center ${isDark ? 'text-black' : 'text-[#8A92A6]'}`}
+        >
+          No products
+        </td>
+      </tr>
+    );
+  }
+  return items.map((item: Product) => (
+    <tr className="h-[80px] text-center" key={item.id}>
+      <td>
+        <div className="flex items-center gap-2">
+          <Checkbox className="h-[20px] w-[20px]" />
+          <span>Image</span>
+        </div>
+      </td>
+      <td>{item.title}</td>
+      <td>{item.status}</td>
+      <td>{item.price}</td>
+      <td>{item.description}</td>
+      <td>
+        <Button className="hover:bg- bg-transparent text-[#DB162D]">
+          <Trash className="h-[20px] w-[20px]" />
+        </Button>
+        <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
+          <Pencil />
+        </Button>
+      </td>
+    </tr>
+  ));
+}
+
 export function TableProducts({ items, loading, error }: TableProductsProps) {
   const { isDark } = useTheme();
 
@@ -37,65 +107,7 @@ export function TableProducts({ items, loading, error }: TableProductsProps) {
         <tbody
           className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
         >
-          {loading ? (
-            <tr>
-              <td colSpan={6}>Loading...</td>
-            </tr>
-          ) : error ? (
-            <tr role="alert">
-              <td colSpan={6} className="py-8">
-                <div
-                  className={`mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4 ${
-                    isDark
-                      ? 'border-red-900/50 bg-red-950/30 text-red-300'
-                      : 'border-red-200 bg-red-50 text-red-800'
-                  }`}
-                >
-                  <AlertCircle className="h-6 w-6 shrink-0" />
-                  <div className="text-left">
-                    <p className="font-medium">Failed to load products</p>
-                    <p className="text-sm">{error.message}</p>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          ) : !items?.length ? (
-            <tr>
-              <td
-                colSpan={6}
-                className={`py-8 text-center ${isDark ? 'text-black' : 'text-[#8A92A6]'}`}
-              >
-                No products
-              </td>
-            </tr>
-          ) : (
-            <>
-              {items.map((item: Product) => (
-                <tr className="h-[80px] text-center" key={item.id}>
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <Checkbox className="h-[20px] w-[20px]" />
-                      <span>Image</span>
-                    </div>
-                  </td>
-
-                  <td>{item.title}</td>
-                  <td>{item.status}</td>
-                  <td>{item.price}</td>
-                  <td>{item.description}</td>
-                  <td>
-                    <Button className="hover:bg- bg-transparent text-[#DB162D]">
-                      <Trash className="h-[20px] w-[20px]" />
-                    </Button>
-
-                    <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
-                      <Pencil />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </>
-          )}
+          {renderBodyContent(loading, error ?? null, items, isDark)}
         </tbody>
       </table>
     </div>
