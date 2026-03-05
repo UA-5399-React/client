@@ -4,6 +4,7 @@ import { MainLayout } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
+import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
@@ -18,6 +19,7 @@ function App() {
     ADMIN,
     ADMIN_PRODUCTS,
     ADMIN_SETTING,
+    ADMIN_PRODUCT_CREATE,
   } = ROUTES;
   return (
     <BrowserRouter>
@@ -33,6 +35,7 @@ function App() {
         <Route path={ADMIN} element={<AdminLayout />}>
           <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
           <Route path={ADMIN_SETTING} element={<AdminSettings />} />
+          <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
         </Route>
       </Routes>
     </BrowserRouter>

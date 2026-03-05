@@ -8,3 +8,4 @@ export { MainLayout } from './MainLayout';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
 export { TableProducts } from './TableProducts/TableProducts';
+export { TextArea } from './TextArea';

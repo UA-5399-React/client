@@ -18,3 +18,17 @@ export const GET_PRODUCTS_PAGE = gql`
     }
   }
 `;
+
+export const CREATE_PRODUCT = gql`
+  mutation CreateProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+      id
+      title
+      price
+      status
+      description
+      tags
+      imageUrl
+    }
+  }
+`;
