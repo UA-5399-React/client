@@ -10,7 +10,7 @@ interface ThemeState {
 }
 
 export const useTheme = create<ThemeState>((set) => ({
-  theme: (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || "system",
+  theme: (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'system',
   isDark:
     (localStorage.getItem(THEME_STORAGE_KEY) as Theme) === 'dark' ||
     ((localStorage.getItem(THEME_STORAGE_KEY) as Theme) === 'system' &&

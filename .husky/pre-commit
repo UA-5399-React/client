@@ -1,5 +1,7 @@
 # Check branch name format before allowing commit
+
 node scripts/verify-branch.js
 
-# Run linting and formating checks
-pnpm run lint
+# Run lint-staged (only for modified files in the git index)
+
+pnpm exec lint-staged

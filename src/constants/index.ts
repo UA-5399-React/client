@@ -9,10 +9,11 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
-  BLOG: '/blog',
-
-  ADMIN_LOGIN: '/admin/login',
+  ADMIN: '/admin',
   ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_SETTING: '/admin/setting',
+  BLOG: '/blog',
+  ADMIN_LOGIN: '/admin/login',
 } as const;
 
 export const MOCK_AUTH = {

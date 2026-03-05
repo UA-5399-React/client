@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MOCK_AUTH } from '../constants';
 
 export const useAuth = () => {
-  const [isAuth] = useState(() => {
+  const [isAuth, setIsAuth] = useState(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
 
@@ -15,6 +15,8 @@ export const useAuth = () => {
     localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
     localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
     localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
+
+    setIsAuth(false);
   };
 
   const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);

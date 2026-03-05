@@ -1,8 +1,12 @@
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
+export { Dropdown } from './Dropdown';
 export { Header } from './Header';
 export { Input } from './Input';
 export * from './LoginForm/LoginForm';
 export * from './LogoutButton/LogoutButton';
 export { MainLayout } from './MainLayout';
+export { Pagination } from './Pagination';
+export { ProductCard } from './ProductCard';
 export * from './ProtectedRoute/ProtectedRoute';
+export { TableProducts } from './TableProducts/TableProducts';

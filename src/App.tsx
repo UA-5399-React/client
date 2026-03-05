@@ -1,20 +1,13 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import { MainLayout } from './components';
-import { LogoutButton } from './components/LogoutButton/LogoutButton';
-import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
+import { MainLayout, ProtectedRoute } from './components';
+import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
-import Login from './pages/Login/Login';
+import { AdminProducts } from './pages/Admin/Products/AdminProducts';
+import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
+import { Login } from './pages/Login/Login';
 import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
-
-const AdminProductsPlaceholder = () => (
-  <div className="p-10 text-center">
-    <h1 className="mb-4 text-3xl font-bold">Admin Dashboard</h1>
-    <p className="mb-6 text-gray-600">soon</p>
-    <LogoutButton />
-  </div>
-);
 
 function App() {
   const {
@@ -22,11 +15,14 @@ function App() {
     SHOP,
     PRODUCT,
     CONTACT_US,
-    LOGIN,
     CART,
-    ADMIN_LOGIN,
+    ADMIN,
     ADMIN_PRODUCTS,
+    ADMIN_SETTING,
+    ADMIN_LOGIN,
+    LOGIN,
   } = ROUTES;
+
   return (
     <BrowserRouter>
       <Routes>
@@ -38,12 +34,15 @@ function App() {
           <Route path={CART} element={<Cart />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path={ADMIN_LOGIN} element={<Login />} />
 
         <Route path={LOGIN} element={<Login />} />
+        <Route path={ADMIN_LOGIN} element={<Login />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path={ADMIN_PRODUCTS} element={<AdminProductsPlaceholder />} />
+          <Route path={ADMIN} element={<AdminLayout />}>
+            <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
+            <Route path={ADMIN_SETTING} element={<AdminSettings />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
