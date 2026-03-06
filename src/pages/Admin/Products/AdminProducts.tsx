@@ -1,10 +1,13 @@
 import { useState } from 'react';
 
-import { Button, ProductFiltersBar, TableProducts } from '@/components';
+import { Button, ProductFiltersBar, SearchInput, TableProducts } from '@/components';
 import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
 import { type ProductsFilters } from '@/types/filters';
+
+const LIMIT = 10;
 
 export function AdminProducts() {
   const { isDark } = useTheme();
@@ -13,14 +16,27 @@ export function AdminProducts() {
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const { items, loading, error } = useAdminProducts({filters});
+  const { items, loading, error } = useAdminProducts({
+    page,
+    limit: LIMIT,
+    search: debouncedSearch,
+    filters,
+  });
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
   };
 
-  if (loading) return <div>Loading...</div>;
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
+  // reset page immediately when yser types
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">
@@ -48,6 +64,14 @@ export function AdminProducts() {
       )}
 
       <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
+        {/* Search */}
+        <div className="flex w-full items-center justify-end border-b border-[#e5e7eb] p-4">
+          <div className="w-full max-w-[360px]">
+            <SearchInput value={search} onChange={handleSearchChange} />
+          </div>
+        </div>
+
+        {/* Table */}
         <TableProducts items={items} loading={loading} error={error} />
 
         <div className="allItems-center flex justify-between p-4">

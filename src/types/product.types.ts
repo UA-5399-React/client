@@ -1,6 +1,7 @@
 export type ProductStatus = 'active' | 'inactive' | 'draft';
 
 export interface Product {
+  _id?: string;
   id: string;
   imageUrl: string;
   price: number;
@@ -39,4 +40,13 @@ export interface ProductsPageResult {
   page: number;
   limit: number;
   items: Product[];
+}
+
+export interface ProductFormData {
+  name: string;
+  price: string;
+  categories: string;
+  description: string;
+  imagePreview: string | null;
+  imageFile?: File;
 }

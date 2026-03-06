@@ -4,31 +4,31 @@ import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
 
-import {
-  matchCategory,
-  matchDate,
-  matchPrice,
-  matchStatus,
-} from './productFilters';
-
-interface UseAdminProductsOptions {
+type UseAdminProductsParams = {
   page?: number;
   limit?: number;
+  search?: string;
   filters?: Partial<ProductsFilters>;
-}
+};
 
 export function useAdminProducts({
   page = 1,
   limit = 10,
   filters = {},
-}: UseAdminProductsOptions = {}) {
+  search = '',
+}: UseAdminProductsParams = {}) {
+  // Normalize search input
+  const normalizedSearch = search.trim();
+
   const { data, loading, error } = useQuery<{
     productsPage: ProductsPageResult;
   }>(GET_PRODUCTS_PAGE, {
     variables: {
       limit,
       page,
+      search: normalizedSearch.length ? normalizedSearch : null,
     },
+     notifyOnNetworkStatusChange: true,
   });
 
   const productsPage = data?.productsPage;
@@ -49,5 +49,6 @@ export function useAdminProducts({
     error,
     totalPages: productsPage?.totalPages ?? 1,
     page: productsPage?.page ?? page,
+    total: productsPage?.total ?? 0,
   };
 }

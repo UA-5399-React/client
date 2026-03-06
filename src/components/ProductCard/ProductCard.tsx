@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
 import type { Product } from '@/types';
@@ -9,11 +10,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const { title, price, imageUrl } = product;
-
+  console.log('My product data:', product);
+  const { _id, title, price, imageUrl } = product;
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    navigate(`/product/${_id}`);
+  };
   return (
     <div className="group relative flex flex-col">
-      <div className="relative mb-3 overflow-hidden rounded-md bg-[rgb(var(--color-muted)/0.15)]">
+      <div
+        className="relative mb-3 cursor-pointer overflow-hidden rounded-md"
+        onClick={handleCardClick}
+      >
         <img
           src={imageUrl}
           alt={title}
@@ -26,7 +34,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <button
           aria-label="Add to wishlist"
-          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black opacity-0 shadow-md transition-all duration-300 group-hover:opacity-100 hover:scale-110"
+          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-black opacity-0 transition-all duration-300 group-hover:opacity-100 hover:scale-110"
         >
           <Heart className="h-4 w-4" />
         </button>

@@ -4,9 +4,8 @@ import clsx from 'clsx';
 
 const BASE_INPUT_CLASSES =
   'w-full bg-transparent transition-colors outline-none ' +
-  'placeholder-muted-foreground dark:placeholder-neutral-400 ' +
-  'text-text dark:text-neutral-500 ' +
-  'disabled:cursor-not-allowed ';
+  'text-[rgb(var(--color-text))] caret-text ' +
+  'disabled:cursor-not-allowed';
 
 const WRAPPER_CLASSES =
   'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
@@ -22,25 +21,17 @@ const VARIANT_STYLES = {
 
 const STATE_STYLES = {
   default: {
-    outlined:
-      'border-neutral-300 dark:border-neutral-700 ' +
-      'hover:border-neutral-400 dark:hover:border-neutral-500 ' +
-      'focus:border-neutral-950 focus:ring-1 focus:ring-neutral-950/10 ' +
-      'dark:focus:border-neutral-100 dark:focus:ring-neutral-100/10',
-    underlined:
-      'border-neutral-300 dark:border-neutral-700 ' +
-      'hover:border-neutral-400 dark:hover:border-neutral-500 ' +
-      'focus:border-neutral-950 dark:focus:border-neutral-100',
+    outlined: 'focus:ring-1 focus:ring-border-focus/10',
+    underlined: 'focus:border-border-focus',
   },
-
-  success: 'border-green-600 text-green-700 ',
-  error: 'border-red-600 text-red-600',
+  success: 'border-green-500',
+  error: 'border-red-500',
 };
 
 const ICON_WRAPPER_CLASSES =
-  'pointer-events-none absolute left-0 flex items-center text-gray-600';
+  'pointer-events-none absolute left-0 flex items-center text-icon';
 const RIGHT_ELEMENT_CLASSES =
-  'absolute right-0 flex items-center text-gray-600 transition-colors dark:text-neutral-50';
+  'absolute right-0 flex items-center text-icon transition-colors';
 
 export interface InputProps extends React.ComponentPropsWithoutRef<
   typeof BaseInput
@@ -130,7 +121,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <button
                   type="button"
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                  className="flex items-center justify-center border-none bg-transparent p-0 text-gray-600 transition-colors hover:cursor-pointer hover:text-neutral-800 focus:outline-none dark:text-gray-200 dark:hover:text-white dark:focus:text-white"
+                  className="flex items-center justify-center border-none bg-transparent p-0 text-[rgb(var(--color-icon))] transition-colors hover:cursor-pointer hover:text-[rgb(var(--color-icon-hover))] focus:outline-none"
                   aria-label={
                     isPasswordVisible ? 'Hide password' : 'Show password'
                   }
@@ -142,7 +133,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   )}
                 </button>
               ) : (
-                <div className="flex cursor-pointer items-center text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-50">
+                <div className="text-icon hover:text-icon-hover flex cursor-pointer items-center transition-colors">
                   {rightElement}
                 </div>
               )}
@@ -155,7 +146,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={`${inputId}-helper`}
             className={clsx(
               HELPER_TEXT_CLASSES,
-              state === 'error' ? 'text-red-600' : 'text-gray-600',
+              state === 'error' ? 'text-red-600' : 'text-green-700',
             )}
           >
             {helperText}
