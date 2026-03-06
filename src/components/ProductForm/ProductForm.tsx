@@ -2,15 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 
 import { Input, TextArea } from '@/components';
-
-export interface ProductFormData {
-  name: string;
-  price: string;
-  categories: string;
-  description: string;
-  imagePreview: string | null;
-  imageFile?: File;
-}
+import type { ProductFormData } from '@/types';
 
 interface ProductFormProps {
   initialData?: Partial<ProductFormData>;

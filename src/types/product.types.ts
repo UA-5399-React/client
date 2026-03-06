@@ -36,3 +36,12 @@ export interface ProductsPageResult {
   limit: number;
   items: Product[];
 }
+
+export interface ProductFormData {
+  name: string;
+  price: string;
+  categories: string;
+  description: string;
+  imagePreview: string | null;
+  imageFile?: File;
+}

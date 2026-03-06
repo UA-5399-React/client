@@ -1,11 +1,9 @@
 ﻿import { useNavigate } from 'react-router-dom';
 
+import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useCreateAdminProduct } from '@/hooks/useCreateAdminProduct';
-import {
-  ProductForm,
-  type ProductFormData,
-} from '@/pages/ProductForm/ProductForm';
+import type { ProductFormData } from '@/types';
 
 export const CreateProduct = () => {
   const navigate = useNavigate();
