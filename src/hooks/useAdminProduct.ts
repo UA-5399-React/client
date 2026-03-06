@@ -4,7 +4,12 @@ import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
 
-import { matchCategory, matchDate, matchPrice, matchStatus } from './productsFilters';
+import {
+  matchCategory,
+  matchDate,
+  matchPrice,
+  matchStatus,
+} from './productFilters';
 
 interface UseAdminProductsOptions {
   page?: number;
@@ -12,11 +17,11 @@ interface UseAdminProductsOptions {
   filters?: Partial<ProductsFilters>;
 }
 
-export function useAdminProducts(
-  {page = 1,
+export function useAdminProducts({
+  page = 1,
   limit = 10,
-  filters = {}}: UseAdminProductsOptions = {}
-) {
+  filters = {},
+}: UseAdminProductsOptions = {}) {
   const { data, loading, error } = useQuery<{
     productsPage: ProductsPageResult;
   }>(GET_PRODUCTS_PAGE, {
@@ -29,12 +34,13 @@ export function useAdminProducts(
   const productsPage = data?.productsPage;
   const allItems = productsPage?.items ?? [];
 
-  const items = allItems.filter((product) => 
-    matchCategory(product, filters.tags) &&
-    matchPrice(product, filters) &&
-    matchStatus(product, filters.status) &&
-    matchDate(product, filters)
-    );
+  const items = allItems.filter(
+    (product) =>
+      matchCategory(product, filters.tags) &&
+      matchPrice(product, filters) &&
+      matchStatus(product, filters.status) &&
+      matchDate(product, filters),
+  );
 
   return {
     allItems,

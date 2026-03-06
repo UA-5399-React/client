@@ -10,8 +10,9 @@ export function AdminProducts() {
   const { isDark } = useTheme();
 
   const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
+
   const [showFilters, setShowFilters] = useState(false);
-  
+
   const { items, loading, error } = useAdminProducts({filters});
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
