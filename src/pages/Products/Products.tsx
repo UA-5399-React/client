@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { Pagination } from '@/components';
+import { ShopBanner } from '@/components/Banner';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
@@ -54,6 +55,7 @@ export const Products = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <ShopBanner />
       <ViewToggle value={viewType} onChange={setViewType} isMobile={isMobile} />
       <ProductsGrid products={data.items} viewType={viewType} />
       <Pagination

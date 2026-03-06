@@ -1,0 +1,10 @@
+.bannerImage {
+  background:
+    linear-gradient(0deg, #f3f5f7, #f3f5f7),
+    linear-gradient(
+      180deg,
+      rgba(243, 245, 247, 0) 27.68%,
+      rgba(243, 245, 247, 0.6) 66.63%,
+      rgba(243, 245, 247, 0.2) 100%
+    );
+}
