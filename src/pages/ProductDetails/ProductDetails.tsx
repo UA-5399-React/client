@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, Minus, Plus } from 'lucide-react';
 
 import { productService } from '@/services/productService';
 
@@ -44,26 +43,6 @@ export const ProductDetails = () => {
             {product.description || 'No info available'}
           </p>
           <div className="mb-8 text-2xl font-bold">${product.price}</div>
-          <div className="mt-auto flex flex-col gap-4">
-            <div className="flex h-[52px] gap-4">
-              <div className="flex w-[120px] items-center justify-between rounded-lg bg-[#F3F5F7] px-2">
-                <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black">
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="font-semibold text-black">1</span>
-                <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black">
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-              <button className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-black transition-all outline-none hover:border-black">
-                <Heart className="h-5 w-5" />
-                <span>Wishlist</span>
-              </button>
-            </div>
-            <button className="h-[52px] w-full cursor-pointer rounded-lg border-none bg-[#141718] font-medium text-white transition-all outline-none hover:bg-black">
-              Add to Cart
-            </button>
-          </div>
         </div>
       </div>
     </div>

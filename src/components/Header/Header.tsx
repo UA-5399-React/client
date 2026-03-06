@@ -1,15 +1,10 @@
 import { Link, NavLink } from 'react-router-dom';
-import { Moon, Search, ShoppingBag, Sun, UserCircle } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 
-const NAV_LINKS = [
-  { path: ROUTES.HOME, label: 'Home', end: true },
-  { path: ROUTES.SHOP, label: 'Shop', end: false },
-  { path: ROUTES.PRODUCT, label: 'Product', end: false },
-  { path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
-];
+const NAV_LINKS = [{ path: ROUTES.SHOP, label: 'Shop', end: false }];
 
 export const Header = () => {
   const { theme, setTheme, isDark } = useTheme();
@@ -57,20 +52,6 @@ export const Header = () => {
 
         <div className="flex items-center gap-6">
           <button
-            aria-label="Search"
-            className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
-          >
-            <Search className="h-6 w-6 transition-all duration-300" />
-          </button>
-
-          <button
-            aria-label="User"
-            className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
-          >
-            <UserCircle className="h-6 w-6 transition-all duration-300" />
-          </button>
-
-          <button
             aria-label="Theme"
             onClick={handleToggleTheme}
             className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
@@ -81,14 +62,6 @@ export const Header = () => {
               <Moon className="h-6 w-6 transition-all duration-300" />
             )}
           </button>
-
-          <Link
-            to={ROUTES.CART}
-            className="flex items-center gap-2 text-inherit no-underline transition-opacity hover:opacity-70"
-          >
-            <ShoppingBag className="h-6 w-6 transition-all duration-300" />
-            <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300"></span>
-          </Link>
         </div>
       </div>
     </header>

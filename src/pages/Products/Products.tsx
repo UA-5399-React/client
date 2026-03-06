@@ -40,6 +40,7 @@ export const Products = () => {
       prev.set('page', String(newPage));
       return prev;
     });
+    scrollTo({ top: 500, behavior: 'smooth' });
   };
 
   if (isLoading)

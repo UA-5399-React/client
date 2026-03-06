@@ -4,21 +4,15 @@ import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 
-const NAV_LINKS = [
-  { path: ROUTES.HOME, label: 'Home' },
-  { path: ROUTES.SHOP, label: 'Shop' },
-  { path: ROUTES.PRODUCT, label: 'Product' },
-  { path: ROUTES.BLOG, label: 'Blog' },
-  { path: ROUTES.CONTACT_US, label: 'Contact Us' },
-];
+const NAV_LINKS = [{ path: ROUTES.SHOP, label: 'Shop' }];
 
 export const Footer = () => {
   const { isDark } = useTheme();
-
+  console.log(isDark);
   return (
     <footer
       className={`px-16 py-12 transition-colors duration-300 ${
-        isDark ? 'bg-white text-black' : 'bg-[#141718] text-white'
+        isDark ? 'bg-[#141718] text-white' : 'bg-white text-black'
       }`}
     >
       <div className="flex items-center justify-between pb-10">
@@ -36,7 +30,7 @@ export const Footer = () => {
           <span
             className={`text-sm ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
           >
-            Gift & Decoration Store
+            Electronic Store
           </span>
         </div>
 

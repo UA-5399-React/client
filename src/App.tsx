@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
 import { MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
-import { Home } from './pages';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
@@ -30,18 +30,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        // Then replace the selection with:
         <Route path={HOME} element={<MainLayout />}>
-          <Route index element={<Home />} />
+          <Route index element={<Navigate to={SHOP} replace />} />
           <Route path={SHOP} element={<Shop />} />
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-
         <Route path={LOGIN} element={<Login />} />
         <Route path={ADMIN_LOGIN} element={<Login />} />
-
         <Route element={<ProtectedRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
