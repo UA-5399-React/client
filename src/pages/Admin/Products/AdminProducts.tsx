@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-import { Button, ProductFiltersBar, SearchInput, TableProducts } from '@/components';
+import {
+  Button,
+  ProductFiltersBar,
+  SearchInput,
+  TableProducts,
+} from '@/components';
 import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -16,6 +21,11 @@ export function AdminProducts() {
 
   const [showFilters, setShowFilters] = useState(false);
 
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
+
   const { items, loading, error } = useAdminProducts({
     page,
     limit: LIMIT,
@@ -27,16 +37,12 @@ export function AdminProducts() {
     setFilters(newFilters);
   };
 
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-
   // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
   };
 
-  const debouncedSearch = useDebouncedValue(search.trim(), 300);
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">

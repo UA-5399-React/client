@@ -47,7 +47,7 @@ export function ProductFiltersBar({
             placeholder="Min"
             value={filters.minPrice}
             onChange={(e) => update({ minPrice: e.target.value })}
-            inputClassName="w-24"
+            inputClassName="w-24 text-gray-700"
           />
           <span className="mb-2 text-gray-400">—</span>
           <Input
@@ -55,7 +55,7 @@ export function ProductFiltersBar({
             placeholder="Max"
             value={filters.maxPrice}
             onChange={(e) => update({ maxPrice: e.target.value })}
-            inputClassName="w-24"
+            inputClassName="w-24 text-gray-700"
           />
         </div>
       </div>
@@ -83,7 +83,7 @@ export function ProductFiltersBar({
             label="From"
             value={filters.dateFrom}
             onChange={(e) => update({ dateFrom: e.target.value })}
-            inputClassName="w-36"
+            inputClassName="w-24 text-gray-700"
           />
           <span className="mt-5 text-gray-400">—</span>
           <Input
@@ -91,7 +91,7 @@ export function ProductFiltersBar({
             label="To"
             value={filters.dateTo}
             onChange={(e) => update({ dateTo: e.target.value })}
-            inputClassName="w-36"
+            inputClassName="w-24 text-gray-700"
           />
 
           <div className="flex items-center gap-2">

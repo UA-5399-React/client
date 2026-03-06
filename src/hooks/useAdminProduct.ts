@@ -4,6 +4,13 @@ import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
 
+import {
+  matchCategory,
+  matchDate,
+  matchPrice,
+  matchStatus,
+} from '../utils/productsFilters';
+
 type UseAdminProductsParams = {
   page?: number;
   limit?: number;
@@ -28,7 +35,7 @@ export function useAdminProducts({
       page,
       search: normalizedSearch.length ? normalizedSearch : null,
     },
-     notifyOnNetworkStatusChange: true,
+    notifyOnNetworkStatusChange: true,
   });
 
   const productsPage = data?.productsPage;
