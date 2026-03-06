@@ -2,16 +2,26 @@ import { useQuery } from '@apollo/client/react';
 
 import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
+import type { ProductsFilters } from '@/types/filters';
+
+import {
+  matchCategory,
+  matchDate,
+  matchPrice,
+  matchStatus,
+} from '../utils/productsFilters';
 
 type UseAdminProductsParams = {
   page?: number;
   limit?: number;
   search?: string;
+  filters?: Partial<ProductsFilters>;
 };
 
 export function useAdminProducts({
   page = 1,
   limit = 10,
+  filters = {},
   search = '',
 }: UseAdminProductsParams = {}) {
   // Normalize search input
@@ -23,19 +33,24 @@ export function useAdminProducts({
     variables: {
       limit,
       page,
-      // Send null instead of empty string
       search: normalizedSearch.length ? normalizedSearch : null,
     },
-    // Allows UI to update loading state when variables change
     notifyOnNetworkStatusChange: true,
   });
 
   const productsPage = data?.productsPage;
+  const allItems = productsPage?.items ?? [];
 
-  // Fallback to empty array if data is not loaded yet
-  const items = productsPage?.items ?? [];
+  const items = allItems.filter(
+    (product) =>
+      matchCategory(product, filters.tags) &&
+      matchPrice(product, filters) &&
+      matchStatus(product, filters.status) &&
+      matchDate(product, filters),
+  );
 
   return {
+    allItems,
     items,
     loading,
     error,

@@ -14,6 +14,8 @@ export const GET_PRODUCTS_PAGE = gql`
         status
         description
         tags
+        createdAt
+        updatedAt
       }
     }
   }
