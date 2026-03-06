@@ -1,9 +1,14 @@
 import type { Product } from '../types';
 import { apiClient } from './api';
 
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalPages: number;
+}
+
 export const productService = {
-  getAll: (): Promise<Product[]> =>
+  getAll: (page: number, limit: number): Promise<PaginatedResponse<Product>> =>
     apiClient
-      .get<{ items: Product[] }>('/products?page=1&limit=10')
-      .then((res) => res.items),
+      .get<PaginatedResponse<Product>>(`/products?page=${page}&limit=${limit}`)
+      .then((res) => res),
 };
