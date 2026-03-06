@@ -42,7 +42,7 @@ export function useAdminProducts(
 
     if (filters.dateFrom || filters.dateTo) {
       const field = filters.dateField ?? 'createdAt';
-      const productDate = new Date(product[field]);
+      const productDate = new Date(product[field] || '');
 
       if (filters.dateFrom) {
         if (productDate < new Date(filters.dateFrom)) return false;

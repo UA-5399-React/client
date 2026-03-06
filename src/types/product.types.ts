@@ -8,8 +8,10 @@ export interface Product {
   status: ProductStatus;
   tags?: string[];
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+
+  //it's a workaround to pass build, because there are no fields for createdAt/updatedAt in mock data and storybooks(probably?). Overall these 2 fields should not be optional
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaginatedResponse<T> {
