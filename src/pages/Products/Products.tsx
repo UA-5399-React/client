@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { Pagination } from '@/components';
+import { ShopBanner } from '@/components/Banner';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
@@ -16,7 +17,7 @@ export const Products = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
-  const limit = Number(searchParams.get('limit')) || 10;
+  const limit = Number(searchParams.get('limit')) || 12;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -53,7 +54,8 @@ export const Products = () => {
     );
 
   return (
-    <>
+    <div className="container mx-auto px-4 py-8">
+      <ShopBanner />
       <ViewToggle value={viewType} onChange={setViewType} isMobile={isMobile} />
       <ProductsGrid products={data.items} viewType={viewType} />
       <Pagination
@@ -61,6 +63,6 @@ export const Products = () => {
         totalPages={data.totalPages || 1}
         onPageChange={handlePageChange}
       />
-    </>
+    </div>
   );
 };

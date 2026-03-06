@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AUTH_ROLES,MOCK_AUTH, ROUTES } from '../../constants';
+import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '../../constants';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState<string>('');
