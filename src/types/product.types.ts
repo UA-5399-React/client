@@ -28,6 +28,7 @@ export interface ProductQueryParams {
   minPrice?: number;
   maxPrice?: number;
 }
+
 export interface ProductsPageResult {
   total: number;
   totalPages: number;
