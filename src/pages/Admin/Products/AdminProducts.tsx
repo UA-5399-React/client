@@ -6,8 +6,6 @@ export function AdminProducts() {
   const { isDark } = useTheme();
   const { items, loading, error } = useAdminProducts();
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">
