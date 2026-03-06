@@ -5,10 +5,13 @@ import { ROUTES } from '../../constants';
 import { useAuth } from '../../hooks/useAuth';
 
 export const ProtectedRoute: React.FC = () => {
-  const { isAuth, logout } = useAuth();
+  const { isAuth, role } = useAuth();
 
   if (!isAuth) {
-    logout();
+    return <Navigate to={ROUTES.ADMIN_LOGIN} replace />;
+  }
+
+  if (role !== 'admin') {
     return <Navigate to={ROUTES.ADMIN_LOGIN} replace />;
   }
 
