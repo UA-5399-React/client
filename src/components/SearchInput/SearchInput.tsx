@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Search } from 'lucide-react';
 
 type SearchInputProps = {
@@ -18,38 +19,41 @@ export function SearchInput({
   className = '',
 }: SearchInputProps) {
   // Border color depending on component state
-  // disabled -> gray border
-  // error -> red border
-  // default -> neutral border
-  const borderClass = disabled
-    ? 'border-[#6C7275]'
-    : error
-      ? 'border-[#E02020]'
-      : 'border-[#D0D5DD]';
+  const borderClass = clsx({
+    'border-gray-600': disabled,
+    'border-red-600': error && !disabled,
+    'border-[rgb(var(--default-border))]': !disabled && !error,
+  });
 
   // Background and text styles depending on state
-  const stateClass = disabled
-    ? 'bg-[#F2F4F6] text-[rgba(102,112,133,0.7)] placeholder:text-[rgba(102,112,133,0.7)] cursor-not-allowed'
-    : 'bg-[#FFF] text-[#667085] placeholder:text-[#667085]';
+  const stateClass = clsx({
+    'bg-gray-200 text-[rgb(var( --color-muted)/0.7)] placeholder:text-[rgb(var(--color-placeholder)/0.7)] cursor-not-allowed':
+      disabled,
+    'bg-neutral-0 text-[rgb(var( --color-muted))] placeholder:text-[rgb(var(--color-placeholder))]':
+      !disabled,
+  });
 
   // Focus state
-  const focusClass =
-    disabled || error
-      ? 'focus:outline-none'
-      : 'focus:outline-none focus:border-[#141718]';
+  const focusClass = clsx(
+    'focus:outline-none',
+    !disabled && !error && 'focus:border-neutral-800',
+  );
 
   // Search icon color depending on state
-  const iconClass = disabled
-    ? 'text-[rgba(102,112,133,0.7)]'
-    : error
-      ? 'text-[#E02020]'
-      : 'text-[#667085]';
+  const iconClass = clsx({
+    'text-[rgb(var(--color-muted)/0.7)]': disabled,
+    'text-red-600': error && !disabled,
+    'text-[rgb(var(--color-muted))]': !disabled && !error,
+  });
 
   return (
-    <div className={`relative w-[320px] ${className}`}>
+    <div className={clsx('relative w-[320px]', className)}>
       <Search
-        size={16}
-        className={`pointer-events-none absolute top-1/2 left-[14px] -translate-y-1/2 ${iconClass}`}
+        size={17}
+        className={clsx(
+          'pointer-events-none absolute top-1/2 left-[14px] -translate-y-1/2',
+          iconClass,
+        )}
       />
 
       <input
@@ -58,15 +62,15 @@ export function SearchInput({
         placeholder={placeholder}
         disabled={disabled}
         aria-invalid={error || undefined}
-        className={[
+        className={clsx(
           'box-border h-[44px] w-full rounded-[8px] border',
           'py-[10px] pr-[14px] pl-[42px]',
           'text-[16px] leading-[24px] font-normal',
-          'shadow-[0_1px_2px_0_rgba(16,24,40,0.05)]',
+          'shadow-[0_1px_2px_0_rgb(var(--color-shadow)/0.05)]',
           borderClass,
           stateClass,
           focusClass,
-        ].join(' ')}
+        )}
       />
     </div>
   );

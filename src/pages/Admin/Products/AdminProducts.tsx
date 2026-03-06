@@ -48,13 +48,6 @@ export function AdminProducts() {
         {/* Table */}
         <TableProducts items={items} loading={loading} error={error} />
 
-        {/* Empty state */}
-        {!loading && !error && items.length === 0 && (
-          <div className="p-4 text-center text-sm text-neutral-500">
-            No products found
-          </div>
-        )}
-
         <div className="flex items-center justify-between p-4">
           <Button>Previous</Button>
           <span className={`${isDark ? 'text-black' : 'text-white'}`}>
