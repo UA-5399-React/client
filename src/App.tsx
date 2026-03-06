@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
+
 import { MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
@@ -7,7 +9,7 @@ import { Home } from './pages';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { Login } from './pages/Login/Login';
-import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
+import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
   const {
