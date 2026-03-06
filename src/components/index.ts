@@ -10,3 +10,4 @@ export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { TableProducts } from './TableProducts/TableProducts';
+export { SearchInput } from './SearchInput/SearchInput';
