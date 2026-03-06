@@ -13,6 +13,21 @@ export const ROUTES = {
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_SETTING: '/admin/setting',
   BLOG: '/blog',
+  ADMIN_LOGIN: '/admin/login',
 } as const;
+
+export const MOCK_AUTH = {
+  ADMIN_EMAIL: 'admin@gmail.com',
+  ADMIN_PASSWORD: 'admin123',
+  TOKEN_KEY: 'token',
+  EXPIRES_KEY: 'token_expires',
+  ROLE_KEY: 'role',
+  MOCK_TOKEN: 'mock-jwt-token',
+};
+
+export const AUTH_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+};
 
 export * from './theme';

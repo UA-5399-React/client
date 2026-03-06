@@ -1,7 +1,8 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, PackageIcon, SettingsIcon } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 
 import { Button } from '../Button';
@@ -13,6 +14,13 @@ const SIDEBAR_LINKS = [
 
 export const Sidebar = () => {
   const { isDark } = useTheme();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.LOGIN);
+  };
 
   return (
     <div className="flex h-full min-h-full flex-col justify-between">
@@ -41,7 +49,10 @@ export const Sidebar = () => {
         </nav>
       </div>
 
-      <Button className="mt-auto w-full bg-transparent dark:text-white">
+      <Button
+        className="mt-auto w-full bg-transparent dark:text-white"
+        onClick={handleLogout}
+      >
         <div
           className={`flex items-center gap-2 py-8 ${isDark ? 'text-white' : 'text-black'}`}
         >
