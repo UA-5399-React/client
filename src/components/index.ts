@@ -11,3 +11,4 @@ export { ProductCard } from './ProductCard';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { SearchInput } from './SearchInput/SearchInput';
 export { TableProducts } from './TableProducts/TableProducts';
+export { TextArea } from './TextArea';
