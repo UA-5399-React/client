@@ -7,13 +7,3 @@ export interface ProductsFilters {
   dateTo: string;
   dateField: 'createdAt' | 'updatedAt';
 }
-
-export const DEFAULT_FILTERS: ProductsFilters = {
-  tags: [],
-  minPrice: '',
-  maxPrice: '',
-  status: '',
-  dateFrom: '',
-  dateTo: '',
-  dateField: 'createdAt',
-};
