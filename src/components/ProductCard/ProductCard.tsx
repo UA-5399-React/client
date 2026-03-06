@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
 import type { Product } from '@/types';
@@ -9,11 +10,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const { title, price, imageUrl } = product;
-
+  console.log('My product data:', product);
+  const { _id, title, price, imageUrl } = product;
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    navigate(`/product/${_id}`);
+  };
   return (
     <div className="group relative flex flex-col">
-      <div className="relative mb-3 overflow-hidden rounded-md">
+      <div
+        className="relative mb-3 cursor-pointer overflow-hidden rounded-md"
+        onClick={handleCardClick}
+      >
         <img
           src={imageUrl}
           alt={title}
