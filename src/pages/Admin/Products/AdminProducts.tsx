@@ -1,17 +1,18 @@
 import { useState } from 'react';
 
 import { Button, ProductFiltersBar, TableProducts } from '@/components';
+import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useTheme } from '@/hooks/useTheme';
-import { DEFAULT_FILTERS, type ProductsFilters } from '@/types/filters';
+import { type ProductsFilters } from '@/types/filters';
 
 export function AdminProducts() {
   const { isDark } = useTheme();
 
-  const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTERS);
-  const { items, loading, error } = useAdminProducts(1, 10, filters);
-
+  const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
   const [showFilters, setShowFilters] = useState(false);
+  
+  const { items, loading, error } = useAdminProducts({filters});
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);

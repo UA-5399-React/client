@@ -4,10 +4,18 @@ import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
 
+import { matchCategory, matchDate, matchPrice, matchStatus } from './productsFilters';
+
+interface UseAdminProductsOptions {
+  page?: number;
+  limit?: number;
+  filters?: Partial<ProductsFilters>;
+}
+
 export function useAdminProducts(
-  page = 1,
+  {page = 1,
   limit = 10,
-  filters: Partial<ProductsFilters> = {},
+  filters = {}}: UseAdminProductsOptions = {}
 ) {
   const { data, loading, error } = useQuery<{
     productsPage: ProductsPageResult;
@@ -21,41 +29,12 @@ export function useAdminProducts(
   const productsPage = data?.productsPage;
   const allItems = productsPage?.items ?? [];
 
-  const items = allItems.filter((product) => {
-    if (filters.tags?.length) {
-      const hasTag = filters.tags.some((tag) => product.tags?.includes(tag));
-      if (!hasTag) return false;
-    }
-
-    if (filters.minPrice) {
-      if (product.price < parseFloat(filters.minPrice)) return false;
-    }
-
-    if (filters.maxPrice) {
-      if (product.price > parseFloat(filters.maxPrice)) return false;
-    }
-
-    if (filters.status) {
-      if (product.status.toLowerCase() !== filters.status.toLowerCase())
-        return false;
-    }
-
-    if (filters.dateFrom || filters.dateTo) {
-      const field = filters.dateField ?? 'createdAt';
-      const productDate = new Date(product[field] || '');
-
-      if (filters.dateFrom) {
-        if (productDate < new Date(filters.dateFrom)) return false;
-      }
-      if (filters.dateTo) {
-        const toDate = new Date(filters.dateTo);
-        toDate.setHours(23, 59, 59, 999);
-        if (productDate > toDate) return false;
-      }
-    }
-
-    return true;
-  });
+  const items = allItems.filter((product) => 
+    matchCategory(product, filters.tags) &&
+    matchPrice(product, filters) &&
+    matchStatus(product, filters.status) &&
+    matchDate(product, filters)
+    );
 
   return {
     allItems,
