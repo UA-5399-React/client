@@ -27,6 +27,7 @@ export const DEFAULT_FILTER: ProductsFilters = {
   dateFrom: '',
   dateTo: '',
   dateField: 'createdAt',
+};
 export const MOCK_AUTH = {
   ADMIN_EMAIL: 'admin@gmail.com',
   ADMIN_PASSWORD: 'admin123',
