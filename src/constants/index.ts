@@ -1,3 +1,5 @@
+import type { ProductsFilters } from '@/types/filters';
+
 // TODO: these constants are just placeholders, you can replace them with your own values
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -12,10 +14,20 @@ export const ROUTES = {
   ADMIN: '/admin',
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_SETTING: '/admin/setting',
+  ADMIN_PRODUCT_CREATE: '/admin/products/create',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
 } as const;
 
+export const DEFAULT_FILTER: ProductsFilters = {
+  tags: [],
+  minPrice: '',
+  maxPrice: '',
+  status: '',
+  dateFrom: '',
+  dateTo: '',
+  dateField: 'createdAt',
+};
 export const MOCK_AUTH = {
   ADMIN_EMAIL: 'admin@gmail.com',
   ADMIN_PASSWORD: 'admin123',

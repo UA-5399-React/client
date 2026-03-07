@@ -8,5 +8,8 @@ export { LogoutButton } from './LogoutButton/LogoutButton';
 export { MainLayout } from './MainLayout';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
+export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
+export { SearchInput } from './SearchInput/SearchInput';
 export { TableProducts } from './TableProducts/TableProducts';
+export { TextArea } from './TextArea';

@@ -1,13 +1,16 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
+
 import { MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
+import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { Login } from './pages/Login/Login';
-import { Cart, ContactUs, NotFound, ProductDetails, Shop } from './pages/Mocks';
+import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
   const {
@@ -19,6 +22,7 @@ function App() {
     ADMIN,
     ADMIN_PRODUCTS,
     ADMIN_SETTING,
+    ADMIN_PRODUCT_CREATE,
     ADMIN_LOGIN,
     LOGIN,
   } = ROUTES;
@@ -42,6 +46,7 @@ function App() {
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
+            <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
           </Route>
         </Route>
       </Routes>

@@ -11,4 +11,8 @@ export const productService = {
     apiClient
       .get<PaginatedResponse<Product>>(`/products?page=${page}&limit=${limit}`)
       .then((res) => res),
+  getById: async (id: string): Promise<Product> => {
+    const response = await apiClient.get<Product>(`/products/${id}`);
+    return response;
+  },
 };

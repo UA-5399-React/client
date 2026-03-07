@@ -53,7 +53,7 @@ function renderBodyContent(
           colSpan={6}
           className={`py-8 text-center ${isDark ? 'text-black' : 'text-[#8A92A6]'}`}
         >
-          No products
+          No products found
         </td>
       </tr>
     );

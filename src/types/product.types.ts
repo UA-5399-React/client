@@ -1,6 +1,7 @@
 export type ProductStatus = 'active' | 'inactive' | 'draft';
 
 export interface Product {
+  _id?: string;
   id: string;
   imageUrl: string;
   price: number;
@@ -8,6 +9,10 @@ export interface Product {
   status: ProductStatus;
   tags?: string[];
   description?: string;
+
+  //it's a workaround to pass build, because there are no fields for createdAt/updatedAt in mock data and storybooks(probably?). Overall these 2 fields should not be optional
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -35,4 +40,13 @@ export interface ProductsPageResult {
   page: number;
   limit: number;
   items: Product[];
+}
+
+export interface ProductFormData {
+  name: string;
+  price: string;
+  categories: string;
+  description: string;
+  imagePreview: string | null;
+  imageFile?: File;
 }
