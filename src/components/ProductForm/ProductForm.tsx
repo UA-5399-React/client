@@ -8,12 +8,14 @@ interface ProductFormProps {
   initialData?: Partial<ProductFormData>;
   onSubmit: (data: ProductFormData) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialData,
   onSubmit,
   onCancel,
+  isLoading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -64,7 +66,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             accept="image/*"
             className="hidden"
           />
-          {/* TODO: change button to component */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -111,16 +112,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </div>
 
         <div className="mt-4 flex justify-end gap-3">
-          {/* TODO: change button to component */}
           <button
             type="submit"
-            className="cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20"
+            disabled={isLoading}
+            className="${ isLoading ? 'opacity-50 cursor-not-allowed' : '' }`} cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20"
           >
             Save
           </button>
           <button
             type="button"
             onClick={onCancel}
+            disabled={isLoading}
             className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white dark:hover:bg-gray-800"
           >
             Cancel
