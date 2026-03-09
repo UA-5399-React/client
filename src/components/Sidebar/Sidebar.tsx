@@ -57,7 +57,7 @@ export const Sidebar = () => {
           className={`flex items-center gap-2 py-8 ${isDark ? 'text-white' : 'text-black'}`}
         >
           <LogOut />
-          Sign out
+          Logout
         </div>
       </Button>
     </div>
