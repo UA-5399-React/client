@@ -1,12 +1,40 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Image as ImageIcon } from 'lucide-react';
+import { z } from 'zod';
 
 import { Input, TextArea } from '@/components';
 import type { ProductFormData } from '@/types';
 
+const productFormSchema = z.object({
+  name: z.string().trim().min(1, 'Product name is required'),
+  price: z
+    .string()
+    .trim()
+    .min(1, 'Price is required')
+    .refine((value) => !Number.isNaN(Number(value)), 'Price must be a number')
+    .refine((value) => Number(value) >= 0, 'Price must be at least 0'),
+  categories: z
+    .string()
+    .trim()
+    .min(1, 'Categories are required')
+    .refine(
+      (value) =>
+        value
+          .split(',')
+          .map((category) => category.trim())
+          .filter(Boolean).length > 0,
+      'Enter at least one category',
+    ),
+  description: z.string(),
+  imagePreview: z.string().nullable(),
+  imageFile: z.instanceof(File).optional(),
+});
+
 interface ProductFormProps {
   initialData?: Partial<ProductFormData>;
-  onSubmit: (data: ProductFormData) => void;
+  onSubmit: (data: ProductFormData) => void | Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -18,35 +46,88 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   isLoading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
 
-  const [name, setName] = useState(initialData?.name || '');
-  const [price, setPrice] = useState(initialData?.price || '');
-  const [categories, setCategories] = useState(initialData?.categories || '');
-  const [description, setDescription] = useState(
-    initialData?.description || '',
-  );
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    initialData?.imagePreview || null,
-  );
-  const [imageFile, setImageFile] = useState<File | undefined>();
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productFormSchema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      name: initialData?.name || '',
+      price: initialData?.price || '',
+      categories: initialData?.categories || '',
+      description: initialData?.description || '',
+      imagePreview: initialData?.imagePreview || null,
+      imageFile: undefined,
+    },
+  });
+
+  const imagePreview = useWatch({ control, name: 'imagePreview' });
+
+  useEffect(() => {
+    register('imagePreview');
+    register('imageFile');
+  }, [register]);
+
+  useEffect(() => {
+    reset({
+      name: initialData?.name || '',
+      price: initialData?.price || '',
+      categories: initialData?.categories || '',
+      description: initialData?.description || '',
+      imagePreview: initialData?.imagePreview || null,
+      imageFile: undefined,
+    });
+  }, [initialData, reset]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
+    if (!file) {
+      setValue('imageFile', undefined, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
     }
+
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = previewUrl;
+
+    setValue('imageFile', file, { shouldDirty: true, shouldValidate: true });
+    setValue('imagePreview', previewUrl, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ name, price, categories, description, imagePreview, imageFile });
+  const handleSave = async (data: ProductFormData) => {
+    await onSubmit(data);
   };
+
+  const isDisabled = isLoading || isSubmitting;
 
   return (
-    <div className="dark:bg-background rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800">
-      <form onSubmit={handleSave} className="flex flex-col gap-4">
+    <div className="bg-background rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-800">
+      <form onSubmit={handleSubmit(handleSave)} className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-4">
           <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
             {imagePreview ? (
@@ -76,55 +157,82 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Input
-            label="Name Product"
-            placeholder="Name Product"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
+          <Controller
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <Input
+                label="Name Product"
+                placeholder="Name Product"
+                {...field}
+                value={field.value ?? ''}
+                state={errors.name ? 'error' : 'default'}
+                helperText={errors.name?.message}
+              />
+            )}
           />
-          <Input
-            label="Price"
-            type="number"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-            min="0"
-            step="0.01"
+          <Controller
+            control={control}
+            name="price"
+            render={({ field }) => (
+              <Input
+                label="Price"
+                type="number"
+                placeholder="Price"
+                {...field}
+                value={field.value ?? ''}
+                state={errors.price ? 'error' : 'default'}
+                helperText={errors.price?.message}
+              />
+            )}
           />
-          <Input
-            label="Categories"
-            type="text"
-            placeholder="Categories"
-            value={categories}
-            onChange={(e) => setCategories(e.target.value)}
-            required
+          <Controller
+            control={control}
+            name="categories"
+            render={({ field }) => (
+              <Input
+                label="Categories"
+                type="text"
+                placeholder="Categories"
+                {...field}
+                value={field.value ?? ''}
+                state={errors.categories ? 'error' : 'default'}
+                helperText={errors.categories?.message}
+              />
+            )}
           />
-          <TextArea
-            label="Description"
-            placeholder="Description"
-            className="col-span-1 md:col-span-3"
-            textAreaClassName="resize-none text-sm placeholder:text-gray-500"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+          <Controller
+            control={control}
+            name="description"
+            render={({ field }) => (
+              <TextArea
+                label="Description"
+                placeholder="Description"
+                className="col-span-1 md:col-span-3"
+                textAreaClassName="resize-none text-sm"
+                {...field}
+                value={field.value ?? ''}
+                state={errors.description ? 'error' : 'default'}
+                helperText={errors.description?.message}
+              />
+            )}
           />
         </div>
 
         <div className="mt-4 flex justify-end gap-3">
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isDisabled}
             className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20 ${
-              isLoading ? 'cursor-not-allowed opacity-50' : ''
+              isDisabled ? 'cursor-not-allowed opacity-50' : ''
             }`}
           >
-            {isLoading ? 'Saving...' : 'Save'}
+            {isDisabled ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={isDisabled}
             className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white dark:hover:bg-gray-800"
           >
             Cancel
