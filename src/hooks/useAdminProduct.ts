@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client/react';
 import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
+import type { ProductSortField, SortOrder } from '@/types/productsSort';
 
 import {
   matchCategory,
@@ -16,6 +17,8 @@ type UseAdminProductsParams = {
   limit?: number;
   search?: string;
   filters?: Partial<ProductsFilters>;
+  sort?: ProductSortField;
+  order?: SortOrder;
 };
 
 export function useAdminProducts({
@@ -23,6 +26,8 @@ export function useAdminProducts({
   limit = 10,
   filters = {},
   search = '',
+  sort = 'updatedAt',
+  order = 'desc',
 }: UseAdminProductsParams = {}) {
   // Normalize search input
   const normalizedSearch = search.trim();
@@ -34,6 +39,8 @@ export function useAdminProducts({
       limit,
       page,
       search: normalizedSearch.length ? normalizedSearch : null,
+      sort,
+      order,
     },
     notifyOnNetworkStatusChange: true,
   });

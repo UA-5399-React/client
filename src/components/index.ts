@@ -13,5 +13,6 @@ export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { SearchInput } from './SearchInput/SearchInput';
 export { Sidebar } from './Sidebar/Sidebar';
+export { SortProductsDropdown } from './SortProductsDropdown/SortProductsDropdown';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
