@@ -126,7 +126,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const isDisabled = isLoading || isSubmitting;
 
   return (
-    <div className="bg-background rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-800">
+    <div className="rounded-lg border border-gray-200 bg-[rgb(var(--color-bg-sec))] p-4 shadow-sm dark:border-gray-800">
       <form onSubmit={handleSubmit(handleSave)} className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-4">
           <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
@@ -165,6 +165,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Name Product"
                 placeholder="Name Product"
                 {...field}
+                inputClassName="bg-white text-black"
                 value={field.value ?? ''}
                 state={errors.name ? 'error' : 'default'}
                 helperText={errors.name?.message}
@@ -179,6 +180,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Price"
                 type="number"
                 placeholder="Price"
+                inputClassName="bg-white text-black"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.price ? 'error' : 'default'}
@@ -194,6 +196,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Categories"
                 type="text"
                 placeholder="Categories"
+                inputClassName="bg-white text-black"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.categories ? 'error' : 'default'}
@@ -209,7 +212,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Description"
                 placeholder="Description"
                 className="col-span-1 md:col-span-3"
-                textAreaClassName="resize-none text-sm"
+                textAreaClassName="resize-none text-sm bg-white"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.description ? 'error' : 'default'}
