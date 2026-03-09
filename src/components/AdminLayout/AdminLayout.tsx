@@ -15,9 +15,7 @@ export function AdminLayout() {
         <Sidebar />
       </aside>
 
-      <main
-        className={`text-text min-w-0 flex-1 ${isDark ? 'bg-white' : 'bg-black'}`}
-      >
+      <main className={`text-text bg-background min-w-0 flex-1`}>
         <Outlet />
       </main>
     </div>
