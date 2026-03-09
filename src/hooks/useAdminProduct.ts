@@ -26,7 +26,9 @@ export function useAdminProducts({
     ...(filters.maxPrice && { maxPrice: parseFloat(filters.maxPrice) }),
     ...(filters.categories?.length && { category: filters.categories[0] }),
     ...(filters.dateFrom && { updatedFrom: new Date(filters.dateFrom) }),
-    ...(filters.dateTo && { updatedTo: new Date(filters.dateTo) }),
+    ...(filters.dateTo && {
+      updatedTo: new Date(filters.dateTo + 'T23:59:59.999').toISOString(),
+    }),
   };
   const hasFilters = Object.keys(filterInput).length > 0;
 
