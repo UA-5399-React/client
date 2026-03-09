@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/Button';
@@ -7,6 +7,11 @@ import { ROUTES } from '@/constants';
 import { useGetAdminProduct } from '@/hooks/useGetAdminProduct';
 import { useUpdateAdminProduct } from '@/hooks/useUpdateAdminProduct';
 import type { ProductFormData } from '@/types';
+
+const ERROR_TEXTS = {
+  SERVER: 'Server Error: Failed to load product data',
+  NOT_FOUND: 'Product not found',
+};
 
 export const EditProduct = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,16 +25,15 @@ export const EditProduct = () => {
   } = useGetAdminProduct(id);
   const { updateProduct, loading: isUpdating } = useUpdateAdminProduct();
 
-  const initialData = useMemo(() => {
-    if (!product) return null;
-    return {
-      name: product.title,
-      price: String(product.price),
-      description: product.description || '',
-      categories: product.categories?.join(', ') || '',
-      imagePreview: product.imageUrl || null,
-    };
-  }, [product]);
+  const initialData = product
+    ? {
+        name: product.title,
+        price: String(product.price),
+        description: product.description || '',
+        categories: product.categories?.join(', ') || '',
+        imagePreview: product.imageUrl || null,
+      }
+    : null;
 
   if (!id) return <Navigate to={ROUTES.ADMIN_PRODUCTS} replace />;
 
@@ -42,12 +46,12 @@ export const EditProduct = () => {
   }
 
   if (fetchError || !initialData) {
+    const message = fetchError ? ERROR_TEXTS.SERVER : ERROR_TEXTS.NOT_FOUND;
+
     return (
       <div className="mx-auto max-w-3xl p-6">
         <div className="flex items-center justify-between rounded bg-red-100 p-3 text-red-700 dark:bg-red-900/20 dark:text-red-400">
-          <span className="text-sm font-medium">
-            Product not found or Server Error
-          </span>
+          <span className="text-sm font-medium">{message}</span>
           <Button
             onClick={() => navigate(ROUTES.ADMIN_PRODUCTS)}
             variant="outline"
