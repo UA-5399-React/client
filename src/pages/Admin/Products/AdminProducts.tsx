@@ -26,7 +26,7 @@ export function AdminProducts() {
 
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
 
-  const { items, loading, error } = useAdminProducts({
+  const { items, loading, error, totalPages } = useAdminProducts({
     page,
     limit: LIMIT,
     search: debouncedSearch,
@@ -35,12 +35,22 @@ export function AdminProducts() {
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
+    setPage(1);
   };
 
   // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
+  };
+
+  //pagination
+  const handleNext = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
+  };
+
+  const handlePrevious = () => {
+    if (page > 1) setPage((prev) => prev - 1);
   };
 
   return (
@@ -81,12 +91,16 @@ export function AdminProducts() {
         <TableProducts items={items} loading={loading} error={error} />
 
         <div className="allItems-center flex justify-between p-4">
-          <Button>Previous</Button>
+          <Button onClick={handlePrevious} disabled={page === 1}>
+            Previous
+          </Button>
           <span className={`${isDark ? 'text-black' : 'text-white'}`}>
             {' '}
-            Page 1 of 10
+            Page {page} of {totalPages}
           </span>
-          <Button>Next</Button>
+          <Button onClick={handleNext} disabled={page === totalPages}>
+            Next
+          </Button>
         </div>
       </div>
     </div>
