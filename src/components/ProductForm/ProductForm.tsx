@@ -115,9 +115,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="${ isLoading ? 'opacity-50 cursor-not-allowed' : '' }`} cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20"
+            className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20 ${
+              isLoading ? 'cursor-not-allowed opacity-50' : ''
+            }`}
           >
-            Save
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"

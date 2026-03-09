@@ -85,7 +85,7 @@ function renderBodyContent(
         </Button>
         <Button
           className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-          onClick={() => navigate([ROUTES.ADMIN_PRODUCTS, item.id].join('/'))}
+          onClick={() => navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`)}
         >
           <Pencil />
         </Button>
