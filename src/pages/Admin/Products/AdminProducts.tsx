@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import {
   Button,
+  Pagination,
   ProductFiltersBar,
   SearchInput,
   TableProducts,
@@ -45,12 +46,8 @@ export function AdminProducts() {
   };
 
   //pagination
-  const handleNext = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
-  };
-
-  const handlePrevious = () => {
-    if (page > 1) setPage((prev) => prev - 1);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   return (
@@ -90,18 +87,11 @@ export function AdminProducts() {
         {/* Table */}
         <TableProducts items={items} loading={loading} error={error} />
 
-        <div className="allItems-center flex justify-between p-4">
-          <Button onClick={handlePrevious} disabled={page === 1}>
-            Previous
-          </Button>
-          <span className={`${isDark ? 'text-black' : 'text-white'}`}>
-            {' '}
-            Page {page} of {totalPages}
-          </span>
-          <Button onClick={handleNext} disabled={page === totalPages}>
-            Next
-          </Button>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages || 1}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
