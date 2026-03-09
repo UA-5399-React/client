@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 
@@ -12,9 +11,13 @@ const MOBILE_LINKS = [
   { to: ROUTES.ADMIN_SETTING, label: 'Settings' },
 ];
 
-export const MobileSidebar = () => {
+interface MobileSidebarProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const MobileSidebar = ({ isOpen, onOpenChange }: MobileSidebarProps) => {
   const { logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -24,19 +27,19 @@ export const MobileSidebar = () => {
 
   return (
     <div className="min-w-[680px]">
-      <div className="flex h-[64px] w-full items-center gap-2 px-4">
-        <MenuIcon onClick={() => setIsOpen(!isOpen)} />
+      <div className="flex h-[64px] items-center gap-2 pl-4">
+        <MenuIcon onClick={() => onOpenChange(!isOpen)} />
 
         <span className="text-2xl font-bold">Admin</span>
       </div>
 
       {isOpen && (
-        <div className="absolute top-0 left-0 z-2 flex h-full w-full min-w-[680px] flex-col justify-between bg-[rgb(var(--color-bg-sec))]">
+        <div className="absolute top-0 left-0 flex h-full w-full min-w-[680px] flex-col justify-between bg-[rgb(var(--color-bg-sec))]">
           <div>
             <div className="flex items-center gap-4 p-4">
               <XIcon
-                className="text-[rgb(var(--color-gray-600))]"
-                onClick={() => setIsOpen(!isOpen)}
+                className="cursor-pointer text-[rgb(var(--color-gray-600))]"
+                onClick={() => onOpenChange(false)}
               />
 
               <span className="text-2xl font-bold">ADMIN</span>
@@ -51,7 +54,7 @@ export const MobileSidebar = () => {
                   >
                     <NavLink
                       to={to}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => onOpenChange(false)}
                       className={({ isActive }) =>
                         `h-[40px] ${isActive ? 'text-xl font-bold' : ''}`
                       }
