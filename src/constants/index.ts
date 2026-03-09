@@ -21,7 +21,7 @@ export const ROUTES = {
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
-  tags: [],
+  categories: [],
   minPrice: '',
   maxPrice: '',
   status: '',

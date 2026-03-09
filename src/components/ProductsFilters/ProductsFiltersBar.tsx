@@ -35,7 +35,7 @@ export function ProductFiltersBar({
         label="Category"
         options={TAG_OPTIONS}
         onChange={(values: DropdownOption[]) =>
-          update({ tags: values.map((v) => v.value) })
+          update({ categories: values.map((v) => v.value) })
         }
         placeholder="All categories"
       />

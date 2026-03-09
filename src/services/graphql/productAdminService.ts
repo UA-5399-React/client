@@ -1,8 +1,13 @@
 import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS_PAGE = gql`
-  query GetProductsPage($limit: Int!, $page: Int!, $search: String) {
-    productsPage(limit: $limit, page: $page, search: $search) {
+  query GetProductsPage(
+    $limit: Int!
+    $page: Int!
+    $search: String
+    $filter: ProductsFilterInput
+  ) {
+    productsPage(limit: $limit, page: $page, search: $search, filter: $filter) {
       total
       totalPages
       page
