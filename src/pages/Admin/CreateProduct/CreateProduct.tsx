@@ -7,7 +7,7 @@ import type { ProductFormData } from '@/types';
 
 export const CreateProduct = () => {
   const navigate = useNavigate();
-  const { createProduct } = useCreateAdminProduct();
+  const { createProduct, loading } = useCreateAdminProduct();
 
   const handleCreate = async (formData: ProductFormData) => {
     try {
@@ -18,10 +18,10 @@ export const CreateProduct = () => {
         title: formData.name,
         price: parseFloat(formData.price),
         description: formData.description,
-        tags: formData.categories
+        categories: formData.categories
           ? formData.categories
               .split(',')
-              .map((tag) => tag.trim())
+              .map((category) => category.trim())
               .filter(Boolean)
           : [],
         imageUrl: dummyImageUrl,
@@ -40,7 +40,11 @@ export const CreateProduct = () => {
 
   return (
     <div className="mx-auto max-w-3xl p-6">
-      <ProductForm onSubmit={handleCreate} onCancel={handleCancel} />
+      <ProductForm
+        onSubmit={handleCreate}
+        onCancel={handleCancel}
+        isLoading={loading}
+      />
     </div>
   );
 };

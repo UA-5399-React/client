@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import {
   Button,
+  Pagination,
   ProductFiltersBar,
   SearchInput,
   TableProducts,
@@ -26,7 +27,7 @@ export function AdminProducts() {
 
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
 
-  const { items, loading, error } = useAdminProducts({
+  const { items, loading, error, totalPages } = useAdminProducts({
     page,
     limit: LIMIT,
     search: debouncedSearch,
@@ -35,12 +36,18 @@ export function AdminProducts() {
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
+    setPage(1);
   };
 
   // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
+  };
+
+  //pagination
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   return (
@@ -80,14 +87,11 @@ export function AdminProducts() {
         {/* Table */}
         <TableProducts items={items} loading={loading} error={error} />
 
-        <div className="allItems-center flex justify-between p-4">
-          <Button>Previous</Button>
-          <span className={`${isDark ? 'text-black' : 'text-white'}`}>
-            {' '}
-            Page 1 of 10
-          </span>
-          <Button>Next</Button>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages || 1}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

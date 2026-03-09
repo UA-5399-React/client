@@ -1,13 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
-import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '../../constants';
+import { Checkbox } from '@/components';
+import { Input } from '@/components';
+import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
+
+const loginSchema = z.object({
+  usernameOrEmail: z.string().min(1, 'Username or email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  rememberMe: z.boolean().optional(),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
+const getExpirationTime = (rememberMe?: boolean) => {
+  return (Date.now() + (rememberMe ? 7 * 24 : 1) * 60 * 60 * 1000).toString();
+};
+
+const clearAuthData = () => {
+  localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
+  localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
+  localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
+};
+
+const setAuthData = (token: string, expires: string, role: string) => {
+  localStorage.setItem(MOCK_AUTH.TOKEN_KEY, token);
+  localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expires);
+  localStorage.setItem(MOCK_AUTH.ROLE_KEY, role);
+};
 
 export const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setError,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      usernameOrEmail: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
 
   useEffect(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
@@ -20,116 +61,103 @@ export const LoginForm: React.FC = () => {
       } else {
         navigate(ROUTES.HOME);
       }
-      localStorage.removeItem('token');
-      localStorage.removeItem('token_expires');
-      localStorage.removeItem('role');
+    } else {
+      // Clear invalid/expired token
+      clearAuthData();
     }
   }, [navigate]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
+  const onSubmit = (data: LoginFormValues) => {
+    const expirationTime = getExpirationTime(data.rememberMe);
 
-    const expirationTime = (Date.now() + 60 * 60 * 1000).toString();
-
+    // Mock Authentication Logic - remove in future
     if (
-      email === MOCK_AUTH.ADMIN_EMAIL &&
-      password === MOCK_AUTH.ADMIN_PASSWORD
+      data.usernameOrEmail === MOCK_AUTH.ADMIN_EMAIL &&
+      data.password === MOCK_AUTH.ADMIN_PASSWORD
     ) {
-      localStorage.setItem(MOCK_AUTH.TOKEN_KEY, MOCK_AUTH.MOCK_TOKEN);
-      localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-      localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.ADMIN);
-
+      setAuthData(MOCK_AUTH.MOCK_TOKEN, expirationTime, AUTH_ROLES.ADMIN);
       navigate(ROUTES.ADMIN_PRODUCTS);
       return;
     }
 
+    // Allow user login for mock if it's not the admin credentials, just as a placeholder
     if (
-      email === MOCK_AUTH.ADMIN_EMAIL &&
-      password === MOCK_AUTH.ADMIN_PASSWORD
+      data.password.length >= 6 &&
+      data.usernameOrEmail !== MOCK_AUTH.ADMIN_EMAIL
     ) {
-      localStorage.setItem(MOCK_AUTH.TOKEN_KEY, MOCK_AUTH.MOCK_TOKEN);
-      localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-      localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.ADMIN);
-
-      navigate(ROUTES.ADMIN_PRODUCTS);
+      setAuthData('mock-user-token', expirationTime, AUTH_ROLES.USER);
+      navigate(ROUTES.HOME);
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
-    localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'mock-user-token');
-    localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-    localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.USER);
-
-    navigate(ROUTES.HOME);
+    // Invalid credentials
+    setError('usernameOrEmail', { message: 'Invalid credentials' });
+    setError('password', { message: 'Invalid credentials' });
   };
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-6 rounded-xl border border-gray-100 bg-white p-8 shadow-lg">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-center text-2xl font-bold text-gray-800">
-            Login
-          </h2>
-
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-gray-700"
-            >
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 transition-all outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="enter your email"
-              required
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (error) setError(null);
-              }}
-              className={`w-full rounded-lg border px-4 py-2 outline-none focus:ring-2 ${
-                error
-                  ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-blue-500'
-              }`}
-              placeholder="••••••••"
-              required
-            />
-            {error && (
-              <p className="mt-1 text-xs font-medium text-red-500">{error}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white shadow-md outline-none hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-          >
-            Sign In
-          </button>
-        </form>
+    <div className="flex w-full max-w-md flex-col px-4 sm:px-6">
+      <div className="mb-8">
+        <h2 className="text-4xl font-medium text-gray-900">Sign In</h2>
+        <p className="mt-2 text-sm text-gray-500">
+          Don't have an account yet?{' '}
+          <a href="#" className="font-medium hover:opacity-80">
+            <span className="text-green-500">Sign Up</span>
+          </a>
+        </p>
       </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Input
+          {...register('usernameOrEmail')}
+          variant="underlined"
+          placeholder="Your username or email address"
+          state={errors.usernameOrEmail ? 'error' : 'default'}
+          helperText={errors.usernameOrEmail?.message}
+          className="pb-2"
+        />
+
+        <Input
+          {...register('password')}
+          type="password"
+          variant="underlined"
+          placeholder="Password"
+          state={errors.password ? 'error' : 'default'}
+          helperText={errors.password?.message}
+          className="pb-2"
+        />
+
+        <div className="flex items-center justify-between pt-2">
+          <Controller
+            control={control}
+            name="rememberMe"
+            render={({ field }) => (
+              <Checkbox
+                label="Remember me"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                labelClassName="text-sm text-gray-500"
+                checkmarkClassName={field.value ? 'text-white' : 'transparent'}
+                checkboxClassName="h-5 w-5 rounded border-gray-300"
+              />
+            )}
+          />
+
+          <a
+            href="#"
+            className="text-sm font-semibold text-gray-900 hover:underline"
+          >
+            Forgot password?
+          </a>
+        </div>
+
+        <button
+          type="submit"
+          className="mt-6 w-full rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none"
+        >
+          Sign In
+        </button>
+      </form>
     </div>
   );
 };
