@@ -7,6 +7,7 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
+import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminLogin } from './pages/Admin/Login/AdminLogin';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
@@ -24,6 +25,7 @@ function App() {
     ADMIN_PRODUCTS,
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
+    ADMIN_PRODUCT_EDIT,
     ADMIN_LOGIN,
     LOGIN,
   } = ROUTES;
@@ -48,6 +50,7 @@ function App() {
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
+            <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
           </Route>
         </Route>
       </Routes>
