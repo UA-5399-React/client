@@ -7,6 +7,7 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { ROUTES } from './constants';
 import { Home } from './pages';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
+import { AdminLogin } from './pages/Admin/Login/AdminLogin';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { Login } from './pages/Login/Login';
@@ -40,7 +41,7 @@ function App() {
         </Route>
 
         <Route path={LOGIN} element={<Login />} />
-        <Route path={ADMIN_LOGIN} element={<Login />} />
+        <Route path={ADMIN_LOGIN} element={<AdminLogin />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>
