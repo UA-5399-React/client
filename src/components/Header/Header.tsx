@@ -85,6 +85,7 @@ export const Header = () => {
           <Link
             to={ROUTES.CART}
             className="flex items-center gap-2 text-inherit no-underline transition-opacity hover:opacity-70"
+            aria-label="Cart"
           >
             <ShoppingBag className="h-6 w-6 transition-all duration-300" />
             <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300"></span>
