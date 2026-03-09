@@ -1,6 +1,9 @@
 :root {
   /* Light theme */
   --color-bg: 255 255 255;
+  /* #FFFFFF */
+  --color-bg-sec: 245 245 245;
+  /* #F5F5F5 */
   --color-text: 20 23 24;
   /* #141718 */
   --color-muted: 108 114 117;
@@ -8,6 +11,8 @@
   --color-primary: 56 203 137;
   /* #38CB89 */
 
+  --color-gray-600: 108 114 117;
+  /* #6C7275 */
   /* Search input */
   --color-placeholder: 102 112 133;
   /* #667085 */
@@ -17,8 +22,11 @@
 }
 
 .dark {
-  --color-bg: 20 23 24;
+  --color-bg: 000 000 000;
+  /* #000000 */
+  --color-bg-sec: 20 23 24;
   /* #141718 */
+
   --color-text: 255 255 255;
   --color-muted: 160 160 160;
   --color-primary: 56 203 137;

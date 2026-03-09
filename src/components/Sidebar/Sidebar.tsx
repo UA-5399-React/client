@@ -25,7 +25,7 @@ export const Sidebar = () => {
   return (
     <div className="flex h-full min-h-full flex-col justify-between">
       <div>
-        <h1 className="light:text-white pb-16 text-center text-4xl font-bold dark:text-black">
+        <h1 className="pb-16 text-center text-4xl font-bold text-[rgb(var(--color-text))]">
           ADMIN
         </h1>
 

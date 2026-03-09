@@ -59,7 +59,10 @@ function renderBodyContent(
     );
   }
   return items.map((item: Product) => (
-    <tr className="h-[80px] text-center" key={item.id}>
+    <tr
+      className="h-[80px] text-center text-[rgb(var(--color-text))]"
+      key={item.id}
+    >
       <td>
         <div className="flex items-center gap-2">
           <Checkbox className="h-[20px] w-[20px]" />
@@ -105,7 +108,7 @@ export function TableProducts({ items, loading, error }: TableProductsProps) {
         </thead>
 
         <tbody
-          className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
+          className={`bg-[rgb(var(--color-bg-sec))] [&_td]:px-4 [&_td]:text-center`}
         >
           {renderBodyContent(loading, error ?? null, items, isDark)}
         </tbody>
