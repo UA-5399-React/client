@@ -1,21 +1,26 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useTheme } from '@/hooks/useTheme';
-
-import { Sidebar } from '../Sidebar/Sidebar';
+import { MobileSidebar, Sidebar } from '@/components';
 
 export function AdminLayout() {
-  const { isDark } = useTheme();
+  const [isOpen, isSetOpen] = useState(false);
 
   return (
-    <div className="flex h-screen min-h-screen">
-      <aside
-        className={`flex h-full w-[255px] max-w-[255px] shrink-0 flex-col ${isDark ? 'bg-black' : ''}`}
-      >
+    <div className="flex h-screen min-h-screen flex-col md:flex-row">
+      <aside className="hidden h-full w-[255px] max-w-[255px] shrink-0 flex-col bg-[rgb(var(--color-bg-sec))] md:flex">
         <Sidebar />
       </aside>
 
-      <main className={`text-text bg-background min-w-0 flex-1`}>
+      <div className="flex w-full min-w-[680px] bg-[rgb(var(--color-bg-sec))] md:hidden">
+        <MobileSidebar isSidebarOpen={isOpen} onSidebarChange={isSetOpen} />
+      </div>
+
+      <main
+        className={`text-text bg-background min-w-[680px] flex-1 ${
+          isOpen ? 'max-md:invisible' : ''
+        }`}
+      >
         <Outlet />
       </main>
     </div>
