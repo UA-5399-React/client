@@ -13,7 +13,7 @@ export const GET_PRODUCTS_PAGE = gql`
         price
         status
         description
-        tags
+        categories
         createdAt
         updatedAt
       }
@@ -29,7 +29,21 @@ export const CREATE_PRODUCT = gql`
       price
       status
       description
-      tags
+      categories
+      imageUrl
+    }
+  }
+`;
+
+export const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      price
+      description
+      categories
+      productCode
       imageUrl
     }
   }
@@ -42,7 +56,7 @@ export const UPDATE_PRODUCT = gql`
       title
       price
       description
-      tags
+      categories
       imageUrl
     }
   }
