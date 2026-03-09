@@ -35,6 +35,20 @@ export const CREATE_PRODUCT = gql`
   }
 `;
 
+export const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      price
+      description
+      categories
+      productCode
+      imageUrl
+    }
+  }
+`;
+
 export const UPDATE_PRODUCT = gql`
   mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) {
     updateProduct(id: $id, input: $input) {
