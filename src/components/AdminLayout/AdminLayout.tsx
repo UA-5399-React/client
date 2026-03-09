@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { MobileSidebar } from '../MobileSidebar/MobileSidebar';
-import { Sidebar } from '../Sidebar/Sidebar';
+import { MobileSidebar, Sidebar } from '@/components';
 
 export function AdminLayout() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isOpen, isSetOpen] = useState(false);
 
   return (
     <div className="flex h-screen min-h-screen flex-col md:flex-row">
@@ -14,15 +13,12 @@ export function AdminLayout() {
       </aside>
 
       <div className="flex w-full min-w-[680px] bg-[rgb(var(--color-bg-sec))] md:hidden">
-        <MobileSidebar
-          isOpen={mobileMenuOpen}
-          onOpenChange={setMobileMenuOpen}
-        />
+        <MobileSidebar isSidebarOpen={isOpen} onSidebarChange={isSetOpen} />
       </div>
 
       <main
         className={`text-text bg-background min-w-[680px] flex-1 ${
-          mobileMenuOpen ? 'max-md:invisible' : ''
+          isOpen ? 'max-md:invisible' : ''
         }`}
       >
         <Outlet />

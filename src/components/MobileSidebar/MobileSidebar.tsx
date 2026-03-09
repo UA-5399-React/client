@@ -1,10 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 
+import { Button } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
-
-import { Button } from '../Button';
 
 const MOBILE_LINKS = [
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products' },
@@ -12,11 +11,14 @@ const MOBILE_LINKS = [
 ];
 
 interface MobileSidebarProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  isSidebarOpen: boolean;
+  onSidebarChange: (open: boolean) => void;
 }
 
-export const MobileSidebar = ({ isOpen, onOpenChange }: MobileSidebarProps) => {
+export const MobileSidebar = ({
+  isSidebarOpen,
+  onSidebarChange,
+}: MobileSidebarProps) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,18 +30,18 @@ export const MobileSidebar = ({ isOpen, onOpenChange }: MobileSidebarProps) => {
   return (
     <div className="min-w-[680px]">
       <div className="flex h-[64px] items-center gap-2 pl-4">
-        <MenuIcon onClick={() => onOpenChange(!isOpen)} />
+        <MenuIcon onClick={() => onSidebarChange(!isSidebarOpen)} />
 
         <span className="text-2xl font-bold">Admin</span>
       </div>
 
-      {isOpen && (
+      {isSidebarOpen && (
         <div className="absolute top-0 left-0 flex h-full w-full min-w-[680px] flex-col justify-between bg-[rgb(var(--color-bg-sec))]">
           <div>
             <div className="flex items-center gap-4 p-4">
               <XIcon
                 className="cursor-pointer text-[rgb(var(--color-gray-600))]"
-                onClick={() => onOpenChange(false)}
+                onClick={() => onSidebarChange(false)}
               />
 
               <span className="text-2xl font-bold">ADMIN</span>
@@ -54,7 +56,7 @@ export const MobileSidebar = ({ isOpen, onOpenChange }: MobileSidebarProps) => {
                   >
                     <NavLink
                       to={to}
-                      onClick={() => onOpenChange(false)}
+                      onClick={() => onSidebarChange(false)}
                       className={({ isActive }) =>
                         `h-[40px] ${isActive ? 'text-xl font-bold' : ''}`
                       }
