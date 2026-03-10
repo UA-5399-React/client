@@ -12,6 +12,7 @@ describe('Component: ProductForm', () => {
           name: 'MacBook Pro',
           price: '2499',
           categories: 'laptops, electronics',
+          status: 'active',
           description: 'Laptop for work',
           imagePreview: 'https://example.com/product.png',
         }}
@@ -25,6 +26,7 @@ describe('Component: ProductForm', () => {
     expect(
       screen.getByDisplayValue('laptops, electronics'),
     ).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toHaveTextContent('Active');
     expect(screen.getByDisplayValue('Laptop for work')).toBeInTheDocument();
     expect(screen.getByAltText('Preview')).toHaveAttribute(
       'src',
@@ -87,6 +89,7 @@ describe('Component: ProductForm', () => {
         name: 'IPhone 16',
         price: '999.99',
         categories: 'phones, electronics',
+        status: 'draft',
         description: 'Flagship phone',
         imagePreview: null,
         imageFile: undefined,

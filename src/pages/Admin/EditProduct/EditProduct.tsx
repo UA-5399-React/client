@@ -31,6 +31,7 @@ export const EditProduct = () => {
         price: String(product.price),
         description: product.description || '',
         categories: product.categories?.join(', ') || '',
+        status: product.status,
         imagePreview: product.imageUrl || null,
       }
     : null;
@@ -69,6 +70,7 @@ export const EditProduct = () => {
       await updateProduct(id, {
         title: formData.name,
         price: Number(formData.price),
+        status: formData.status,
         description: formData.description,
         categories: formData.categories.split(',').map((c) => c.trim()),
       });

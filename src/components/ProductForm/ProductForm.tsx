@@ -4,8 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
-import { Input, TextArea } from '@/components';
-import type { ProductFormData } from '@/types';
+import { Dropdown, Input, TextArea } from '@/components';
+import type { ProductFormData, ProductStatus } from '@/types';
+
+import type { DropdownOption } from '../Dropdown/Dropdown.types';
+
+const STATUS_OPTIONS: DropdownOption[] = [
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Inactive', value: 'INACTIVE' },
+  { label: 'Draft', value: 'DRAFT' },
+];
 
 const productFormSchema = z.object({
   name: z.string().trim().min(1, 'Product name is required'),
@@ -27,6 +35,7 @@ const productFormSchema = z.object({
           .filter(Boolean).length > 0,
       'Enter at least one category',
     ),
+  status: z.enum(['ACTIVE', 'INACTIVE', 'DRAFT']),
   description: z.string(),
   imagePreview: z.string().nullable(),
   imageFile: z.instanceof(File).optional(),
@@ -63,6 +72,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
+      status: initialData?.status || ('DRAFT' as ProductStatus),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -81,6 +91,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
+      status: initialData?.status || ('DRAFT' as ProductStatus),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -201,6 +212,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 value={field.value ?? ''}
                 state={errors.categories ? 'error' : 'default'}
                 helperText={errors.categories?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <Dropdown
+                label="Status"
+                labelClassName="capitalize text-sm"
+                selectClassName="bg-white text-black hover:bg-gray-50 dark:hover:bg-gray-800 data-[popup-open]:bg-white"
+                options={STATUS_OPTIONS}
+                selectedValues={field.value ? [field.value] : []}
+                onChange={(values) =>
+                  field.onChange((values[0]?.value ?? 'DRAFT') as ProductStatus)
+                }
+                placeholder="Select status"
+                multiple={false}
               />
             )}
           />

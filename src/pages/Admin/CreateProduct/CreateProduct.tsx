@@ -17,6 +17,7 @@ export const CreateProduct = () => {
       const input = {
         title: formData.name,
         price: parseFloat(formData.price),
+        status: formData.status,
         description: formData.description,
         categories: formData.categories
           ? formData.categories

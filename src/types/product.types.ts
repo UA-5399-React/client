@@ -1,4 +1,4 @@
-export type ProductStatus = 'active' | 'inactive' | 'draft';
+export type ProductStatus = 'ACTIVE' | 'INACTIVE' | 'DRAFT';
 
 export interface Product {
   _id?: string;
@@ -46,6 +46,7 @@ export interface ProductFormData {
   name: string;
   price: string;
   categories: string;
+  status: ProductStatus;
   description: string;
   imagePreview: string | null;
   imageFile?: File;

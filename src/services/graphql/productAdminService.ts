@@ -41,6 +41,8 @@ export const GET_PRODUCT = gql`
       id
       title
       price
+      updatedAt
+      status
       description
       categories
       productCode
@@ -55,6 +57,7 @@ export const UPDATE_PRODUCT = gql`
       id
       title
       price
+      status
       description
       categories
       imageUrl
