@@ -7,18 +7,26 @@ export function AdminLayout() {
   const [isOpen, isSetOpen] = useState(false);
 
   return (
-    <div className="flex h-screen min-h-screen flex-col md:flex-row">
-      <aside className="hidden h-full w-[255px] max-w-[255px] shrink-0 flex-col bg-[rgb(var(--color-bg-sec))] md:flex">
+    <div
+      className={`flex min-h-screen flex-col md:flex-row md:items-stretch ${
+        isOpen ? 'max-md:h-screen max-md:overflow-hidden' : ''
+      }`}
+    >
+      <aside className="hidden min-h-screen w-[255px] max-w-[255px] shrink-0 flex-col self-stretch bg-[rgb(var(--color-bg-sec))] md:flex">
         <Sidebar />
       </aside>
 
-      <div className="flex w-full min-w-[680px] bg-[rgb(var(--color-bg-sec))] md:hidden">
+      <div
+        className={`flex w-full bg-[rgb(var(--color-bg-sec))] md:hidden ${isOpen ? '' : 'min-w-[680px]'}`}
+      >
         <MobileSidebar isSidebarOpen={isOpen} onSidebarChange={isSetOpen} />
       </div>
 
       <main
-        className={`text-text bg-background min-w-[680px] flex-1 ${
-          isOpen ? 'max-md:invisible' : ''
+        className={`text-text bg-background flex ${
+          isOpen
+            ? 'max-md:invisible max-md:h-screen max-md:overflow-hidden'
+            : 'min-w-[680px]'
         }`}
       >
         <Outlet />
