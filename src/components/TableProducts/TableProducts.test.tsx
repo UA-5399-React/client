@@ -6,6 +6,7 @@ import { render, screen, userEvent } from '@/utils/test-utils';
 import { TableProducts } from './TableProducts';
 
 const mockNavigate = vi.fn();
+const mockDuplicate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -37,12 +38,16 @@ const mockProducts: Product[] = [
 
 describe('UI Component: TableProducts', () => {
   it('should render the table element', () => {
-    render(<TableProducts items={[]} loading={false} />);
+    render(
+      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+    );
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
-    render(<TableProducts items={[]} loading={false} />);
+    render(
+      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+    );
 
     expect(screen.getByText('Image')).toBeInTheDocument();
     expect(screen.getByText('Name')).toBeInTheDocument();
@@ -52,54 +57,101 @@ describe('UI Component: TableProducts', () => {
   });
 
   it('should display "Loading..." when loading is true', () => {
-    render(<TableProducts items={[]} loading={true} />);
+    render(
+      <TableProducts items={[]} loading={true} onDuplicate={mockDuplicate} />,
+    );
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('should not render product rows when loading', () => {
-    render(<TableProducts items={mockProducts} loading={true} />);
+    render(
+      <TableProducts
+        items={mockProducts}
+        loading={true}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.queryByText('Product Alpha')).not.toBeInTheDocument();
   });
 
   it('should display the error message when error prop is provided', () => {
     const error = new Error('Network failure');
-    render(<TableProducts items={[]} loading={false} error={error} />);
+    render(
+      <TableProducts
+        items={[]}
+        loading={false}
+        error={error}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.getByText('Failed to load products')).toBeInTheDocument();
     expect(screen.getByText('Network failure')).toBeInTheDocument();
   });
 
   it('should render an alert role row when error is present', () => {
     const error = new Error('Oops');
-    render(<TableProducts items={[]} loading={false} error={error} />);
+    render(
+      <TableProducts
+        items={[]}
+        loading={false}
+        error={error}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
   it('should not render product rows when error is present', () => {
     const error = new Error('Oops');
     render(
-      <TableProducts items={mockProducts} loading={false} error={error} />,
+      <TableProducts
+        items={mockProducts}
+        loading={false}
+        error={error}
+        onDuplicate={mockDuplicate}
+      />,
     );
     expect(screen.queryByText('Product Alpha')).not.toBeInTheDocument();
   });
 
   it('should display "No products found" when items array is empty', () => {
-    render(<TableProducts items={[]} loading={false} />);
+    render(
+      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+    );
     expect(screen.getByText('No products found')).toBeInTheDocument();
   });
 
   it('should not display "No products found" when items are present', () => {
-    render(<TableProducts items={mockProducts} loading={false} />);
+    render(
+      <TableProducts
+        items={mockProducts}
+        loading={false}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.queryByText('No products found')).not.toBeInTheDocument();
   });
 
   it('should render a row for each product', () => {
-    render(<TableProducts items={mockProducts} loading={false} />);
+    render(
+      <TableProducts
+        items={mockProducts}
+        loading={false}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.getByText('Product Alpha')).toBeInTheDocument();
     expect(screen.getByText('Product Beta')).toBeInTheDocument();
   });
 
   it('should display product title, status, price, and description', () => {
-    render(<TableProducts items={[mockProducts[0]]} loading={false} />);
+    render(
+      <TableProducts
+        items={[mockProducts[0]]}
+        loading={false}
+        onDuplicate={mockDuplicate}
+      />,
+    );
     expect(screen.getByText('Product Alpha')).toBeInTheDocument();
     expect(screen.getByText('active')).toBeInTheDocument();
     expect(screen.getByText('99')).toBeInTheDocument();
@@ -108,7 +160,13 @@ describe('UI Component: TableProducts', () => {
 
   it('should navigate to the product edit page when the edit button is clicked', async () => {
     const user = userEvent.setup();
-    render(<TableProducts items={[mockProducts[0]]} loading={false} />);
+    render(
+      <TableProducts
+        items={[mockProducts[0]]}
+        loading={false}
+        onDuplicate={mockDuplicate}
+      />,
+    );
 
     const editButton = screen.getAllByRole('button')[1];
     await user.click(editButton);

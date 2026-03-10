@@ -10,6 +10,7 @@ import {
 import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDuplicate } from '@/hooks/useDuplicate';
 import { type ProductsFilters } from '@/types/filters';
 
 const LIMIT = 10;
@@ -23,6 +24,7 @@ export function AdminProducts() {
   const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
+  const { duplicateProduct } = useDuplicate();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page,
@@ -80,7 +82,12 @@ export function AdminProducts() {
         </div>
 
         {/* Table */}
-        <TableProducts items={items} loading={loading} error={error} />
+        <TableProducts
+          items={items}
+          loading={loading}
+          error={error}
+          onDuplicate={duplicateProduct}
+        />
 
         <Pagination
           currentPage={page}
