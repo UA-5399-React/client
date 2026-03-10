@@ -13,7 +13,7 @@ import { SORT_OPTIONS } from './types';
 import './Products.css';
 
 export const Products = () => {
-  const [viewType, setViewType] = useState<ViewType>('grid-4');
+  const [viewType, setViewType] = useState<ViewType>('grid-5');
   const [isMobile, setIsMobile] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,7 +45,7 @@ export const Products = () => {
     });
   };
 
-  const handleFilterChange = (newValue: 'title' | 'price') => {
+  const handleFilterChange = (newValue: string) => {
     setSearchParams((prev) => {
       prev.set('sort', newValue);
       prev.set('page', '1');
