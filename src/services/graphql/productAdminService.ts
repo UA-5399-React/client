@@ -42,6 +42,8 @@ export const GET_PRODUCT = gql`
       id
       title
       price
+      updatedAt
+      status
       description
       categories
       productCode
@@ -70,8 +72,22 @@ export const UPDATE_PRODUCT = gql`
       id
       title
       price
+      status
       description
       categories
+      imageUrl
+    }
+  }
+`;
+
+export const DUPLICATE_PRODUCT = gql`
+  mutation DuplicateProduct($id: ID!) {
+    duplicateProduct(id: $id) {
+      id
+      title
+      price
+      status
+      productCode
       imageUrl
     }
   }

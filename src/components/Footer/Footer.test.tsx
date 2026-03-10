@@ -21,9 +21,9 @@ describe('UI Component: Footer', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 
-  it('should render the brand name TechnoWorld', () => {
+  it('should render the brand name TechnoWorld.', () => {
     render(<Footer />);
-    expect(screen.getAllByText('TechnoWorld')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('TechnoWorld.')[0]).toBeInTheDocument();
   });
 
   it('should render the store tagline', () => {

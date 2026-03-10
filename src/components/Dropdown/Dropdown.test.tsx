@@ -1,8 +1,10 @@
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { Dropdown } from './Dropdown';
+import type { DropdownOption } from './Dropdown.types';
 
 const mockOptions = [
   { value: 'apple', label: 'Apple' },
@@ -44,43 +46,46 @@ describe('UI Component: Dropdown', () => {
     const handleChange = vi.fn();
 
     render(
-      <Dropdown
-        label="Fruits"
-        options={mockOptions}
-        onChange={handleChange}
-        selectedValues={[]}
-      />,
+      <Dropdown label="Fruits" options={mockOptions} onChange={handleChange} />,
     );
 
     await user.click(screen.getByRole('combobox'));
     await user.click(screen.getByText(mockOptions[0].label));
 
-    expect(handleChange).toHaveBeenCalledWith(
-      [mockOptions[0]],
-      expect.any(Object),
-    );
+    expect(handleChange).toHaveBeenCalledWith([mockOptions[0]]);
   });
 
   it('should allow selecting multiple options', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn();
 
-    render(
-      <Dropdown
-        label="Fruits"
-        options={mockOptions}
-        onChange={handleChange}
-        selectedValues={[]}
-      />,
-    );
+    const ControlledDropdown = () => {
+      const [selectedValues, setSelectedValues] = React.useState<string[]>([]);
+
+      const handleDropdownChange = (values: DropdownOption[]) => {
+        setSelectedValues(values.map((value) => value.value));
+        handleChange(values);
+      };
+
+      return (
+        <Dropdown
+          label="Fruits"
+          options={mockOptions}
+          onChange={handleDropdownChange}
+          selectedValues={selectedValues}
+        />
+      );
+    };
+
+    render(<ControlledDropdown />);
 
     await user.click(screen.getByRole('combobox'));
     await user.click(screen.getByText('Apple'));
     await user.click(screen.getByText('Banana'));
 
-    expect(handleChange).toHaveBeenLastCalledWith(
-      [mockOptions[0], mockOptions[1]],
-      expect.any(Object),
-    );
+    expect(handleChange).toHaveBeenLastCalledWith([
+      mockOptions[0],
+      mockOptions[1],
+    ]);
   });
 });

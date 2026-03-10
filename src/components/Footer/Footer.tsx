@@ -17,62 +17,70 @@ export const Footer = () => {
 
   return (
     <footer
-      className={`px-16 py-12 transition-colors duration-300 ${
+      className={`px-4 py-10 transition-colors duration-300 lg:px-16 lg:py-12 ${
         isDark ? 'bg-white text-black' : 'bg-[#141718] text-white'
       }`}
     >
-      <div className="flex items-center justify-between pb-10">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col gap-6 pb-8 lg:flex-row lg:items-center lg:justify-between lg:pb-10">
+        <div className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-6">
           <Link
             to={ROUTES.HOME}
-            className="text-2xl font-medium no-underline transition-colors duration-300"
+            className="text-xl font-medium no-underline transition-colors duration-300 md:text-2xl"
             style={{ color: 'inherit' }}
           >
-            TechnoWorld
+            TechnoWorld.
           </Link>
+
           <div
-            className={`h-6 border-l ${isDark ? 'border-gray-400' : 'border-gray-600'}`}
-          ></div>
+            className={`hidden h-6 border-l lg:block ${
+              isDark ? 'border-gray-400' : 'border-gray-600'
+            }`}
+          />
+
           <span
-            className={`text-sm ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
+            className={`text-sm ${isDark ? 'text-gray-600' : 'text-gray-400'}`}
           >
             Gift & Decoration Store
           </span>
         </div>
 
-        <nav className="flex gap-8">
-          {NAV_LINKS.map(({ path, label }) => (
-            <NavLink
-              key={path}
-              to={path}
-              className={({ isActive }) =>
-                `text-sm font-medium no-underline transition-colors duration-300 ${
-                  isActive
-                    ? isDark
-                      ? 'text-black'
-                      : 'text-white'
-                    : isDark
-                      ? 'text-gray-500 hover:text-black'
-                      : 'text-gray-300 hover:text-white'
-                }`
-              }
-            >
-              {label}
-            </NavLink>
-          ))}
+        <nav>
+          <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-3 p-0 lg:gap-8">
+            {NAV_LINKS.map(({ path, label }) => (
+              <li key={path}>
+                <NavLink
+                  to={path}
+                  className={({ isActive }) =>
+                    `text-sm font-medium no-underline transition-colors duration-300 ${
+                      isActive
+                        ? isDark
+                          ? 'text-black'
+                          : 'text-white'
+                        : isDark
+                          ? 'text-gray-500 hover:text-black'
+                          : 'text-gray-400 hover:text-white'
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </nav>
       </div>
 
       <div
         className={`border-t ${isDark ? 'border-gray-300' : 'border-gray-700'}`}
-      ></div>
-
+      />
       <div
-        className={`flex items-center justify-between pt-8 text-xs ${isDark ? 'text-gray-600' : 'text-gray-300'}`}
+        className={`flex flex-col gap-5 pt-6 text-xs lg:flex-row lg:items-center lg:justify-between lg:pt-8 ${
+          isDark ? 'text-gray-600' : 'text-gray-400'
+        }`}
       >
-        <div className="flex items-center gap-8">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center lg:gap-8">
           <span>Copyright © 2026 TechnoWorld. All rights reserved</span>
-          <div className="flex items-center gap-6 font-semibold">
+          <div className="flex items-center gap-4 font-semibold lg:gap-6">
             <Link
               to="#"
               className="no-underline transition-colors duration-300 hover:opacity-70"
@@ -90,15 +98,27 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link to="#" className="transition-opacity hover:opacity-70">
-            <Instagram className="h-6 w-6 transition-all duration-300" />
+        <div className="flex items-center gap-5 lg:gap-6">
+          <Link
+            to="#"
+            className="transition-opacity hover:opacity-70"
+            style={{ color: 'inherit' }}
+          >
+            <Instagram className="h-5 w-5 transition-all duration-300 lg:h-6 lg:w-6" />
           </Link>
-          <Link to="#" className="transition-opacity hover:opacity-70">
-            <Facebook className="h-6 w-6 transition-all duration-300" />
+          <Link
+            to="#"
+            className="transition-opacity hover:opacity-70"
+            style={{ color: 'inherit' }}
+          >
+            <Facebook className="h-5 w-5 transition-all duration-300 lg:h-6 lg:w-6" />
           </Link>
-          <Link to="#" className="transition-opacity hover:opacity-70">
-            <Youtube className="h-6 w-6 transition-all duration-300" />
+          <Link
+            to="#"
+            className="transition-opacity hover:opacity-70"
+            style={{ color: 'inherit' }}
+          >
+            <Youtube className="h-5 w-5 transition-all duration-300 lg:h-6 lg:w-6" />
           </Link>
         </div>
       </div>

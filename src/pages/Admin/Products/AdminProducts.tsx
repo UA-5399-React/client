@@ -11,6 +11,7 @@ import {
 import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDuplicate } from '@/hooks/useDuplicate';
 import { useTheme } from '@/hooks/useTheme';
 import { type ProductsFilters } from '@/types/filters';
 import type {
@@ -39,6 +40,7 @@ export function AdminProducts() {
 
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
+  const { duplicateProduct } = useDuplicate();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page,
@@ -117,6 +119,13 @@ export function AdminProducts() {
 
         {/* Product list */}
         <TableProducts items={items} loading={loading} error={error} />
+        {/* Table */}
+        <TableProducts
+          items={items}
+          loading={loading}
+          error={error}
+          onDuplicate={duplicateProduct}
+        />
 
         <Pagination
           currentPage={page}

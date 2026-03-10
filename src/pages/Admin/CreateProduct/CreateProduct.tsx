@@ -44,6 +44,7 @@ export const CreateProduct = () => {
         onSubmit={handleCreate}
         onCancel={handleCancel}
         isLoading={loading}
+        isEditMode={false}
       />
     </div>
   );
