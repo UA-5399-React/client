@@ -1,20 +1,28 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { ROUTES } from '@/constants';
 import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { AdminLogin } from './AdminLogin';
+
+let mockLocationPathname = '/';
 
 // Mock useNavigate so we can assert redirects without actually navigating
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({ pathname: mockLocationPathname }),
+  };
 });
 
 describe('Page: AdminLogin', () => {
   beforeEach(() => {
     localStorage.clear();
     mockNavigate.mockClear();
+    mockLocationPathname = '/';
   });
 
   afterEach(() => {
@@ -103,6 +111,8 @@ describe('Page: AdminLogin', () => {
   // ─── Authentication ──────────────────────────────────────────────────────────
 
   it('should redirect admin to /admin/products on valid admin credentials', async () => {
+    mockLocationPathname = ROUTES.ADMIN_LOGIN;
+
     const user = userEvent.setup();
     render(<AdminLogin />);
 
@@ -113,10 +123,10 @@ describe('Page: AdminLogin', () => {
     await user.type(screen.getByPlaceholderText('Password'), 'admin123');
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/products');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN_PRODUCTS);
   });
 
-  it('should redirect regular user to / on valid non-admin credentials', async () => {
+  it('should redirect regular user to /shop on valid non-admin credentials', async () => {
     const user = userEvent.setup();
     render(<AdminLogin />);
 
@@ -127,7 +137,7 @@ describe('Page: AdminLogin', () => {
     await user.type(screen.getByPlaceholderText('Password'), 'password123');
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
   });
 
   it('should redirect already-authenticated admin on mount', () => {
@@ -138,7 +148,7 @@ describe('Page: AdminLogin', () => {
 
     render(<AdminLogin />);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/admin/products');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN_PRODUCTS);
   });
 
   it('should redirect already-authenticated user on mount', () => {
@@ -149,7 +159,7 @@ describe('Page: AdminLogin', () => {
 
     render(<AdminLogin />);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
   });
 
   it('should clear expired token on mount', () => {
