@@ -4,17 +4,24 @@ import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { AdminLogin } from './AdminLogin';
 
+let mockLocationPathname = '/';
+
 // Mock useNavigate so we can assert redirects without actually navigating
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({ pathname: mockLocationPathname }),
+  };
 });
 
 describe('Page: AdminLogin', () => {
   beforeEach(() => {
     localStorage.clear();
     mockNavigate.mockClear();
+    mockLocationPathname = '/';
   });
 
   afterEach(() => {
@@ -103,6 +110,8 @@ describe('Page: AdminLogin', () => {
   // ─── Authentication ──────────────────────────────────────────────────────────
 
   it('should redirect admin to /admin/products on valid admin credentials', async () => {
+    mockLocationPathname = '/admin/login';
+
     const user = userEvent.setup();
     render(<AdminLogin />);
 
@@ -116,7 +125,7 @@ describe('Page: AdminLogin', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/admin/products');
   });
 
-  it('should redirect regular user to / on valid non-admin credentials', async () => {
+  it('should redirect regular user to /shop on valid non-admin credentials', async () => {
     const user = userEvent.setup();
     render(<AdminLogin />);
 
@@ -127,7 +136,7 @@ describe('Page: AdminLogin', () => {
     await user.type(screen.getByPlaceholderText('Password'), 'password123');
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/shop');
   });
 
   it('should redirect already-authenticated admin on mount', () => {
@@ -149,7 +158,7 @@ describe('Page: AdminLogin', () => {
 
     render(<AdminLogin />);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/shop');
   });
 
   it('should clear expired token on mount', () => {
