@@ -6,7 +6,7 @@ import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useGetAdminProduct } from '@/hooks/useGetAdminProduct';
 import { useUpdateAdminProduct } from '@/hooks/useUpdateAdminProduct';
-import type { ProductFormData } from '@/types';
+import type { ProductFormData, ProductStatus } from '@/types';
 
 const ERROR_TEXTS = {
   SERVER: 'Server Error: Failed to load product data',
@@ -71,7 +71,7 @@ export const EditProduct = () => {
       await updateProduct(id, {
         title: formData.name,
         price: Number(formData.price),
-        status: formData.status,
+        status: formData.status as ProductStatus,
         description: formData.description,
         categories: formData.categories.split(',').map((c) => c.trim()),
       });

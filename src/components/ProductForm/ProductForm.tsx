@@ -5,7 +5,7 @@ import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
 import { Dropdown, Input, TextArea } from '@/components';
-import type { ProductFormData, ProductStatus } from '@/types';
+import type { ProductFormData, ProductStatusUpperCase } from '@/types';
 
 import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
@@ -76,7 +76,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
-      status: initialData?.status || ('DRAFT' as ProductStatus),
+      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -95,7 +95,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
-      status: initialData?.status || ('DRAFT' as ProductStatus),
+      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -245,7 +245,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   selectedValues={field.value ? [field.value] : []}
                   onChange={(values) =>
                     field.onChange(
-                      (values[0]?.value ?? 'DRAFT') as ProductStatus,
+                      (values[0]?.value ?? 'DRAFT') as ProductStatusUpperCase,
                     )
                   }
                   placeholder="Select status"
