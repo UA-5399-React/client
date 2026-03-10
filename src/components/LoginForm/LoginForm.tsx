@@ -59,7 +59,7 @@ export const LoginForm: React.FC = () => {
       if (role === AUTH_ROLES.ADMIN) {
         navigate(ROUTES.ADMIN_PRODUCTS);
       } else {
-        navigate('/shop');
+        navigate(ROUTES.SHOP);
       }
     } else {
       clearAuthData();
@@ -77,7 +77,7 @@ export const LoginForm: React.FC = () => {
       return;
     } else {
       setAuthData('mock-user-token', expirationTime, AUTH_ROLES.USER);
-      navigate('/shop');
+      navigate(ROUTES.SHOP);
       return;
     }
   };
