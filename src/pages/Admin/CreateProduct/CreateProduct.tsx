@@ -3,7 +3,7 @@
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useCreateAdminProduct } from '@/hooks/useCreateAdminProduct';
-import type { ProductFormData, ProductStatus } from '@/types';
+import type { ProductFormData } from '@/types';
 
 export const CreateProduct = () => {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ export const CreateProduct = () => {
       const input = {
         title: formData.name,
         price: parseFloat(formData.price),
-        status: 'DRAFT' as ProductStatus,
         description: formData.description,
         categories: formData.categories
           ? formData.categories
