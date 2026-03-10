@@ -66,3 +66,16 @@ export const UPDATE_PRODUCT = gql`
     }
   }
 `;
+
+export const DUPLICATE_PRODUCT = gql`
+  mutation DuplicateProduct($id: ID!) {
+    duplicateProduct(id: $id) {
+      id
+      title
+      price
+      status
+      productCode
+      imageUrl
+    }
+  }
+`;
