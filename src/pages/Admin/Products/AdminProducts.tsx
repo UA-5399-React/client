@@ -23,7 +23,6 @@ import { buildSortValue, parseSortValue } from '@/utils/sorting';
 const LIMIT = 10;
 
 export function AdminProducts() {
-  const { isDark } = useTheme();
 
   // filters
   const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
