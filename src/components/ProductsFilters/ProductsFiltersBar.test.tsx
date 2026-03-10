@@ -7,7 +7,7 @@ import { render, screen, userEvent } from '@/utils/test-utils';
 import { ProductFiltersBar } from './ProductsFiltersBar';
 
 const defaultFilters: ProductsFilters = {
-  tags: [],
+  categories: [],
   minPrice: '',
   maxPrice: '',
   status: '',
