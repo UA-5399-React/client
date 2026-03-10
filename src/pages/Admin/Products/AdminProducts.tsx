@@ -68,6 +68,7 @@ export function AdminProducts() {
     setSort(nextSort.sort);
     setOrder(nextSort.order);
     setPage(1);
+  };
   //pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
