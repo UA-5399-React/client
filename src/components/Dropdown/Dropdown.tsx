@@ -1,6 +1,6 @@
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
-import { Check, ChevronsUpDownIcon } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 
 import type { DropdownProps } from './Dropdown.types';
 
@@ -11,6 +11,7 @@ export const Dropdown = ({
   options,
   onChange,
   placeholder = 'Select options',
+  hasBorder = true,
 }: DropdownProps) => {
   return (
     <Field.Root className={styles.Field}>
@@ -21,11 +22,11 @@ export const Dropdown = ({
       >
         {label}
       </Field.Label>
-      <Select.Root multiple onValueChange={onChange}>
-        <Select.Trigger className={styles.Select}>
+      <Select.Root onValueChange={onChange}>
+        <Select.Trigger className={styles.Select} data-border={hasBorder}>
           <Select.Value className={styles.Value} placeholder={placeholder} />
           <Select.Icon className={styles.SelectIcon}>
-            <ChevronsUpDownIcon className="w-4" />
+            <ChevronDown className="w-4" />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -38,7 +39,7 @@ export const Dropdown = ({
               {options.map((value) => (
                 <Select.Item
                   key={value.value}
-                  value={value}
+                  value={value.value}
                   className={styles.Item}
                 >
                   <Select.ItemText className={styles.ItemText}>

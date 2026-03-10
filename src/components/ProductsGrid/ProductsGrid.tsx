@@ -14,14 +14,13 @@ interface ProductGridProps {
 export const ProductsGrid: React.FC<ProductGridProps> = ({
   products,
   isLoading = false,
-  viewType = 'grid-4',
+  viewType = 'grid-5',
   error = null,
 }: ProductGridProps) => {
   const gridClass = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
-    'grid-2': 'grid-cols-1 sm:grid-cols-2',
-    'grid-1': 'grid-cols-1',
-    list: 'grid-cols-1',
+    'grid-5': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5',
+    list: 'grid-cols-2',
   }[viewType];
 
   if (isLoading) {
@@ -79,7 +78,7 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <div className={`grid gap-4 sm:gap-5 lg:gap-6 ${gridClass}`}>
+    <div className={`grid gap-4 pb-12 sm:gap-5 lg:gap-6 ${gridClass}`}>
       {products.map((product) =>
         viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed

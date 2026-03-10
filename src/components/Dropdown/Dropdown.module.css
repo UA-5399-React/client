@@ -1,7 +1,6 @@
 .Field {
   display: flex;
-  flex-direction: column;
-  align-items: start;
+  align-items: center;
   gap: 8px;
 }
 
@@ -35,7 +34,11 @@
   line-height: 1.5rem;
   color: var(--color-text);
   user-select: none;
-  min-width: 14rem;
+  min-width: 8rem;
+
+  &[data-border='false'] {
+    border-color: transparent;
+  }
 
   @media (hover: hover) {
     &:hover {
@@ -66,9 +69,9 @@
   box-sizing: border-box;
   padding-block: 0.25rem;
   border-radius: 0.375rem;
-  background-color: canvas;
+  background-color: rgb(var(--color-bg));
   background-clip: padding-box;
-  color: var(--color-gray-900);
+  color: var(--color-text);
   min-width: var(--anchor-width);
   transform-origin: var(--transform-origin);
   transition:
@@ -132,7 +135,7 @@
     &[data-highlighted] {
       z-index: 0;
       position: relative;
-      color: var(--color-gray-50);
+      color: var(--color-primary);
     }
 
     &[data-highlighted]::before {
@@ -142,7 +145,7 @@
       inset-block: 0;
       inset-inline: 0.25rem;
       border-radius: 0.25rem;
-      background-color: var(--color-gray-900);
+      background-color: rgb(var(--color-shadow) / 0.1);
     }
   }
 }

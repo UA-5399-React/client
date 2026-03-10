@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { Pagination } from '@/components';
+import { Dropdown, Pagination } from '@/components';
 import { ShopBanner } from '@/components/Banner';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
 import ViewToggle from '../../components/ProductsGrid/ViewToggle';
+import { SORT_OPTIONS } from './types';
 
 import './Products.css';
 
@@ -17,7 +18,9 @@ export const Products = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
-  const limit = Number(searchParams.get('limit')) || 12;
+  const defaultLimit = viewType === 'grid-5' ? 15 : 12;
+  const limit = Number(searchParams.get('limit')) || defaultLimit;
+  const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -33,11 +36,19 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
-  const { data, isLoading, isError } = useProducts(page, limit);
+  const { data, isLoading, isError } = useProducts(page, limit, sort);
 
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set('page', String(newPage));
+      return prev;
+    });
+  };
+
+  const handleFilterChange = (newValue: 'title' | 'price') => {
+    setSearchParams((prev) => {
+      prev.set('sort', newValue);
+      prev.set('page', '1');
       return prev;
     });
   };
@@ -56,7 +67,20 @@ export const Products = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <ShopBanner />
-      <ViewToggle value={viewType} onChange={setViewType} isMobile={isMobile} />
+      <div className="align-items flex w-full justify-end gap-5">
+        <Dropdown
+          label=""
+          options={SORT_OPTIONS}
+          placeholder={sort ? `Sort by ${sort}` : 'Sort by'}
+          onChange={handleFilterChange}
+          hasBorder={false}
+        />
+        <ViewToggle
+          value={viewType}
+          onChange={setViewType}
+          isMobile={isMobile}
+        />
+      </div>
       <ProductsGrid products={data.items} viewType={viewType} />
       <Pagination
         currentPage={page}
