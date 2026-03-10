@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -34,12 +34,12 @@ const setAuthData = (token: string, expires: string, role: string) => {
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     register,
     handleSubmit,
     control,
-    setError,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -59,10 +59,9 @@ export const LoginForm: React.FC = () => {
       if (role === AUTH_ROLES.ADMIN) {
         navigate(ROUTES.ADMIN_PRODUCTS);
       } else {
-        navigate(ROUTES.HOME);
+        navigate('/shop');
       }
     } else {
-      // Clear invalid/expired token
       clearAuthData();
     }
   }, [navigate]);
@@ -70,29 +69,17 @@ export const LoginForm: React.FC = () => {
   const onSubmit = (data: LoginFormValues) => {
     const expirationTime = getExpirationTime(data.rememberMe);
 
-    // Mock Authentication Logic - remove in future
-    if (
-      data.usernameOrEmail === MOCK_AUTH.ADMIN_EMAIL &&
-      data.password === MOCK_AUTH.ADMIN_PASSWORD
-    ) {
+    const isAdminPage = location.pathname.includes('admin');
+
+    if (isAdminPage) {
       setAuthData(MOCK_AUTH.MOCK_TOKEN, expirationTime, AUTH_ROLES.ADMIN);
       navigate(ROUTES.ADMIN_PRODUCTS);
       return;
-    }
-
-    // Allow user login for mock if it's not the admin credentials, just as a placeholder
-    if (
-      data.password.length >= 6 &&
-      data.usernameOrEmail !== MOCK_AUTH.ADMIN_EMAIL
-    ) {
+    } else {
       setAuthData('mock-user-token', expirationTime, AUTH_ROLES.USER);
-      navigate(ROUTES.HOME);
+      navigate('/shop');
       return;
     }
-
-    // Invalid credentials
-    setError('usernameOrEmail', { message: 'Invalid credentials' });
-    setError('password', { message: 'Invalid credentials' });
   };
 
   return (
