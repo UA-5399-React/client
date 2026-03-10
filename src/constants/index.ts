@@ -15,12 +15,13 @@ export const ROUTES = {
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
+  ADMIN_PRODUCT_EDIT: '/admin/products/:id',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
-  tags: [],
+  categories: [],
   minPrice: '',
   maxPrice: '',
   status: '',

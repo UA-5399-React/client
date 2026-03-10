@@ -1,5 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import { AlertCircle, Pencil, Trash } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 import type { Product } from '@/types';
 
@@ -17,6 +20,7 @@ function renderBodyContent(
   error: Error | null,
   items: Product[] | [],
   isDark: boolean,
+  navigate: ReturnType<typeof useNavigate>,
 ) {
   if (loading) {
     return (
@@ -30,11 +34,13 @@ function renderBodyContent(
       <tr role="alert">
         <td colSpan={6} className="py-8">
           <div
-            className={`mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4 ${
-              isDark
-                ? 'border-red-900/50 bg-red-950/30 text-red-300'
-                : 'border-red-200 bg-red-50 text-red-800'
-            }`}
+            className={clsx(
+              'mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4',
+              {
+                'border-red-900/50 bg-red-950/30 text-red-300': isDark,
+                'border-red-200 bg-red-50 text-red-800': !isDark,
+              },
+            )}
           >
             <AlertCircle className="h-6 w-6 shrink-0" />
             <div className="text-left">
@@ -51,7 +57,10 @@ function renderBodyContent(
       <tr>
         <td
           colSpan={6}
-          className={`py-8 text-center ${isDark ? 'text-black' : 'text-[#8A92A6]'}`}
+          className={clsx('py-8 text-center', {
+            'text-black': isDark,
+            'text-[#8A92A6]': !isDark,
+          })}
         >
           No products found
         </td>
@@ -59,7 +68,10 @@ function renderBodyContent(
     );
   }
   return items.map((item: Product) => (
-    <tr className="h-[80px] text-center" key={item.id}>
+    <tr
+      className="h-[80px] text-center text-[rgb(var(--color-text))]"
+      key={item.id}
+    >
       <td>
         <div className="flex items-center gap-2">
           <Checkbox className="h-[20px] w-[20px]" />
@@ -74,7 +86,10 @@ function renderBodyContent(
         <Button className="hover:bg- bg-transparent text-[#DB162D]">
           <Trash className="h-[20px] w-[20px]" />
         </Button>
-        <Button className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black">
+        <Button
+          className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
+          onClick={() => navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`)}
+        >
           <Pencil />
         </Button>
       </td>
@@ -84,6 +99,7 @@ function renderBodyContent(
 
 export function TableProducts({ items, loading, error }: TableProductsProps) {
   const { isDark } = useTheme();
+  const navigate = useNavigate();
 
   return (
     <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
@@ -105,9 +121,9 @@ export function TableProducts({ items, loading, error }: TableProductsProps) {
         </thead>
 
         <tbody
-          className={`${isDark ? 'text-black' : 'text-white'} [&_td]:px-4 [&_td]:text-center`}
+          className={`bg-[rgb(var(--color-bg-sec))] [&_td]:px-4 [&_td]:text-center`}
         >
-          {renderBodyContent(loading, error ?? null, items, isDark)}
+          {renderBodyContent(loading, error ?? null, items, isDark, navigate)}
         </tbody>
       </table>
     </div>
