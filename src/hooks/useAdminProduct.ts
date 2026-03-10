@@ -5,13 +5,6 @@ import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
 import type { ProductSortField, SortOrder } from '@/types/productsSort';
 
-import {
-  matchCategory,
-  matchDate,
-  matchPrice,
-  matchStatus,
-} from '../utils/productsFilters';
-
 type UseAdminProductsParams = {
   page?: number;
   limit?: number;
@@ -32,6 +25,18 @@ export function useAdminProducts({
   // Normalize search input
   const normalizedSearch = search.trim();
 
+  const filterInput = {
+    ...(filters.status && { status: filters.status }),
+    ...(filters.minPrice && { minPrice: parseFloat(filters.minPrice) }),
+    ...(filters.maxPrice && { maxPrice: parseFloat(filters.maxPrice) }),
+    ...(filters.categories?.length && { category: filters.categories[0] }),
+    ...(filters.dateFrom && { updatedFrom: new Date(filters.dateFrom) }),
+    ...(filters.dateTo && {
+      updatedTo: new Date(filters.dateTo + 'T23:59:59.999').toISOString(),
+    }),
+  };
+  const hasFilters = Object.keys(filterInput).length > 0;
+
   const { data, loading, error } = useQuery<{
     productsPage: ProductsPageResult;
   }>(GET_PRODUCTS_PAGE, {
@@ -41,23 +46,16 @@ export function useAdminProducts({
       search: normalizedSearch.length ? normalizedSearch : null,
       sort,
       order,
+      filter: hasFilters ? filterInput : null,
     },
+    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
 
   const productsPage = data?.productsPage;
-  const allItems = productsPage?.items ?? [];
-
-  const items = allItems.filter(
-    (product) =>
-      matchCategory(product, filters.tags) &&
-      matchPrice(product, filters) &&
-      matchStatus(product, filters.status) &&
-      matchDate(product, filters),
-  );
+  const items = productsPage?.items ?? [];
 
   return {
-    allItems,
     items,
     loading,
     error,

@@ -15,6 +15,9 @@ export const GET_PRODUCTS_PAGE = gql`
       sort: $sort
       order: $order
     ) {
+    $filter: ProductsFilterInput
+  ) {
+    productsPage(limit: $limit, page: $page, search: $search, filter: $filter) {
       total
       totalPages
       page
@@ -29,6 +32,20 @@ export const GET_PRODUCTS_PAGE = gql`
         createdAt
         updatedAt
       }
+    }
+  }
+`;
+
+export const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      price
+      description
+      categories
+      productCode
+      imageUrl
     }
   }
 `;

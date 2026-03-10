@@ -1,5 +1,5 @@
 export interface ProductsFilters {
-  tags: string[];
+  categories: string[];
   minPrice: string;
   maxPrice: string;
   status: string;
