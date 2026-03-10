@@ -7,6 +7,7 @@ export const GET_PRODUCTS_PAGE = gql`
     $search: String
     $sort: ProductSortField
     $order: SortOrder
+    $filter: ProductsFilterInput
   ) {
     productsPage(
       limit: $limit
@@ -14,10 +15,8 @@ export const GET_PRODUCTS_PAGE = gql`
       search: $search
       sort: $sort
       order: $order
+      filter: $filter
     ) {
-    $filter: ProductsFilterInput
-  ) {
-    productsPage(limit: $limit, page: $page, search: $search, filter: $filter) {
       total
       totalPages
       page
