@@ -26,6 +26,20 @@ export const GET_PRODUCTS_PAGE = gql`
   }
 `;
 
+export const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      price
+      description
+      categories
+      productCode
+      imageUrl
+    }
+  }
+`;
+
 export const CREATE_PRODUCT = gql`
   mutation CreateProduct($input: CreateProductInput!) {
     createProduct(input: $input) {
@@ -48,6 +62,19 @@ export const UPDATE_PRODUCT = gql`
       price
       description
       categories
+      imageUrl
+    }
+  }
+`;
+
+export const DUPLICATE_PRODUCT = gql`
+  mutation DuplicateProduct($id: ID!) {
+    duplicateProduct(id: $id) {
+      id
+      title
+      price
+      status
+      productCode
       imageUrl
     }
   }

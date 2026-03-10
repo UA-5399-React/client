@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { AlertCircle, Pencil, Trash } from 'lucide-react';
+import { AlertCircle, Copy, Pencil, Trash } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,6 +13,7 @@ interface TableProductsProps {
   items: Product[] | [];
   loading: boolean;
   error?: Error | null;
+  onDuplicate: (id: string) => void;
 }
 
 function renderBodyContent(
@@ -21,6 +22,7 @@ function renderBodyContent(
   items: Product[] | [],
   isDark: boolean,
   navigate: ReturnType<typeof useNavigate>,
+  onDuplicate: (id: string) => void,
 ) {
   if (loading) {
     return (
@@ -92,12 +94,23 @@ function renderBodyContent(
         >
           <Pencil />
         </Button>
+        <Button
+          className="bg-transparent text-gray-500 hover:text-black"
+          onClick={() => onDuplicate(item.id)}
+        >
+          <Copy />
+        </Button>
       </td>
     </tr>
   ));
 }
 
-export function TableProducts({ items, loading, error }: TableProductsProps) {
+export function TableProducts({
+  items,
+  loading,
+  error,
+  onDuplicate,
+}: TableProductsProps) {
   const { isDark } = useTheme();
   const navigate = useNavigate();
 
@@ -123,7 +136,14 @@ export function TableProducts({ items, loading, error }: TableProductsProps) {
         <tbody
           className={`bg-[rgb(var(--color-bg-sec))] [&_td]:px-4 [&_td]:text-center`}
         >
-          {renderBodyContent(loading, error ?? null, items, isDark, navigate)}
+          {renderBodyContent(
+            loading,
+            error ?? null,
+            items,
+            isDark,
+            navigate,
+            onDuplicate,
+          )}
         </tbody>
       </table>
     </div>
