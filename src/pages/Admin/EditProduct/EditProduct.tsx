@@ -33,6 +33,7 @@ export const EditProduct = () => {
         categories: product.categories?.join(', ') || '',
         status: product.status,
         imagePreview: product.imageUrl || null,
+        updatedAt: product.updatedAt,
       }
     : null;
 
@@ -76,6 +77,7 @@ export const EditProduct = () => {
       });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+      navigate(ROUTES.ADMIN_PRODUCTS);
     } catch (e) {
       console.error(e);
     }
@@ -93,6 +95,8 @@ export const EditProduct = () => {
         onSubmit={handleSubmit}
         onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
         isLoading={isUpdating}
+        isEditMode={true}
+        updatedAt={product?.updatedAt}
       />
     </div>
   );
