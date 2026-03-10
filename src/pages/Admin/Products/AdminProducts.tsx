@@ -75,64 +75,57 @@ export function AdminProducts() {
     setPage(newPage);
   };
 
-  return (
-    <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className={`text-2xl font-bold text-[rgb(var(--color-text))]`}>
-          Hello, Admin
-        </h1>
-      </div>
-
-      <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters((prev) => !prev)}
-          className="flex items-center gap-2 border-gray-300 text-gray-700"
-        >
-          Filters
-        </Button>
-      </div>
-
-      {showFilters && (
-        <div className="border-b border-[#e5e7eb] bg-gray-50 px-4 py-3 text-gray-700">
-          <ProductFiltersBar filters={filters} onChange={handleFiltersChange} />
-        </div>
-      )}
-
-      <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
-        {/* Search */}
-        <div className="flex w-full items-center justify-end border-b border-[#e5e7eb] p-4">
-          <div className="w-full max-w-[360px]">
-            <SearchInput value={search} onChange={handleSearchChange} />
-          </div>
-        </div>
-
-        {/* Filters */}
-        {showFilters && (
-          <div className="border-b border-[#e5e7eb] bg-gray-50 px-4 py-3 text-gray-700">
-            <ProductFiltersBar
-              filters={filters}
-              onChange={handleFiltersChange}
-            />
-          </div>
-        )}
-
-        {/* Product list */}
-        <TableProducts items={items} loading={loading} error={error} />
-        {/* Table */}
-        <TableProducts
-          items={items}
-          loading={loading}
-          error={error}
-          onDuplicate={duplicateProduct}
-        />
-
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages || 1}
-          onPageChange={handlePageChange}
-        />
-      </div>
+return (
+  <div>
+    <div className="border-b border-[#CFCFCF] p-5">
+      <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
+        Hello, Admin
+      </h1>
     </div>
-  );
-}
+
+    <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
+      <Button
+        variant="outline"
+        onClick={() => setShowFilters((prev) => !prev)}
+        className="flex items-center gap-2 border-gray-300 text-gray-700"
+      >
+        Filters
+      </Button>
+    </div>
+
+    {showFilters && (
+      <div className="border-b border-[#e5e7eb] bg-gray-50 px-4 py-3 text-gray-700">
+        <ProductFiltersBar
+          filters={filters}
+          onChange={handleFiltersChange}
+        />
+      </div>
+    )}
+
+    <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
+      <div className="flex w-full items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
+        <SortProductsDropdown
+          value={selectedSortValue}
+          onChange={handleSortChange}
+        />
+
+        <div className="w-full max-w-[360px]">
+          <SearchInput value={search} onChange={handleSearchChange} />
+        </div>
+      </div>
+
+      <TableProducts
+        items={items}
+        loading={loading}
+        error={error}
+        onDuplicate={duplicateProduct}
+      />
+
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages || 1}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  </div>
+);
