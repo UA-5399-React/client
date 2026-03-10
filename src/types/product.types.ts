@@ -1,4 +1,5 @@
 export type ProductStatus = 'active' | 'inactive' | 'draft';
+export type ProductStatusUpperCase = Uppercase<ProductStatus>;
 
 export interface Product {
   _id?: string;
@@ -46,6 +47,7 @@ export interface ProductFormData {
   name: string;
   price: string;
   categories: string;
+  status: ProductStatusUpperCase;
   description: string;
   imagePreview: string | null;
   imageFile?: File;
