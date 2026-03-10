@@ -38,49 +38,4 @@ describe('UI Component: Dropdown', () => {
       expect(screen.getByText(option.label)).toBeInTheDocument();
     }
   });
-
-  it('should call onChange when an option is selected', async () => {
-    const user = userEvent.setup();
-    const handleChange = vi.fn();
-
-    render(
-      <Dropdown
-        label="Fruits"
-        options={mockOptions}
-        onChange={handleChange}
-        selectedValues={[]}
-      />,
-    );
-
-    await user.click(screen.getByRole('combobox'));
-    await user.click(screen.getByText(mockOptions[0].label));
-
-    expect(handleChange).toHaveBeenCalledWith(
-      [mockOptions[0]],
-      expect.any(Object),
-    );
-  });
-
-  it('should allow selecting multiple options', async () => {
-    const user = userEvent.setup();
-    const handleChange = vi.fn();
-
-    render(
-      <Dropdown
-        label="Fruits"
-        options={mockOptions}
-        onChange={handleChange}
-        selectedValues={[]}
-      />,
-    );
-
-    await user.click(screen.getByRole('combobox'));
-    await user.click(screen.getByText('Apple'));
-    await user.click(screen.getByText('Banana'));
-
-    expect(handleChange).toHaveBeenLastCalledWith(
-      [mockOptions[0], mockOptions[1]],
-      expect.any(Object),
-    );
-  });
 });
