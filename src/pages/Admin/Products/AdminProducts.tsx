@@ -11,14 +11,11 @@ import { DEFAULT_FILTER } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDuplicate } from '@/hooks/useDuplicate';
-import { useTheme } from '@/hooks/useTheme';
 import { type ProductsFilters } from '@/types/filters';
 
 const LIMIT = 10;
 
 export function AdminProducts() {
-  const { isDark } = useTheme();
-
   const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
 
   const [showFilters, setShowFilters] = useState(false);
@@ -55,9 +52,7 @@ export function AdminProducts() {
   return (
     <div>
       <div className="border-b border-[#CFCFCF] p-5">
-        <h1
-          className={`${isDark ? 'text-black' : 'text-white'} text-2xl font-bold`}
-        >
+        <h1 className={`text-2xl font-bold text-[rgb(var(--color-text))]`}>
           Hello, Admin
         </h1>
       </div>
@@ -78,7 +73,7 @@ export function AdminProducts() {
         </div>
       )}
 
-      <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
+      <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
         {/* Search */}
         <div className="flex w-full items-center justify-end border-b border-[#e5e7eb] p-4">
           <div className="w-full max-w-[360px]">
