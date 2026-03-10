@@ -4,8 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
-import { Input, TextArea } from '@/components';
-import type { ProductFormData } from '@/types';
+import { Dropdown, Input, TextArea } from '@/components';
+import type { ProductFormData, ProductStatusUpperCase } from '@/types';
+
+import type { DropdownOption } from '../Dropdown/Dropdown.types';
+
+const STATUS_OPTIONS: DropdownOption[] = [
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Inactive', value: 'INACTIVE' },
+  { label: 'Draft', value: 'DRAFT' },
+];
 
 const productFormSchema = z.object({
   name: z.string().trim().min(1, 'Product name is required'),
@@ -27,6 +35,7 @@ const productFormSchema = z.object({
           .filter(Boolean).length > 0,
       'Enter at least one category',
     ),
+  status: z.enum(['ACTIVE', 'INACTIVE', 'DRAFT']),
   description: z.string(),
   imagePreview: z.string().nullable(),
   imageFile: z.instanceof(File).optional(),
@@ -37,6 +46,8 @@ interface ProductFormProps {
   onSubmit: (data: ProductFormData) => void | Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
+  isEditMode?: boolean;
+  updatedAt?: string;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -44,6 +55,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   onSubmit,
   onCancel,
   isLoading,
+  isEditMode = false,
+  updatedAt,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -63,6 +76,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
+      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -81,6 +95,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
+      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -125,8 +140,21 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const isDisabled = isLoading || isSubmitting;
 
+  const availableStatusOptions =
+    initialData?.status && initialData.status !== 'DRAFT'
+      ? STATUS_OPTIONS.filter((opt) => opt.value !== 'DRAFT')
+      : STATUS_OPTIONS;
+
+  const formattedDate = updatedAt
+    ? new Date(updatedAt).toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: '2-digit',
+      })
+    : '';
+
   return (
-    <div className="bg-background rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-800">
+    <div className="rounded-lg border border-gray-200 bg-[rgb(var(--color-bg-sec))] p-4 shadow-sm dark:border-gray-800">
       <form onSubmit={handleSubmit(handleSave)} className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-4">
           <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
@@ -165,6 +193,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Name Product"
                 placeholder="Name Product"
                 {...field}
+                inputClassName="bg-white text-black"
                 value={field.value ?? ''}
                 state={errors.name ? 'error' : 'default'}
                 helperText={errors.name?.message}
@@ -179,6 +208,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Price"
                 type="number"
                 placeholder="Price"
+                inputClassName="bg-white text-black"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.price ? 'error' : 'default'}
@@ -194,6 +224,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Categories"
                 type="text"
                 placeholder="Categories"
+                inputClassName="bg-white text-black"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.categories ? 'error' : 'default'}
@@ -201,6 +232,28 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               />
             )}
           />
+          {isEditMode && (
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Dropdown
+                  label="Status"
+                  labelClassName="capitalize text-sm"
+                  selectClassName="bg-white text-black hover:bg-gray-50 dark:hover:bg-gray-800 data-[popup-open]:bg-white"
+                  options={availableStatusOptions}
+                  selectedValues={field.value ? [field.value] : []}
+                  onChange={(values) =>
+                    field.onChange(
+                      (values[0]?.value ?? 'DRAFT') as ProductStatusUpperCase,
+                    )
+                  }
+                  placeholder="Select status"
+                  multiple={false}
+                />
+              )}
+            />
+          )}
           <Controller
             control={control}
             name="description"
@@ -209,7 +262,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 label="Description"
                 placeholder="Description"
                 className="col-span-1 md:col-span-3"
-                textAreaClassName="resize-none text-sm"
+                textAreaClassName="resize-none text-sm bg-white"
                 {...field}
                 value={field.value ?? ''}
                 state={errors.description ? 'error' : 'default'}
@@ -219,24 +272,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
         </div>
 
-        <div className="mt-4 flex justify-end gap-3">
-          <button
-            type="submit"
-            disabled={isDisabled}
-            className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20 ${
-              isDisabled ? 'cursor-not-allowed opacity-50' : ''
-            }`}
-          >
-            {isDisabled ? 'Saving...' : 'Save'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isDisabled}
-            className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white dark:hover:bg-gray-800"
-          >
-            Cancel
-          </button>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {isEditMode && updatedAt && (
+              <span>Last Update: {formattedDate}</span>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={isDisabled}
+              className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20 ${
+                isDisabled ? 'cursor-not-allowed opacity-50' : ''
+              }`}
+            >
+              {isDisabled ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isDisabled}
+              className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white dark:hover:bg-gray-800"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </form>
     </div>
