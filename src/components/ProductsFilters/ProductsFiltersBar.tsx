@@ -3,7 +3,7 @@ import { Dropdown } from '@/components/Dropdown';
 import { Input } from '@/components/Input';
 import type { ProductsFilters } from '@/types/filters';
 
-import type { DropdownOption } from '../Dropdown/Dropdown.types';
+// import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
 const TAG_OPTIONS = [
   { label: 'Laptop', value: 'Laptop' },
@@ -34,8 +34,8 @@ export function ProductFiltersBar({
       <Dropdown
         label="Category"
         options={TAG_OPTIONS}
-        onChange={(values: DropdownOption[]) =>
-          update({ categories: values.map((v) => v.value) })
+        onChange={(values: string | null) =>
+          update({ categories: values ? [values] : [] })
         }
         placeholder="All categories"
       />

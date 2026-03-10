@@ -45,9 +45,9 @@ export const Products = () => {
     });
   };
 
-  const handleFilterChange = (newValue: string) => {
+  const handleFilterChange = (newValue: string | null) => {
     setSearchParams((prev) => {
-      prev.set('sort', newValue);
+      prev.set('sort', newValue || '');
       prev.set('page', '1');
       return prev;
     });

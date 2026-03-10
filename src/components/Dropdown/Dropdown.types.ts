@@ -7,7 +7,7 @@ export interface DropdownProps {
   label: string;
   options: DropdownOption[];
   selectedValues?: string[];
-  onChange: (value: string) => void;
+  onChange: (value: string | null) => void;
   placeholder?: string;
   hasBorder?: boolean;
 }
