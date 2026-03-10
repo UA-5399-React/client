@@ -12,6 +12,7 @@ import {
 import { DEFAULT_FILTER, ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
 import { type ProductsFilters } from '@/types/filters';
 import type {
@@ -41,6 +42,7 @@ export function AdminProducts() {
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const { duplicateProduct } = useDuplicate();
+  const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page,
@@ -125,6 +127,7 @@ export function AdminProducts() {
           items={items}
           loading={loading}
           error={error}
+          onDelete={deleteProduct}
           onDuplicate={duplicateProduct}
         />
 

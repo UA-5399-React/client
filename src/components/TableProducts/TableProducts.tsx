@@ -13,6 +13,7 @@ interface TableProductsProps {
   items: Product[] | [];
   loading: boolean;
   error?: Error | null;
+  onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
 }
 
@@ -22,6 +23,7 @@ function renderBodyContent(
   items: Product[] | [],
   isDark: boolean,
   navigate: ReturnType<typeof useNavigate>,
+  onDelete: (id: string) => void,
   onDuplicate: (id: string) => void,
 ) {
   if (loading) {
@@ -69,46 +71,61 @@ function renderBodyContent(
       </tr>
     );
   }
-  return items.map((item: Product) => (
-    <tr
-      className="h-[80px] text-center text-[rgb(var(--color-text))]"
-      key={item.id}
-    >
-      <td>
-        <div className="flex items-center gap-2">
-          <Checkbox className="h-[20px] w-[20px]" />
-          <span>Image</span>
-        </div>
-      </td>
-      <td>{item.title}</td>
-      <td>{item.status}</td>
-      <td>{item.price}</td>
-      <td>{item.description}</td>
-      <td>
-        <Button className="hover:bg- bg-transparent text-[#DB162D]">
-          <Trash className="h-[20px] w-[20px]" />
-        </Button>
-        <Button
-          className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-          onClick={() => navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`)}
-        >
-          <Pencil />
-        </Button>
-        <Button
-          className="bg-transparent text-gray-500 hover:text-black"
-          onClick={() => onDuplicate(item.id)}
-        >
-          <Copy />
-        </Button>
-      </td>
-    </tr>
-  ));
+  return items.map((item: Product) => {
+    const isDraft = item.status?.toLowerCase() === 'draft';
+
+    return (
+      <tr
+        className="h-[80px] text-center text-[rgb(var(--color-text))]"
+        key={item.id}
+      >
+        <td>
+          <div className="flex items-center gap-2">
+            <Checkbox className="h-[20px] w-[20px]" />
+            <span>Image</span>
+          </div>
+        </td>
+        <td>{item.title}</td>
+        <td>{item.status}</td>
+        <td>{item.price}</td>
+        <td>{item.description}</td>
+        <td>
+          <Button
+            aria-label={`Delete ${item.title}`}
+            className="bg-transparent text-[#DB162D] hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!isDraft}
+            onClick={() => onDelete(item.id)}
+            title={
+              isDraft ? 'Delete product' : 'Only draft products can be deleted'
+            }
+          >
+            <Trash className="h-[20px] w-[20px]" />
+          </Button>
+          <Button
+            aria-label={`Edit ${item.title}`}
+            className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
+            onClick={() => navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`)}
+          >
+            <Pencil />
+          </Button>
+          <Button
+            aria-label={`Duplicate ${item.title}`}
+            className="bg-transparent text-gray-500 hover:text-black"
+            onClick={() => onDuplicate(item.id)}
+          >
+            <Copy />
+          </Button>
+        </td>
+      </tr>
+    );
+  });
 }
 
 export function TableProducts({
   items,
   loading,
   error,
+  onDelete,
   onDuplicate,
 }: TableProductsProps) {
   const { isDark } = useTheme();
@@ -142,6 +159,7 @@ export function TableProducts({
             items,
             isDark,
             navigate,
+            onDelete,
             onDuplicate,
           )}
         </tbody>
