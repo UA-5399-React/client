@@ -1,8 +1,10 @@
+import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { Dropdown } from './Dropdown';
+import type { DropdownOption } from './Dropdown.types';
 
 const mockOptions = [
   { value: 'apple', label: 'Apple' },

@@ -5,13 +5,37 @@ import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 import { ProductForm } from './ProductForm';
 
 describe('Component: ProductForm', () => {
-  it('should render initial data', () => {
+  it('should render correctly in CREATE mode (no status field, no last update)', () => {
+    render(<ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    expect(
+      screen.getByRole('textbox', { name: 'Name Product' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('spinbutton', { name: 'Price' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'Categories' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'Description' }),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    expect(screen.queryByText(/Last Update:/i)).not.toBeInTheDocument();
+  });
+
+  it('should render initial data, status field, and last update in EDIT mode', () => {
     render(
       <ProductForm
+        isEditMode={true}
+        updatedAt="2025-10-10T12:00:00Z"
         initialData={{
           name: 'MacBook Pro',
           price: '2499',
           categories: 'laptops, electronics',
+          status: 'ACTIVE',
           description: 'Laptop for work',
           imagePreview: 'https://example.com/product.png',
         }}
@@ -30,11 +54,14 @@ describe('Component: ProductForm', () => {
       'src',
       'https://example.com/product.png',
     );
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Active');
+
+    expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
   });
 
-  it('should show validation errors for required fields', async () => {
+  it('should show validation errors for required fields on submit', async () => {
     const user = userEvent.setup();
-
     render(<ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
@@ -50,7 +77,7 @@ describe('Component: ProductForm', () => {
 
   it('should clear validation errors on input and submit valid form data', async () => {
     const user = userEvent.setup();
-    const handleSubmit = vi.fn().mockResolvedValue(undefined);
+    const handleSubmit = vi.fn();
 
     render(<ProductForm onSubmit={handleSubmit} onCancel={vi.fn()} />);
 
@@ -58,9 +85,7 @@ describe('Component: ProductForm', () => {
 
     const nameInput = screen.getByRole('textbox', { name: 'Name Product' });
     const priceInput = screen.getByRole('spinbutton', { name: 'Price' });
-    const categoriesInput = screen.getByRole('textbox', {
-      name: 'Categories',
-    });
+    const categoriesInput = screen.getByRole('textbox', { name: 'Categories' });
     const descriptionInput = screen.getByRole('textbox', {
       name: 'Description',
     });
@@ -87,10 +112,22 @@ describe('Component: ProductForm', () => {
         name: 'IPhone 16',
         price: '999.99',
         categories: 'phones, electronics',
+        status: 'DRAFT',
         description: 'Flagship phone',
         imagePreview: null,
         imageFile: undefined,
       });
     });
+  });
+
+  it('should call onCancel when Cancel button is clicked', async () => {
+    const user = userEvent.setup();
+    const handleCancel = vi.fn();
+
+    render(<ProductForm onSubmit={vi.fn()} onCancel={handleCancel} />);
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(handleCancel).toHaveBeenCalledOnce();
   });
 });

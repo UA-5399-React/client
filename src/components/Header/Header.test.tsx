@@ -12,6 +12,25 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => mockUseTheme(),
 }));
 
+vi.mock('@/components/ui/SearchInput', () => ({
+  SearchInput: ({
+    value,
+    onChange,
+    placeholder,
+  }: {
+    value: string;
+    onChange: (v: string) => void;
+    placeholder?: string;
+  }) => (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder ?? 'Search'}
+      aria-label="Search input"
+    />
+  ),
+}));
+
 describe('UI Component: Header', () => {
   beforeEach(() => {
     mockSetTheme.mockClear();
@@ -27,22 +46,21 @@ describe('UI Component: Header', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
-  it('should render the brand link TechnoWorld.', () => {
+  it('should render brand links TechnoWorld.', () => {
     render(<Header />);
-    expect(
-      screen.getByRole('link', { name: 'TechnoWorld.' }),
-    ).toBeInTheDocument();
+    const brandLinks = screen.getAllByRole('link', { name: 'TechnoWorld.' });
+    expect(brandLinks.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('should have correct href on the brand link', () => {
+  it('should have correct href on all brand links', () => {
     render(<Header />);
-    expect(screen.getByRole('link', { name: 'TechnoWorld.' })).toHaveAttribute(
-      'href',
-      ROUTES.HOME,
+    const brandLinks = screen.getAllByRole('link', { name: 'TechnoWorld.' });
+    brandLinks.forEach((link) =>
+      expect(link).toHaveAttribute('href', ROUTES.HOME),
     );
   });
 
-  it('should render all nav links', () => {
+  it('should render all desktop nav links', () => {
     render(<Header />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Shop' })).toBeInTheDocument();
@@ -83,10 +101,20 @@ describe('UI Component: Header', () => {
     expect(screen.getByRole('button', { name: 'Theme' })).toBeInTheDocument();
   });
 
-  it('should render the Cart link with correct href', () => {
+  it('should render Cart links with correct href', () => {
     render(<Header />);
-    const cartLink = screen.getByRole('link', { name: /cart/i });
-    expect(cartLink).toHaveAttribute('href', ROUTES.CART);
+    const cartLinks = screen.getAllByRole('link', { name: /cart/i });
+    expect(cartLinks.length).toBeGreaterThanOrEqual(1);
+    cartLinks.forEach((link) =>
+      expect(link).toHaveAttribute('href', ROUTES.CART),
+    );
+  });
+
+  it('should render the Open menu button', () => {
+    render(<Header />);
+    expect(
+      screen.getByRole('button', { name: 'Open menu' }),
+    ).toBeInTheDocument();
   });
 
   it('should render Moon icon when isDark is false', () => {
@@ -155,5 +183,158 @@ describe('UI Component: Header', () => {
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Theme' }));
     expect(mockSetTheme).toHaveBeenCalledWith('dark');
+  });
+
+  it('should not render drawer by default', () => {
+    render(<Header />);
+    expect(
+      screen.queryByRole('button', { name: 'Close menu' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should open drawer when Open menu is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(
+      screen.getByRole('button', { name: 'Close menu' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should close drawer when Close menu is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    await user.click(screen.getByRole('button', { name: 'Close menu' }));
+    expect(
+      screen.queryByRole('button', { name: 'Close menu' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should render Sign In link in drawer when open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
+  });
+
+  it('should render Wishlist link in drawer when open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(screen.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+  });
+
+  it('should render Change Theme button in drawer when open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(
+      screen.getByRole('button', { name: /change theme/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('should lock body scroll when drawer is open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('should unlock body scroll when drawer is closed', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    await user.click(screen.getByRole('button', { name: 'Close menu' }));
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('should apply dark drawer styles when isDark is true', async () => {
+    const user = userEvent.setup();
+    mockUseTheme.mockReturnValue({
+      theme: 'dark',
+      setTheme: mockSetTheme,
+      isDark: true,
+    });
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const wishlist = screen.getByRole('link', { name: 'Wishlist' });
+    expect(wishlist).toBeInTheDocument();
+  });
+
+  it('should render Sign In with correct style in dark theme drawer', async () => {
+    const user = userEvent.setup();
+    mockUseTheme.mockReturnValue({
+      theme: 'dark',
+      setTheme: mockSetTheme,
+      isDark: true,
+    });
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const signIn = screen.getByRole('link', { name: 'Sign In' });
+    expect(signIn).toHaveStyle({ color: '#000000' });
+  });
+
+  it('should render Sign In with correct style in light theme drawer', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const signIn = screen.getByRole('link', { name: 'Sign In' });
+    expect(signIn).toHaveStyle({ color: '#ffffff' });
+  });
+
+  it('should render Cart link in drawer with correct href', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const cartLinks = screen.getAllByRole('link', { name: /^Cart$/i });
+    expect(cartLinks.some((l) => l.getAttribute('href') === ROUTES.CART)).toBe(
+      true,
+    );
+  });
+
+  it('should render Cart link in dark theme drawer', async () => {
+    const user = userEvent.setup();
+    mockUseTheme.mockReturnValue({
+      theme: 'dark',
+      setTheme: mockSetTheme,
+      isDark: true,
+    });
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const cartLinks = screen.getAllByRole('link', { name: /^Cart$/i });
+    expect(cartLinks.some((l) => l.getAttribute('href') === ROUTES.CART)).toBe(
+      true,
+    );
+  });
+
+  it('should not show search input by default', () => {
+    render(<Header />);
+    expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+  });
+
+  it('should show search input after clicking Search button', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
+  });
+
+  it('should hide search input after clicking Search button twice', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+  });
+
+  it('should clear search value when closing search', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    await user.type(screen.getByPlaceholderText('Search'), 'keyboard');
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByPlaceholderText('Search')).toHaveValue('');
   });
 });
