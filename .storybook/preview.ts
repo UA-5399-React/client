@@ -3,7 +3,7 @@ import { withThemeByClassName } from '@storybook/addon-themes';
 
 import '../src/index.css';
 
-const preview: Preview = {
+const previewConfig: Preview = {
   parameters: {
     controls: {
       matchers: {
@@ -18,7 +18,7 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: 'todo',
     },
-    backgrounds: { disable: true },
+    backgrounds: { disabled: true },
   },
   decorators: [
     // This function will toggle the class on the <html> tag inside Storybook
@@ -32,4 +32,4 @@ const preview: Preview = {
   ],
 };
 
-export default preview;
+export default previewConfig;
