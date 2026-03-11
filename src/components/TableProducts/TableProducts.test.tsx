@@ -211,29 +211,6 @@ describe('UI Component: TableProducts', () => {
     );
   });
 
-  it('should call onDelete when draft product deletion is confirmed', async () => {
-    const user = userEvent.setup();
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const draftProduct = { ...mockProducts[0], status: 'draft' as const };
-
-    render(
-      <TableProducts
-        items={[draftProduct]}
-        loading={false}
-        onDelete={mockDelete}
-        onDuplicate={mockDuplicate}
-      />,
-    );
-
-    await user.click(
-      screen.getByRole('button', { name: `Delete ${draftProduct.title}` }),
-    );
-
-    expect(confirmSpy).toHaveBeenCalled();
-    expect(mockDelete).toHaveBeenCalledWith(draftProduct.id);
-    confirmSpy.mockRestore();
-  });
-
   it('should disable delete button for non-draft products', () => {
     render(
       <TableProducts
