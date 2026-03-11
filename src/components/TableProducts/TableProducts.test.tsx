@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Product } from '@/types';
 import { render, screen, userEvent } from '@/utils/test-utils';
@@ -7,6 +7,7 @@ import { TableProducts } from './TableProducts';
 
 const mockNavigate = vi.fn();
 const mockDuplicate = vi.fn();
+const mockDelete = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -37,16 +38,30 @@ const mockProducts: Product[] = [
 ];
 
 describe('UI Component: TableProducts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should render the table element', () => {
     render(
-      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+      <TableProducts
+        items={[]}
+        loading={false}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
     );
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
     render(
-      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+      <TableProducts
+        items={[]}
+        loading={false}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
     );
 
     expect(screen.getByText('Image')).toBeInTheDocument();
@@ -58,7 +73,12 @@ describe('UI Component: TableProducts', () => {
 
   it('should display "Loading..." when loading is true', () => {
     render(
-      <TableProducts items={[]} loading={true} onDuplicate={mockDuplicate} />,
+      <TableProducts
+        items={[]}
+        loading={true}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
     );
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -68,6 +88,7 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={mockProducts}
         loading={true}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -81,6 +102,7 @@ describe('UI Component: TableProducts', () => {
         items={[]}
         loading={false}
         error={error}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -95,6 +117,7 @@ describe('UI Component: TableProducts', () => {
         items={[]}
         loading={false}
         error={error}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -108,6 +131,7 @@ describe('UI Component: TableProducts', () => {
         items={mockProducts}
         loading={false}
         error={error}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -116,7 +140,12 @@ describe('UI Component: TableProducts', () => {
 
   it('should display "No products found" when items array is empty', () => {
     render(
-      <TableProducts items={[]} loading={false} onDuplicate={mockDuplicate} />,
+      <TableProducts
+        items={[]}
+        loading={false}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
     );
     expect(screen.getByText('No products found')).toBeInTheDocument();
   });
@@ -126,6 +155,7 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={mockProducts}
         loading={false}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -137,6 +167,7 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={mockProducts}
         loading={false}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -149,6 +180,7 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={[mockProducts[0]]}
         loading={false}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
@@ -164,15 +196,33 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={[mockProducts[0]]}
         loading={false}
+        onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
     );
 
-    const editButton = screen.getAllByRole('button')[1];
+    const editButton = screen.getByRole('button', {
+      name: `Edit ${mockProducts[0].title}`,
+    });
     await user.click(editButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(
       expect.stringContaining(mockProducts[0].id),
     );
+  });
+
+  it('should disable delete button for non-draft products', () => {
+    render(
+      <TableProducts
+        items={[mockProducts[0]]}
+        loading={false}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: `Delete ${mockProducts[0].title}` }),
+    ).toBeDisabled();
   });
 });

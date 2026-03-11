@@ -5,7 +5,11 @@ import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
 import { Dropdown, Input, TextArea } from '@/components';
-import type { ProductFormData, ProductStatusUpperCase } from '@/types';
+import {
+  PRODUCT_STATUS,
+  type ProductFormData,
+  type ProductStatusUpperCase,
+} from '@/types';
 
 import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
@@ -65,8 +69,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     control,
     register,
     handleSubmit,
-    reset,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
@@ -140,8 +144,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const isDisabled = isLoading || isSubmitting;
 
   const availableStatusOptions =
-    initialData?.status && initialData.status.toUpperCase() !== 'DRAFT'
-      ? STATUS_OPTIONS.filter((opt) => opt.value !== 'DRAFT')
+    initialData?.status &&
+    initialData.status.toUpperCase() !== PRODUCT_STATUS.DRAFT
+      ? STATUS_OPTIONS.filter((opt) => opt.value !== PRODUCT_STATUS.DRAFT)
       : STATUS_OPTIONS;
 
   const formattedDate = updatedAt
@@ -151,7 +156,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         year: '2-digit',
       })
     : '';
-
   return (
     <div className="rounded-lg border border-gray-200 bg-[rgb(var(--color-bg-sec))] p-4 shadow-sm dark:border-gray-800">
       <form onSubmit={handleSubmit(handleSave)} className="flex flex-col gap-4">
@@ -275,7 +279,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between gap-3 max-sm:flex-col">
           <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
             {isEditMode && updatedAt && (
               <span>Last Update: {formattedDate}</span>
