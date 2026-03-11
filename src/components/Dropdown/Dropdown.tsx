@@ -1,8 +1,7 @@
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
-import { Check, ChevronsUpDownIcon } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
+import { Check, ChevronDown } from 'lucide-react';
 
 import type { DropdownProps } from './Dropdown.types';
 
@@ -11,11 +10,12 @@ import styles from './Dropdown.module.css';
 export const Dropdown = ({
   label,
   options,
+  onChange,
   selectedValues,
   selectClassName,
   labelClassName,
-  onChange,
   placeholder = 'Select options',
+  hasBorder = true,
   multiple = true,
 }: DropdownProps) => {
   const selectedOptions = selectedValues
@@ -42,12 +42,13 @@ export const Dropdown = ({
   return (
     <Field.Root className={styles.Field}>
       <Field.Label
-        className={twMerge(
+        className={
+          styles.Label +
           clsx(
-            'cursor-default text-xs font-medium text-[var(--color-text)] uppercase',
+            'cursor-default text-xs font-medium text-(--color-text) uppercase',
             labelClassName,
-          ),
-        )}
+          )
+        }
         nativeLabel={false}
         render={<div />}
       >
@@ -55,20 +56,16 @@ export const Dropdown = ({
       </Field.Label>
       <Select.Root
         multiple={multiple}
-        value={value}
         onValueChange={handleValueChange}
+        value={value}
       >
         <Select.Trigger
-          className={twMerge(
-            clsx(
-              'm-0 box-border flex h-8 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-[var(--color-gray-300)] bg-[var(--color-bg)] pr-3 pl-3.5 leading-6 text-[var(--color-text)] select-none hover:bg-[var(--color-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-1px] focus-visible:outline-[var(--color-blue)] data-[popup-open]:bg-[var(--color-text)]',
-              selectClassName,
-            ),
-          )}
+          className={styles.Select + clsx(selectClassName)}
+          data-border={hasBorder}
         >
           <Select.Value className={styles.Value} placeholder={placeholder} />
           <Select.Icon className={styles.SelectIcon}>
-            <ChevronsUpDownIcon className="w-4" />
+            <ChevronDown className="w-4" />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -81,7 +78,7 @@ export const Dropdown = ({
               {options.map((value) => (
                 <Select.Item
                   key={value.value}
-                  value={value}
+                  value={value.value}
                   className={styles.Item}
                 >
                   <Select.ItemText className={styles.ItemText}>

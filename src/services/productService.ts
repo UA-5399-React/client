@@ -7,9 +7,15 @@ export interface PaginatedResponse<T> {
 }
 
 export const productService = {
-  getAll: (page: number, limit: number): Promise<PaginatedResponse<Product>> =>
+  getAll: (
+    page: number,
+    limit: number,
+    sort?: 'price' | 'title',
+  ): Promise<PaginatedResponse<Product>> =>
     apiClient
-      .get<PaginatedResponse<Product>>(`/products?page=${page}&limit=${limit}`)
+      .get<
+        PaginatedResponse<Product>
+      >(`/products?page=${page}&limit=${limit}${sort ? `&sort=${sort}` : ''}`)
       .then((res) => res),
   getById: async (id: string): Promise<Product> => {
     const response = await apiClient.get<Product>(`/products/${id}`);
