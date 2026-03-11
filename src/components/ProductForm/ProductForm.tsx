@@ -5,7 +5,11 @@ import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
 import { Dropdown, Input, TextArea } from '@/components';
-import type { ProductFormData, ProductStatusUpperCase } from '@/types';
+import {
+  PRODUCT_STATUS,
+  type ProductFormData,
+  type ProductStatusUpperCase,
+} from '@/types';
 
 import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
@@ -128,8 +132,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const isDisabled = isLoading || isSubmitting;
 
   const availableStatusOptions =
-    initialData?.status && initialData.status !== 'DRAFT'
-      ? STATUS_OPTIONS.filter((opt) => opt.value !== 'DRAFT')
+    initialData?.status && initialData.status !== PRODUCT_STATUS.DRAFT
+      ? STATUS_OPTIONS.filter((opt) => opt.value !== PRODUCT_STATUS.DRAFT)
       : STATUS_OPTIONS;
 
   const formattedDate = updatedAt

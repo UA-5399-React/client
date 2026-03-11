@@ -1,3 +1,9 @@
+export const PRODUCT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  DRAFT: 'DRAFT',
+} as const;
+
 export type ProductStatus = 'active' | 'inactive' | 'draft';
 export type ProductStatusUpperCase = Uppercase<ProductStatus>;
 

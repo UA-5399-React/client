@@ -4,7 +4,7 @@ import { AlertCircle, Copy, Pencil, Trash } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
-import type { Product } from '@/types';
+import { type Product, PRODUCT_STATUS } from '@/types';
 
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
@@ -72,7 +72,7 @@ function renderBodyContent(
     );
   }
   return items.map((item: Product) => {
-    const isDraft = item.status.toUpperCase() === 'DRAFT';
+    const isDraft = item.status.toUpperCase() === PRODUCT_STATUS.DRAFT;
 
     return (
       <tr
