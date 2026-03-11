@@ -11,12 +11,14 @@ export const productService = {
     page: number,
     limit: number,
     sort?: 'price' | 'title',
-  ): Promise<PaginatedResponse<Product>> =>
-    apiClient
+    search?: string,
+  ): Promise<PaginatedResponse<Product>> => {
+    return apiClient
       .get<
         PaginatedResponse<Product>
-      >(`/products?page=${page}&limit=${limit}${sort ? `&sort=${sort}` : ''}`)
-      .then((res) => res),
+      >(`/products?page=${page}&limit=${limit}${sort ? `&sort=${sort}` : ''}${search ? `&search=${search}` : ''}`)
+      .then((res) => res);
+  },
   getById: async (id: string): Promise<Product> => {
     const response = await apiClient.get<Product>(`/products/${id}`);
     return response;
