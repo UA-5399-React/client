@@ -70,6 +70,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
@@ -79,7 +80,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       name: initialData?.name || '',
       price: initialData?.price || '',
       categories: initialData?.categories || '',
-      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
+      status:
+        (initialData?.status?.toUpperCase() as ProductStatusUpperCase) ||
+        'DRAFT',
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
@@ -92,6 +95,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     register('imagePreview');
     register('imageFile');
   }, [register]);
+
+  useEffect(() => {
+    reset({
+      name: initialData?.name || '',
+      price: initialData?.price || '',
+      categories: initialData?.categories || '',
+      status:
+        (initialData?.status?.toUpperCase() as ProductStatusUpperCase) ||
+        'DRAFT',
+      description: initialData?.description || '',
+      imagePreview: initialData?.imagePreview || null,
+      imageFile: undefined,
+    });
+  }, [initialData, reset]);
 
   useEffect(() => {
     return () => {
@@ -110,14 +127,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       });
       return;
     }
-
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
-    }
-
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     const previewUrl = URL.createObjectURL(file);
     previewUrlRef.current = previewUrl;
-
     setValue('imageFile', file, { shouldDirty: true, shouldValidate: true });
     setValue('imagePreview', previewUrl, {
       shouldDirty: true,
@@ -132,7 +144,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const isDisabled = isLoading || isSubmitting;
 
   const availableStatusOptions =
-    initialData?.status && initialData.status !== PRODUCT_STATUS.DRAFT
+    initialData?.status &&
+    initialData.status.toUpperCase() !== PRODUCT_STATUS.DRAFT
       ? STATUS_OPTIONS.filter((opt) => opt.value !== PRODUCT_STATUS.DRAFT)
       : STATUS_OPTIONS;
 
@@ -143,7 +156,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         year: '2-digit',
       })
     : '';
-
   return (
     <div className="rounded-lg border border-gray-200 bg-[rgb(var(--color-bg-sec))] p-4 shadow-sm dark:border-gray-800">
       <form onSubmit={handleSubmit(handleSave)} className="flex flex-col gap-4">
@@ -223,25 +235,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               />
             )}
           />
+
           {isEditMode && (
             <Controller
               control={control}
               name="status"
               render={({ field }) => (
-                <Dropdown
-                  label="Status"
-                  labelClassName="capitalize text-sm"
-                  selectClassName="bg-white text-black hover:bg-gray-50 dark:hover:bg-gray-800 data-[popup-open]:bg-white w-full border border-gray-500"
-                  options={availableStatusOptions}
-                  selectedValues={field.value ? [field.value] : []}
-                  onChange={(values) =>
-                    field.onChange(
-                      (values[0]?.value ?? 'DRAFT') as ProductStatusUpperCase,
-                    )
-                  }
-                  placeholder="Select status"
-                  multiple={false}
-                />
+                <div className="w-full [&>*]:!flex [&>*]:!flex-col [&>*]:!items-start">
+                  <Dropdown
+                    label="Status"
+                    labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
+                    selectClassName=" [--color-bg:white] [--color-text:black] [--color-gray-300:black] hover:[--color-primary:var(--color-gray-100)] data-[popup-open]:!bg-white"
+                    options={availableStatusOptions}
+                    selectedValues={field.value ? [field.value] : []}
+                    onChange={(values) => {
+                      const newValue = values?.[0];
+                      if (newValue) {
+                        field.onChange(newValue.value || newValue);
+                      }
+                    }}
+                    placeholder="Select status"
+                    multiple={false}
+                  />
+                </div>
               )}
             />
           )}
@@ -269,12 +285,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <span>Last Update: {formattedDate}</span>
             )}
           </div>
-
           <div className="flex gap-3">
             <button
               type="submit"
               disabled={isDisabled}
-              className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 dark:hover:bg-green-900/20 ${
+              className={`cursor-pointer rounded-md border-0 bg-green-500 px-5 py-1.5 text-white hover:bg-green-500/90 ${
                 isDisabled ? 'cursor-not-allowed opacity-50' : ''
               }`}
             >
@@ -284,7 +299,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               type="button"
               onClick={onCancel}
               disabled={isDisabled}
-              className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white dark:hover:bg-gray-800"
+              className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white"
             >
               Cancel
             </button>
