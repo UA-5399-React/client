@@ -28,7 +28,7 @@ export const MobileSidebar = ({
   };
 
   return (
-    <div className="min-w-[680px]">
+    <div>
       <div className="flex h-[64px] items-center gap-2 pl-4">
         <MenuIcon onClick={() => onSidebarChange(!isSidebarOpen)} />
 
@@ -36,7 +36,7 @@ export const MobileSidebar = ({
       </div>
 
       {isSidebarOpen && (
-        <div className="absolute top-0 left-0 flex h-full w-full min-w-[680px] flex-col justify-between bg-[rgb(var(--color-bg-sec))]">
+        <div className="absolute top-0 left-0 flex h-full w-full flex-col justify-between bg-[rgb(var(--color-bg-sec))]">
           <div>
             <div className="flex items-center gap-4 p-4">
               <XIcon
@@ -73,9 +73,9 @@ export const MobileSidebar = ({
             onClick={() => handleLogout()}
             className="my-6 flex items-center gap-2 border-none bg-transparent px-4"
           >
-            <LogOutIcon />
+            <LogOutIcon className="text-[rgb(var(--color-text))]" />
 
-            <span>Logout</span>
+            <span className="text-[rgb(var(--color-text))]">Logout</span>
           </Button>
         </div>
       )}

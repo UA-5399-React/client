@@ -3,13 +3,14 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-const isTest = process.env.NODE_ENV === 'test'; // Turn off the react compiler plugin during tests to avoid issues with coverage.
+const isTest = process.env.NODE_ENV === 'test';
+const isStorybook = process.argv.some((arg) => arg.includes('storybook'));
 
 export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: isTest ? [] : [['babel-plugin-react-compiler']],
+        plugins: isTest || isStorybook ? [] : [['babel-plugin-react-compiler']],
       },
     }),
     tsconfigPaths(),
