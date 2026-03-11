@@ -27,7 +27,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const helperId = `${textAreaId}-helper`;
 
     const baseStyles =
-      'text-sm min-h-20 border-neutral-500 font-sans bg-transparent transition-colors outline-none placeholder-neutral-500 dark:placeholder-neutral-400 text-black dark:text-white disabled:opacity-50 disabled:cursor-not-allowed';
+      'text-sm min-h-20 border-neutral-500 font-sans bg-transparent transition-colors outline-none placeholder-neutral-500 dark:placeholder-neutral-400 text-[var(--color-black)] disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variantStyles: Record<'outlined', string> = {
       outlined: 'border rounded-md px-3 py-2',
@@ -51,7 +51,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         {label && (
           <label
             htmlFor={textAreaId}
-            className="cursor-pointer text-sm font-medium dark:text-white"
+            className="cursor-pointer text-sm font-medium text-[rgb(var(--color-text))]"
           >
             {label}
           </label>

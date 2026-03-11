@@ -110,15 +110,13 @@ export function AdminProducts() {
       )}
 
       <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
-        <div className="flex w-full items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
+        <div className="flex items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
           <SortProductsDropdown
             value={selectedSortValue}
             onChange={handleSortChange}
           />
 
-          <div className="w-full max-w-[360px]">
-            <SearchInput value={search} onChange={handleSearchChange} />
-          </div>
+          <SearchInput value={search} onChange={handleSearchChange} />
         </div>
 
         <TableProducts
