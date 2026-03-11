@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
+  AdminPageHeader,
   Button,
   Pagination,
   ProductFiltersBar,
@@ -12,6 +13,7 @@ import {
 import { DEFAULT_FILTER, ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
 import { type ProductsFilters } from '@/types/filters';
 import type {
@@ -41,6 +43,7 @@ export function AdminProducts() {
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const { duplicateProduct } = useDuplicate();
+  const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page,
@@ -83,11 +86,7 @@ export function AdminProducts() {
 
   return (
     <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
-          Hello, Admin
-        </h1>
-      </div>
+      <AdminPageHeader />
 
       <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
         <Button
@@ -123,6 +122,7 @@ export function AdminProducts() {
           items={items}
           loading={loading}
           error={error}
+          onDelete={deleteProduct}
           onDuplicate={duplicateProduct}
         />
 
