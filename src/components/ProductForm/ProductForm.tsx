@@ -231,26 +231,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               />
             )}
           />
+
           {isEditMode && (
             <Controller
               control={control}
               name="status"
               render={({ field }) => (
-                <Dropdown
-                  label="Status"
-                  labelClassName=" capitalize text-sm"
-                  selectClassName=" [--color-bg:white] [--color-text:black] [--color-gray-300:black] hover:[--color-primary:var(--color-gray-100)] data-[popup-open]:!bg-white"
-                  options={availableStatusOptions}
-                  selectedValues={field.value ? [field.value] : []}
-                  onChange={(values) => {
-                    const newValue = values?.[0];
-                    if (newValue) {
-                      field.onChange(newValue.value || newValue);
-                    }
-                  }}
-                  placeholder="Select status"
-                  multiple={false}
-                />
+                <div className="w-full [&>*]:!flex [&>*]:!flex-col [&>*]:!items-start">
+                  <Dropdown
+                    label="Status"
+                    labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
+                    selectClassName=" [--color-bg:white] [--color-text:black] [--color-gray-300:black] hover:[--color-primary:var(--color-gray-100)] data-[popup-open]:!bg-white"
+                    options={availableStatusOptions}
+                    selectedValues={field.value ? [field.value] : []}
+                    onChange={(values) => {
+                      const newValue = values?.[0];
+                      if (newValue) {
+                        field.onChange(newValue.value || newValue);
+                      }
+                    }}
+                    placeholder="Select status"
+                    multiple={false}
+                  />
+                </div>
               )}
             />
           )}
