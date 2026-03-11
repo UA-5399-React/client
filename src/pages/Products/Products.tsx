@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { Dropdown, Pagination } from '@/components';
 import { ShopBanner } from '@/components/Banner';
+import type { DropdownOption } from '@/components/Dropdown';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
@@ -45,9 +46,16 @@ export const Products = () => {
     });
   };
 
-  const handleFilterChange = (newValue: string | null) => {
+  const handleFilterChange = (newValue: DropdownOption[]) => {
     setSearchParams((prev) => {
-      prev.set('sort', newValue || '');
+      const selectedSort = newValue[0] as unknown as string;
+
+      if (selectedSort) {
+        prev.set('sort', selectedSort);
+      } else {
+        prev.delete('sort');
+      }
+
       prev.set('page', '1');
       return prev;
     });
@@ -74,6 +82,7 @@ export const Products = () => {
           placeholder={sort ? `Sort by ${sort}` : 'Sort by'}
           onChange={handleFilterChange}
           hasBorder={false}
+          multiple={false}
         />
         <ViewToggle
           value={viewType}

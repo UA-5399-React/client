@@ -1,5 +1,6 @@
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
+import clsx from 'clsx';
 import { Check, ChevronDown } from 'lucide-react';
 
 import type { DropdownProps } from './Dropdown.types';
@@ -10,20 +11,58 @@ export const Dropdown = ({
   label,
   options,
   onChange,
+  selectedValues,
+  selectClassName,
+  labelClassName,
   placeholder = 'Select options',
   hasBorder = true,
+  multiple = true,
 }: DropdownProps) => {
+  const selectedOptions = selectedValues
+    ? options.filter((option) => selectedValues.includes(option.value))
+    : undefined;
+
+  const value = selectedOptions
+    ? multiple
+      ? selectedOptions
+      : (selectedOptions[0] ?? null)
+    : undefined;
+
+  const handleValueChange = (
+    value: DropdownProps['options'][number] | DropdownProps['options'] | null,
+  ) => {
+    if (!value) {
+      onChange([]);
+      return;
+    }
+
+    onChange(Array.isArray(value) ? value : [value]);
+  };
+
   return (
     <Field.Root className={styles.Field}>
       <Field.Label
-        className={styles.Label}
+        className={
+          styles.Label +
+          clsx(
+            'cursor-default text-xs font-medium text-(--color-text) uppercase',
+            labelClassName,
+          )
+        }
         nativeLabel={false}
         render={<div />}
       >
         {label}
       </Field.Label>
-      <Select.Root onValueChange={onChange}>
-        <Select.Trigger className={styles.Select} data-border={hasBorder}>
+      <Select.Root
+        multiple={multiple}
+        onValueChange={handleValueChange}
+        value={value}
+      >
+        <Select.Trigger
+          className={styles.Select + clsx(selectClassName)}
+          data-border={hasBorder}
+        >
           <Select.Value className={styles.Value} placeholder={placeholder} />
           <Select.Icon className={styles.SelectIcon}>
             <ChevronDown className="w-4" />

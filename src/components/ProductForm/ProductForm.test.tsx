@@ -26,39 +26,39 @@ describe('Component: ProductForm', () => {
     expect(screen.queryByText(/Last Update:/i)).not.toBeInTheDocument();
   });
 
-  // it('should render initial data, status field, and last update in EDIT mode', () => {
-  //   render(
-  //     <ProductForm
-  //       isEditMode={true}
-  //       updatedAt="2025-10-10T12:00:00Z"
-  //       initialData={{
-  //         name: 'MacBook Pro',
-  //         price: '2499',
-  //         categories: 'laptops, electronics',
-  //         status: 'ACTIVE',
-  //         description: 'Laptop for work',
-  //         imagePreview: 'https://example.com/product.png',
-  //       }}
-  //       onSubmit={vi.fn()}
-  //       onCancel={vi.fn()}
-  //     />,
-  //   );
+  it('should render initial data, status field, and last update in EDIT mode', () => {
+    render(
+      <ProductForm
+        isEditMode={true}
+        updatedAt="2025-10-10T12:00:00Z"
+        initialData={{
+          name: 'MacBook Pro',
+          price: '2499',
+          categories: 'laptops, electronics',
+          status: 'ACTIVE',
+          description: 'Laptop for work',
+          imagePreview: 'https://example.com/product.png',
+        }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
 
-  //   expect(screen.getByDisplayValue('MacBook Pro')).toBeInTheDocument();
-  //   expect(screen.getByDisplayValue('2499')).toBeInTheDocument();
-  //   expect(
-  //     screen.getByDisplayValue('laptops, electronics'),
-  //   ).toBeInTheDocument();
-  //   expect(screen.getByDisplayValue('Laptop for work')).toBeInTheDocument();
-  //   expect(screen.getByAltText('Preview')).toHaveAttribute(
-  //     'src',
-  //     'https://example.com/product.png',
-  //   );
+    expect(screen.getByDisplayValue('MacBook Pro')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2499')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('laptops, electronics'),
+    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Laptop for work')).toBeInTheDocument();
+    expect(screen.getByAltText('Preview')).toHaveAttribute(
+      'src',
+      'https://example.com/product.png',
+    );
 
-  //   expect(screen.getByRole('combobox')).toHaveTextContent('Active');
+    expect(screen.getByRole('combobox')).toHaveTextContent('Active');
 
-  //   expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
-  // });
+    expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
+  });
 
   it('should show validation errors for required fields on submit', async () => {
     const user = userEvent.setup();
