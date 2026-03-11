@@ -65,7 +65,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     control,
     register,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
@@ -89,18 +88,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     register('imagePreview');
     register('imageFile');
   }, [register]);
-
-  useEffect(() => {
-    reset({
-      name: initialData?.name || '',
-      price: initialData?.price || '',
-      categories: initialData?.categories || '',
-      status: initialData?.status || ('DRAFT' as ProductStatusUpperCase),
-      description: initialData?.description || '',
-      imagePreview: initialData?.imagePreview || null,
-      imageFile: undefined,
-    });
-  }, [initialData, reset]);
 
   useEffect(() => {
     return () => {
@@ -240,7 +227,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <Dropdown
                   label="Status"
                   labelClassName="capitalize text-sm"
-                  selectClassName="bg-white text-black hover:bg-gray-50 dark:hover:bg-gray-800 data-[popup-open]:bg-white"
+                  selectClassName="bg-white text-black hover:bg-gray-50 dark:hover:bg-gray-800 data-[popup-open]:bg-white w-full border border-gray-500"
                   options={availableStatusOptions}
                   selectedValues={field.value ? [field.value] : []}
                   onChange={(values) =>
@@ -272,7 +259,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between gap-3 max-sm:flex-col">
           <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
             {isEditMode && updatedAt && (
               <span>Last Update: {formattedDate}</span>

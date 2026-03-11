@@ -84,20 +84,27 @@ export const EditProduct = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      {showSuccess && (
-        <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-          Product updated successfully!
-        </div>
-      )}
-      <ProductForm
-        initialData={initialData}
-        onSubmit={handleSubmit}
-        onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
-        isLoading={isUpdating}
-        isEditMode={true}
-        updatedAt={product?.updatedAt}
-      />
+    <div>
+      <div className="border-b border-[#CFCFCF] p-5">
+        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
+          Hello, Admin 👋
+        </h1>
+      </div>
+      <div className="mx-auto max-w-3xl p-6">
+        {showSuccess && (
+          <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+            Product updated successfully!
+          </div>
+        )}
+        <ProductForm
+          initialData={initialData}
+          onSubmit={handleSubmit}
+          onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
+          isLoading={isUpdating}
+          isEditMode={true}
+          updatedAt={product?.updatedAt}
+        />
+      </div>
     </div>
   );
 };

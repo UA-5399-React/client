@@ -39,13 +39,20 @@ export const CreateProduct = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <ProductForm
-        onSubmit={handleCreate}
-        onCancel={handleCancel}
-        isLoading={loading}
-        isEditMode={false}
-      />
+    <div>
+      <div className="border-b border-[#CFCFCF] p-5">
+        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
+          Hello, Admin 👋
+        </h1>
+      </div>
+      <div className="mx-auto max-w-3xl p-6">
+        <ProductForm
+          onSubmit={handleCreate}
+          onCancel={handleCancel}
+          isLoading={loading}
+          isEditMode={false}
+        />
+      </div>
     </div>
   );
 };
