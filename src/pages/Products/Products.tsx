@@ -22,6 +22,7 @@ export const Products = () => {
   const defaultLimit = viewType === 'grid-5' ? 15 : 12;
   const limit = Number(searchParams.get('limit')) || defaultLimit;
   const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
+  const search = searchParams.get('search') || undefined;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -37,7 +38,7 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
-  const { data, isLoading, isError } = useProducts(page, limit, sort);
+  const { data, isLoading, isError } = useProducts(page, limit, sort, search);
 
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
