@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
+import { AdminPageHeader } from '@/components';
 import { Button } from '@/components/Button';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
@@ -85,11 +86,7 @@ export const EditProduct = () => {
 
   return (
     <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
-          Hello, Admin 👋
-        </h1>
-      </div>
+      <AdminPageHeader />
       <div className="mx-auto max-w-3xl p-6">
         {showSuccess && (
           <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">

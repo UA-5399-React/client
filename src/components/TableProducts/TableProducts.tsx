@@ -72,7 +72,7 @@ function renderBodyContent(
     );
   }
   return items.map((item: Product) => {
-    const isDraft = item.status?.toLowerCase() === 'draft';
+    const isDraft = item.status.toUpperCase() === 'DRAFT';
 
     return (
       <tr

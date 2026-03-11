@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
+  AdminPageHeader,
   Button,
   Pagination,
   ProductFiltersBar,
@@ -85,11 +86,7 @@ export function AdminProducts() {
 
   return (
     <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
-          Hello, Admin
-        </h1>
-      </div>
+      <AdminPageHeader />
 
       <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
         <Button

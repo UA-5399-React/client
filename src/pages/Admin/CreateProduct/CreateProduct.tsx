@@ -1,5 +1,6 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
+import { AdminPageHeader } from '@/components';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useCreateAdminProduct } from '@/hooks/useCreateAdminProduct';
@@ -40,11 +41,7 @@ export const CreateProduct = () => {
 
   return (
     <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
-          Hello, Admin 👋
-        </h1>
-      </div>
+      <AdminPageHeader />
       <div className="mx-auto max-w-3xl p-6">
         <ProductForm
           onSubmit={handleCreate}
