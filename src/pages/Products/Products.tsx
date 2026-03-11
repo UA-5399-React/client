@@ -1,27 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { Dropdown, Pagination } from '@/components';
+import { Pagination } from '@/components';
 import { ShopBanner } from '@/components/Banner';
-import type { DropdownOption } from '@/components/Dropdown';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
 import ViewToggle from '../../components/ProductsGrid/ViewToggle';
-import { SORT_OPTIONS } from './types';
 
 import './Products.css';
 
 export const Products = () => {
-  const [viewType, setViewType] = useState<ViewType>('grid-5');
+  const [viewType, setViewType] = useState<ViewType>('grid-4');
   const [isMobile, setIsMobile] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
-  const defaultLimit = viewType === 'grid-5' ? 15 : 12;
-  const limit = Number(searchParams.get('limit')) || defaultLimit;
-  const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
+  const limit = Number(searchParams.get('limit')) || 12;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -37,26 +33,11 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
-  const { data, isLoading, isError } = useProducts(page, limit, sort);
+  const { data, isLoading, isError } = useProducts(page, limit);
 
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set('page', String(newPage));
-      return prev;
-    });
-  };
-
-  const handleFilterChange = (newValue: DropdownOption[]) => {
-    setSearchParams((prev) => {
-      const selectedSort = newValue[0] as unknown as string;
-
-      if (selectedSort) {
-        prev.set('sort', selectedSort);
-      } else {
-        prev.delete('sort');
-      }
-
-      prev.set('page', '1');
       return prev;
     });
   };
@@ -73,23 +54,9 @@ export const Products = () => {
     );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="box-border w-full overflow-x-hidden px-4 py-8 lg:px-16">
       <ShopBanner />
-      <div className="align-items flex w-full justify-end gap-5">
-        <Dropdown
-          label=""
-          options={SORT_OPTIONS}
-          placeholder={sort ? `Sort by ${sort}` : 'Sort by'}
-          onChange={handleFilterChange}
-          hasBorder={false}
-          multiple={false}
-        />
-        <ViewToggle
-          value={viewType}
-          onChange={setViewType}
-          isMobile={isMobile}
-        />
-      </div>
+      <ViewToggle value={viewType} onChange={setViewType} isMobile={isMobile} />
       <ProductsGrid products={data.items} viewType={viewType} />
       <Pagination
         currentPage={page}
