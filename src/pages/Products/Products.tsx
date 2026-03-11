@@ -73,7 +73,7 @@ export const Products = () => {
     );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="box-border w-full overflow-x-hidden px-4 py-8 lg:px-16">
       <ShopBanner />
       <div className="align-items flex w-full justify-end gap-5">
         <Dropdown
