@@ -11,13 +11,13 @@
 }
 
 .confirmButton {
-  border: 1px solid rgb(var(--color-blue-500));
-  color: rgb(var(--color-blue-500));
+  border: 1px solid rgb(var(--color-blue-primary));
+  color: rgb(var(--color-blue-primary));
   background-color: transparent;
 }
 
 .confirmButton:hover {
-  background-color: rgb(var(--color-blue-500));
+  background-color: rgb(var(--color-blue-primary));
   color: white;
   border: none;
 }

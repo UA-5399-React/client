@@ -41,7 +41,7 @@ export const ConfirmModal = ({
 
           <Button
             onClick={onCancel}
-            className="w-full max-w-[208px] bg-[rgb(var(--color-blue-500))] text-white hover:bg-transparent hover:text-[rgb(var(--color-blue-500))]"
+            className="w-full max-w-[208px] bg-[rgb(var(--color-blue-primary))] text-white hover:bg-transparent hover:text-[rgb(var(--color-blue-primary))]"
           >
             {cancelText}
           </Button>
