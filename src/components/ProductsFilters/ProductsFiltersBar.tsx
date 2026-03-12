@@ -38,8 +38,13 @@ export function ProductFiltersBar({
       <Dropdown
         label="Category"
         options={TAG_OPTIONS}
+        multiple={true}
         onChange={(values) =>
-          update({ categories: values.map((item) => item.value) })
+          update({
+            categories: values
+              .map((item) => (typeof item === 'string' ? item : item.value))
+              .filter(Boolean),
+          })
         }
         placeholder="All categories"
       />

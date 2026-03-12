@@ -29,7 +29,9 @@ export function useAdminProducts({
     ...(filters.status && { status: filters.status }),
     ...(filters.minPrice && { minPrice: parseFloat(filters.minPrice) }),
     ...(filters.maxPrice && { maxPrice: parseFloat(filters.maxPrice) }),
-    ...(filters.categories?.length && { category: filters.categories }),
+    ...(filters.categories?.length && filters.categories[0]
+      ? { category: filters.categories }
+      : {}),
     ...(filters.dateFrom && { updatedFrom: new Date(filters.dateFrom) }),
     ...(filters.dateTo && {
       updatedTo: new Date(filters.dateTo + 'T23:59:59.999').toISOString(),
@@ -54,6 +56,8 @@ export function useAdminProducts({
 
   const productsPage = data?.productsPage;
   const items = productsPage?.items ?? [];
+
+  console.log(filters);
 
   return {
     items,
