@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-export interface OpenConfirmModalOptions {
+export interface OpenModal {
   title: string;
   description: string;
   confirmText?: string;
@@ -11,7 +11,7 @@ export interface OpenConfirmModalOptions {
 }
 
 export interface ConfirmModalContextValue {
-  openConfirmModal: (options: OpenConfirmModalOptions) => void;
+  openConfirmModal: (options: OpenModal) => void;
 }
 
 export const ConfirmModalContext =
