@@ -11,11 +11,14 @@ export const productService = {
     page: number,
     limit: number,
     sort?: 'price' | 'title',
+    category?: string,
+    minPrice?: string,
+    maxPrice?: string,
   ): Promise<PaginatedResponse<Product>> =>
     apiClient
       .get<
         PaginatedResponse<Product>
-      >(`/products?page=${page}&limit=${limit}${sort ? `&sort=${sort}` : ''}`)
+      >(`/products?page=${page}&limit=${limit}${sort ? `&sort=${sort}` : ''}${category ? `&category=${category}` : ''}${minPrice ? `&minPrice=${minPrice}` : ''}${maxPrice ? `&maxPrice=${maxPrice}` : ''}`)
       .then((res) => res),
   getById: async (id: string): Promise<Product> => {
     const response = await apiClient.get<Product>(`/products/${id}`);

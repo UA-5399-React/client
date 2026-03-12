@@ -55,7 +55,7 @@ describe('Component: ProductForm', () => {
       'https://example.com/product.png',
     );
 
-    expect(screen.getByRole('combobox')).toHaveTextContent('Active');
+    expect(screen.getByRole('combobox')).toHaveTextContent('ACTIVE');
 
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
   });

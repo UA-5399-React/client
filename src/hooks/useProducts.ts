@@ -6,9 +6,13 @@ export const useProducts = (
   page: number,
   limit: number,
   sort?: 'price' | 'title',
+  category?: string,
+  minPrice?: string,
+  maxPrice?: string,
 ) => {
   return useQuery({
-    queryKey: ['products', page, limit, sort],
-    queryFn: () => productService.getAll(page, limit, sort),
+    queryKey: ['products', page, limit, sort, category, minPrice, maxPrice],
+    queryFn: () =>
+      productService.getAll(page, limit, sort, category, minPrice, maxPrice),
   });
 };
