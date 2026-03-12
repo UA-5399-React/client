@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   AdminPageHeader,
@@ -24,18 +24,14 @@ const LIMIT = 10;
 
 export function AdminProducts() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const {
-    filters,
-    search,
-    page,
-    sort,
-    order,
-    setFilters,
-    setSearch,
-    setPage,
-    setSort,
-  } = useAdminProductsStore();
+  const { filters, search, sort, order, setFilters, setSearch, setSort } =
+    useAdminProductsStore();
+
+  const pageFromParams = Number(searchParams.get('page'));
+  const currentPage =
+    Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
 
   // filters
   const [showFilters, setShowFilters] = useState(false);
@@ -46,7 +42,7 @@ export function AdminProducts() {
   const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
-    page,
+    page: currentPage,
     limit: LIMIT,
     search: debouncedSearch,
     filters,
@@ -56,26 +52,34 @@ export function AdminProducts() {
 
   const selectedSortValue = buildSortValue(sort, order);
 
+  const setPageParam = (nextPage: number) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('page', String(nextPage));
+      return next;
+    });
+  };
+
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
-    setPage(1);
+    setPageParam(1);
   };
 
   // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
+    setPageParam(1);
   };
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
     setSort(nextSort.sort, nextSort.order);
-    setPage(1);
+    setPageParam(1);
   };
 
   //pagination
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setPageParam(newPage);
   };
 
   const handleCreateProduct = () => {
@@ -125,7 +129,7 @@ export function AdminProducts() {
         />
 
         <Pagination
-          currentPage={page}
+          currentPage={currentPage}
           totalPages={totalPages || 1}
           onPageChange={handlePageChange}
         />
