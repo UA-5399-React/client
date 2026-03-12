@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
+import { AdminPageHeader } from '@/components';
 import { Button } from '@/components/Button';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
@@ -84,20 +85,23 @@ export const EditProduct = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      {showSuccess && (
-        <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-          Product updated successfully!
-        </div>
-      )}
-      <ProductForm
-        initialData={initialData}
-        onSubmit={handleSubmit}
-        onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
-        isLoading={isUpdating}
-        isEditMode={true}
-        updatedAt={product?.updatedAt}
-      />
+    <div>
+      <AdminPageHeader />
+      <div className="mx-auto max-w-3xl p-6">
+        {showSuccess && (
+          <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+            Product updated successfully!
+          </div>
+        )}
+        <ProductForm
+          initialData={initialData}
+          onSubmit={handleSubmit}
+          onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
+          isLoading={isUpdating}
+          isEditMode={true}
+          updatedAt={product?.updatedAt}
+        />
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+export { AdminPageHeader } from './AdminPageHeader';
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
 export { Dropdown } from './Dropdown';

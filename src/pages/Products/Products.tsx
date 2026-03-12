@@ -26,6 +26,7 @@ export const Products = () => {
   const category = searchParams.get('category') || '';
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
+  const search = searchParams.get('search') || undefined;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -45,6 +46,7 @@ export const Products = () => {
     page,
     limit,
     sort,
+    search,
     category,
     minPrice,
     maxPrice,

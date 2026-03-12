@@ -1,5 +1,6 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
+import { AdminPageHeader } from '@/components';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useCreateAdminProduct } from '@/hooks/useCreateAdminProduct';
@@ -39,13 +40,16 @@ export const CreateProduct = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <ProductForm
-        onSubmit={handleCreate}
-        onCancel={handleCancel}
-        isLoading={loading}
-        isEditMode={false}
-      />
+    <div>
+      <AdminPageHeader />
+      <div className="mx-auto max-w-3xl p-6">
+        <ProductForm
+          onSubmit={handleCreate}
+          onCancel={handleCancel}
+          isLoading={loading}
+          isEditMode={false}
+        />
+      </div>
     </div>
   );
 };

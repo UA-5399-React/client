@@ -9,6 +9,10 @@ const TAG_OPTIONS = [
   { label: 'Laptop', value: 'Laptop' },
   { label: 'Apple', value: 'Apple' },
   { label: 'Audio', value: 'Audio' },
+  { label: 'Smartphone', value: 'Smartphone' },
+  { label: 'Accessories', value: 'Accessories' },
+  { label: 'Gaming', value: 'Gaming' },
+  { label: 'Samsung', value: 'Samsung' },
 ];
 
 const STATUS_OPTIONS = [
