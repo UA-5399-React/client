@@ -10,17 +10,14 @@ import {
   SortProductsDropdown,
   TableProducts,
 } from '@/components';
-import { DEFAULT_FILTER, ROUTES } from '@/constants';
+import { ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
-import type {
-  ProductSortField,
-  SortOrder,
-  SortValue,
-} from '@/types/productsSort';
+import type { SortValue } from '@/types/productsSort';
 import { buildSortValue, parseSortValue } from '@/utils/sorting';
 
 const LIMIT = 10;
@@ -28,17 +25,20 @@ const LIMIT = 10;
 export function AdminProducts() {
   const navigate = useNavigate();
 
+  const {
+    filters,
+    search,
+    page,
+    sort,
+    order,
+    setFilters,
+    setSearch,
+    setPage,
+    setSort,
+  } = useAdminProductsStore();
+
   // filters
-  const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
   const [showFilters, setShowFilters] = useState(false);
-
-  // search
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-
-  // sorting
-  const [sort, setSort] = useState<ProductSortField>('updatedAt');
-  const [order, setOrder] = useState<SortOrder>('desc');
 
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
@@ -69,9 +69,7 @@ export function AdminProducts() {
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
-
-    setSort(nextSort.sort);
-    setOrder(nextSort.order);
+    setSort(nextSort.sort, nextSort.order);
     setPage(1);
   };
 
