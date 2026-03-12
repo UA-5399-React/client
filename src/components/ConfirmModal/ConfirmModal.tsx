@@ -1,5 +1,5 @@
 import { Button } from '@/components/Button';
-import type { OpenConfirmModalOptions } from '@/types/confirmModal';
+import type { OpenModal } from '@/types/confirmModal';
 
 import styles from './ConfirmModal.module.css';
 
@@ -11,7 +11,7 @@ export const ConfirmModal = ({
   onConfirm,
   onCancel,
   isCritical = false,
-}: OpenConfirmModalOptions) => {
+}: OpenModal) => {
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[rgba(0,0,0,0.5)]"

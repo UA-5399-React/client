@@ -2,22 +2,17 @@ import { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ConfirmModal } from '@/components';
-import {
-  ConfirmModalContext,
-  type OpenConfirmModalOptions,
-} from '@/types/confirmModal';
+import { ConfirmModalContext, type OpenModal } from '@/types/confirmModal';
 
 export const ConfirmModalProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [modalState, setModalState] = useState<OpenConfirmModalOptions | null>(
-    null,
-  );
+  const [modalState, setModalState] = useState<OpenModal | null>(null);
   const isOpen = modalState !== null;
 
-  const openConfirmModal = useCallback((options: OpenConfirmModalOptions) => {
+  const openConfirmModal = useCallback((options: OpenModal) => {
     setModalState(options);
   }, []);
 
