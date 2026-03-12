@@ -10,7 +10,6 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  console.log('My product data:', product);
   const { _id, title, price, imageUrl } = product;
   const navigate = useNavigate();
   const handleCardClick = () => {

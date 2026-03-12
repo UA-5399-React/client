@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Dropdown, Pagination } from '@/components';
 import { ShopBanner } from '@/components/Banner';
 import type { DropdownOption } from '@/components/Dropdown';
+import { ShopFilters } from '@/components/ShopFilters';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
@@ -22,6 +23,9 @@ export const Products = () => {
   const defaultLimit = viewType === 'grid-5' ? 15 : 12;
   const limit = Number(searchParams.get('limit')) || defaultLimit;
   const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
+  const category = searchParams.get('category') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
   const search = searchParams.get('search') || undefined;
 
   useEffect(() => {
@@ -38,7 +42,15 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
-  const { data, isLoading, isError } = useProducts(page, limit, sort, search);
+  const { data, isLoading, isError } = useProducts(
+    page,
+    limit,
+    sort,
+    search,
+    category,
+    minPrice,
+    maxPrice,
+  );
 
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
@@ -49,7 +61,7 @@ export const Products = () => {
 
   const handleFilterChange = (newValue: DropdownOption[]) => {
     setSearchParams((prev) => {
-      const selectedSort = newValue[0] as unknown as string;
+      const selectedSort = newValue[0]?.value;
 
       if (selectedSort) {
         prev.set('sort', selectedSort);
@@ -68,15 +80,12 @@ export const Products = () => {
     return (
       <div className="p-8 text-center text-red-500">Something went wrong.</div>
     );
-  if (!data?.items?.length)
-    return (
-      <div className="p-8 text-center text-gray-500">No products found.</div>
-    );
 
   return (
     <div className="box-border w-full overflow-x-hidden px-4 py-8 lg:px-16">
       <ShopBanner />
       <div className="align-items flex w-full justify-end gap-5">
+        <ShopFilters />
         <Dropdown
           label=""
           options={SORT_OPTIONS}
@@ -91,12 +100,18 @@ export const Products = () => {
           isMobile={isMobile}
         />
       </div>
-      <ProductsGrid products={data.items} viewType={viewType} />
-      <Pagination
-        currentPage={page}
-        totalPages={data.totalPages || 1}
-        onPageChange={handlePageChange}
-      />
+      {!data?.items?.length ? (
+        <div className="p-8 text-center text-gray-500">No products found.</div>
+      ) : (
+        <>
+          <ProductsGrid products={data.items} viewType={viewType} />
+          <Pagination
+            currentPage={page}
+            totalPages={data.totalPages || 1}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
     </div>
   );
 };

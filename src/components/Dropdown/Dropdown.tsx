@@ -24,19 +24,20 @@ export const Dropdown = ({
 
   const value = selectedOptions
     ? multiple
-      ? selectedOptions
-      : (selectedOptions[0] ?? null)
+      ? selectedOptions.map((o) => o.value)
+      : (selectedOptions[0]?.value ?? null)
     : undefined;
 
-  const handleValueChange = (
-    value: DropdownProps['options'][number] | DropdownProps['options'] | null,
-  ) => {
+  const handleValueChange = (value: string | string[] | null) => {
     if (!value) {
       onChange([]);
       return;
     }
-
-    onChange(Array.isArray(value) ? value : [value]);
+    const vals = Array.isArray(value) ? value : [value];
+    const selected = vals
+      .map((v) => options.find((o) => o.value === v))
+      .filter(Boolean) as DropdownProps['options'];
+    onChange(selected);
   };
 
   return (
