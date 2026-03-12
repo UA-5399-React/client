@@ -3,15 +3,16 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
 import { MainLayout, ProtectedRoute } from './components';
+import { LoginForm } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
+import { AuthLayout } from './components/AuthLayout';
+import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
 import { Home } from './pages';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
-import { AdminLogin } from './pages/Admin/Login/AdminLogin';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
-import { Login } from './pages/Login/Login';
 import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
@@ -26,8 +27,8 @@ function App() {
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
-    ADMIN_LOGIN,
     LOGIN,
+    REGISTER,
   } = ROUTES;
 
   return (
@@ -42,8 +43,10 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
 
-        <Route path={LOGIN} element={<Login />} />
-        <Route path={ADMIN_LOGIN} element={<AdminLogin />} />
+        <Route element={<AuthLayout />}>
+          <Route path={LOGIN} element={<LoginForm />} />
+          <Route path={REGISTER} element={<RegisterForm />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>

@@ -1,9 +1,9 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 
 import duckLogo from '@/assets/images/duck.svg';
-import { LoginForm } from '@/components';
 
-export const AdminLogin: React.FC = () => {
+export const AuthLayout: React.FC = () => {
   return (
     <div className="flex min-h-screen w-full flex-col font-sans text-gray-900 lg:flex-row">
       <div className="flex w-full flex-col items-center justify-center bg-[#f4f5f6] py-12 lg:w-1/2 lg:py-0">
@@ -17,7 +17,7 @@ export const AdminLogin: React.FC = () => {
       </div>
 
       <div className="flex w-full flex-1 items-center justify-center bg-white py-12 lg:w-1/2 lg:py-0">
-        <LoginForm />
+        <Outlet />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   Heart,
   Menu,
@@ -23,6 +23,7 @@ const NAV_LINKS = [
 ];
 
 export const Header = () => {
+  const navigate = useNavigate();
   const { theme, setTheme, isDark } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -138,6 +139,7 @@ export const Header = () => {
             </div>
 
             <button
+              onClick={() => navigate(ROUTES.LOGIN)}
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
