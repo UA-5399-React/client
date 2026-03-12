@@ -4,7 +4,7 @@ import { AUTH_ROLES } from '@/constants';
 import { ConfirmModalProvider } from '@/contexts/ConfirmModalProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
-import { render, screen, userEvent } from '@/utils/test-utils';
+import { render, screen, userEvent, within } from '@/utils/test-utils';
 
 import { Sidebar } from './Sidebar';
 
@@ -61,7 +61,10 @@ describe('UI Component: Sidebar', () => {
     const logoutButton = screen.getByRole('button', { name: /Logout/i });
     await user.click(logoutButton);
 
-    const confirmButton = screen.getByRole('button', { name: /Logout/i });
+    const dialog = screen.getByRole('dialog');
+    const confirmButton = within(dialog).getByRole('button', {
+      name: /Logout/i,
+    });
     await user.click(confirmButton);
 
     expect(mockLogout).toHaveBeenCalledOnce();
