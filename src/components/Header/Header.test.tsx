@@ -46,18 +46,18 @@ describe('UI Component: Header', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
-  it('should render brand links TechnoWorld.', () => {
+  it('should render brand logo with correct alt text', () => {
     render(<Header />);
-    const brandLinks = screen.getAllByRole('link', { name: 'TechnoWorld.' });
-    expect(brandLinks.length).toBeGreaterThanOrEqual(1);
+    const logos = screen.getAllByAltText('TechnoWorld');
+    expect(logos.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('should have correct href on all brand links', () => {
+  it('should navigate to home when brand link is clicked', () => {
     render(<Header />);
-    const brandLinks = screen.getAllByRole('link', { name: 'TechnoWorld.' });
-    brandLinks.forEach((link) =>
-      expect(link).toHaveAttribute('href', ROUTES.HOME),
-    );
+    const brandLinks = screen.getAllByRole('link', { name: /TechnoWorld/i });
+    brandLinks.forEach((link) => {
+      expect(link).toHaveAttribute('href', ROUTES.HOME);
+    });
   });
 
   it('should render all desktop nav links', () => {
