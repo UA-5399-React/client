@@ -12,6 +12,7 @@ import {
 } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
+import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
@@ -24,6 +25,7 @@ const LIMIT = 10;
 
 export function AdminProducts() {
   const navigate = useNavigate();
+  const { openConfirmModal } = useConfirmModal();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { filters, search, sort, order, setFilters, setSearch, setSort } =
@@ -86,6 +88,16 @@ export function AdminProducts() {
     navigate(ROUTES.ADMIN_PRODUCT_CREATE);
   };
 
+  const handleDeleteProduct = (id: string) => {
+    openConfirmModal({
+      title: 'Delete Product',
+      description: 'Are you sure you want to delete this product?',
+      isCritical: true,
+      confirmText: 'Delete',
+      onConfirm: () => deleteProduct(id),
+    });
+  };
+
   return (
     <div>
       <AdminPageHeader />
@@ -124,7 +136,7 @@ export function AdminProducts() {
           items={items}
           loading={loading}
           error={error}
-          onDelete={deleteProduct}
+          onDelete={handleDeleteProduct}
           onDuplicate={duplicateProduct}
         />
 

@@ -1,0 +1,23 @@
+.confirmButtonCritical {
+  border: 1px solid rgb(var(--color-red-700));
+  color: rgb(var(--color-red-700));
+  background-color: transparent;
+}
+
+.confirmButtonCritical:hover {
+  background-color: rgb(var(--color-red-700));
+  color: white;
+  border: none;
+}
+
+.confirmButton {
+  border: 1px solid rgb(var(--color-blue-500));
+  color: rgb(var(--color-blue-500));
+  background-color: transparent;
+}
+
+.confirmButton:hover {
+  background-color: rgb(var(--color-blue-500));
+  color: white;
+  border: none;
+}
