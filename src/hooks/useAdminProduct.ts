@@ -57,8 +57,6 @@ export function useAdminProducts({
   const productsPage = data?.productsPage;
   const items = productsPage?.items ?? [];
 
-  console.log(filters);
-
   return {
     items,
     loading,
