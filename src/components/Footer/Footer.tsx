@@ -1,6 +1,8 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 
+import logoDark from '@/assets/logo/dark_theme_logo.png';
+import logoLight from '@/assets/logo/light_theme_logo.png';
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -14,6 +16,7 @@ const NAV_LINKS = [
 
 export const Footer = () => {
   const { isDark } = useTheme();
+  const logoSrc = isDark ? logoLight : logoDark;
 
   return (
     <footer
@@ -23,12 +26,12 @@ export const Footer = () => {
     >
       <div className="flex flex-col gap-6 pb-8 lg:flex-row lg:items-center lg:justify-between lg:pb-10">
         <div className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-6">
-          <Link
-            to={ROUTES.HOME}
-            className="text-xl font-medium no-underline transition-colors duration-300 md:text-2xl"
-            style={{ color: 'inherit' }}
-          >
-            TechnoWorld.
+          <Link to={ROUTES.HOME}>
+            <img
+              src={logoSrc}
+              alt="TechnoWorld"
+              className="align-center flex h-38 w-auto"
+            />
           </Link>
 
           <div
