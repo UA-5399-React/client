@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Heart,
   Menu,
@@ -13,6 +13,7 @@ import {
 
 import { SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
 
 const NAV_LINKS = [
@@ -23,11 +24,34 @@ const NAV_LINKS = [
 ];
 
 export const Header = () => {
-  const navigate = useNavigate();
   const { theme, setTheme, isDark } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const initialSearch = searchParams.get('search') || '';
+  const [searchValue, setSearchValue] = useState(initialSearch);
+  const debouncedSearch = useDebouncedValue(searchValue, 500);
+
+  const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
+
+  if (initialSearch !== prevUrlSearch) {
+    setPrevUrlSearch(initialSearch);
+    setSearchValue(initialSearch);
+  }
+
+  useEffect(() => {
+    if (debouncedSearch !== initialSearch) {
+      if (debouncedSearch) {
+        navigate(
+          `${ROUTES.SHOP}?search=${encodeURIComponent(debouncedSearch)}`,
+        );
+      } else {
+        navigate(ROUTES.SHOP);
+      }
+    }
+  }, [debouncedSearch, navigate, initialSearch]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -215,7 +239,7 @@ export const Header = () => {
             >
               <button
                 onClick={handleToggleTheme}
-                className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left [font-family:inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
+                className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Change Theme</span>
                 {isDark ? (

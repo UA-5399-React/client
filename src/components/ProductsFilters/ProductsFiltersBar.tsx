@@ -3,12 +3,16 @@ import { Dropdown } from '@/components/Dropdown';
 import { Input } from '@/components/Input';
 import type { ProductsFilters } from '@/types/filters';
 
-import type { DropdownOption } from '../Dropdown/Dropdown.types';
+// import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
 const TAG_OPTIONS = [
   { label: 'Laptop', value: 'Laptop' },
   { label: 'Apple', value: 'Apple' },
   { label: 'Audio', value: 'Audio' },
+  { label: 'Smartphone', value: 'Smartphone' },
+  { label: 'Accessories', value: 'Accessories' },
+  { label: 'Gaming', value: 'Gaming' },
+  { label: 'Samsung', value: 'Samsung' },
 ];
 
 const STATUS_OPTIONS = [
@@ -34,8 +38,8 @@ export function ProductFiltersBar({
       <Dropdown
         label="Category"
         options={TAG_OPTIONS}
-        onChange={(values: DropdownOption[]) =>
-          update({ categories: values.map((v) => v.value) })
+        onChange={(values) =>
+          update({ categories: values.map((item) => item.value) })
         }
         placeholder="All categories"
       />

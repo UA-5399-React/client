@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
+  AdminPageHeader,
   Button,
   Pagination,
   ProductFiltersBar,
@@ -9,16 +10,14 @@ import {
   SortProductsDropdown,
   TableProducts,
 } from '@/components';
-import { DEFAULT_FILTER, ROUTES } from '@/constants';
+import { ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
-import type {
-  ProductSortField,
-  SortOrder,
-  SortValue,
-} from '@/types/productsSort';
+import type { SortValue } from '@/types/productsSort';
 import { buildSortValue, parseSortValue } from '@/utils/sorting';
 
 const LIMIT = 10;
@@ -26,21 +25,25 @@ const LIMIT = 10;
 export function AdminProducts() {
   const navigate = useNavigate();
 
+  const {
+    filters,
+    search,
+    page,
+    sort,
+    order,
+    setFilters,
+    setSearch,
+    setPage,
+    setSort,
+  } = useAdminProductsStore();
+
   // filters
-  const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
   const [showFilters, setShowFilters] = useState(false);
-
-  // search
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-
-  // sorting
-  const [sort, setSort] = useState<ProductSortField>('updatedAt');
-  const [order, setOrder] = useState<SortOrder>('desc');
 
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const { duplicateProduct } = useDuplicate();
+  const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page,
@@ -66,9 +69,7 @@ export function AdminProducts() {
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
-
-    setSort(nextSort.sort);
-    setOrder(nextSort.order);
+    setSort(nextSort.sort, nextSort.order);
     setPage(1);
   };
 
@@ -83,11 +84,7 @@ export function AdminProducts() {
 
   return (
     <div>
-      <div className="border-b border-[#CFCFCF] p-5">
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">
-          Hello, Admin
-        </h1>
-      </div>
+      <AdminPageHeader />
 
       <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
         <Button
@@ -110,21 +107,20 @@ export function AdminProducts() {
       )}
 
       <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
-        <div className="flex w-full items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
+        <div className="flex items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
           <SortProductsDropdown
             value={selectedSortValue}
             onChange={handleSortChange}
           />
 
-          <div className="w-full max-w-[360px]">
-            <SearchInput value={search} onChange={handleSearchChange} />
-          </div>
+          <SearchInput value={search} onChange={handleSearchChange} />
         </div>
 
         <TableProducts
           items={items}
           loading={loading}
           error={error}
+          onDelete={deleteProduct}
           onDuplicate={duplicateProduct}
         />
 
