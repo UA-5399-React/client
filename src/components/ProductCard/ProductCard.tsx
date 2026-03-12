@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, Image as ImageIcon } from 'lucide-react';
 
 import type { Product } from '@/types';
 
@@ -21,11 +21,17 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         className="relative mb-3 cursor-pointer overflow-hidden rounded-md"
         onClick={handleCardClick}
       >
-        <img
-          src={imageUrl}
-          alt={title}
-          className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-64 w-full items-center justify-center bg-gray-100 transition-transform duration-300 group-hover:scale-105 dark:bg-gray-800">
+            <ImageIcon className="h-16 w-16 text-gray-300 dark:text-gray-600" />
+          </div>
+        )}
         <div className="absolute right-0 bottom-0 left-0 translate-y-full px-4 pb-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <Button className="w-full rounded-md bg-[#141718] py-3 text-sm font-medium text-white transition-all outline-none hover:border hover:border-white">
             Add to Cart
