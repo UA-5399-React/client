@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-import { MOCK_AUTH } from '../constants';
+import { AUTH_ROLES, MOCK_AUTH } from '@/constants';
+import { authService } from '@/services/authService';
 
 export const useAuth = () => {
   const [isAuth, setIsAuth] = useState(() => {
@@ -8,18 +9,27 @@ export const useAuth = () => {
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
 
     if (!token || !expires) return false;
+
     return Date.now() < Number(expires);
   });
 
-  const logout = () => {
-    localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
-    localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
-    localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Error during server logout:', error);
+    } finally {
+      localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
+      localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
+      localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
 
-    setIsAuth(false);
+      setIsAuth(false);
+    }
   };
 
   const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
 
-  return { isAuth, role, logout };
+  const isAdmin = role === AUTH_ROLES.ADMIN;
+
+  return { isAuth, role, isAdmin, logout };
 };

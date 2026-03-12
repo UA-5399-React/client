@@ -1,4 +1,5 @@
 export { apiClient } from './api';
+export { authService } from './authService';
 export {
   CREATE_PRODUCT,
   GET_PRODUCTS_PAGE,
