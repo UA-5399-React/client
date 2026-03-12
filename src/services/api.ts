@@ -29,6 +29,7 @@ export const apiClient = {
 
     const response = await fetch(url, {
       method: 'GET',
+      credentials: 'include',
       ...options,
     });
 

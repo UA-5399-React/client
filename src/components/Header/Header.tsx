@@ -163,6 +163,7 @@ export const Header = () => {
             </div>
 
             <button
+              onClick={() => navigate(ROUTES.LOGIN)}
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >

@@ -11,20 +11,23 @@ const BASE_WRAPPER_CLASSES =
   'group flex w-fit cursor-pointer items-start select-none has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
 
 const BASE_LABEL_CLASSES = 'text-text ml-3 text-base leading-6 font-normal';
+
 export interface CheckboxProps extends React.ComponentPropsWithoutRef<
   typeof BaseCheckbox.Root
 > {
-  label?: string;
+  label?: React.ReactNode;
   checkboxClassName?: string;
   checkmarkClassName?: string;
   labelClassName?: string;
+  state?: 'default' | 'error';
 }
 
 export function Checkbox({
-  label = '',
+  label,
   checkboxClassName = '',
   checkmarkClassName = 'text-background',
   labelClassName = '',
+  state = 'default',
   ...props
 }: CheckboxProps) {
   const labelId = React.useId();
@@ -33,7 +36,11 @@ export function Checkbox({
       <BaseCheckbox.Root
         {...props}
         aria-labelledby={label ? labelId : undefined}
-        className={clsx(BASE_CHECKBOX_CLASSES, checkboxClassName)}
+        className={clsx(
+          BASE_CHECKBOX_CLASSES,
+          state === 'error' && 'border-red-500',
+          checkboxClassName,
+        )}
       >
         <BaseCheckbox.Indicator className="flex items-center justify-center">
           <CheckIcon className={checkmarkClassName} />

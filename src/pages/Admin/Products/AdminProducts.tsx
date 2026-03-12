@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
   AdminPageHeader,
@@ -10,18 +10,15 @@ import {
   SortProductsDropdown,
   TableProducts,
 } from '@/components';
-import { DEFAULT_FILTER, ROUTES } from '@/constants';
+import { ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
-import type {
-  ProductSortField,
-  SortOrder,
-  SortValue,
-} from '@/types/productsSort';
+import type { SortValue } from '@/types/productsSort';
 import { buildSortValue, parseSortValue } from '@/utils/sorting';
 
 const LIMIT = 10;
@@ -29,18 +26,17 @@ const LIMIT = 10;
 export function AdminProducts() {
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { filters, search, sort, order, setFilters, setSearch, setSort } =
+    useAdminProductsStore();
+
+  const pageFromParams = Number(searchParams.get('page'));
+  const currentPage =
+    Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
 
   // filters
-  const [filters, setFilters] = useState<ProductsFilters>(DEFAULT_FILTER);
   const [showFilters, setShowFilters] = useState(false);
-
-  // search
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-
-  // sorting
-  const [sort, setSort] = useState<ProductSortField>('updatedAt');
-  const [order, setOrder] = useState<SortOrder>('desc');
 
   // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 300);
@@ -48,7 +44,7 @@ export function AdminProducts() {
   const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
-    page,
+    page: currentPage,
     limit: LIMIT,
     search: debouncedSearch,
     filters,
@@ -58,28 +54,34 @@ export function AdminProducts() {
 
   const selectedSortValue = buildSortValue(sort, order);
 
+  const setPageParam = (nextPage: number) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('page', String(nextPage));
+      return next;
+    });
+  };
+
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
-    setPage(1);
+    setPageParam(1);
   };
 
   // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
+    setPageParam(1);
   };
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
-
-    setSort(nextSort.sort);
-    setOrder(nextSort.order);
-    setPage(1);
+    setSort(nextSort.sort, nextSort.order);
+    setPageParam(1);
   };
 
   //pagination
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setPageParam(newPage);
   };
 
   const handleCreateProduct = () => {
@@ -139,7 +141,7 @@ export function AdminProducts() {
         />
 
         <Pagination
-          currentPage={page}
+          currentPage={currentPage}
           totalPages={totalPages || 1}
           onPageChange={handlePageChange}
         />

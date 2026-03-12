@@ -23,8 +23,8 @@ export const Sidebar = () => {
       title: 'Logout',
       description: 'Are you sure you want to logout?',
       confirmText: 'Logout',
-      onConfirm: () => {
-        logout();
+      onConfirm: async () => {
+        await logout();
         navigate(ROUTES.LOGIN);
       },
     });

@@ -33,6 +33,7 @@ Object.defineProperty(window, 'matchMedia', {
 
 const defaultAuthMock = {
   logout: vi.fn(),
+  isAdmin: true,
   isAuth: true,
   role: 'admin' as string | null,
 };
@@ -122,6 +123,7 @@ describe('UI Component: MobileSidebar', () => {
     const mockLogout = vi.fn();
     vi.mocked(useAuth).mockReturnValue({
       ...defaultAuthMock,
+      isAdmin: false,
       logout: mockLogout,
     });
 
