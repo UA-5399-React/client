@@ -1,6 +1,7 @@
 export { AdminPageHeader } from './AdminPageHeader';
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
+export { ConfirmModal } from './ConfirmModal/ConfirmModal';
 export { Dropdown } from './Dropdown';
 export { Header } from './Header';
 export { Input } from './Input';

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { AUTH_ROLES } from '@/constants';
+import { ConfirmModalProvider } from '@/contexts/ConfirmModalProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { render, screen, userEvent } from '@/utils/test-utils';
@@ -31,19 +32,23 @@ const defaultAuthMock = {
   role: AUTH_ROLES.ADMIN as string | null,
 };
 
-const renderWithTheme = (ui: React.ReactElement) =>
-  render(<ThemeProvider>{ui}</ThemeProvider>);
+const renderWithProviders = (ui: React.ReactElement) =>
+  render(
+    <ThemeProvider>
+      <ConfirmModalProvider>{ui}</ConfirmModalProvider>
+    </ThemeProvider>,
+  );
 
 describe('UI Component: Sidebar', () => {
   it('should render the sidebar', () => {
     vi.mocked(useAuth).mockReturnValue(defaultAuthMock);
-    renderWithTheme(<Sidebar />);
+    renderWithProviders(<Sidebar />);
 
     expect(screen.getByText('Products')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
-  it('should call logout when the logout button is clicked', async () => {
+  it('should call logout when the user confirms in the modal', async () => {
     const mockLogout = vi.fn();
     vi.mocked(useAuth).mockReturnValue({
       ...defaultAuthMock,
@@ -51,10 +56,13 @@ describe('UI Component: Sidebar', () => {
     });
 
     const user = userEvent.setup();
-    renderWithTheme(<Sidebar />);
+    renderWithProviders(<Sidebar />);
 
     const logoutButton = screen.getByRole('button', { name: /Logout/i });
     await user.click(logoutButton);
+
+    const confirmButton = screen.getByRole('button', { name: /Logout/i });
+    await user.click(confirmButton);
 
     expect(mockLogout).toHaveBeenCalledOnce();
   });

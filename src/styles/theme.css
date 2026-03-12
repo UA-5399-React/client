@@ -4,13 +4,20 @@
   /* #FFFFFF */
   --color-bg-sec: 245 245 245;
   /* #F5F5F5 */
+  --color-bg-sec-inverted: 20 23 24;
+  /* #141718 */
+  --color-text-inverted: 255 255 255;
+  /* #FFFFFF */
   --color-text: 20 23 24;
   /* #141718 */
   --color-muted: 108 114 117;
   /* #6C7275 */
   --color-primary: 56 203 137;
   /* #38CB89 */
-
+  --color-blue-500: 55 125 255;
+  /* #377DFF */
+  --color-red-700: 219 22 45;
+  /* #DB162D */
   --color-gray-600: 108 114 117;
   /* #6C7275 */
   /* Search input */
@@ -26,8 +33,16 @@
   /* #000000 */
   --color-bg-sec: 20 23 24;
   /* #141718 */
-
+  --color-bg-sec-inverted: 245 245 245;
+  /* #F5F5F5 */
+  --color-text-inverted: 20 23 24;
+  /* #141718 */
   --color-text: 255 255 255;
+  /* #FFFFFF */
+  --color-blue-500: 55 125 255;
+  /* #377DFF */
+  --color-red-700: 219 22 45;
+  /* #DB162D */
   --color-muted: 160 160 160;
   --color-primary: 56 203 137;
   --color-shadow: 54, 54, 54;

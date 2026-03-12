@@ -1,11 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, PackageIcon, SettingsIcon } from 'lucide-react';
 
+import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useTheme } from '@/hooks/useTheme';
-
-import { Button } from '../Button';
 
 const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products', icon: <PackageIcon /> },
@@ -16,10 +16,18 @@ export const Sidebar = () => {
   const { isDark } = useTheme();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { openConfirmModal } = useConfirmModal();
 
   const handleLogout = () => {
-    logout();
-    navigate(ROUTES.LOGIN);
+    openConfirmModal({
+      title: 'Logout',
+      description: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      onConfirm: () => {
+        logout();
+        navigate(ROUTES.LOGIN);
+      },
+    });
   };
 
   return (

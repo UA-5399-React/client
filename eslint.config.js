@@ -64,6 +64,10 @@ export default defineConfig([
               group: ['@/hooks/*/*'],
               message: 'Import hooks via the main file (@/hooks).',
             },
+            {
+              group: ['@/contexts/*/*'],
+              message: 'Import contexts via the main file (@/contexts).',
+            },
           ],
         },
       ],
