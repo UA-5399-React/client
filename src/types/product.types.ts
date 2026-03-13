@@ -10,7 +10,7 @@ export type ProductStatusUpperCase = Uppercase<ProductStatus>;
 export interface Product {
   _id?: string;
   id: string;
-  imageUrl: string;
+  imageUrl?: string;
   price: number;
   title: string;
   status: ProductStatus;

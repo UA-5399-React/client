@@ -79,18 +79,19 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
 
   return (
     <div className={`grid gap-4 pb-12 sm:gap-5 lg:gap-6 ${gridClass}`}>
-      {products.map((product) =>
-        viewType === 'list' ? (
+      {products.map((product) => {
+        const key = product._id || product.id;
+        return viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed
-            key={product.id}
+            key={key}
             product={product}
           />
         ) : (
-          <div key={product.id} className="w-full min-w-0 overflow-hidden">
+          <div key={key} className="w-full min-w-0 overflow-hidden">
             <ProductCard product={product} />
           </div>
-        ),
-      )}
+        );
+      })}
     </div>
   );
 };
