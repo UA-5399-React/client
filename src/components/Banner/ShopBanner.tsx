@@ -1,4 +1,4 @@
-import bannerImage from '../../assets/images/banner.png'; //banner.png, banner_shop_main.jpg
+import bannerImage from '../../assets/images/banner_3.png'; //banner.png, banner_shop_main.jpg
 
 import styles from './ShopBanner.module.css';
 
