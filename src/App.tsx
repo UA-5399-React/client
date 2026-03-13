@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
@@ -8,7 +8,6 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
-import { Home } from './pages';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
@@ -35,7 +34,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path={HOME} element={<MainLayout />}>
-          <Route index element={<Home />} />
+          <Route index element={<Navigate to={SHOP} replace />} />
           <Route path={SHOP} element={<Shop />} />
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT_US} element={<ContactUs />} />

@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { Checkbox } from '@/components';
 import { Input } from '@/components';
 import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
@@ -35,7 +34,6 @@ export const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
     setError,
     clearErrors,
@@ -126,28 +124,7 @@ export const LoginForm: React.FC = () => {
           className="pb-2"
         />
 
-        <div className="flex items-center justify-between pt-2">
-          <Controller
-            control={control}
-            name="rememberMe"
-            render={({ field }) => (
-              <Checkbox
-                label="Remember me"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                labelClassName="text-sm text-gray-500"
-                checkboxClassName="h-5 w-5 rounded border-gray-300"
-              />
-            )}
-          />
-
-          <a
-            href="#"
-            className="text-sm font-semibold text-gray-900 hover:underline"
-          >
-            Forgot password?
-          </a>
-        </div>
+        <div className="flex items-center justify-between pt-2"></div>
 
         {errors.root && (
           <p className="text-center text-sm font-medium text-red-500">

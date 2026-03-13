@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  Heart,
-  Menu,
-  Moon,
-  Search,
-  ShoppingBag,
-  Sun,
-  UserCircle,
-  X,
-} from 'lucide-react';
+import { Menu, Moon, Search, Sun, UserCircle, X } from 'lucide-react';
 
 import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
@@ -18,12 +9,7 @@ import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
 
-const NAV_LINKS = [
-  { path: ROUTES.HOME, label: 'Home', end: true },
-  { path: ROUTES.SHOP, label: 'Shop', end: false },
-  { path: ROUTES.PRODUCT, label: 'Product', end: false },
-  { path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
-];
+const NAV_LINKS = [{ path: ROUTES.SHOP, label: 'Shop', end: false }];
 
 export const Header = () => {
   const { theme, setTheme, isDark } = useTheme();
@@ -106,15 +92,7 @@ export const Header = () => {
             />
           </Link>
 
-          <div className="flex items-center gap-4">
-            <Link
-              to={ROUTES.CART}
-              className="text-inherit no-underline"
-              aria-label="Cart"
-            >
-              <ShoppingBag className="h-6 w-auto" />
-            </Link>
-          </div>
+          <div className="flex items-center gap-4"></div>
         </div>
         <div className="hidden h-20 items-center justify-between px-16 lg:flex">
           <Link to={ROUTES.HOME}>
@@ -189,15 +167,6 @@ export const Header = () => {
                 <Moon className="h-6 w-6" />
               )}
             </button>
-
-            <Link
-              to={ROUTES.CART}
-              className="flex items-center gap-2 text-inherit no-underline transition-opacity hover:opacity-70"
-              aria-label="Cart"
-            >
-              <ShoppingBag className="h-6 w-6" />
-              <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" />
-            </Link>
           </div>
         </div>
       </header>
@@ -256,28 +225,10 @@ export const Header = () => {
                   <Moon className="h-5 w-5 shrink-0 text-gray-400" />
                 )}
               </button>
-
-              <Link
-                to={ROUTES.CART}
-                onClick={closeMenu}
-                className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
-              >
-                <span>Cart</span>
-                <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
-              </Link>
-
-              <Link
-                to="#"
-                onClick={closeMenu}
-                className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
-              >
-                <span>Wishlist</span>
-                <Heart className="h-5 w-5 shrink-0 text-gray-400" />
-              </Link>
             </div>
             <div className="shrink-0 px-6 pt-2 pb-6">
               <Link
-                to={ROUTES.HOME}
+                to={ROUTES.LOGIN}
                 onClick={closeMenu}
                 className={`block w-full rounded-md py-3 text-center text-sm font-semibold no-underline transition-opacity hover:opacity-80 ${isDark ? 'bg-white' : 'bg-black'}`}
                 style={{ color: isDark ? '#000000' : '#ffffff' }}

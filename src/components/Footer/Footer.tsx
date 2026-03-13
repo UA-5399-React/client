@@ -6,13 +6,7 @@ import logoLight from '@/assets/logo/light_theme_logo.png';
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 
-const NAV_LINKS = [
-  { path: ROUTES.HOME, label: 'Home' },
-  { path: ROUTES.SHOP, label: 'Shop' },
-  { path: ROUTES.PRODUCT, label: 'Product' },
-  { path: ROUTES.BLOG, label: 'Blog' },
-  { path: ROUTES.CONTACT_US, label: 'Contact Us' },
-];
+const NAV_LINKS = [{ path: ROUTES.SHOP, label: 'Shop' }];
 
 export const Footer = () => {
   const { isDark } = useTheme();
@@ -83,22 +77,7 @@ export const Footer = () => {
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-center lg:gap-8">
           <span>Copyright © 2026 TechnoWorld. All rights reserved</span>
-          <div className="flex items-center gap-4 font-semibold lg:gap-6">
-            <Link
-              to="#"
-              className="no-underline transition-colors duration-300 hover:opacity-70"
-              style={{ color: 'inherit' }}
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              to="#"
-              className="no-underline transition-colors duration-300 hover:opacity-70"
-              style={{ color: 'inherit' }}
-            >
-              Terms of Use
-            </Link>
-          </div>
+          <div className="flex items-center gap-4 font-semibold lg:gap-6"></div>
         </div>
 
         <div className="flex items-center gap-5 lg:gap-6">

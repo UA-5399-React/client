@@ -7,7 +7,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { type Product, PRODUCT_STATUS } from '@/types';
 
 import { Button } from '../Button';
-import { Checkbox } from '../Checkbox';
 
 interface TableProductsProps {
   items: Product[] | [];
@@ -81,7 +80,6 @@ function renderBodyContent(
       >
         <td>
           <div className="flex items-center gap-2">
-            <Checkbox className="h-[20px] w-[20px]" />
             <span>Image</span>
           </div>
         </td>
@@ -138,7 +136,6 @@ export function TableProducts({
           <tr>
             <th>
               <div className="flex items-center gap-2">
-                <Checkbox className="h-[20px] w-[20px]" />
                 <span>Image</span>
               </div>
             </th>
