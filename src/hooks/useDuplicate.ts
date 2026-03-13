@@ -12,9 +12,8 @@ export function useDuplicate() {
   const [duplicateMutation, { data, loading, error }] = useMutation(
     DUPLICATE_PRODUCT,
     {
-      refetchQueries: [
-        { query: GET_PRODUCTS_PAGE, variables: { limit: 10, page: 1 } },
-      ],
+      refetchQueries: [GET_PRODUCTS_PAGE],
+      awaitRefetchQueries: true,
     },
   );
 
