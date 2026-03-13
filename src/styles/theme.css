@@ -14,7 +14,7 @@
   /* #6C7275 */
   --color-primary: 56 203 137;
   /* #38CB89 */
-  --color-blue-500: 55 125 255;
+  --color-blue-primary: 55 125 255;
   /* #377DFF */
   --color-red-700: 219 22 45;
   /* #DB162D */
@@ -39,7 +39,7 @@
   /* #141718 */
   --color-text: 255 255 255;
   /* #FFFFFF */
-  --color-blue-500: 55 125 255;
+  --color-blue-primary: 55 125 255;
   /* #377DFF */
   --color-red-700: 219 22 45;
   /* #DB162D */

@@ -108,6 +108,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('email')}
           variant="underlined"
+          inputClassName="bg-white text-black"
           placeholder="Your email address"
           state={errors.email ? 'error' : 'default'}
           helperText={errors.email?.message}
@@ -117,6 +118,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('password')}
           type="password"
+          inputClassName="bg-white text-black"
           variant="underlined"
           placeholder="Password"
           state={errors.password ? 'error' : 'default'}
@@ -155,7 +157,7 @@ export const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={isPending}
-          className="mt-6 w-full rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none"
+          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
         </button>
