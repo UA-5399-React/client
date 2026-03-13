@@ -11,6 +11,8 @@ import {
   X,
 } from 'lucide-react';
 
+import logoDark from '@/assets/logo/dark_theme_logo.png';
+import logoLight from '@/assets/logo/light_theme_logo.png';
 import { SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -25,6 +27,7 @@ const NAV_LINKS = [
 
 export const Header = () => {
   const { theme, setTheme, isDark } = useTheme();
+  const logoSrc = isDark ? logoDark : logoLight;
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -96,7 +99,11 @@ export const Header = () => {
             to={ROUTES.HOME}
             className="text-text mx-auto text-xl font-bold no-underline"
           >
-            TechnoWorld.
+            <img
+              src={logoSrc}
+              alt="TechnoWorld"
+              className="align-center flex h-28 w-auto"
+            />
           </Link>
 
           <div className="flex items-center gap-4">
@@ -105,16 +112,17 @@ export const Header = () => {
               className="text-inherit no-underline"
               aria-label="Cart"
             >
-              <ShoppingBag className="h-6 w-6" />
+              <ShoppingBag className="h-6 w-auto" />
             </Link>
           </div>
         </div>
         <div className="hidden h-20 items-center justify-between px-16 lg:flex">
-          <Link
-            to={ROUTES.HOME}
-            className="text-text text-2xl font-bold no-underline transition-colors duration-300"
-          >
-            TechnoWorld.
+          <Link to={ROUTES.HOME}>
+            <img
+              src={logoSrc}
+              alt="TechnoWorld"
+              className="align-center flex h-36 w-auto"
+            />
           </Link>
 
           <nav>

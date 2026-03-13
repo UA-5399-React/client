@@ -84,21 +84,29 @@ export const Products = () => {
   return (
     <div className="box-border w-full overflow-x-hidden px-4 py-8 lg:px-16">
       <ShopBanner />
-      <div className="align-items flex w-full justify-end gap-5">
-        <ShopFilters />
-        <Dropdown
-          label=""
-          options={SORT_OPTIONS}
-          placeholder={sort ? `Sort by ${sort}` : 'Sort by'}
-          onChange={handleFilterChange}
-          hasBorder={false}
-          multiple={false}
-        />
-        <ViewToggle
-          value={viewType}
-          onChange={setViewType}
-          isMobile={isMobile}
-        />
+      <div className="mt-6 flex w-full flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-5">
+        <div className="w-full lg:w-auto">
+          <ShopFilters />
+        </div>
+
+        <div className="flex w-full items-center justify-between gap-4 lg:w-auto lg:justify-end lg:gap-5">
+          <div className="flex-1 lg:flex-none">
+            <Dropdown
+              label=""
+              options={SORT_OPTIONS}
+              placeholder={sort ? `Sort by ${sort}` : 'Sort by'}
+              onChange={handleFilterChange}
+              hasBorder={false}
+              multiple={false}
+            />
+          </div>
+
+          <ViewToggle
+            value={viewType}
+            onChange={setViewType}
+            isMobile={isMobile}
+          />
+        </div>
       </div>
       {!data?.items?.length ? (
         <div className="p-8 text-center text-gray-500">No products found.</div>

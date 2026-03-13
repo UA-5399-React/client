@@ -69,7 +69,7 @@ export function ShopFilters() {
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row">
       <Dropdown
         label="Categories"
         options={CATEGORY_OPTIONS}
