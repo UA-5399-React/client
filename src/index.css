@@ -29,3 +29,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+input:-webkit-autofill {
+  transition: background-color 9999s ease-out 0s;
+}
