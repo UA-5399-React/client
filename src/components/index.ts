@@ -9,6 +9,7 @@ export { LoginForm } from './LoginForm/LoginForm';
 export { LogoutButton } from './LogoutButton/LogoutButton';
 export { MainLayout } from './MainLayout';
 export { MobileSidebar } from './MobileSidebar/MobileSidebar';
+export { NewArrivals } from './NewArrivals/NewArrivals';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';

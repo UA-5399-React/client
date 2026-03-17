@@ -1,5 +1,7 @@
+import { Button, NewArrivals } from '@/components';
+import { useProducts } from '@/hooks/useProducts';
+
 import reactLogo from '../../assets/react.svg';
-import { Button } from '../../components';
 import { useCreateUser, useGetUsers } from '../../hooks';
 import type { User } from '../../types';
 
@@ -7,9 +9,17 @@ import './Home.css';
 
 import viteLogo from '/vite.svg';
 
+const NEW_ARRIVALS_LIMIT = 10;
+
 export const Home = () => {
   const { data: users } = useGetUsers();
   const createUser = useCreateUser();
+
+  const {
+    data: products,
+    isLoading,
+    isError,
+  } = useProducts(1, NEW_ARRIVALS_LIMIT);
 
   const handleCreateUser = () => {
     createUser.mutate({
@@ -20,6 +30,12 @@ export const Home = () => {
 
   return (
     <div className="home">
+      <NewArrivals
+        products={products?.items ?? []}
+        isLoading={isLoading}
+        isError={isError}
+      />
+
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
