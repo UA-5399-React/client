@@ -54,7 +54,7 @@ function CategoryRow({
                 ? `Collapse ${category.title}`
                 : `Expand ${category.title}`
             }
-            className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border-2 bg-[rgb(var(--color-bg))] p-0 text-black hover:text-black"
+            className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border-2 border-[rgb(var(--color-text))] bg-[rgb(var(--color-bg))] p-0 text-[rgb(var(--color-text))]"
             onClick={() => onToggle(category.id)}
           >
             {isExpanded ? (
