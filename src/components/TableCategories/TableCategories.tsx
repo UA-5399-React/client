@@ -69,21 +69,25 @@ function CategoryRow({
       </td>
 
       <td className="w-[96px] text-center">
-        {category.imageUrl ? (
-          <img
-            alt={category.title}
-            className="mx-auto h-10 w-10 rounded-md object-cover"
-            src={category.imageUrl}
-          />
-        ) : (
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-md bg-[#E5E7EB] text-xs text-[#8A92A6]">
-            N/A
-          </div>
-        )}
+        <div className={clsx('flex justify-center', isChild && 'pl-8')}>
+          {category.imageUrl ? (
+            <img
+              alt={category.title}
+              className="h-10 w-10 rounded-md object-cover"
+              src={category.imageUrl}
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#E5E7EB] text-xs text-[#8A92A6]">
+              N/A
+            </div>
+          )}
+        </div>
       </td>
 
-      <td className={clsx('font-medium', isChild && 'pl-6')}>
-        {category.title}
+      <td className="text-left">
+        <div className={clsx('font-medium', isChild && 'pl-8')}>
+          {category.title}
+        </div>
       </td>
       <td className="max-w-[280px] truncate text-start">
         {category.description || '-'}
@@ -239,7 +243,7 @@ export function TableCategories({
 
   return (
     <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
-      <table className="[&_td]:px-4s w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
+      <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_td]:px-4 [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] text-[#8A92A6]">
           <tr>
             <th className="w-[72px]"></th>
