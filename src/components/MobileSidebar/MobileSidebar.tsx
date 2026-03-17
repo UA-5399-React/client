@@ -6,6 +6,7 @@ import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 
 const MOBILE_LINKS = [
+  { to: ROUTES.ADMIN_CATEGORIES, label: 'Categories' },
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products' },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings' },
 ];

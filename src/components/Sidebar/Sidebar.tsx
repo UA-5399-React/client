@@ -1,5 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOut, PackageIcon, SettingsIcon } from 'lucide-react';
+import {
+  ChartBarStacked,
+  LogOut,
+  PackageIcon,
+  SettingsIcon,
+} from 'lucide-react';
 
 import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
@@ -9,6 +14,11 @@ import { useTheme } from '@/hooks/useTheme';
 
 const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products', icon: <PackageIcon /> },
+  {
+    to: ROUTES.ADMIN_CATEGORIES,
+    label: 'Categories',
+    icon: <ChartBarStacked />,
+  },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
 ];
 

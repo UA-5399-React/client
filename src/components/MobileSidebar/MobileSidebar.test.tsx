@@ -83,6 +83,9 @@ describe('UI Component: MobileSidebar', () => {
     renderWithTheme({ ...defaultProps, isSidebarOpen: true });
 
     expect(screen.getByText('ADMIN')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Categories' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Products' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Logout/i })).toBeInTheDocument();
@@ -139,9 +142,11 @@ describe('UI Component: MobileSidebar', () => {
   it('should render Products and Settings links with correct hrefs', () => {
     renderWithTheme({ ...defaultProps, isSidebarOpen: true });
 
+    const categoriesLink = screen.getByRole('link', { name: 'Categories' });
     const productsLink = screen.getByRole('link', { name: 'Products' });
     const settingsLink = screen.getByRole('link', { name: 'Settings' });
 
+    expect(categoriesLink).toHaveAttribute('href', ROUTES.ADMIN_CATEGORIES);
     expect(productsLink).toHaveAttribute('href', ROUTES.ADMIN_PRODUCTS);
     expect(settingsLink).toHaveAttribute('href', ROUTES.ADMIN_SETTING);
   });
