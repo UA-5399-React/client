@@ -17,6 +17,7 @@ import { SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
+import { useCartStore } from '@/store/useCartStore';
 
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home', end: true },
@@ -30,6 +31,12 @@ export const Header = () => {
   const logoSrc = isDark ? logoDark : logoLight;
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const cartItems = useCartStore((state) => state.items);
+  const cartItemCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -109,10 +116,15 @@ export const Header = () => {
           <div className="flex items-center gap-4">
             <Link
               to={ROUTES.CART}
-              className="text-inherit no-underline"
+              className="relative text-inherit no-underline"
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-auto" />
+              {cartItemCount > 0 && (
+                <span className="bg-text text-background absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -196,7 +208,11 @@ export const Header = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
-              <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" />
+              {cartItemCount > 0 && (
+                <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -263,7 +279,14 @@ export const Header = () => {
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Cart</span>
-                <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
+                <div className="flex items-center gap-2">
+                  {cartItemCount > 0 && (
+                    <span className="bg-text text-background flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold">
+                      {cartItemCount}
+                    </span>
+                  )}
+                  <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
+                </div>
               </Link>
 
               <Link
