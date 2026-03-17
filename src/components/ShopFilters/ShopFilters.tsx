@@ -1,12 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 
 import { Dropdown } from '@/components/Dropdown';
-
-const CATEGORY_OPTIONS = [
-  { label: 'Laptop', value: 'Laptop' },
-  { label: 'Apple', value: 'Apple' },
-  { label: 'Audio', value: 'Audio' },
-];
+import { useAdminCategories } from '@/hooks/useAdminCategories';
 
 const PRICE_OPTIONS = [
   { label: 'Under $500', value: '0-500' },
@@ -17,10 +12,17 @@ const PRICE_OPTIONS = [
 
 export function ShopFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { categories } = useAdminCategories();
+
+  const categoryOptions = categories.map((c) => ({
+    label: c.title,
+    value: c.title,
+  }));
+
   const currentCategory = searchParams.get('category')?.split(',') || [];
   const categoryLabel = currentCategory.length
     ? currentCategory
-        .map((v) => CATEGORY_OPTIONS.find((o) => o.value === v)?.label)
+        .map((v) => categoryOptions.find((o) => o.value === v)?.label)
         .filter(Boolean)
         .join(', ')
     : 'All Electronics';
@@ -72,7 +74,7 @@ export function ShopFilters() {
     <div className="flex flex-col gap-4 sm:flex-row">
       <Dropdown
         label="Categories"
-        options={CATEGORY_OPTIONS}
+        options={categoryOptions}
         multiple={true}
         onChange={handleCategoryChange}
         placeholder={categoryLabel}
