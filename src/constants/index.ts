@@ -19,6 +19,8 @@ export const ROUTES = {
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
+  ADMIN_CATEGORY_ADD: '/admin/categories/add',
+  ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
