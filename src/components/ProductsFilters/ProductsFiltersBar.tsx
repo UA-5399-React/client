@@ -1,19 +1,8 @@
 import { Checkbox } from '@/components/Checkbox';
 import { Dropdown } from '@/components/Dropdown';
 import { Input } from '@/components/Input';
+import { useAdminCategories } from '@/hooks/useAdminCategories';
 import type { ProductsFilters } from '@/types/filters';
-
-// import type { DropdownOption } from '../Dropdown/Dropdown.types';
-
-const TAG_OPTIONS = [
-  { label: 'Laptop', value: 'Laptop' },
-  { label: 'Apple', value: 'Apple' },
-  { label: 'Audio', value: 'Audio' },
-  { label: 'Smartphone', value: 'Smartphone' },
-  { label: 'Accessories', value: 'Accessories' },
-  { label: 'Gaming', value: 'Gaming' },
-  { label: 'Samsung', value: 'Samsung' },
-];
 
 const STATUS_OPTIONS = [
   { label: 'Active', value: 'ACTIVE' },
@@ -33,11 +22,17 @@ export function ProductFiltersBar({
   const update = (partial: Partial<ProductsFilters>) =>
     onChange({ ...filters, ...partial });
 
+  const { categories } = useAdminCategories();
+  const categoryOptions = categories.map((c) => ({
+    label: c.title,
+    value: c.title,
+  }));
+
   return (
     <div className="flex flex-wrap items-end gap-6">
       <Dropdown
         label="Category"
-        options={TAG_OPTIONS}
+        options={categoryOptions}
         onChange={(values) =>
           update({ categories: values.map((item) => item.value) })
         }

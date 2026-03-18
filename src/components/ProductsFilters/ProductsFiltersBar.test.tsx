@@ -6,6 +6,17 @@ import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { ProductFiltersBar } from './ProductsFiltersBar';
 
+vi.mock('@/hooks/useAdminCategories', () => ({
+  useAdminCategories: () => ({
+    categories: [
+      { id: '1', title: 'Laptop' },
+      { id: '2', title: 'Audio' },
+    ],
+    loading: false,
+    error: undefined,
+  }),
+}));
+
 const defaultFilters: ProductsFilters = {
   categories: [],
   minPrice: '',

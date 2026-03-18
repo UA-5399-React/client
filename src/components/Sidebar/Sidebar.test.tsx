@@ -45,6 +45,7 @@ describe('UI Component: Sidebar', () => {
     vi.mocked(useAuth).mockReturnValue(defaultAuthMock);
     renderWithProviders(<Sidebar />);
 
+    expect(screen.getByText('Categories')).toBeInTheDocument();
     expect(screen.getByText('Products')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
   });

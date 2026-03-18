@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 
+import { useCartStore } from '@/store/useCartStore';
 import type { Product } from '@/types';
 
 import { Button } from '../Button/Button';
@@ -12,9 +13,17 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { _id, title, price, imageUrl } = product;
   const navigate = useNavigate();
+  const addItem = useCartStore((state) => state.addItem);
+
   const handleCardClick = () => {
     navigate(`/product/${_id}`);
   };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addItem(product);
+  };
+
   return (
     <div className="group relative flex flex-col">
       <div
@@ -33,7 +42,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
         <div className="absolute right-0 bottom-0 left-0 translate-y-full px-4 pb-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <Button className="w-full rounded-md bg-[#141718] py-3 text-sm font-medium text-white transition-all outline-none hover:border hover:border-white">
+          <Button
+            className="w-full rounded-md bg-[#141718] py-3 text-sm font-medium text-white transition-all outline-none hover:border hover:border-white"
+            onClick={handleAddToCart}
+          >
             Add to Cart
           </Button>
         </div>
