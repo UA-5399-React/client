@@ -1,8 +1,7 @@
 import { NewArrivals } from '@/components';
 import { Features, Newsletter, SaleBanner } from '@/components';
+import { NEW_ARRIVALS_LIMIT } from '@/constants';
 import { useProducts } from '@/hooks/useProducts';
-
-const NEW_ARRIVALS_LIMIT = 10;
 
 export const Home = () => {
   const {
