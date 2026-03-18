@@ -248,7 +248,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 }
                 placeholder="No category selected"
                 onChange={(selected) => {
-                  const newValue = selected.map((opt) => opt.value).join(',');
+                  const newValue = selected.map((opt) => opt.value).join(', ');
                   field.onChange(newValue);
                 }}
               />
