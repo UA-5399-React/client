@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
-import { Dropdown } from '@/components/Dropdown';
+import { CategoryDropdown, Dropdown } from '@/components/Dropdown';
 import { useAdminCategories } from '@/hooks/useAdminCategories';
 
 const PRICE_OPTIONS = [
@@ -72,7 +72,7 @@ export function ShopFilters() {
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
-      <Dropdown
+      <CategoryDropdown
         label="Categories"
         options={categoryOptions}
         multiple={true}
