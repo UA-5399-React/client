@@ -16,7 +16,7 @@ export function ShopFilters() {
 
   const categoryOptions = categories.map((c) => ({
     label: c.title,
-    value: c.title,
+    value: String(c.id),
   }));
 
   const currentCategory = searchParams.get('category')?.split(',') || [];

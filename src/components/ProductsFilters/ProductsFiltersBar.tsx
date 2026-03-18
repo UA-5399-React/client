@@ -25,13 +25,13 @@ export function ProductFiltersBar({
   const { categories } = useAdminCategories();
   const categoryOptions = categories.map((c) => ({
     label: c.title,
-    value: c.title,
+    value: c.id,
   }));
 
   return (
     <div className="flex flex-wrap items-end gap-6">
       <Dropdown
-        label="Category"
+        label="Categories"
         options={categoryOptions}
         onChange={(values) =>
           update({ categories: values.map((item) => item.value) })
