@@ -109,10 +109,8 @@ describe('Component: ProductForm', () => {
     await user.type(nameInput, 'IPhone 16');
     await user.type(priceInput, '999.99');
     await user.click(categorySelect);
-    await waitFor(() => {
-      expect(screen.getByText('phones')).toBeInTheDocument();
-    });
-    await user.click(screen.getByText('electronics'));
+    const option = await screen.findByRole('option', { name: 'electronics' });
+    await user.click(option);
     await user.type(descriptionInput, 'Flagship phone');
 
     await waitFor(() => {
