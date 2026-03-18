@@ -10,7 +10,7 @@ export const productService = {
   getAll: (
     page: number,
     limit: number,
-    sort?: 'price' | 'title',
+    sort?: 'price' | 'title' | 'createdAt',
     search?: string,
     category?: string,
     minPrice?: string,

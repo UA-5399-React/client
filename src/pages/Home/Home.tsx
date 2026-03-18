@@ -9,7 +9,7 @@ export const Home = () => {
     data: products,
     isLoading,
     isError,
-  } = useProducts(1, NEW_ARRIVALS_LIMIT);
+  } = useProducts(1, NEW_ARRIVALS_LIMIT, 'createdAt');
 
   return (
     <main className="box-border w-full overflow-x-hidden">
@@ -18,8 +18,11 @@ export const Home = () => {
         isLoading={isLoading}
         isError={isError}
       />
+
       <Features />
+
       <SaleBanner />
+
       <Newsletter />
     </main>
   );
