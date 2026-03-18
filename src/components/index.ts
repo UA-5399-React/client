@@ -21,5 +21,6 @@ export { Sidebar } from './Sidebar/Sidebar';
 export { SortOrderButton } from './SortProducts/SortOrderButton/SortOrderButton';
 export { SortProductsDropdown } from './SortProducts/SortProductsDropdown/SortProductsDropdown';
 export { SortRadioItem } from './SortProducts/SortRadioItem/SortRadioItem';
+export { TableCategories } from './TableCategories/TableCategories';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
