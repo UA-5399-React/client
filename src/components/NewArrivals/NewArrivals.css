@@ -1,0 +1,8 @@
+.new-arrivals-scroll-out {
+  margin-right: -4rem;
+  width: calc(100% + 4rem);
+}
+
+.dark .new-arrivals-scroll-inner {
+  scrollbar-color: #ffff #000;
+}
