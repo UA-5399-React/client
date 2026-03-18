@@ -51,10 +51,10 @@ export const Features: React.FC = () => {
                 aria-hidden="true"
               />
               <div>
-                <h3 className="m-0 text-base leading-7 font-medium text-neutral-900 md:text-[20px]">
+                <h3 className="m-0 text-base/7 font-medium text-neutral-900 md:text-xl/7">
                   {feature.title}
                 </h3>
-                <p className="m-0 mt-1 text-xs leading-5 font-normal text-neutral-500 md:text-sm md:leading-6">
+                <p className="m-0 mt-1 text-xs/5 font-normal text-neutral-500 md:text-sm/6">
                   {feature.description}
                 </p>
               </div>
