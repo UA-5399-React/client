@@ -65,7 +65,7 @@ export const CategoryDropdown = ({
           data-border={hasBorder}
         >
           <Select.Value className="hidden" />
-          <span className={styles.Value}>
+          <span className="truncate">
             {selectedOptions && selectedOptions.length > 0 ? (
               multiple ? (
                 selectedOptions.map((o) => o.label).join(', ')
