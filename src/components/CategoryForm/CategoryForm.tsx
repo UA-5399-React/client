@@ -1,14 +1,21 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
 
 import { useTheme } from '@/hooks/useTheme';
 import type { Category } from '@/types/category.types';
 
+interface SimpleProduct {
+  id: string | number;
+  title: string;
+  price: string | number;
+  imageUrl?: string;
+}
+
 interface CategoryFormProps {
   mode: 'add' | 'edit';
-  initialData?: Category;
+  initialData?: Category & { products?: SimpleProduct[] };
   items?: Category[];
 }
 
@@ -19,7 +26,11 @@ export const CategoryForm = ({
 }: CategoryFormProps) => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const isEdit = mode === 'edit';
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(
@@ -28,90 +39,129 @@ export const CategoryForm = ({
   const [preview, setPreview] = useState(initialData?.imageUrl || null);
   const [parentValue, setParentValue] = useState(initialData?.parent || '');
 
-  const isEdit = mode === 'edit';
+  const products = initialData?.products || [];
   const hasChildren =
     isEdit && items.some((item) => item.parent === initialData?.id);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleSubmit = async () => {
+    if (!title.trim() || !description.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
     const depth = parentValue ? 2 : 1;
     const payload = {
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       parent: parentValue || null,
       depth,
       imageUrl: preview,
     };
-    console.log('Saving Category:', payload);
+
+    try {
+      const url = isEdit
+        ? `http://localhost:3000/category/${initialData?.id}`
+        : 'http://localhost:3000/category';
+
+      const response = await fetch(url, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) navigate('/admin/categories');
+    } catch (error) {
+      console.error('Error saving:', error);
+    }
   };
 
-  // Стилі для полів: висота однакова (h-11 або py-2.5)
   const inputBaseStyles = clsx(
-    'w-full rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-sm transition-all outline-none font-sans appearance-none',
+    'block w-full box-border rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-sm transition-all outline-none font-sans focus:border-[#38CB89]',
     isDark
-      ? 'bg-gray-800 text-white border-gray-700 focus:border-[#38CB89]'
-      : 'bg-white text-[#1A1C1E] focus:border-[#38CB89]',
+      ? 'bg-gray-800 text-white border-gray-700'
+      : 'bg-white text-[#1A1C1E]',
   );
 
   const labelStyles =
-    'mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-[#8A92A6] font-sans';
+    'mb-1.5 block w-full text-[13px] font-semibold text-[#1A1C1E] font-sans';
 
   return (
     <div
       className={clsx(
-        'flex min-h-screen items-center justify-center p-4 font-sans transition-colors',
+        'flex min-h-screen items-center justify-center p-4 font-sans',
         isDark ? 'bg-black' : 'bg-[#F9FAFB]',
       )}
     >
       <div
         className={clsx(
-          'w-full max-w-[560px] overflow-hidden rounded-2xl border border-[#e5e7eb] shadow-sm',
-          isDark ? 'border-gray-800 bg-[#111827]' : 'bg-white',
+          'relative w-full rounded-2xl border border-[#e5e7eb] bg-white shadow-sm transition-all duration-300',
+          isEdit ? 'max-w-[720px]' : 'max-w-[580px]',
+          isDark && 'border-gray-800 bg-[#111827]',
         )}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#e5e7eb] px-8 py-5">
-          <h1
-            className={clsx(
-              'text-xl font-bold tracking-tight',
-              isDark ? 'text-white' : 'text-[#1A1C1E]',
-            )}
-          >
+          <h1 className="text-2xl font-bold text-[#1A1C1E]">
             {isEdit ? 'Edit Category' : 'Add Category'}
           </h1>
           <button
             onClick={() => navigate(-1)}
-            className="text-[#8A92A6] transition-colors hover:text-gray-400"
+            className="cursor-pointer border-none bg-transparent text-gray-400 transition-colors hover:text-gray-600"
           >
-            <X size={22} />
+            <X size={26} strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="space-y-6 p-8">
-          {/* Image Upload Area */}
-          <div className="flex flex-col items-center">
-            <span className={labelStyles}>Category Image</span>
+        <div className="space-y-8 p-8">
+          <div className="flex w-full flex-col items-center">
+            <label className="mb-4 w-full text-left text-[11px] font-bold tracking-wider text-[#8A92A6] uppercase">
+              Category Image
+            </label>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className={clsx(
-                'group relative flex h-32 w-44 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all',
-                isDark
-                  ? 'border-gray-700 bg-gray-800 hover:border-[#38CB89]'
-                  : 'border-[#e5e7eb] bg-[#F9FAFB] hover:border-[#38CB89]',
-              )}
+              className="group relative flex h-36 w-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#e5e7eb] bg-[#F9FAFB] transition-all hover:border-[#38CB89]"
             >
               {preview ? (
-                <img
-                  src={preview}
-                  className="h-full w-full rounded-xl object-cover p-1"
-                  alt="Preview"
-                />
-              ) : (
-                <div className="flex flex-col items-center text-[#8A92A6]">
-                  <Plus
-                    size={28}
-                    className="mb-1 transition-transform group-hover:scale-110"
+                <>
+                  <img
+                    src={preview}
+                    className="h-full w-full rounded-xl object-cover"
+                    alt="Preview"
                   />
-                  <span className="text-[10px] font-bold tracking-widest uppercase">
+                  <button
+                    onClick={handleRemoveImage}
+                    className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#F25F5F] shadow-md transition-colors hover:bg-red-50"
+                  >
+                    <X size={16} strokeWidth={3} />
+                  </button>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Pencil className="text-white" size={24} />
+                    <span className="mt-1 text-[10px] font-bold text-white uppercase">
+                      Change
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center text-gray-400">
+                  <Plus size={32} strokeWidth={1.2} />
+                  <span className="mt-1 text-[10px] font-bold uppercase">
                     Upload
                   </span>
                 </div>
@@ -129,79 +179,192 @@ export const CategoryForm = ({
             />
           </div>
 
-          {/* Form Fields */}
-          <div className="space-y-5">
-            <div>
-              <label className={labelStyles}>Category Name *</label>
+          <div
+            className={clsx(
+              'grid w-full gap-6',
+              isEdit ? 'grid-cols-2' : 'grid-cols-1',
+            )}
+          >
+            <div className={isEdit ? 'col-span-1' : 'w-full'}>
+              <label className={labelStyles}>
+                Category Name <span className="text-red-500">*</span>
+              </label>
               <input
                 className={inputBaseStyles}
-                placeholder="Enter title"
+                placeholder="Category title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
-            <div>
-              <label className={labelStyles}>Description</label>
-              <textarea
-                className={clsx(
-                  inputBaseStyles,
-                  'h-11 min-h-[44px] resize-none overflow-hidden',
-                )}
-                placeholder="Brief description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className={labelStyles}>Parent Category</label>
-              <div className="relative">
-                <select
-                  value={parentValue || ''}
-                  onChange={(e) => setParentValue(e.target.value)}
-                  disabled={hasChildren}
+            {!isEdit && (
+              <div className="w-full">
+                <label className={labelStyles}>
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
                   className={clsx(
                     inputBaseStyles,
-                    'pr-10',
-                    hasChildren && 'cursor-not-allowed bg-gray-50 opacity-50',
+                    'h-11 min-h-[44px] resize-none',
+                  )}
+                  placeholder="Short description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div
+              className={clsx('relative', isEdit ? 'col-span-1' : 'w-full')}
+              ref={dropdownRef}
+            >
+              <label className={labelStyles}>Level</label>
+              <div
+                onClick={() =>
+                  !hasChildren && setIsDropdownOpen(!isDropdownOpen)
+                }
+                className={clsx(
+                  inputBaseStyles,
+                  'flex cursor-pointer items-center justify-between',
+                  isDropdownOpen && 'border-[#38CB89]',
+                  hasChildren && 'cursor-not-allowed bg-gray-50 opacity-70',
+                )}
+              >
+                <span
+                  className={clsx(
+                    'truncate',
+                    parentValue ? 'text-[#1A1C1E]' : 'text-gray-400',
                   )}
                 >
-                  <option value="">Parent Category</option> {/* Змінено тут */}
-                  {items
-                    .filter(
-                      (cat) => cat.depth === 1 && cat.id !== initialData?.id,
-                    )
-                    .map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.title}
-                      </option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#8A92A6]">
-                  <ChevronDown size={16} />
-                </div>
+                  {parentValue
+                    ? items.find((c) => String(c.id) === String(parentValue))
+                        ?.title
+                    : 'Parent Category'}
+                </span>
+                <ChevronDown
+                  size={18}
+                  className={clsx(
+                    'text-gray-400 transition-transform',
+                    isDropdownOpen && 'rotate-180',
+                  )}
+                />
               </div>
+              {isDropdownOpen && (
+                <div className="animate-in fade-in zoom-in absolute left-0 z-[100] mt-1 w-full rounded-xl border border-[#e5e7eb] bg-white p-1 shadow-2xl duration-150">
+                  <div className="max-h-60 overflow-y-auto">
+                    <div
+                      onClick={() => {
+                        setParentValue('');
+                        setIsDropdownOpen(false);
+                      }}
+                      className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-sm hover:bg-[#F2F4F6]"
+                    >
+                      <span className="font-medium text-[#1A1C1E]">
+                        None (Top Level)
+                      </span>
+                      {!parentValue && (
+                        <div className="h-2 w-2 rounded-full bg-[#38CB89]" />
+                      )}
+                    </div>
+                    {items
+                      .filter((c) => c.id !== initialData?.id)
+                      .map((c) => (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            setParentValue(c.id);
+                            setIsDropdownOpen(false);
+                          }}
+                          className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-sm hover:bg-[#F2F4F6]"
+                        >
+                          <span className="font-medium text-[#1A1C1E]">
+                            {c.title}
+                          </span>
+                          {parentValue === c.id && (
+                            <div className="h-2 w-2 rounded-full bg-[#38CB89]" />
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {isEdit && (
+              <div className="col-span-2">
+                <label className={labelStyles}>
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className={clsx(
+                    inputBaseStyles,
+                    'h-11 min-h-[44px] resize-none',
+                  )}
+                  placeholder="Short description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <p className="mt-1 text-[11px] text-[#8A92A6]">
+                  A short description to help identify this category
+                </p>
+              </div>
+            )}
           </div>
+
+          {isEdit && (
+            <div className="w-full border-t border-gray-50 pt-4">
+              <label className={labelStyles}>Products Review</label>
+              {products.length > 0 ? (
+                <div className="scrollbar-hide mt-2 flex gap-3 overflow-x-auto pb-2">
+                  {products.slice(0, 3).map((product: SimpleProduct) => (
+                    <div
+                      key={product.id}
+                      className="flex min-w-[180px] items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-2"
+                    >
+                      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        {product.imageUrl && (
+                          <img
+                            src={product.imageUrl}
+                            className="h-full w-full object-cover"
+                            alt=""
+                          />
+                        )}
+                      </div>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="truncate text-[10px] font-bold uppercase">
+                          {product.title || 'Product Name'}
+                        </span>
+                        <span className="text-[9px] text-[#8A92A6]">
+                          ${product.price || '0'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {products.length > 3 && (
+                    <button className="flex min-w-[80px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#e5e7eb] bg-transparent text-[10px] font-bold text-[#8A92A6] transition-colors hover:bg-gray-50">
+                      + {products.length - 3} more
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-2 text-[11px] text-[#8A92A6] italic">
+                  No products linked yet.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <div
-          className={clsx(
-            'flex items-center justify-end gap-3 border-t border-[#e5e7eb] px-8 py-5',
-            isDark ? 'bg-gray-800/30' : 'bg-[#F9FAFB]',
-          )}
-        >
+        <div className="flex items-center justify-end gap-6 rounded-b-2xl border-t border-[#e5e7eb] bg-[#F2F4F6]/50 px-8 py-5">
           <button
             onClick={() => navigate(-1)}
-            className="rounded-lg border border-[#e5e7eb] bg-white px-5 py-2 text-sm font-bold text-[#8A92A6] shadow-sm transition-all hover:bg-gray-50"
+            className="cursor-pointer border-none bg-transparent text-sm font-bold text-[#8A92A6] transition-colors hover:text-[#1A1C1E]"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="rounded-lg border-none bg-[#38CB89] px-7 py-2 text-sm font-bold text-white shadow-sm transition-all outline-none hover:bg-[#32b87a] active:scale-[0.98]"
+            className="cursor-pointer rounded-xl border-none bg-[#38CB89] px-8 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#32b87a] active:scale-95"
           >
             {isEdit ? 'Update Category' : 'Save Category'}
           </button>

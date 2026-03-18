@@ -20,8 +20,8 @@ export const EditCategory = () => {
         setError(null);
 
         const [categoryResponse, allCategoriesResponse] = await Promise.all([
-          fetch(`http://localhost:5000/api/categories/${id}`),
-          fetch(`http://localhost:5000/api/categories`),
+          fetch(`http://localhost:3000/api/categories/${id}`),
+          fetch(`http://localhost:3000/api/categories`),
         ]);
 
         if (!categoryResponse.ok || !allCategoriesResponse.ok) {
@@ -50,9 +50,12 @@ export const EditCategory = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="animate-pulse text-lg font-medium text-gray-500">
-          Loading category details...
+      <div className="flex min-h-screen items-center justify-center bg-[#F9FAFB]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#38CB89]/20 border-t-[#38CB89]"></div>
+          <div className="text-sm font-bold tracking-widest text-[#8A92A6] uppercase">
+            Loading...
+          </div>
         </div>
       </div>
     );
@@ -60,16 +63,10 @@ export const EditCategory = () => {
 
   if (error || !category) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-bold text-red-600">Error</h2>
           <p className="text-gray-600">{error || 'Category not found'}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 text-sm text-blue-500 underline"
-          >
-            Try again
-          </button>
         </div>
       </div>
     );

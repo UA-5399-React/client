@@ -10,6 +10,7 @@ import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
 import { Home } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
+import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
@@ -25,6 +26,7 @@ function App() {
     CONTACT_US,
     CART,
     ADMIN,
+    ADMIN_CATEGORIES,
     ADMIN_PRODUCTS,
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
@@ -54,6 +56,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>
+            <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
