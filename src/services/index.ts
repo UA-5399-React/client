@@ -13,4 +13,5 @@ export {
   GET_PRODUCTS_PAGE,
 } from './graphql/productAdminService';
 export { productService } from './productService';
+export { uploadService } from './uploadService';
 export { userService } from './userService';
