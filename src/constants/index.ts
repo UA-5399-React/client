@@ -47,4 +47,6 @@ export const AUTH_ROLES = {
   USER: 'user',
 };
 
+export const NEW_ARRIVALS_LIMIT = 10;
+
 export * from './theme';

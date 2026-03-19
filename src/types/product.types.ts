@@ -34,7 +34,7 @@ export interface ProductQueryParams {
   page: number;
   limit: number;
   search?: string;
-  sort?: 'price' | 'title';
+  sort?: 'price' | 'title' | 'createdAt';
   order?: 'asc' | 'desc';
   category?: string;
   minPrice?: number;
