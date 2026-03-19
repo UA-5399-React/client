@@ -17,14 +17,17 @@ vi.mock('@/hooks', async () => {
   const actual = await vi.importActual('@/hooks');
   return {
     ...actual,
-    useConfirmModal: () => ({
-      openConfirmModal: openConfirmModalMock,
-    }),
     useDeleteAdminCategory: () => ({
       deleteCategory: deleteCategoryMock,
     }),
   };
 });
+
+vi.mock('@/hooks/useConfirmModal', () => ({
+  useConfirmModal: () => ({
+    openConfirmModal: openConfirmModalMock,
+  }),
+}));
 
 vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({ isDark: false }),
