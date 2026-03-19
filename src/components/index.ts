@@ -6,6 +6,7 @@ export { ConfirmModal } from './ConfirmModal/ConfirmModal';
 export { CategoryDropdown } from './Dropdown';
 export { Dropdown } from './Dropdown';
 export { Features } from './Features';
+export { FlyoutCart } from './FlyoutCart';
 export { Header } from './Header';
 export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
