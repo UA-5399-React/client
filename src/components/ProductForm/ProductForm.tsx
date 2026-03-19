@@ -120,8 +120,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     });
   }, [initialData, reset]);
 
-  console.log(initialData?.categories);
-
   useEffect(() => {
     return () => {
       if (previewUrlRef.current) {

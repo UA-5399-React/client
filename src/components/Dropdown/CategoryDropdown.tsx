@@ -22,11 +22,13 @@ export const CategoryDropdown = ({
     ? options.filter((option) => selectedValues.includes(option.value))
     : undefined;
 
-  const value = selectedOptions
-    ? multiple
-      ? selectedOptions.map((o) => o.value)
-      : (selectedOptions[0]?.value ?? null)
-    : undefined;
+  if (!selectedOptions) {
+    return undefined;
+  }
+
+  const value = multiple
+    ? selectedOptions.map((o) => o.value)
+    : (selectedOptions[0]?.value ?? null);
 
   const handleValueChange = (value: string | string[] | null) => {
     if (!value) {
@@ -39,6 +41,15 @@ export const CategoryDropdown = ({
       .filter(Boolean) as DropdownProps['options'];
     onChange(selected);
   };
+
+  let content;
+  if (!selectedOptions || selectedOptions.length === 0) {
+    content = <span className={styles.Placeholder}>{placeholder}</span>;
+  } else if (multiple) {
+    content = selectedOptions.map((o) => o.label).join(', ');
+  } else {
+    content = selectedOptions[0]?.label;
+  }
 
   return (
     <Field.Root className={styles.Field}>
@@ -65,17 +76,7 @@ export const CategoryDropdown = ({
           data-border={hasBorder}
         >
           <Select.Value className="hidden" />
-          <span className="truncate">
-            {selectedOptions && selectedOptions.length > 0 ? (
-              multiple ? (
-                selectedOptions.map((o) => o.label).join(', ')
-              ) : (
-                selectedOptions[0]?.label
-              )
-            ) : (
-              <span className={styles.Placeholder}>{placeholder}</span>
-            )}
-          </span>
+          <span className="truncate">{content}</span>
           <Select.Icon className={styles.SelectIcon}>
             <ChevronDown className="w-4" />
           </Select.Icon>
