@@ -9,6 +9,8 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({ isDark: false }),
 }));
 
+const mockDelete = vi.fn();
+
 const mockCategories: Category[] = [
   {
     id: 'parent-1',
@@ -54,7 +56,9 @@ const mockCategories: Category[] = [
 
 describe('UI Component: TableCategories', () => {
   it('should render the table and all column headers', () => {
-    render(<TableCategories items={[]} loading={false} />);
+    render(
+      <TableCategories items={[]} loading={false} onDelete={mockDelete} />,
+    );
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText('Image')).toBeInTheDocument();
@@ -67,7 +71,7 @@ describe('UI Component: TableCategories', () => {
   });
 
   it('should show loading state', () => {
-    render(<TableCategories items={[]} loading={true} />);
+    render(<TableCategories items={[]} loading={true} onDelete={mockDelete} />);
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -78,6 +82,7 @@ describe('UI Component: TableCategories', () => {
         items={[]}
         loading={false}
         error={new Error('Network failure')}
+        onDelete={mockDelete}
       />,
     );
 
@@ -87,13 +92,21 @@ describe('UI Component: TableCategories', () => {
   });
 
   it('should show empty state when there are no categories', () => {
-    render(<TableCategories items={[]} loading={false} />);
+    render(
+      <TableCategories items={[]} loading={false} onDelete={mockDelete} />,
+    );
 
     expect(screen.getByText('No categories found')).toBeInTheDocument();
   });
 
   it('should render parent rows and keep subcategories hidden by default', () => {
-    render(<TableCategories items={mockCategories} loading={false} />);
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        onDelete={mockDelete}
+      />,
+    );
 
     expect(screen.getByText('Laptops')).toBeInTheDocument();
     expect(screen.getByText('Accessories')).toBeInTheDocument();
@@ -103,7 +116,13 @@ describe('UI Component: TableCategories', () => {
 
   it('should expand and collapse subcategories on toggle click', async () => {
     const user = userEvent.setup();
-    render(<TableCategories items={mockCategories} loading={false} />);
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        onDelete={mockDelete}
+      />,
+    );
 
     const toggleButton = screen.getByRole('button', { name: 'Expand Laptops' });
     await user.click(toggleButton);
@@ -119,7 +138,13 @@ describe('UI Component: TableCategories', () => {
 
   it('should render image fallback and action buttons', async () => {
     const user = userEvent.setup();
-    render(<TableCategories items={mockCategories} loading={false} />);
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        onDelete={mockDelete}
+      />,
+    );
 
     expect(screen.getAllByText('N/A').length).toBeGreaterThan(0);
 
@@ -127,16 +152,43 @@ describe('UI Component: TableCategories', () => {
     const deleteButton = screen.getByRole('button', {
       name: 'Delete Accessories',
     });
+    const parentDeleteButton = screen.getByRole('button', {
+      name: 'Delete Laptops',
+    });
 
     expect(editButton).toBeInTheDocument();
     expect(deleteButton).toBeInTheDocument();
+    expect(parentDeleteButton).toBeDisabled();
 
     await user.click(editButton);
     await user.click(deleteButton);
+
+    expect(mockDelete).toHaveBeenCalledWith(mockCategories[2]);
+  });
+
+  it('should disable delete button for currently deleting category', () => {
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        deletingId="parent-2"
+        onDelete={mockDelete}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Delete Accessories' }),
+    ).toBeDisabled();
   });
 
   it('should render formatted dates and parent category label', () => {
-    render(<TableCategories items={mockCategories} loading={false} />);
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        onDelete={mockDelete}
+      />,
+    );
 
     expect(screen.getAllByText('Parent category').length).toBeGreaterThan(0);
     expect(screen.getByText('10/10/25')).toBeInTheDocument();

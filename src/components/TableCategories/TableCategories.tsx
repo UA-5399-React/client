@@ -11,6 +11,8 @@ interface TableCategoriesProps {
   items: Category[];
   loading: boolean;
   error?: Error | null;
+  deletingId?: string | null;
+  onDelete: (category: Category) => void;
 }
 
 const formatCategoryDate = (value: string) =>
@@ -28,6 +30,8 @@ type CategoryRowProps = {
   isChild?: boolean;
   hasChildren: boolean;
   isExpanded: boolean;
+  deletingId?: string | null;
+  onDelete: (category: Category) => void;
   onToggle: (categoryId: string) => void;
 };
 
@@ -36,8 +40,18 @@ function CategoryRow({
   isChild = false,
   hasChildren,
   isExpanded,
+  deletingId,
+  onDelete,
   onToggle,
 }: CategoryRowProps) {
+  const isDeleting = deletingId === category.id;
+  const isDeleteDisabled = hasChildren || isDeleting;
+  const deleteButtonTitle = hasChildren
+    ? 'Delete subcategories first'
+    : isDeleting
+      ? 'Deleting category'
+      : 'Delete category';
+
   return (
     <tr
       className={clsx(
@@ -98,8 +112,11 @@ function CategoryRow({
       <td className="text-center">
         <Button
           aria-label={`Delete ${category.title}`}
-          className="bg-transparent text-[#DB162D] hover:bg-transparent"
+          className="bg-transparent text-[#DB162D] hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
           type="button"
+          disabled={isDeleteDisabled}
+          onClick={() => onDelete(category)}
+          title={deleteButtonTitle}
         >
           <Trash className="h-[20px] w-[20px]" />
         </Button>
@@ -120,11 +137,15 @@ function TableCategoriesContent({
   loading,
   error,
   isDark,
+  deletingId,
+  onDelete,
 }: {
   items: Category[];
   loading: boolean;
   error: Error | null;
   isDark: boolean;
+  deletingId?: string | null;
+  onDelete: (category: Category) => void;
 }) {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
@@ -211,6 +232,8 @@ function TableCategoriesContent({
         category={parentCategory}
         hasChildren={childCategories.length > 0}
         isExpanded={isExpanded}
+        deletingId={deletingId}
+        onDelete={onDelete}
         onToggle={toggleCategory}
       />,
     ];
@@ -224,6 +247,8 @@ function TableCategoriesContent({
             isChild
             hasChildren={false}
             isExpanded={false}
+            deletingId={deletingId}
+            onDelete={onDelete}
             onToggle={toggleCategory}
           />
         )),
@@ -238,6 +263,8 @@ export function TableCategories({
   items,
   loading,
   error,
+  deletingId,
+  onDelete,
 }: TableCategoriesProps) {
   const { isDark } = useTheme();
 
@@ -263,6 +290,8 @@ export function TableCategories({
             loading={loading}
             error={error ?? null}
             isDark={isDark}
+            deletingId={deletingId}
+            onDelete={onDelete}
           />
         </tbody>
       </table>
