@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
-import * as z from 'zod';
+import { z } from 'zod';
 
+import { Input } from '@/components/Input';
 import { ROUTES } from '@/constants';
 import { useCreateAdminCategory } from '@/hooks/useCreateAdminCategory';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,7 +17,7 @@ const categorySchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   parent: z.string().nullable().optional(),
-  imageUrl: z.string().nullable().optional(),
+  imageUrl: z.string().optional().or(z.literal('')),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -54,7 +55,7 @@ export const CategoryForm = ({
       title: initialData?.title || '',
       description: initialData?.description || '',
       parent: initialData?.parent || null,
-      imageUrl: initialData?.imageUrl || null,
+      imageUrl: initialData?.imageUrl || undefined,
     },
   });
 
@@ -83,7 +84,7 @@ export const CategoryForm = ({
 
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setValue('imageUrl', null);
+    setValue('imageUrl', undefined);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -188,6 +189,13 @@ export const CategoryForm = ({
                 </div>
               )}
             </div>
+
+            {errors.imageUrl && (
+              <p className="mt-2 text-xs text-red-500">
+                {errors.imageUrl.message}
+              </p>
+            )}
+
             <input
               type="file"
               ref={fileInputRef}
@@ -207,22 +215,14 @@ export const CategoryForm = ({
             )}
           >
             <div className={isEdit ? 'col-span-1' : 'w-full'}>
-              <label className={labelStyles}>
-                Category Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                className={clsx(
-                  inputBaseStyles,
-                  errors.title && 'border-red-500 focus:border-red-500',
-                )}
+              <Input
+                label="Category Name"
                 placeholder="Category title"
                 {...register('title')}
+                state={errors.title ? 'error' : 'default'}
+                helperText={errors.title?.message}
+                required
               />
-              {errors.title && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.title.message}
-                </p>
-              )}
             </div>
 
             {!isEdit && (
