@@ -14,6 +14,7 @@ export const ROUTES = {
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_USERS: '/admin/users',
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',

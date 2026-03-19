@@ -25,3 +25,6 @@ export { SortRadioItem } from './SortProducts/SortRadioItem/SortRadioItem';
 export { TableCategories } from './TableCategories/TableCategories';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
+export { UsersTable } from './UsersTable';
+export { UsersToolbar } from './UsersToolbar';
+export { UsersTopWidgets } from './UsersTopWidgets';
