@@ -4,6 +4,16 @@ import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { ProductForm } from './ProductForm';
 
+vi.mock('@/hooks', () => ({
+  useAdminCategories: () => ({
+    categories: [
+      { id: 'phones', title: 'phones' },
+      { id: 'electronics', title: 'electronics' },
+      { id: 'laptop', title: 'laptops' },
+    ],
+  }),
+}));
+
 describe('Component: ProductForm', () => {
   it('should render correctly in CREATE mode (no status field, no last update)', () => {
     render(<ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
@@ -15,13 +25,15 @@ describe('Component: ProductForm', () => {
       screen.getByRole('spinbutton', { name: 'Price' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: 'Categories' }),
+      screen.getByRole('combobox', { name: 'Categories' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('textbox', { name: 'Description' }),
     ).toBeInTheDocument();
 
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'Status' }),
+    ).not.toBeInTheDocument();
 
     expect(screen.queryByText(/Last Update:/i)).not.toBeInTheDocument();
   });
@@ -34,7 +46,7 @@ describe('Component: ProductForm', () => {
         initialData={{
           name: 'MacBook Pro',
           price: '2499',
-          categories: 'laptops, electronics',
+          categories: 'laptop, electronics',
           status: 'ACTIVE',
           description: 'Laptop for work',
           imagePreview: 'https://example.com/product.png',
@@ -47,15 +59,20 @@ describe('Component: ProductForm', () => {
     expect(screen.getByDisplayValue('MacBook Pro')).toBeInTheDocument();
     expect(screen.getByDisplayValue('2499')).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue('laptops, electronics'),
-    ).toBeInTheDocument();
+      screen.getByRole('combobox', { name: 'Categories' }),
+    ).toHaveTextContent('laptop');
+    expect(
+      screen.getByRole('combobox', { name: 'Categories' }),
+    ).toHaveTextContent('electronics');
     expect(screen.getByDisplayValue('Laptop for work')).toBeInTheDocument();
     expect(screen.getByAltText('Preview')).toHaveAttribute(
       'src',
       'https://example.com/product.png',
     );
 
-    expect(screen.getByRole('combobox')).toHaveTextContent('ACTIVE');
+    expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
+      'ACTIVE',
+    );
 
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
   });
@@ -70,9 +87,6 @@ describe('Component: ProductForm', () => {
       await screen.findByText('Product name is required'),
     ).toBeInTheDocument();
     expect(await screen.findByText('Price is required')).toBeInTheDocument();
-    expect(
-      await screen.findByText('Categories are required'),
-    ).toBeInTheDocument();
   });
 
   it('should clear validation errors on input and submit valid form data', async () => {
@@ -85,14 +99,18 @@ describe('Component: ProductForm', () => {
 
     const nameInput = screen.getByRole('textbox', { name: 'Name Product' });
     const priceInput = screen.getByRole('spinbutton', { name: 'Price' });
-    const categoriesInput = screen.getByRole('textbox', { name: 'Categories' });
+    const categorySelect = screen.getByRole('combobox', {
+      name: 'Categories',
+    });
     const descriptionInput = screen.getByRole('textbox', {
       name: 'Description',
     });
 
     await user.type(nameInput, 'IPhone 16');
     await user.type(priceInput, '999.99');
-    await user.type(categoriesInput, 'phones, electronics');
+    await user.click(categorySelect);
+    const option = await screen.findByRole('option', { name: 'electronics' });
+    await user.click(option);
     await user.type(descriptionInput, 'Flagship phone');
 
     await waitFor(() => {
@@ -111,7 +129,7 @@ describe('Component: ProductForm', () => {
       expect(handleSubmit).toHaveBeenCalledWith({
         name: 'IPhone 16',
         price: '999.99',
-        categories: 'phones, electronics',
+        categories: 'electronics',
         status: 'DRAFT',
         description: 'Flagship phone',
         imagePreview: null,
