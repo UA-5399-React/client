@@ -30,7 +30,7 @@ const defaultFilters: ProductsFilters = {
 describe('UI Component: ProductFiltersBar', () => {
   it('should render the Category dropdown', () => {
     render(<ProductFiltersBar filters={defaultFilters} onChange={vi.fn()} />);
-    expect(screen.getByText('Category')).toBeInTheDocument();
+    expect(screen.getByText('Categories')).toBeInTheDocument();
   });
 
   it('should render the Price inputs with Min and Max placeholders', () => {
