@@ -3,6 +3,7 @@ export { Button } from './Button';
 export { CategoryForm } from './CategoryForm/CategoryForm';
 export { Checkbox } from './Checkbox';
 export { ConfirmModal } from './ConfirmModal/ConfirmModal';
+export { CategoryDropdown } from './Dropdown';
 export { Dropdown } from './Dropdown';
 export { Features } from './Features';
 export { Header } from './Header';

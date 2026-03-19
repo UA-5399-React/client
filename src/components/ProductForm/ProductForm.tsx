@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Image as ImageIcon } from 'lucide-react';
 import { z } from 'zod';
 
-import { Dropdown, Input, TextArea } from '@/components';
+import { CategoryDropdown, Dropdown, Input, TextArea } from '@/components';
+import { useAdminCategories } from '@/hooks';
 import {
   PRODUCT_STATUS,
   type ProductFormData,
@@ -64,6 +65,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const { categories } = useAdminCategories();
+  const categoryOptions = categories.map((c) => ({
+    label: c.title,
+    value: c.id,
+  }));
 
   const {
     control,
@@ -79,7 +85,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: initialData?.name || '',
       price: initialData?.price || '',
-      categories: initialData?.categories || '',
+      categories: Array.isArray(initialData?.categories)
+        ? initialData.categories.join(',')
+        : initialData?.categories || '',
       status:
         (initialData?.status?.toUpperCase() as ProductStatusUpperCase) ||
         'DRAFT',
@@ -100,7 +108,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     reset({
       name: initialData?.name || '',
       price: initialData?.price || '',
-      categories: initialData?.categories || '',
+      categories: Array.isArray(initialData?.categories)
+        ? initialData.categories.join(',')
+        : initialData?.categories || '',
       status:
         (initialData?.status?.toUpperCase() as ProductStatusUpperCase) ||
         'DRAFT',
@@ -223,15 +233,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             control={control}
             name="categories"
             render={({ field }) => (
-              <Input
+              <CategoryDropdown
                 label="Categories"
-                type="text"
-                placeholder="Categories"
-                inputClassName="bg-white text-black"
-                {...field}
-                value={field.value ?? ''}
-                state={errors.categories ? 'error' : 'default'}
-                helperText={errors.categories?.message}
+                options={categoryOptions}
+                selectedValues={
+                  field.value
+                    ? field.value
+                        .split(',')
+                        .map((v) => v.trim())
+                        .filter(Boolean)
+                    : []
+                }
+                placeholder="No category selected"
+                onChange={(selected) => {
+                  const newValue = selected.map((opt) => opt.value).join(', ');
+                  field.onChange(newValue);
+                }}
               />
             )}
           />

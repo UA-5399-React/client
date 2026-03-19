@@ -8,13 +8,15 @@ import {
   vi,
 } from 'vitest';
 
+import { API_BASE_URL } from '@/constants';
+
 import { authService, type LoginPayload } from './authService';
 
 // Change original global fetch for mock-function Vitest
 global.fetch = vi.fn();
 
 describe('Service: authService', () => {
-  const API_URL = 'http://localhost:3000'; // The same default as in service
+  const API_URL = API_BASE_URL;
 
   beforeEach(() => {
     // Clear calls and mocks before each test to avoid interference

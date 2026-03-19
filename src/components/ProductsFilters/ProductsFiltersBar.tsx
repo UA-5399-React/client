@@ -1,5 +1,5 @@
 import { Checkbox } from '@/components/Checkbox';
-import { Dropdown } from '@/components/Dropdown';
+import { CategoryDropdown } from '@/components/Dropdown';
 import { Input } from '@/components/Input';
 import { useAdminCategories } from '@/hooks/useAdminCategories';
 import type { ProductsFilters } from '@/types/filters';
@@ -25,14 +25,15 @@ export function ProductFiltersBar({
   const { categories } = useAdminCategories();
   const categoryOptions = categories.map((c) => ({
     label: c.title,
-    value: c.title,
+    value: c.id,
   }));
 
   return (
     <div className="flex flex-wrap items-end gap-6">
-      <Dropdown
-        label="Category"
+      <CategoryDropdown
+        label="Categories"
         options={categoryOptions}
+        selectedValues={filters.categories}
         onChange={(values) =>
           update({ categories: values.map((item) => item.value) })
         }

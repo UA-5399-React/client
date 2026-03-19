@@ -10,7 +10,9 @@ export type ProductStatusUpperCase = Uppercase<ProductStatus>;
 export interface Product {
   _id?: string;
   id: string;
+  categories?: string[];
   imageUrl?: string;
+  imagePublicId?: string;
   price: number;
   title: string;
   status: ProductStatus;
@@ -57,4 +59,9 @@ export interface ProductFormData {
   description: string;
   imagePreview: string | null;
   imageFile?: File;
+}
+
+export interface UploadProductImageResponse {
+  imageUrl: string;
+  imagePublicId: string;
 }
