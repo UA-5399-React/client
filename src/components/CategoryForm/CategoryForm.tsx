@@ -50,7 +50,7 @@ export const CategoryForm = ({
     formState: { errors },
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
-    defaultValues: {
+    values: {
       title: initialData?.title || '',
       description: initialData?.description || '',
       parent: initialData?.parent || null,
