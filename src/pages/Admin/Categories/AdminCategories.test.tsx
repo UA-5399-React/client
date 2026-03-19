@@ -57,6 +57,26 @@ describe('Page: AdminCategories', () => {
     expect(screen.getByRole('textbox')).toHaveValue('');
   });
 
+  it('should fallback to page 1 when URL page param is invalid', () => {
+    window.history.pushState({}, '', '/admin/categories?page=0');
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [],
+      loading: false,
+      error: null,
+      totalPages: 0,
+      total: 0,
+    });
+
+    render(<AdminCategories />);
+
+    expect(useAdminCategoriesPageMock).toHaveBeenCalledWith({
+      page: 1,
+      limit: 10,
+      search: '',
+    });
+    expect(screen.getByRole('button', { name: '1' })).toBeInTheDocument();
+  });
+
   it('should update URL params when user searches and changes page', async () => {
     const user = userEvent.setup();
     window.history.pushState({}, '', '/admin/categories?page=3');
@@ -187,5 +207,80 @@ describe('Page: AdminCategories', () => {
     });
 
     expect(deleteCategoryMock).toHaveBeenCalledWith('parent-2');
+  });
+
+  it('should show delete error message when mutation rejects with Error', async () => {
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [
+        {
+          id: 'parent-2',
+          title: 'Accessories',
+          imageUrl: null,
+          description: 'Category without children',
+          parent: null,
+          depth: 1,
+          createdAt: '2025-10-14T12:00:00Z',
+          updatedAt: '2025-10-15T12:00:00Z',
+        },
+      ],
+      loading: false,
+      error: null,
+      totalPages: 1,
+      total: 1,
+    });
+    deleteCategoryMock.mockRejectedValue(new Error('Category is in use'));
+
+    render(<AdminCategories />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete Accessories' }),
+    );
+
+    const modalConfig = openConfirmModalMock.mock.calls.at(-1)?.[0];
+
+    await act(async () => {
+      await modalConfig.onConfirm();
+    });
+
+    expect(
+      await screen.findByText('Failed to delete category'),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Category is in use')).toBeInTheDocument();
+  });
+
+  it('should show fallback delete error message when mutation rejects with non-Error value', async () => {
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [
+        {
+          id: 'parent-2',
+          title: 'Accessories',
+          imageUrl: null,
+          description: 'Category without children',
+          parent: null,
+          depth: 1,
+          createdAt: '2025-10-14T12:00:00Z',
+          updatedAt: '2025-10-15T12:00:00Z',
+        },
+      ],
+      loading: false,
+      error: null,
+      totalPages: 1,
+      total: 1,
+    });
+    deleteCategoryMock.mockRejectedValue('boom');
+
+    render(<AdminCategories />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete Accessories' }),
+    );
+
+    const modalConfig = openConfirmModalMock.mock.calls.at(-1)?.[0];
+
+    await act(async () => {
+      await modalConfig.onConfirm();
+    });
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
   });
 });
