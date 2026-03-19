@@ -1,21 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
+import * as z from 'zod';
 
+import { ROUTES } from '@/constants';
+import { useCreateAdminCategory } from '@/hooks/useCreateAdminCategory';
 import { useTheme } from '@/hooks/useTheme';
-import type { Category } from '@/types/category.types';
+import { useUpdateAdminCategory } from '@/hooks/useUpdateAdminCategory';
+import type { Category, Product } from '@/types';
 
-interface SimpleProduct {
-  id: string | number;
-  title: string;
-  price: string | number;
-  imageUrl?: string;
-}
+const categorySchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  parent: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+});
+
+type CategoryFormData = z.infer<typeof categorySchema>;
 
 interface CategoryFormProps {
   mode: 'add' | 'edit';
-  initialData?: Category & { products?: SimpleProduct[] };
+  initialData?: Category & { products?: Product[] };
   items?: Category[];
 }
 
@@ -32,12 +40,29 @@ export const CategoryForm = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [title, setTitle] = useState(initialData?.title || '');
-  const [description, setDescription] = useState(
-    initialData?.description || '',
-  );
-  const [preview, setPreview] = useState(initialData?.imageUrl || null);
-  const [parentValue, setParentValue] = useState(initialData?.parent || '');
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CategoryFormData>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      title: initialData?.title || '',
+      description: initialData?.description || '',
+      parent: initialData?.parent || null,
+      imageUrl: initialData?.imageUrl || null,
+    },
+  });
+
+  const preview = useWatch({ control, name: 'imageUrl' });
+  const parentValue = useWatch({ control, name: 'parent' });
+
+  const { createCategory } = useCreateAdminCategory();
+  const { updateCategory } = useUpdateAdminCategory();
 
   const products = initialData?.products || [];
   const hasChildren =
@@ -58,38 +83,33 @@ export const CategoryForm = ({
 
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setPreview(null);
+    setValue('imageUrl', null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = async () => {
-    if (!title.trim() || !description.trim()) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    const depth = parentValue ? 2 : 1;
+  const onSubmit = async (data: CategoryFormData) => {
+    setServerError(null);
+
+    const depth: 1 | 2 = data.parent ? 2 : 1;
+
     const payload = {
-      title: title.trim(),
-      description: description.trim(),
-      parent: parentValue || null,
+      title: data.title,
+      description: data.description,
+      parent: data.parent || undefined,
+      imageUrl: data.imageUrl || undefined,
       depth,
-      imageUrl: preview,
     };
 
     try {
-      const url = isEdit
-        ? `http://localhost:3000/category/${initialData?.id}`
-        : 'http://localhost:3000/category';
-
-      const response = await fetch(url, {
-        method: isEdit ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) navigate('/admin/categories');
+      if (isEdit && initialData?.id) {
+        await updateCategory(initialData.id, payload);
+      } else {
+        await createCategory(payload);
+      }
+      navigate(ROUTES.ADMIN_CATEGORIES);
     } catch (error) {
-      console.error('Error saving:', error);
+      setServerError('Failed to save category. Please try again later.');
+      console.error('Save error:', error);
     }
   };
 
@@ -110,7 +130,8 @@ export const CategoryForm = ({
         isDark ? 'bg-black' : 'bg-[#F9FAFB]',
       )}
     >
-      <div
+      <form
+        onSubmit={handleSubmit(onSubmit)}
         className={clsx(
           'relative w-full rounded-2xl border border-[#e5e7eb] bg-white shadow-sm transition-all duration-300',
           isEdit ? 'max-w-[720px]' : 'max-w-[580px]',
@@ -174,7 +195,7 @@ export const CategoryForm = ({
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) setPreview(URL.createObjectURL(file));
+                if (file) setValue('imageUrl', URL.createObjectURL(file));
               }}
             />
           </div>
@@ -190,11 +211,18 @@ export const CategoryForm = ({
                 Category Name <span className="text-red-500">*</span>
               </label>
               <input
-                className={inputBaseStyles}
+                className={clsx(
+                  inputBaseStyles,
+                  errors.title && 'border-red-500 focus:border-red-500',
+                )}
                 placeholder="Category title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register('title')}
               />
+              {errors.title && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
 
             {!isEdit && (
@@ -206,11 +234,16 @@ export const CategoryForm = ({
                   className={clsx(
                     inputBaseStyles,
                     'h-11 min-h-[44px] resize-none',
+                    errors.description && 'border-red-500',
                   )}
                   placeholder="Short description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  {...register('description')}
                 />
+                {errors.description && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.description.message}
+                  </p>
+                )}
               </div>
             )}
 
@@ -254,7 +287,7 @@ export const CategoryForm = ({
                   <div className="max-h-60 overflow-y-auto">
                     <div
                       onClick={() => {
-                        setParentValue('');
+                        setValue('parent', null);
                         setIsDropdownOpen(false);
                       }}
                       className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-sm hover:bg-[#F2F4F6]"
@@ -272,7 +305,7 @@ export const CategoryForm = ({
                         <div
                           key={c.id}
                           onClick={() => {
-                            setParentValue(c.id);
+                            setValue('parent', c.id);
                             setIsDropdownOpen(false);
                           }}
                           className="flex cursor-pointer items-center justify-between rounded-lg px-4 py-3 text-sm hover:bg-[#F2F4F6]"
@@ -299,10 +332,10 @@ export const CategoryForm = ({
                   className={clsx(
                     inputBaseStyles,
                     'h-11 min-h-[44px] resize-none',
+                    errors.description && 'border-red-500',
                   )}
                   placeholder="Short description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  {...register('description')}
                 />
                 <p className="mt-1 text-[11px] text-[#8A92A6]">
                   A short description to help identify this category
@@ -316,7 +349,7 @@ export const CategoryForm = ({
               <label className={labelStyles}>Products Review</label>
               {products.length > 0 ? (
                 <div className="scrollbar-hide mt-2 flex gap-3 overflow-x-auto pb-2">
-                  {products.slice(0, 3).map((product: SimpleProduct) => (
+                  {products.slice(0, 3).map((product: Product) => (
                     <div
                       key={product.id}
                       className="flex min-w-[180px] items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-2"
@@ -356,6 +389,11 @@ export const CategoryForm = ({
         </div>
 
         <div className="flex items-center justify-end gap-6 rounded-b-2xl border-t border-[#e5e7eb] bg-[#F2F4F6]/50 px-8 py-5">
+          {serverError && (
+            <p className="animate-in fade-in slide-in-from-left-2 mr-auto text-sm font-medium text-red-500">
+              {serverError}
+            </p>
+          )}
           <button
             onClick={() => navigate(-1)}
             className="cursor-pointer border-none bg-transparent text-sm font-bold text-[#8A92A6] transition-colors hover:text-[#1A1C1E]"
@@ -363,13 +401,13 @@ export const CategoryForm = ({
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
+            type="submit"
             className="cursor-pointer rounded-xl border-none bg-[#38CB89] px-8 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#32b87a] active:scale-95"
           >
             {isEdit ? 'Update Category' : 'Save Category'}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
