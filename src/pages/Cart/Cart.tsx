@@ -217,7 +217,7 @@ export const Cart = () => {
                             <span>Remove</span>
                           </Button>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-col items-end gap-2 md:hidden">
                           <span
                             className={clsx(
                               'text-sm font-semibold',
