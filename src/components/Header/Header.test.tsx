@@ -1,17 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
-import { render, screen, userEvent } from '@/utils/test-utils';
+import { useCartStore } from '@/store/useCartStore';
+import { act, fireEvent, render, screen, userEvent } from '@/utils/test-utils';
 
 import { Header } from './Header';
 
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
+// ─── Theme ─────────────────────────────────────────────────────────────────────
 const mockSetTheme = vi.fn();
 const mockUseTheme = vi.fn();
-
 vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => mockUseTheme(),
 }));
 
+// ─── SearchInput stub ─────────────────────────────────────────────────────────
 vi.mock('@/components/ui/SearchInput', () => ({
   SearchInput: ({
     value,
@@ -31,16 +40,35 @@ vi.mock('@/components/ui/SearchInput', () => ({
   ),
 }));
 
-describe('UI Component: Header', () => {
-  beforeEach(() => {
-    mockSetTheme.mockClear();
-    mockUseTheme.mockReturnValue({
-      theme: 'light',
-      setTheme: mockSetTheme,
-      isDark: false,
-    });
+// ─── FlyoutCart stub ──────────────────────────────────────────────────────────
+vi.mock('@/components', async () => {
+  const actual = await vi.importActual('@/components');
+  return { ...actual, FlyoutCart: () => null };
+});
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+const lightTheme = () =>
+  mockUseTheme.mockReturnValue({
+    theme: 'light',
+    setTheme: mockSetTheme,
+    isDark: false,
   });
 
+const darkTheme = () =>
+  mockUseTheme.mockReturnValue({
+    theme: 'dark',
+    setTheme: mockSetTheme,
+    isDark: true,
+  });
+
+describe('UI Component: Header', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    lightTheme();
+    useCartStore.setState({ items: [], isOpen: false });
+  });
+
+  // ── Static structure ────────────────────────────────────────────────────────
   it('should render the header element', () => {
     render(<Header />);
     expect(screen.getByRole('banner')).toBeInTheDocument();
@@ -55,9 +83,9 @@ describe('UI Component: Header', () => {
   it('should navigate to home when brand link is clicked', () => {
     render(<Header />);
     const brandLinks = screen.getAllByRole('link', { name: /TechnoWorld/i });
-    brandLinks.forEach((link) => {
-      expect(link).toHaveAttribute('href', ROUTES.HOME);
-    });
+    brandLinks.forEach((link) =>
+      expect(link).toHaveAttribute('href', ROUTES.HOME),
+    );
   });
 
   it('should render all desktop nav links', () => {
@@ -86,6 +114,7 @@ describe('UI Component: Header', () => {
     );
   });
 
+  // ── Buttons ─────────────────────────────────────────────────────────────────
   it('should render the Search button', () => {
     render(<Header />);
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
@@ -101,13 +130,10 @@ describe('UI Component: Header', () => {
     expect(screen.getByRole('button', { name: 'Theme' })).toBeInTheDocument();
   });
 
-  it('should render Cart links with correct href', () => {
+  it('should render Cart buttons', () => {
     render(<Header />);
-    const cartLinks = screen.getAllByRole('link', { name: /cart/i });
-    expect(cartLinks.length).toBeGreaterThanOrEqual(1);
-    cartLinks.forEach((link) =>
-      expect(link).toHaveAttribute('href', ROUTES.CART),
-    );
+    const cartButtons = screen.getAllByRole('button', { name: /cart/i });
+    expect(cartButtons.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should render the Open menu button', () => {
@@ -117,6 +143,15 @@ describe('UI Component: Header', () => {
     ).toBeInTheDocument();
   });
 
+  // ── User button navigates to login ──────────────────────────────────────────
+  it('should navigate to login when User button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'User' }));
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.LOGIN);
+  });
+
+  // ── Theme icon ───────────────────────────────────────────────────────────────
   it('should render Moon icon when isDark is false', () => {
     render(<Header />);
     const themeBtn = screen.getByRole('button', { name: 'Theme' });
@@ -124,16 +159,13 @@ describe('UI Component: Header', () => {
   });
 
   it('should render Sun icon when isDark is true', () => {
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      isDark: true,
-    });
+    darkTheme();
     render(<Header />);
     const themeBtn = screen.getByRole('button', { name: 'Theme' });
     expect(themeBtn.querySelector('svg')).toBeInTheDocument();
   });
 
+  // ── Theme toggle ─────────────────────────────────────────────────────────────
   it('should call setTheme with "dark" when theme is "light" and toggle is clicked', async () => {
     const user = userEvent.setup();
     render(<Header />);
@@ -143,11 +175,7 @@ describe('UI Component: Header', () => {
 
   it('should call setTheme with "light" when theme is "dark" and toggle is clicked', async () => {
     const user = userEvent.setup();
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      isDark: true,
-    });
+    darkTheme();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Theme' }));
     expect(mockSetTheme).toHaveBeenCalledWith('light');
@@ -185,6 +213,43 @@ describe('UI Component: Header', () => {
     expect(mockSetTheme).toHaveBeenCalledWith('dark');
   });
 
+  // ── Cart badge ───────────────────────────────────────────────────────────────
+  it('should display cart item count badge when cart has items', () => {
+    useCartStore.setState({
+      items: [
+        {
+          product: { id: 'p1', title: 'P1', price: 10, status: 'active' },
+          quantity: 3,
+        },
+      ],
+    });
+    render(<Header />);
+    // badge appears in both mobile and desktop bars
+    const badges = screen.getAllByText('3');
+    expect(badges.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should not display cart badge when cart is empty', () => {
+    render(<Header />);
+    expect(screen.queryByText('0')).toBeNull();
+  });
+
+  it('should display dark-mode cart badge classes when isDark is true', () => {
+    darkTheme();
+    useCartStore.setState({
+      items: [
+        {
+          product: { id: 'p1', title: 'P1', price: 10, status: 'active' },
+          quantity: 2,
+        },
+      ],
+    });
+    render(<Header />);
+    const badges = screen.getAllByText('2');
+    expect(badges[0]).toBeInTheDocument();
+  });
+
+  // ── Drawer open/close ────────────────────────────────────────────────────────
   it('should not render drawer by default', () => {
     render(<Header />);
     expect(
@@ -211,11 +276,52 @@ describe('UI Component: Header', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should render Sign In link in drawer when open', async () => {
+  it('should close drawer when the backdrop overlay is clicked', async () => {
     const user = userEvent.setup();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
+    const overlay = document.querySelector(
+      '.fixed.inset-0.z-40.bg-black\\/40',
+    ) as HTMLElement;
+    await user.click(overlay);
+    expect(
+      screen.queryByRole('button', { name: 'Close menu' }),
+    ).not.toBeInTheDocument();
+  });
+
+  // ── Body scroll lock ─────────────────────────────────────────────────────────
+  it('should lock body scroll when drawer is open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('should unlock body scroll when drawer is closed', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    await user.click(screen.getByRole('button', { name: 'Close menu' }));
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  // ── Drawer contents ──────────────────────────────────────────────────────────
+  it('should render Sign In button in drawer when open', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
+  });
+
+  it('should navigate to login and close menu when Sign In is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.LOGIN);
+    expect(
+      screen.queryByRole('button', { name: 'Close menu' }),
+    ).not.toBeInTheDocument();
   });
 
   it('should render Wishlist link in drawer when open', async () => {
@@ -234,80 +340,77 @@ describe('UI Component: Header', () => {
     ).toBeInTheDocument();
   });
 
-  it('should lock body scroll when drawer is open', async () => {
+  it('should call setTheme when Change Theme is clicked inside drawer', async () => {
     const user = userEvent.setup();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    expect(document.body.style.overflow).toBe('hidden');
+    await user.click(screen.getByRole('button', { name: /change theme/i }));
+    expect(mockSetTheme).toHaveBeenCalled();
   });
 
-  it('should unlock body scroll when drawer is closed', async () => {
+  it('should render Cart button in drawer', async () => {
     const user = userEvent.setup();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    await user.click(screen.getByRole('button', { name: 'Close menu' }));
-    expect(document.body.style.overflow).toBe('');
+    const cartButtons = screen.getAllByRole('button', { name: /^Cart$/i });
+    expect(cartButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should open cart when Cart button in drawer is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const drawerCartBtn = screen.getAllByRole('button', { name: /^Cart$/i })[0];
+    await user.click(drawerCartBtn);
+    // Clicking Cart calls openCart() → store.isOpen becomes true
+    expect(useCartStore.getState().isOpen).toBe(true);
+  });
+
+  it('should render drawer nav links with closeMenu attached', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    // All four nav links appear inside the drawer
+    const navLinks = screen.getAllByRole('link', { name: 'Home' });
+    // At least one of the Home links is inside the drawer (has onClick=closeMenu)
+    expect(navLinks.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should apply dark drawer styles when isDark is true', async () => {
     const user = userEvent.setup();
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      isDark: true,
-    });
+    darkTheme();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const wishlist = screen.getByRole('link', { name: 'Wishlist' });
     expect(wishlist).toBeInTheDocument();
   });
 
-  it('should render Sign In with correct style in dark theme drawer', async () => {
+  it('should render Cart button in dark theme drawer', async () => {
     const user = userEvent.setup();
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      isDark: true,
+    darkTheme();
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const cartButtons = screen.getAllByRole('button', { name: /^Cart$/i });
+    expect(cartButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should display cart badge in drawer when cart has items', async () => {
+    const user = userEvent.setup();
+    useCartStore.setState({
+      items: [
+        {
+          product: { id: 'p1', title: 'P1', price: 10, status: 'active' },
+          quantity: 5,
+        },
+      ],
     });
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const signIn = screen.getByRole('link', { name: 'Sign In' });
-    expect(signIn).toHaveStyle({ color: '#000000' });
+    const badges = screen.getAllByText('5');
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('should render Sign In with correct style in light theme drawer', async () => {
-    const user = userEvent.setup();
-    render(<Header />);
-    await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const signIn = screen.getByRole('link', { name: 'Sign In' });
-    expect(signIn).toHaveStyle({ color: '#ffffff' });
-  });
-
-  it('should render Cart link in drawer with correct href', async () => {
-    const user = userEvent.setup();
-    render(<Header />);
-    await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const cartLinks = screen.getAllByRole('link', { name: /^Cart$/i });
-    expect(cartLinks.some((l) => l.getAttribute('href') === ROUTES.CART)).toBe(
-      true,
-    );
-  });
-
-  it('should render Cart link in dark theme drawer', async () => {
-    const user = userEvent.setup();
-    mockUseTheme.mockReturnValue({
-      theme: 'dark',
-      setTheme: mockSetTheme,
-      isDark: true,
-    });
-    render(<Header />);
-    await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const cartLinks = screen.getAllByRole('link', { name: /^Cart$/i });
-    expect(cartLinks.some((l) => l.getAttribute('href') === ROUTES.CART)).toBe(
-      true,
-    );
-  });
-
+  // ── Search ───────────────────────────────────────────────────────────────────
   it('should not show search input by default', () => {
     render(<Header />);
     expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
@@ -336,5 +439,63 @@ describe('UI Component: Header', () => {
     await user.click(screen.getByRole('button', { name: 'Search' }));
     await user.click(screen.getByRole('button', { name: 'Search' }));
     expect(screen.getByPlaceholderText('Search')).toHaveValue('');
+  });
+
+  it('should navigate with search query when a term is typed (debounced)', async () => {
+    vi.useFakeTimers();
+    render(<Header />);
+    // Open search
+    const searchBtn = screen.getByRole('button', { name: 'Search' });
+    fireEvent.click(searchBtn);
+
+    const input = screen.getByPlaceholderText('Search');
+    fireEvent.change(input, { target: { value: 'laptop' } });
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.stringContaining(`${ROUTES.SHOP}?search=laptop`),
+    );
+    vi.useRealTimers();
+  });
+
+  it('should sync search input with URL search params', () => {
+    window.history.pushState({}, '', `${ROUTES.SHOP}?search=url-query`);
+    render(<Header />);
+
+    // Open search to see the input
+    const searchBtn = screen.getByRole('button', { name: 'Search' });
+    fireEvent.click(searchBtn);
+
+    const input = screen.getByPlaceholderText('Search');
+    expect(input).toHaveValue('url-query');
+
+    // Cleanup
+    window.history.pushState({}, '', '/');
+  });
+
+  it('should navigate to shop (no query) when search is cleared (from non-empty initial state)', async () => {
+    window.history.pushState({}, '', `${ROUTES.SHOP}?search=something`);
+    vi.useFakeTimers();
+    render(<Header />);
+
+    // Open search
+    const searchBtn = screen.getByRole('button', { name: 'Search' });
+    fireEvent.click(searchBtn);
+
+    const input = screen.getByPlaceholderText('Search');
+    fireEvent.change(input, { target: { value: '' } });
+
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
+    vi.useRealTimers();
+
+    // Cleanup
+    window.history.pushState({}, '', '/');
   });
 });

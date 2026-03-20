@@ -14,12 +14,15 @@ export const ROUTES = {
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_USERS: '/admin/users',
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
+  ADMIN_CATEGORY_ADD: '/admin/categories/add',
+  ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
@@ -41,10 +44,14 @@ export const MOCK_AUTH = {
 };
 
 export const AUTH_ROLES = {
+  SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
   USER: 'user',
 };
 
+export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;
+
+export const ITEMS_PER_PAGE = 10;
 
 export * from './theme';

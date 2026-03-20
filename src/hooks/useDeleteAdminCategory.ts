@@ -1,9 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 
-import {
-  DELETE_CATEGORY,
-  GET_CATEGORIES_LIST,
-} from '@/services/graphql/categoryAdminService';
+import { DELETE_CATEGORY } from '@/services/graphql/categoryAdminService';
 
 interface DeleteCategoryData {
   deleteCategory: {
@@ -20,7 +17,7 @@ export function useDeleteAdminCategory() {
     DeleteCategoryData,
     DeleteCategoryVariables
   >(DELETE_CATEGORY, {
-    refetchQueries: [{ query: GET_CATEGORIES_LIST }],
+    refetchQueries: 'active',
     awaitRefetchQueries: true,
   });
 
