@@ -124,13 +124,7 @@ describe('Component: ProductForm', () => {
     await user.type(descriptionInput, 'Flagship phone');
 
     await waitFor(() => {
-      expect(
-        screen.queryByText('Product name is required'),
-      ).not.toBeInTheDocument();
-      expect(screen.queryByText('Price is required')).not.toBeInTheDocument();
-      expect(
-        screen.queryByText('Categories are required'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/required/i)).not.toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
