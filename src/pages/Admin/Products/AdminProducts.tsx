@@ -10,7 +10,7 @@ import {
   SortProductsDropdown,
   TableProducts,
 } from '@/components';
-import { ROUTES } from '@/constants';
+import { ADMIN_PAGE_LIMIT, ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -20,8 +20,6 @@ import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
 import type { SortValue } from '@/types/productsSort';
 import { buildSortValue, parseSortValue } from '@/utils/sorting';
-
-const LIMIT = 10;
 
 export function AdminProducts() {
   const navigate = useNavigate();
@@ -39,13 +37,13 @@ export function AdminProducts() {
   const [showFilters, setShowFilters] = useState(false);
 
   // debounce for product search
-  const debouncedSearch = useDebouncedValue(search.trim(), 300);
+  const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
   const { deleteProduct } = useDeleteAdminProduct();
 
   const { items, loading, error, totalPages } = useAdminProducts({
     page: currentPage,
-    limit: LIMIT,
+    limit: ADMIN_PAGE_LIMIT,
     search: debouncedSearch,
     filters,
     sort,
