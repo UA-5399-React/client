@@ -245,14 +245,14 @@ describe('Component: CategoryForm', () => {
     const user = userEvent.setup();
     render(<CategoryForm mode="add" />);
 
-    const trigger =
-      screen.getByRole('combobox') || screen.getByText(/Parent Category/i);
+    const trigger = screen.getByText(/Parent Category/i);
     await user.click(trigger);
 
-    const noneOption = screen.getByText(/None/i);
+    const noneOption = await screen.findByText(/None/i);
     await user.click(noneOption);
+
     await waitFor(() => {
-      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      expect(screen.queryByText(/None/i)).not.toBeInTheDocument();
     });
   });
 
