@@ -4,6 +4,7 @@ export {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
   GET_CATEGORIES_LIST,
+  GET_CATEGORIES_PAGE,
   GET_CATEGORY,
   UPDATE_CATEGORY,
 } from './graphql/categoryAdminService';
