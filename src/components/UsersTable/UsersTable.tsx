@@ -16,7 +16,7 @@ interface UsersTableProps {
 
 const statusOptions = [
   { label: 'Active', value: 'Active' },
-  { label: 'Block', value: 'Block' },
+  { label: 'Blocked', value: 'Blocked' },
 ];
 
 const roleOptions = [
@@ -35,7 +35,7 @@ const getActivityLabel = (date: string) => {
 };
 
 const getStatusDropdownValue = (isActive: boolean) =>
-  isActive ? 'Active' : 'Block';
+  isActive ? 'Active' : 'Blocked';
 
 const getRoleDropdownValue = (role: AdminUser['role']) => {
   switch (role) {
@@ -79,7 +79,6 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
             <th className="w-[80px]"></th>
           </tr>
         </thead>
-
         <tbody className="bg-white [&_td]:px-4 [&_td]:py-4">
           {items.map((user) => {
             const currentStatus = getStatusDropdownValue(user.isActive);
@@ -90,13 +89,11 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                 <td>
                   <div className="flex items-center gap-3">
                     <Checkbox className="h-[20px] w-[20px]" />
-
                     <img
                       src={user.avatarUrl}
                       alt={getFullName(user)}
                       className="h-10 w-10 rounded-full object-cover"
                     />
-
                     <span className="text-sm font-medium text-[#2C2C2C]">
                       {getFullName(user)}
                     </span>
@@ -106,17 +103,19 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                 <td>
                   <Dropdown
                     label="Status"
-                    labelClassName=" hidden"
+                    labelClassName="hidden"
                     options={statusOptions}
                     selectedValues={[currentStatus]}
                     onChange={(selected) => {
                       const newValue = selected[0]?.value;
-                      if (newValue) {
-                        onUpdateUser(
-                          user.id,
-                          'isActive',
-                          newValue === 'Active',
-                        );
+
+                      if (newValue === 'Active') {
+                        onUpdateUser(user.id, 'isActive', true);
+                        return;
+                      }
+
+                      if (newValue === 'Blocked') {
+                        onUpdateUser(user.id, 'isActive', false);
                       }
                     }}
                     placeholder="Status"
@@ -126,7 +125,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                       ' ' +
                       clsx(
                         '!flex !items-center !justify-between',
-                        '!h-8 !min-w-[106px] !rounded-full !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !shadow-none hover:!bg-white',
+                        '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !shadow-none hover:!bg-white',
                         '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
                         currentStatus === 'Active'
                           ? '!text-[#38CB89]'
@@ -141,17 +140,24 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                 <td>
                   <Dropdown
                     label="Role"
-                    labelClassName=" hidden"
+                    labelClassName="hidden"
                     options={roleOptions}
                     selectedValues={[currentRole]}
                     onChange={(selected) => {
                       const newValue = selected[0]?.value;
-                      if (newValue) {
-                        let mappedRole: AdminUser['role'] = 'customer';
-                        if (newValue === 'Super Admin')
-                          mappedRole = 'super_admin';
-                        if (newValue === 'Admin') mappedRole = 'admin';
-                        onUpdateUser(user.id, 'role', mappedRole);
+
+                      if (newValue === 'Super Admin') {
+                        onUpdateUser(user.id, 'role', 'super_admin');
+                        return;
+                      }
+
+                      if (newValue === 'Admin') {
+                        onUpdateUser(user.id, 'role', 'admin');
+                        return;
+                      }
+
+                      if (newValue === 'Customer') {
+                        onUpdateUser(user.id, 'role', 'customer');
                       }
                     }}
                     placeholder="Role"
@@ -161,7 +167,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                       ' ' +
                       clsx(
                         '!flex !items-center !justify-between',
-                        '!h-8 !min-w-[112px] !rounded-full !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
+                        '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
                         '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
                       )
                     }
