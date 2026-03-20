@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
+import { ADMIN_PAGE_LIMIT } from '@/constants';
 import { GET_CATEGORIES_PAGE } from '@/services/graphql/categoryAdminService';
 import type { CategoriesPageResult } from '@/types';
 
@@ -11,7 +12,7 @@ type UseAdminCategoriesPageParams = {
 
 export function useAdminCategoriesPage({
   page = 1,
-  limit = 10,
+  limit = ADMIN_PAGE_LIMIT,
   search = '',
 }: UseAdminCategoriesPageParams = {}) {
   const normalizedSearch = search.trim();

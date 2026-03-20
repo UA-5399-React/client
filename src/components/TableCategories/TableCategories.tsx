@@ -46,11 +46,13 @@ function CategoryRow({
 }: CategoryRowProps) {
   const isDeleting = deletingId === category.id;
   const isDeleteDisabled = hasChildren || isDeleting;
-  const deleteButtonTitle = hasChildren
-    ? 'Delete subcategories first'
-    : isDeleting
-      ? 'Deleting category'
-      : 'Delete category';
+  let deleteButtonTitle = 'Delete category';
+
+  if (hasChildren) {
+    deleteButtonTitle = 'Delete subcategories first';
+  } else if (isDeleting) {
+    deleteButtonTitle = 'Deleting category';
+  }
 
   return (
     <tr

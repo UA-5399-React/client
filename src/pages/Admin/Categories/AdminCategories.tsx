@@ -10,14 +10,13 @@ import {
   SearchInput,
   TableCategories,
 } from '@/components';
+import { ADMIN_PAGE_LIMIT } from '@/constants';
 import { useDeleteAdminCategory } from '@/hooks';
 import { useAdminCategoriesPage } from '@/hooks/useAdminCategoriesPage';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
 import type { Category } from '@/types';
-
-const LIMIT = 10;
 
 export function AdminCategories() {
   const { isDark } = useTheme();
@@ -31,12 +30,12 @@ export function AdminCategories() {
   const pageFromParams = Number(searchParams.get('page'));
   const currentPage =
     Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
-  const debouncedSearch = useDebouncedValue(search.trim(), 300);
+  const debouncedSearch = useDebouncedValue(search.trim(), 500);
 
   const { categories, loading, error, totalPages, total } =
     useAdminCategoriesPage({
       page: currentPage,
-      limit: LIMIT,
+      limit: ADMIN_PAGE_LIMIT,
       search: debouncedSearch,
     });
 
