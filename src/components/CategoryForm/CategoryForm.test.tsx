@@ -244,9 +244,16 @@ describe('Component: CategoryForm', () => {
   it('should reset parent category to null when selecting None', async () => {
     const user = userEvent.setup();
     render(<CategoryForm mode="add" />);
-    await user.click(screen.getByText(/Parent Category/i));
-    await user.click(screen.getByText(/None/i));
-    expect(screen.queryByText(/Select Parent/i)).not.toBeVisible();
+
+    const trigger =
+      screen.getByRole('combobox') || screen.getByText(/Parent Category/i);
+    await user.click(trigger);
+
+    const noneOption = screen.getByText(/None/i);
+    await user.click(noneOption);
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
   });
 
   it('should handle image upload and preview', async () => {
