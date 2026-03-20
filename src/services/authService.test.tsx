@@ -8,8 +8,6 @@ import {
   vi,
 } from 'vitest';
 
-import { API_BASE_URL } from '@/constants';
-
 import { authService, type LoginPayload } from './authService';
 
 // Change original global fetch for mock-function Vitest
