@@ -216,12 +216,12 @@ export const CategoryForm = ({
             )}
           >
             <div className={isEdit ? 'col-span-1' : 'w-full'}>
-              <label className={labelStyles}>
+              <label htmlFor="category-name" className={labelStyles}>
                 Category Name <span className="text-red-500">*</span>
               </label>
 
               <Input
-                label=" "
+                id="category-name"
                 placeholder="Category title"
                 {...register('title')}
                 state={errors.title ? 'error' : 'default'}
