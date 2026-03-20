@@ -15,14 +15,14 @@ interface UsersTableProps {
 }
 
 const statusOptions = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Blocked', value: 'Blocked' },
+  { label: 'Active', value: 'active' },
+  { label: 'Blocked', value: 'blocked' },
 ];
 
 const roleOptions = [
-  { label: 'Super Admin', value: 'Super Admin' },
-  { label: 'Admin', value: 'Admin' },
-  { label: 'Customer', value: 'Customer' },
+  { label: 'Super Admin', value: 'super_admin' },
+  { label: 'Admin', value: 'admin' },
+  { label: 'Customer', value: 'customer' },
 ];
 
 const getFullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
@@ -34,24 +34,25 @@ const getActivityLabel = (date: string) => {
   return `${diffDays} days ago`;
 };
 
-const getStatusDropdownValue = (isActive: boolean) =>
-  isActive ? 'Active' : 'Blocked';
-
-const getRoleDropdownValue = (role: AdminUser['role']) => {
-  switch (role) {
-    case 'super_admin':
-      return 'Super Admin';
-    case 'admin':
-      return 'Admin';
-    case 'customer':
-      return 'Customer';
-    default:
-      return 'Customer';
-  }
-};
-
 export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
   const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
+
+  const handleStatusChange = (
+    userId: string,
+    selected: { value: string }[],
+  ) => {
+    const newValue = selected[0]?.value;
+    if (newValue) {
+      onUpdateUser(userId, 'isActive', newValue === 'active');
+    }
+  };
+
+  const handleRoleChange = (userId: string, selected: { value: string }[]) => {
+    const newValue = selected[0]?.value;
+    if (newValue) {
+      onUpdateUser(userId, 'role', newValue);
+    }
+  };
 
   if (!items.length) {
     return (
@@ -81,8 +82,8 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
         </thead>
         <tbody className="bg-white [&_td]:px-4 [&_td]:py-4">
           {items.map((user) => {
-            const currentStatus = getStatusDropdownValue(user.isActive);
-            const currentRole = getRoleDropdownValue(user.role);
+            const currentStatus = user.isActive ? 'active' : 'blocked';
+            const currentRole = user.role;
 
             return (
               <tr key={user.id} className="text-[rgb(var(--color-text))]">
@@ -106,18 +107,12 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                     labelClassName="hidden"
                     options={statusOptions}
                     selectedValues={[currentStatus]}
-                    onChange={(selected) => {
-                      const newValue = selected[0]?.value;
-
-                      if (newValue === 'Active') {
-                        onUpdateUser(user.id, 'isActive', true);
-                        return;
-                      }
-
-                      if (newValue === 'Blocked') {
-                        onUpdateUser(user.id, 'isActive', false);
-                      }
-                    }}
+                    onChange={(selected) =>
+                      handleStatusChange(
+                        user.id,
+                        selected as { value: string }[],
+                      )
+                    }
                     placeholder="Status"
                     multiple={false}
                     hasBorder={true}
@@ -127,7 +122,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                         '!flex !items-center !justify-between',
                         '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !shadow-none hover:!bg-white',
                         '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
-                        currentStatus === 'Active'
+                        currentStatus === 'active'
                           ? '!text-[#38CB89]'
                           : '!text-[#EF4444]',
                       )
@@ -143,23 +138,9 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                     labelClassName="hidden"
                     options={roleOptions}
                     selectedValues={[currentRole]}
-                    onChange={(selected) => {
-                      const newValue = selected[0]?.value;
-
-                      if (newValue === 'Super Admin') {
-                        onUpdateUser(user.id, 'role', 'super_admin');
-                        return;
-                      }
-
-                      if (newValue === 'Admin') {
-                        onUpdateUser(user.id, 'role', 'admin');
-                        return;
-                      }
-
-                      if (newValue === 'Customer') {
-                        onUpdateUser(user.id, 'role', 'customer');
-                      }
-                    }}
+                    onChange={(selected) =>
+                      handleRoleChange(user.id, selected as { value: string }[])
+                    }
                     placeholder="Role"
                     multiple={false}
                     hasBorder={true}

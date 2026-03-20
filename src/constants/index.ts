@@ -48,4 +48,6 @@ export const AUTH_ROLES = {
 
 export const NEW_ARRIVALS_LIMIT = 10;
 
+export const ITEMS_PER_PAGE = 10;
+
 export * from './theme';

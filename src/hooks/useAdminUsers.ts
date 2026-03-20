@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { ITEMS_PER_PAGE } from '@/constants';
 import { mockUsers } from '@/constants/mockUsers';
-
-const ITEMS_PER_PAGE = 10;
 
 export const useAdminUsers = () => {
   const [users, setUsers] = useState(mockUsers);
