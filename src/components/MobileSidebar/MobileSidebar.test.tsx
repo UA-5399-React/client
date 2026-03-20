@@ -36,6 +36,7 @@ const defaultAuthMock = {
   isAdmin: true,
   isAuth: true,
   role: 'admin' as string | null,
+  isSuperAdmin: false,
 };
 
 const defaultProps = {
