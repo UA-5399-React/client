@@ -14,7 +14,7 @@ import { authService, type LoginPayload } from './authService';
 global.fetch = vi.fn();
 
 describe('Service: authService', () => {
-  const API_URL = import.meta.env.BACKEND_URL || 'http://localhost:3000'; // The same default as in service
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; // The same default as in service
 
   beforeEach(() => {
     // Clear calls and mocks before each test to avoid interference
