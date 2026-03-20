@@ -48,21 +48,37 @@ describe('Feature: ProtectedRoute', () => {
     expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
   });
 
-  // Failure scenario 1: Authenticated but NOT an admin (regular customer)
-  it('should redirect to login if user is authenticated but NOT an admin', () => {
+  it('should redirect to SHOP if user is authenticated but NOT an admin', () => {
     // User is logged in but has role user
-    (useAuth as Mock).mockReturnValue({ isAuth: true, isAdmin: false });
+    (useAuth as Mock).mockReturnValue({
+      isAuth: true,
+      isAdmin: false,
+      isSuperAdmin: false,
+    });
 
     render(<ProtectedRoute />);
 
     // Outlet should not be rendered
     expect(screen.queryByTestId('mock-outlet')).not.toBeInTheDocument();
 
-    // Should render Navigate with correct props
+    // Should render Navigate with correct props (now to SHOP for authenticated)
     const navigateElement = screen.getByTestId('mock-navigate');
     expect(navigateElement).toBeInTheDocument();
-    expect(navigateElement).toHaveAttribute('data-to', ROUTES.LOGIN);
+    expect(navigateElement).toHaveAttribute('data-to', ROUTES.SHOP);
     expect(navigateElement).toHaveAttribute('data-replace', 'true');
+  });
+
+  it('should render <Outlet /> if user is authenticated AND is a superadmin', () => {
+    (useAuth as Mock).mockReturnValue({
+      isAuth: true,
+      isAdmin: false,
+      isSuperAdmin: true,
+    });
+
+    render(<ProtectedRoute />);
+
+    expect(screen.getByTestId('mock-outlet')).toBeInTheDocument();
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
   });
 
   // Failure scenario 2: Not authenticated at all (guest)

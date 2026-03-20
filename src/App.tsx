@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
@@ -56,6 +56,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>
+            <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />

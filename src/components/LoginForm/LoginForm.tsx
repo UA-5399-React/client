@@ -54,8 +54,8 @@ export const LoginForm: React.FC = () => {
     const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
 
     if (token && expires && Date.now() < Number(expires)) {
-      if (role === AUTH_ROLES.ADMIN) {
-        navigate(ROUTES.ADMIN_PRODUCTS);
+      if (role === AUTH_ROLES.ADMIN || role === AUTH_ROLES.SUPER_ADMIN) {
+        navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);
       }
@@ -74,8 +74,11 @@ export const LoginForm: React.FC = () => {
       localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
       localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
 
-      if (user.role === AUTH_ROLES.ADMIN) {
-        navigate(ROUTES.ADMIN_PRODUCTS);
+      if (
+        user.role === AUTH_ROLES.ADMIN ||
+        user.role === AUTH_ROLES.SUPER_ADMIN
+      ) {
+        navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);
       }

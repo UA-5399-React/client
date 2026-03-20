@@ -104,8 +104,32 @@ describe('Feature: LoginForm', () => {
       expect(localStorage.getItem(MOCK_AUTH.TOKEN_KEY)).toBe('cookie-is-set');
       expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe(AUTH_ROLES.ADMIN);
 
-      // Check correct redirect
-      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN_PRODUCTS);
+      // Check correct redirect to /admin base path
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN);
+    });
+  });
+
+  it('should redirect to admin dashboard for super_admin role', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockResolvedValueOnce(true);
+    (authService.getMe as Mock).mockResolvedValueOnce({
+      role: AUTH_ROLES.SUPER_ADMIN,
+    });
+
+    render(<LoginForm />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'superadmin@test.com',
+    );
+    await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    await waitFor(() => {
+      expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe(
+        AUTH_ROLES.SUPER_ADMIN,
+      );
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN);
     });
   });
 
@@ -174,8 +198,8 @@ describe('Feature: LoginForm', () => {
 
     render(<LoginForm />);
 
-    // Expect the useEffect to immediately redirect
-    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN_PRODUCTS);
+    // Expect the useEffect to immediately redirect to /admin base path
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN);
   });
 
   it('should clear auth data if session is expired', () => {
