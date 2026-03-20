@@ -20,7 +20,7 @@ const mockProductB: Product = {
 
 describe('Store: useCartStore', () => {
   beforeEach(() => {
-    useCartStore.setState({ items: [] });
+    useCartStore.setState({ items: [], isOpen: false });
     localStorage.clear();
   });
 
@@ -58,6 +58,23 @@ describe('Store: useCartStore', () => {
 
     const itemB = items.find((i) => i.product._id === '2');
     expect(itemB?.quantity).toBe(2);
+  });
+
+  it('should add a new product with an explicit quantity', () => {
+    useCartStore.getState().addItem(mockProductA, 5);
+
+    const items = useCartStore.getState().items;
+    expect(items).toHaveLength(1);
+    expect(items[0].quantity).toBe(5);
+  });
+
+  it('should increment quantity by the explicit amount if the product already exists', () => {
+    const store = useCartStore.getState();
+    store.addItem(mockProductA, 2);
+    store.addItem(mockProductA, 3);
+
+    const items = useCartStore.getState().items;
+    expect(items[0].quantity).toBe(5);
   });
 
   // --- Block 3: Removing products (removeItem) ---
@@ -133,5 +150,22 @@ describe('Store: useCartStore', () => {
       expect(parsedData.state.items[0].product.id).toBe('1');
       expect(parsedData.state.items[0].quantity).toBe(1);
     }
+  });
+
+  // --- Block 8: UI State ---
+  it('should open and close the cart', () => {
+    const store = useCartStore.getState();
+    expect(store.isOpen).toBe(false);
+
+    store.openCart();
+    expect(useCartStore.getState().isOpen).toBe(true);
+
+    store.closeCart();
+    expect(useCartStore.getState().isOpen).toBe(false);
+  });
+
+  it('should open the cart automatically when a product is added', () => {
+    useCartStore.getState().addItem(mockProductA);
+    expect(useCartStore.getState().isOpen).toBe(true);
   });
 });

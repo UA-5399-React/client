@@ -1,4 +1,5 @@
 export * from './useAdminCategories';
+export * from './useAdminCategoriesPage';
 export * from './useAuth';
 export * from './useCreateAdminCategory';
 export * from './useDeleteAdminCategory';
