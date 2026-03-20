@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { AlertCircle } from 'lucide-react';
 
@@ -26,6 +26,8 @@ export function AdminCategories() {
   const [search, setSearch] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const pageFromParams = Number(searchParams.get('page'));
   const currentPage =
@@ -101,7 +103,11 @@ export function AdminCategories() {
       <AdminPageHeader />
 
       <div className="flex items-center justify-end border-b border-[#e5e7eb] px-4 py-3">
-        <Button variant="primary" type="button">
+        <Button
+          variant="primary"
+          type="button"
+          onClick={() => navigate('/admin/categories/add')}
+        >
           + Add Category
         </Button>
       </div>
