@@ -8,7 +8,7 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
-import { Home } from './pages';
+import { Cart, Home } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -16,7 +16,7 @@ import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
-import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
+import { ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
   const {
