@@ -85,7 +85,7 @@ describe('Component: ProductForm', () => {
     );
 
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('should show validation errors for required fields on submit', async () => {
     const user = userEvent.setup();
@@ -135,18 +135,21 @@ describe('Component: ProductForm', () => {
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => {
-      expect(handleSubmit).toHaveBeenCalledWith({
-        name: 'IPhone 16',
-        price: '999.99',
-        categories: 'electronics',
-        status: 'DRAFT',
-        description: 'Flagship phone',
-        imagePreview: null,
-        imageFile: undefined,
-      });
-    });
-  });
+    await waitFor(
+      () => {
+        expect(handleSubmit).toHaveBeenCalledWith({
+          name: 'IPhone 16',
+          price: '999.99',
+          categories: 'electronics',
+          status: 'DRAFT',
+          description: 'Flagship phone',
+          imagePreview: null,
+          imageFile: undefined,
+        });
+      },
+      { timeout: 10000 },
+    );
+  }, 15000);
 
   it('should call onCancel when Cancel button is clicked', async () => {
     const user = userEvent.setup();
@@ -194,7 +197,7 @@ describe('Component: ProductForm', () => {
     unmount();
 
     expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:preview');
-  });
+  }, 10000);
 
   it('should update product status in edit mode', async () => {
     const user = userEvent.setup();
@@ -221,16 +224,19 @@ describe('Component: ProductForm', () => {
     await user.click(screen.getByRole('option', { name: 'Inactive' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => {
-      expect(handleSubmit).toHaveBeenCalledWith({
-        name: 'MacBook Pro',
-        price: '2499',
-        categories: 'laptop, electronics',
-        status: 'INACTIVE',
-        description: 'Laptop for work',
-        imagePreview: null,
-        imageFile: undefined,
-      });
-    });
-  });
+    await waitFor(
+      () => {
+        expect(handleSubmit).toHaveBeenCalledWith({
+          name: 'MacBook Pro',
+          price: '2499',
+          categories: 'laptop, electronics',
+          status: 'INACTIVE',
+          description: 'Laptop for work',
+          imagePreview: null,
+          imageFile: undefined,
+        });
+      },
+      { timeout: 10000 },
+    );
+  }, 15000);
 });

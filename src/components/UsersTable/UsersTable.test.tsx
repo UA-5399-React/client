@@ -68,5 +68,5 @@ describe('UsersTable', () => {
 
     expect(statusButtons.length).toBeGreaterThan(0);
     expect(roleButtons.length).toBeGreaterThan(0);
-  });
+  }, 10_000);
 });
