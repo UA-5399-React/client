@@ -12,7 +12,7 @@ export function AdminLayout() {
         isOpen ? 'max-md:h-screen max-md:overflow-hidden' : ''
       }`}
     >
-      <aside className="hidden min-h-screen w-[255px] max-w-[255px] shrink-0 flex-col self-stretch bg-[rgb(var(--color-bg-sec))] md:flex">
+      <aside className="scrollbar-hide sticky top-0 hidden h-screen w-[255px] max-w-[255px] shrink-0 flex-col overflow-y-auto bg-[rgb(var(--color-bg-sec))] md:flex">
         <Sidebar />
       </aside>
 

@@ -30,6 +30,7 @@ export const useAuth = () => {
   const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
 
   const isAdmin = role === AUTH_ROLES.ADMIN;
+  const isSuperAdmin = role === AUTH_ROLES.SUPER_ADMIN;
 
-  return { isAuth, role, isAdmin, logout };
+  return { isAuth, role, isAdmin, isSuperAdmin, logout };
 };
