@@ -7,6 +7,7 @@ import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useGetAdminProduct } from '@/hooks/useGetAdminProduct';
 import { useUpdateAdminProduct } from '@/hooks/useUpdateAdminProduct';
+import { useUploadProductImage } from '@/hooks/useUploadProductImage';
 import type { ProductFormData, ProductStatus } from '@/types';
 
 const ERROR_TEXTS = {
@@ -18,6 +19,7 @@ export const EditProduct = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const {
     product,
@@ -25,6 +27,7 @@ export const EditProduct = () => {
     error: fetchError,
   } = useGetAdminProduct(id);
   const { updateProduct, loading: isUpdating } = useUpdateAdminProduct();
+  const { uploadImage, loading: isUploading } = useUploadProductImage();
 
   const initialData = product
     ? {
@@ -69,17 +72,30 @@ export const EditProduct = () => {
 
   const handleSubmit = async (formData: ProductFormData) => {
     try {
+      setUploadError(null);
+      let uploadedImage;
+
+      if (formData.imageFile) {
+        uploadedImage = await uploadImage(formData.imageFile);
+      }
+
       await updateProduct(id, {
         title: formData.name,
         price: Number(formData.price),
         status: formData.status as ProductStatus,
         description: formData.description,
         categories: formData.categories.split(',').map((c) => c.trim()),
+        ...(uploadedImage && {
+          imageUrl: uploadedImage.imageUrl,
+          imagePublicId: uploadedImage.imagePublicId,
+        }),
       });
+
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       navigate(ROUTES.ADMIN_PRODUCTS);
     } catch (e) {
+      setUploadError(e instanceof Error ? e.message : 'Failed to upload image');
       console.error(e);
     }
   };
@@ -93,11 +109,16 @@ export const EditProduct = () => {
             Product updated successfully!
           </div>
         )}
+        {uploadError && (
+          <div className="mb-4 rounded bg-red-100 p-3 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+            {uploadError}
+          </div>
+        )}
         <ProductForm
           initialData={initialData}
           onSubmit={handleSubmit}
           onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
-          isLoading={isUpdating}
+          isLoading={isUpdating || isUploading}
           isEditMode={true}
           updatedAt={product?.updatedAt}
         />

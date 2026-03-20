@@ -1,9 +1,11 @@
+import { API_BASE_URL } from '@/constants';
+
 export interface LoginPayload {
   email: string;
   password: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = API_BASE_URL;
 
 export const authService = {
   login: async (data: LoginPayload) => {

@@ -8,14 +8,14 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
-import { Home } from './pages';
+import { Cart, Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
-import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
+import { ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
   const {

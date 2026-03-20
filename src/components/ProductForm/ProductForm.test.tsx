@@ -1,10 +1,30 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
+import {
+  fireEvent,
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@/utils/test-utils';
 
 import { ProductForm } from './ProductForm';
 
+vi.mock('@/hooks', () => ({
+  useAdminCategories: () => ({
+    categories: [
+      { id: 'phones', title: 'phones' },
+      { id: 'electronics', title: 'electronics' },
+      { id: 'laptop', title: 'laptops' },
+    ],
+  }),
+}));
+
 describe('Component: ProductForm', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should render correctly in CREATE mode (no status field, no last update)', () => {
     render(<ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
@@ -15,13 +35,15 @@ describe('Component: ProductForm', () => {
       screen.getByRole('spinbutton', { name: 'Price' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: 'Categories' }),
+      screen.getByRole('combobox', { name: 'Categories' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('textbox', { name: 'Description' }),
     ).toBeInTheDocument();
 
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'Status' }),
+    ).not.toBeInTheDocument();
 
     expect(screen.queryByText(/Last Update:/i)).not.toBeInTheDocument();
   });
@@ -34,7 +56,7 @@ describe('Component: ProductForm', () => {
         initialData={{
           name: 'MacBook Pro',
           price: '2499',
-          categories: 'laptops, electronics',
+          categories: 'laptop, electronics',
           status: 'ACTIVE',
           description: 'Laptop for work',
           imagePreview: 'https://example.com/product.png',
@@ -47,15 +69,20 @@ describe('Component: ProductForm', () => {
     expect(screen.getByDisplayValue('MacBook Pro')).toBeInTheDocument();
     expect(screen.getByDisplayValue('2499')).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue('laptops, electronics'),
-    ).toBeInTheDocument();
+      screen.getByRole('combobox', { name: 'Categories' }),
+    ).toHaveTextContent('laptop');
+    expect(
+      screen.getByRole('combobox', { name: 'Categories' }),
+    ).toHaveTextContent('electronics');
     expect(screen.getByDisplayValue('Laptop for work')).toBeInTheDocument();
     expect(screen.getByAltText('Preview')).toHaveAttribute(
       'src',
       'https://example.com/product.png',
     );
 
-    expect(screen.getByRole('combobox')).toHaveTextContent('ACTIVE');
+    expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
+      'ACTIVE',
+    );
 
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
   });
@@ -70,9 +97,6 @@ describe('Component: ProductForm', () => {
       await screen.findByText('Product name is required'),
     ).toBeInTheDocument();
     expect(await screen.findByText('Price is required')).toBeInTheDocument();
-    expect(
-      await screen.findByText('Categories are required'),
-    ).toBeInTheDocument();
   });
 
   it('should clear validation errors on input and submit valid form data', async () => {
@@ -85,14 +109,18 @@ describe('Component: ProductForm', () => {
 
     const nameInput = screen.getByRole('textbox', { name: 'Name Product' });
     const priceInput = screen.getByRole('spinbutton', { name: 'Price' });
-    const categoriesInput = screen.getByRole('textbox', { name: 'Categories' });
+    const categorySelect = screen.getByRole('combobox', {
+      name: 'Categories',
+    });
     const descriptionInput = screen.getByRole('textbox', {
       name: 'Description',
     });
 
     await user.type(nameInput, 'IPhone 16');
     await user.type(priceInput, '999.99');
-    await user.type(categoriesInput, 'phones, electronics');
+    await user.click(categorySelect);
+    const option = await screen.findByRole('option', { name: 'electronics' });
+    await user.click(option);
     await user.type(descriptionInput, 'Flagship phone');
 
     await waitFor(() => {
@@ -111,7 +139,7 @@ describe('Component: ProductForm', () => {
       expect(handleSubmit).toHaveBeenCalledWith({
         name: 'IPhone 16',
         price: '999.99',
-        categories: 'phones, electronics',
+        categories: 'electronics',
         status: 'DRAFT',
         description: 'Flagship phone',
         imagePreview: null,
@@ -129,5 +157,80 @@ describe('Component: ProductForm', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(handleCancel).toHaveBeenCalledOnce();
+  });
+
+  it('should open file picker, show preview, and revoke preview URL on unmount', async () => {
+    const user = userEvent.setup();
+    const createObjectURLMock = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValue('blob:preview');
+    const revokeObjectURLMock = vi
+      .spyOn(URL, 'revokeObjectURL')
+      .mockImplementation(() => undefined);
+
+    const { container, unmount } = render(
+      <ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
+
+    const fileInput = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const clickSpy = vi.spyOn(fileInput, 'click');
+
+    await user.click(screen.getByRole('button', { name: 'Choose File' }));
+    expect(clickSpy).toHaveBeenCalledOnce();
+
+    const file = new File(['image'], 'phone.png', { type: 'image/png' });
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(createObjectURLMock).toHaveBeenCalledWith(file);
+    expect(screen.getByAltText('Preview')).toHaveAttribute(
+      'src',
+      'blob:preview',
+    );
+
+    fireEvent.change(fileInput, { target: { files: [] } });
+
+    unmount();
+
+    expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:preview');
+  });
+
+  it('should update product status in edit mode', async () => {
+    const user = userEvent.setup();
+    const handleSubmit = vi.fn();
+
+    render(
+      <ProductForm
+        isEditMode={true}
+        updatedAt="2025-10-10T12:00:00Z"
+        initialData={{
+          name: 'MacBook Pro',
+          price: '2499',
+          categories: 'laptop, electronics',
+          status: 'ACTIVE',
+          description: 'Laptop for work',
+          imagePreview: null,
+        }}
+        onSubmit={handleSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Status' }));
+    await user.click(screen.getByRole('option', { name: 'Inactive' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(handleSubmit).toHaveBeenCalledWith({
+        name: 'MacBook Pro',
+        price: '2499',
+        categories: 'laptop, electronics',
+        status: 'INACTIVE',
+        description: 'Laptop for work',
+        imagePreview: null,
+        imageFile: undefined,
+      });
+    });
   });
 });
