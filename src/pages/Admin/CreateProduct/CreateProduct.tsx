@@ -1,20 +1,28 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AdminPageHeader } from '@/components';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
 import { useCreateAdminProduct } from '@/hooks/useCreateAdminProduct';
+import { useUploadProductImage } from '@/hooks/useUploadProductImage';
 import type { ProductFormData } from '@/types';
 
 export const CreateProduct = () => {
   const navigate = useNavigate();
   const { createProduct, loading } = useCreateAdminProduct();
+  const { uploadImage, loading: isUploading } = useUploadProductImage();
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleCreate = async (formData: ProductFormData) => {
     try {
-      //TODO: temporary solution for image, you can replace it with actual image upload logic
-      const dummyImageUrl =
-        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&h=1200&fit=crop';
+      setUploadError(null);
+      let uploadedImage;
+
+      if (formData.imageFile) {
+        uploadedImage = await uploadImage(formData.imageFile);
+      }
+
       const input = {
         title: formData.name,
         price: parseFloat(formData.price),
@@ -22,15 +30,21 @@ export const CreateProduct = () => {
         categories: formData.categories
           ? formData.categories
               .split(',')
-              .map((category) => category.trim())
+              .map((c) => c.trim())
               .filter(Boolean)
           : [],
-        imageUrl: dummyImageUrl,
+        ...(uploadedImage && {
+          imageUrl: uploadedImage.imageUrl,
+          imagePublicId: uploadedImage.imagePublicId,
+        }),
       };
 
       await createProduct(input);
       navigate(ROUTES.ADMIN_PRODUCTS);
     } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Error creating product';
+      setUploadError(errorMessage);
       console.error('Error creating product:', err);
     }
   };
@@ -43,10 +57,15 @@ export const CreateProduct = () => {
     <div>
       <AdminPageHeader />
       <div className="mx-auto max-w-3xl p-6">
+        {uploadError && (
+          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+            {uploadError}
+          </div>
+        )}
         <ProductForm
           onSubmit={handleCreate}
           onCancel={handleCancel}
-          isLoading={loading}
+          isLoading={loading || isUploading}
           isEditMode={false}
         />
       </div>
