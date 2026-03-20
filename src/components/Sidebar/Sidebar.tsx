@@ -4,7 +4,6 @@ import {
   LogOut,
   PackageIcon,
   SettingsIcon,
-  UsersIcon,
 } from 'lucide-react';
 
 import { Button } from '@/components/Button';
@@ -20,7 +19,6 @@ const SIDEBAR_LINKS = [
     label: 'Categories',
     icon: <ChartBarStacked />,
   },
-  { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
 ];
 

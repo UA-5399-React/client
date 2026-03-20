@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client/react';
 
-import { ADMIN_PAGE_LIMIT } from '@/constants';
 import { GET_PRODUCTS_PAGE } from '@/services';
 import type { ProductsPageResult } from '@/types';
 import type { ProductsFilters } from '@/types/filters';
@@ -17,7 +16,7 @@ type UseAdminProductsParams = {
 
 export function useAdminProducts({
   page = 1,
-  limit = ADMIN_PAGE_LIMIT,
+  limit = 10,
   filters = {},
   search = '',
   sort = 'updatedAt',

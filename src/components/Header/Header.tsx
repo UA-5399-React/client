@@ -13,7 +13,7 @@ import {
 
 import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
-import { Button, FlyoutCart, SearchInput } from '@/components';
+import { SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
@@ -32,7 +32,7 @@ export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const { items: cartItems, openCart } = useCartStore();
+  const cartItems = useCartStore((state) => state.items);
   const cartItemCount = cartItems.reduce(
     (total, item) => total + item.quantity,
     0,
@@ -114,22 +114,18 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={openCart}
-              className="flex cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-inherit no-underline"
+            <Link
+              to={ROUTES.CART}
+              className="relative text-inherit no-underline"
               aria-label="Cart"
             >
-              <ShoppingBag className="h-6 w-6" />
+              <ShoppingBag className="h-6 w-auto" />
               {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
+                <span className="bg-text text-background absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold">
                   {cartItemCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
         </div>
         <div className="hidden h-20 items-center justify-between px-16 lg:flex">
@@ -206,22 +202,18 @@ export const Header = () => {
               )}
             </button>
 
-            <button
-              onClick={openCart}
-              className="flex cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-inherit no-underline transition-opacity hover:opacity-70"
+            <Link
+              to={ROUTES.CART}
+              className="flex items-center gap-2 text-inherit no-underline transition-opacity hover:opacity-70"
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
               {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
+                <span className="bg-text text-background flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
                   {cartItemCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -281,27 +273,21 @@ export const Header = () => {
                 )}
               </button>
 
-              <button
-                onClick={() => {
-                  closeMenu();
-                  openCart();
-                }}
-                className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
+              <Link
+                to={ROUTES.CART}
+                onClick={closeMenu}
+                className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Cart</span>
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
                   {cartItemCount > 0 && (
-                    <span
-                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                        isDark ? 'bg-white text-black' : 'bg-black text-white'
-                      }`}
-                    >
+                    <span className="bg-text text-background flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold">
                       {cartItemCount}
                     </span>
                   )}
+                  <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
                 </div>
-              </button>
+              </Link>
 
               <Link
                 to="#"
@@ -313,20 +299,18 @@ export const Header = () => {
               </Link>
             </div>
             <div className="shrink-0 px-6 pt-2 pb-6">
-              <Button
-                onClick={() => {
-                  closeMenu();
-                  navigate(ROUTES.LOGIN);
-                }}
-                className="w-full"
+              <Link
+                to={ROUTES.HOME}
+                onClick={closeMenu}
+                className={`block w-full rounded-md py-3 text-center text-sm font-semibold no-underline transition-opacity hover:opacity-80 ${isDark ? 'bg-white' : 'bg-black'}`}
+                style={{ color: isDark ? '#000000' : '#ffffff' }}
               >
                 Sign In
-              </Button>
+              </Link>
             </div>
           </div>
         </>
       )}
-      <FlyoutCart />
     </>
   );
 };

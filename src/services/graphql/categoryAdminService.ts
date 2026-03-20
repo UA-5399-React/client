@@ -22,21 +22,6 @@ export const GET_CATEGORIES_LIST = gql`
   ${CATEGORY_FIELDS}
 `;
 
-export const GET_CATEGORIES_PAGE = gql`
-  query GetCategoriesPage($limit: Int!, $page: Int!, $search: String) {
-    categoriesPage(limit: $limit, page: $page, search: $search) {
-      total
-      totalPages
-      page
-      limit
-      items {
-        ...CategoryFields
-      }
-    }
-  }
-  ${CATEGORY_FIELDS}
-`;
-
 export const GET_CATEGORY = gql`
   query GetCategory($id: ID!) {
     category(id: $id) {

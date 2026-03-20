@@ -47,7 +47,6 @@ export const GET_PRODUCT = gql`
       categories
       productCode
       imageUrl
-      imagePublicId
     }
   }
 `;
@@ -62,7 +61,6 @@ export const CREATE_PRODUCT = gql`
       description
       categories
       imageUrl
-      imagePublicId
     }
   }
 `;
@@ -77,7 +75,6 @@ export const UPDATE_PRODUCT = gql`
       description
       categories
       imageUrl
-      imagePublicId
     }
   }
 `;

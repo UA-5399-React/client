@@ -1,12 +1,6 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import {
-  fireEvent,
-  render,
-  screen,
-  userEvent,
-  waitFor,
-} from '@/utils/test-utils';
+import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { ProductForm } from './ProductForm';
 
@@ -21,10 +15,6 @@ vi.mock('@/hooks', () => ({
 }));
 
 describe('Component: ProductForm', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should render correctly in CREATE mode (no status field, no last update)', () => {
     render(<ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
@@ -151,80 +141,5 @@ describe('Component: ProductForm', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(handleCancel).toHaveBeenCalledOnce();
-  });
-
-  it('should open file picker, show preview, and revoke preview URL on unmount', async () => {
-    const user = userEvent.setup();
-    const createObjectURLMock = vi
-      .spyOn(URL, 'createObjectURL')
-      .mockReturnValue('blob:preview');
-    const revokeObjectURLMock = vi
-      .spyOn(URL, 'revokeObjectURL')
-      .mockImplementation(() => undefined);
-
-    const { container, unmount } = render(
-      <ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
-    );
-
-    const fileInput = container.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    const clickSpy = vi.spyOn(fileInput, 'click');
-
-    await user.click(screen.getByRole('button', { name: 'Choose File' }));
-    expect(clickSpy).toHaveBeenCalledOnce();
-
-    const file = new File(['image'], 'phone.png', { type: 'image/png' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
-
-    expect(createObjectURLMock).toHaveBeenCalledWith(file);
-    expect(screen.getByAltText('Preview')).toHaveAttribute(
-      'src',
-      'blob:preview',
-    );
-
-    fireEvent.change(fileInput, { target: { files: [] } });
-
-    unmount();
-
-    expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:preview');
-  });
-
-  it('should update product status in edit mode', async () => {
-    const user = userEvent.setup();
-    const handleSubmit = vi.fn();
-
-    render(
-      <ProductForm
-        isEditMode={true}
-        updatedAt="2025-10-10T12:00:00Z"
-        initialData={{
-          name: 'MacBook Pro',
-          price: '2499',
-          categories: 'laptop, electronics',
-          status: 'ACTIVE',
-          description: 'Laptop for work',
-          imagePreview: null,
-        }}
-        onSubmit={handleSubmit}
-        onCancel={vi.fn()}
-      />,
-    );
-
-    await user.click(screen.getByRole('combobox', { name: 'Status' }));
-    await user.click(screen.getByRole('option', { name: 'Inactive' }));
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    await waitFor(() => {
-      expect(handleSubmit).toHaveBeenCalledWith({
-        name: 'MacBook Pro',
-        price: '2499',
-        categories: 'laptop, electronics',
-        status: 'INACTIVE',
-        description: 'Laptop for work',
-        imagePreview: null,
-        imageFile: undefined,
-      });
-    });
   });
 });

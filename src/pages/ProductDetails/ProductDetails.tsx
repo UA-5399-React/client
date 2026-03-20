@@ -1,15 +1,11 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Heart, Image as ImageIcon, Minus, Plus } from 'lucide-react';
 
 import { productService } from '@/services/productService';
-import { useCartStore } from '@/store/useCartStore';
 
 export const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const [quantity, setQuantity] = useState(1);
-  const addItem = useCartStore((state) => state.addItem);
 
   const {
     data: product,
@@ -29,13 +25,6 @@ export const ProductDetails = () => {
         Error loading product!
       </div>
     );
-
-  const handleIncrement = () => setQuantity((prev) => prev + 1);
-  const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
-
-  const handleAddToCart = () => {
-    addItem(product, quantity);
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -62,18 +51,11 @@ export const ProductDetails = () => {
           <div className="mt-auto flex flex-col gap-4">
             <div className="flex h-[52px] gap-4">
               <div className="flex w-[120px] items-center justify-between rounded-lg bg-[#F3F5F7] px-2">
-                <button
-                  onClick={handleDecrement}
-                  disabled={quantity <= 1}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
+                <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black">
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="font-semibold text-black">{quantity}</span>
-                <button
-                  onClick={handleIncrement}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black"
-                >
+                <span className="font-semibold text-black">1</span>
+                <button className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-gray-500 transition-colors outline-none hover:bg-gray-200 hover:text-black">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
@@ -82,10 +64,7 @@ export const ProductDetails = () => {
                 <span>Wishlist</span>
               </button>
             </div>
-            <button
-              onClick={handleAddToCart}
-              className="h-[52px] w-full cursor-pointer rounded-lg border-none bg-[#141718] font-medium text-white transition-all outline-none hover:bg-black"
-            >
+            <button className="h-[52px] w-full cursor-pointer rounded-lg border-none bg-[#141718] font-medium text-white transition-all outline-none hover:bg-black">
               Add to Cart
             </button>
           </div>

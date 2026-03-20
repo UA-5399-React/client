@@ -8,14 +8,13 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
-import { Cart, Home } from './pages';
+import { Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
-import { AdminUsers } from './pages/Admin/Users/AdminUsers';
-import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { Cart, ContactUs, NotFound, Shop } from './pages/Mocks';
 
 function App() {
   const {
@@ -27,7 +26,6 @@ function App() {
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_PRODUCTS,
-    ADMIN_USERS,
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
@@ -56,7 +54,6 @@ function App() {
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
-            <Route path={ADMIN_USERS} element={<AdminUsers />} />
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />

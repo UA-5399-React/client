@@ -4,7 +4,6 @@ export {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
   GET_CATEGORIES_LIST,
-  GET_CATEGORIES_PAGE,
   GET_CATEGORY,
   UPDATE_CATEGORY,
 } from './graphql/categoryAdminService';
@@ -13,5 +12,4 @@ export {
   GET_PRODUCTS_PAGE,
 } from './graphql/productAdminService';
 export { productService } from './productService';
-export { uploadService } from './uploadService';
 export { userService } from './userService';

@@ -9,14 +9,6 @@ export interface Category {
   updatedAt: string;
 }
 
-export interface CategoriesPageResult {
-  total: number;
-  totalPages: number;
-  page: number;
-  limit: number;
-  items: Category[];
-}
-
 export interface CreateCategoryInput {
   title: string;
   depth: 1 | 2;
