@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import {
   AdminPageHeader,
   Button,
@@ -9,13 +11,18 @@ import { useAdminCategories } from '@/hooks/useAdminCategories';
 
 export function AdminCategories() {
   const { categories, loading, error } = useAdminCategories();
+  const navigate = useNavigate();
 
   return (
     <div>
       <AdminPageHeader />
 
       <div className="flex items-center justify-end border-b border-[#e5e7eb] px-4 py-3">
-        <Button variant="primary" type="button">
+        <Button
+          variant="primary"
+          type="button"
+          onClick={() => navigate('/admin/categories/add')}
+        >
           + Add Category
         </Button>
       </div>

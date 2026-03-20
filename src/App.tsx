@@ -9,8 +9,10 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
 import { Home } from './pages';
+import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
+import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
@@ -31,6 +33,8 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     LOGIN,
     REGISTER,
+    ADMIN_CATEGORY_ADD,
+    ADMIN_CATEGORY_EDIT,
   } = ROUTES;
 
   return (
@@ -57,6 +61,8 @@ function App() {
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
+            <Route path={ADMIN_CATEGORY_ADD} element={<AddCategory />} />
+            <Route path={ADMIN_CATEGORY_EDIT} element={<EditCategory />} />
           </Route>
         </Route>
       </Routes>
