@@ -221,7 +221,7 @@ export const CategoryForm = ({
               </label>
 
               <Input
-                label=""
+                label=" "
                 placeholder="Category title"
                 {...register('title')}
                 state={errors.title ? 'error' : 'default'}
