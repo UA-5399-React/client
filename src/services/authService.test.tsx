@@ -10,7 +10,6 @@ import {
 
 import { authService, type LoginPayload } from './authService';
 
-// Change original global fetch for mock-function Vitest
 global.fetch = vi.fn();
 
 describe('Service: authService', () => {
