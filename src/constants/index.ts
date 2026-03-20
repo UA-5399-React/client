@@ -14,6 +14,7 @@ export const ROUTES = {
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_USERS: '/admin/users',
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',
@@ -49,5 +50,7 @@ export const AUTH_ROLES = {
 
 export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;
+
+export const ITEMS_PER_PAGE = 10;
 
 export * from './theme';
