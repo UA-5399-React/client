@@ -12,6 +12,7 @@ export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
 export { LogoutButton } from './LogoutButton/LogoutButton';
 export { MainLayout } from './MainLayout';
+export { MainTable } from './MainTable/MainTable';
 export { MobileSidebar } from './MobileSidebar/MobileSidebar';
 export { NewArrivals } from './NewArrivals/NewArrivals';
 export { Newsletter } from './Newsletter';
@@ -26,6 +27,7 @@ export { SortOrderButton } from './SortProducts/SortOrderButton/SortOrderButton'
 export { SortProductsDropdown } from './SortProducts/SortProductsDropdown/SortProductsDropdown';
 export { SortRadioItem } from './SortProducts/SortRadioItem/SortRadioItem';
 export { TableCategories } from './TableCategories/TableCategories';
+export { TableOrders } from './TableOrders/TableOrders';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
 export { UsersTable } from './UsersTable';

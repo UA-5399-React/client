@@ -4,6 +4,7 @@ import {
   LogOut,
   PackageIcon,
   SettingsIcon,
+  ShoppingCartIcon,
   UsersIcon,
 } from 'lucide-react';
 
@@ -21,6 +22,7 @@ const SIDEBAR_LINKS = [
     icon: <ChartBarStacked />,
   },
   { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
+  { to: ROUTES.ADMIN_ORDERS, label: 'Orders', icon: <ShoppingCartIcon /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
 ];
 

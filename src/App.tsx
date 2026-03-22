@@ -12,6 +12,7 @@ import { Cart, Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
+import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
@@ -33,6 +34,7 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     LOGIN,
     REGISTER,
+    ADMIN_ORDERS,
   } = ROUTES;
 
   return (
@@ -60,6 +62,7 @@ function App() {
             <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
+            <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
           </Route>
         </Route>
       </Routes>
