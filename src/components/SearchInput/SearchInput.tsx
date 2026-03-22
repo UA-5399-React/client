@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Search } from 'lucide-react';
+import { Search, XCircleIcon } from 'lucide-react';
 
 type SearchInputProps = {
   value: string;
@@ -64,7 +64,7 @@ export function SearchInput({
         aria-invalid={error || undefined}
         className={clsx(
           'box-border h-[44px] w-full rounded-[8px] border',
-          'py-[10px] pr-[14px] pl-[42px]',
+          'px-[42px] py-[10px]',
           'text-[16px] leading-[24px] font-normal',
           'shadow-[0_1px_2px_0_rgb(var(--color-shadow)/0.05)]',
           borderClass,
@@ -72,6 +72,14 @@ export function SearchInput({
           focusClass,
         )}
       />
+
+      {value.length > 0 && (
+        <XCircleIcon
+          size={17}
+          className="absolute top-1/2 right-[14px] -translate-y-1/2 cursor-pointer"
+          onClick={() => onChange('')}
+        />
+      )}
     </div>
   );
 }
