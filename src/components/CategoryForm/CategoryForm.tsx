@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import clsx from 'clsx';
 import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
-import * as z from 'zod';
+import { z } from 'zod';
 
+import { Input } from '@/components/Input';
 import { ROUTES } from '@/constants';
 import { useCreateAdminCategory } from '@/hooks/useCreateAdminCategory';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,10 +14,10 @@ import { useUpdateAdminCategory } from '@/hooks/useUpdateAdminCategory';
 import type { Category, Product } from '@/types';
 
 const categorySchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
+  title: z.string().trim().min(1, 'Category name is required'),
+  description: z.string().trim().min(1, 'Description is required'),
   parent: z.string().nullable().optional(),
-  imageUrl: z.string().nullable().optional(),
+  imageUrl: z.string().optional().or(z.literal('')),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -54,7 +55,7 @@ export const CategoryForm = ({
       title: initialData?.title || '',
       description: initialData?.description || '',
       parent: initialData?.parent || null,
-      imageUrl: initialData?.imageUrl || null,
+      imageUrl: initialData?.imageUrl || undefined,
     },
   });
 
@@ -83,7 +84,7 @@ export const CategoryForm = ({
 
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setValue('imageUrl', null);
+    setValue('imageUrl', undefined);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -114,7 +115,8 @@ export const CategoryForm = ({
   };
 
   const inputBaseStyles = clsx(
-    'block w-full box-border rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-sm transition-all outline-none font-sans focus:border-[#38CB89]',
+    'block w-full box-border rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-sm transition-all font-sans',
+    'outline-none focus:outline-none focus:ring-0 focus:border-[#38CB89]',
     isDark
       ? 'bg-gray-800 text-white border-gray-700'
       : 'bg-white text-[#1A1C1E]',
@@ -188,6 +190,13 @@ export const CategoryForm = ({
                 </div>
               )}
             </div>
+
+            {errors.imageUrl && (
+              <p className="mt-2 text-xs text-red-500">
+                {errors.imageUrl.message}
+              </p>
+            )}
+
             <input
               type="file"
               ref={fileInputRef}
@@ -207,22 +216,22 @@ export const CategoryForm = ({
             )}
           >
             <div className={isEdit ? 'col-span-1' : 'w-full'}>
-              <label className={labelStyles}>
+              <label htmlFor="category-name" className={labelStyles}>
                 Category Name <span className="text-red-500">*</span>
               </label>
-              <input
-                className={clsx(
-                  inputBaseStyles,
-                  errors.title && 'border-red-500 focus:border-red-500',
-                )}
+
+              <Input
+                id="category-name"
                 placeholder="Category title"
                 {...register('title')}
+                state={errors.title ? 'error' : 'default'}
+                helperText={errors.title?.message}
+                inputClassName={clsx(
+                  inputBaseStyles,
+                  '!outline-none !ring-0 focus:!border-[#38CB89] focus-visible:!ring-0 focus-visible:!outline-none',
+                  errors.title && '!border-red-500',
+                )}
               />
-              {errors.title && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.title.message}
-                </p>
-              )}
             </div>
 
             {!isEdit && (
@@ -337,9 +346,11 @@ export const CategoryForm = ({
                   placeholder="Short description"
                   {...register('description')}
                 />
-                <p className="mt-1 text-[11px] text-[#8A92A6]">
-                  A short description to help identify this category
-                </p>
+                {errors.description && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.description.message}
+                  </p>
+                )}
               </div>
             )}
           </div>
