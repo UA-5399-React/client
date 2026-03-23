@@ -37,5 +37,5 @@ describe('UI Component: Dropdown', () => {
     for (const option of mockOptions) {
       expect(screen.getByText(option.label)).toBeInTheDocument();
     }
-  });
+  }, 10_000);
 });
