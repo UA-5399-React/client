@@ -30,6 +30,7 @@ const defaultAuthMock = {
   logout: vi.fn(),
   isAuth: true,
   isAdmin: true,
+  isSuperAdmin: false,
   role: AUTH_ROLES.ADMIN as string | null,
   isSuperAdmin: false,
 };

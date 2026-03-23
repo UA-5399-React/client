@@ -5,8 +5,8 @@ import duckLogo from '@/assets/images/duck.svg';
 
 export const AuthLayout: React.FC = () => {
   return (
-    <div className="flex min-h-screen w-full flex-col font-sans text-gray-900 lg:flex-row">
-      <div className="flex w-full flex-col items-center justify-center bg-[#f4f5f6] py-12 lg:w-1/2 lg:py-0">
+    <div className="flex min-h-screen w-full flex-col font-sans text-[rgb(var(--color-text))] lg:flex-row">
+      <div className="flex w-full flex-col items-center justify-center bg-[rgb(var(--color-bg-sec))] py-12 lg:w-1/2 lg:py-0">
         <div className="flex flex-col items-center justify-center text-center">
           <img
             src={duckLogo}
@@ -16,7 +16,7 @@ export const AuthLayout: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex w-full flex-1 items-center justify-center bg-white py-12 lg:w-1/2 lg:py-0">
+      <div className="flex w-full flex-1 items-center justify-center bg-[rgb(var(--color-bg))] py-12 lg:w-1/2 lg:py-0">
         <Outlet />
       </div>
     </div>

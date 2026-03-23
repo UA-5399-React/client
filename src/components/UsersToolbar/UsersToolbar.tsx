@@ -2,6 +2,14 @@ import clsx from 'clsx';
 import { UserPlus } from 'lucide-react';
 
 import { Button, Dropdown, SearchInput } from '@/components';
+import {
+  DEFAULT_USER_ROLE_FILTER,
+  DEFAULT_USER_STATUS_FILTER,
+} from '@/constants/adminUsers';
+import type {
+  UserRoleFilter,
+  UserStatusFilter,
+} from '@/types/admin-user.types';
 
 type FilterOption = {
   label: string;
@@ -11,10 +19,10 @@ type FilterOption = {
 interface UsersToolbarProps {
   searchValue: string;
   setSearchValue: (value: string) => void;
-  statusFilter: string;
-  setStatusFilter: (value: string) => void;
-  roleFilter: string;
-  setRoleFilter: (value: string) => void;
+  statusFilter: UserStatusFilter;
+  setStatusFilter: (value: UserStatusFilter) => void;
+  roleFilter: UserRoleFilter;
+  setRoleFilter: (value: UserRoleFilter) => void;
   statusOptions: FilterOption[];
   roleOptions: FilterOption[];
   onCreateUser?: () => void;
@@ -54,7 +62,12 @@ export function UsersToolbar({
           labelClassName="sr-only"
           options={statusOptions}
           selectedValues={[statusFilter]}
-          onChange={(selected) => setStatusFilter(selected[0]?.value ?? 'All')}
+          onChange={(selected) =>
+            setStatusFilter(
+              (selected[0]?.value as UserStatusFilter) ??
+                DEFAULT_USER_STATUS_FILTER,
+            )
+          }
           placeholder="All"
           multiple={false}
           hasBorder={false}
@@ -73,7 +86,10 @@ export function UsersToolbar({
           options={roleOptions}
           selectedValues={[roleFilter]}
           onChange={(selected) =>
-            setRoleFilter(selected[0]?.value ?? 'All Roles')
+            setRoleFilter(
+              (selected[0]?.value as UserRoleFilter) ??
+                DEFAULT_USER_ROLE_FILTER,
+            )
           }
           placeholder="All Roles"
           multiple={false}

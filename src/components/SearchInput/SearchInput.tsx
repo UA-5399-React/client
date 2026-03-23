@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 type SearchInputProps = {
   value: string;
@@ -46,6 +46,8 @@ export function SearchInput({
     'text-[rgb(var(--color-muted))]': !disabled && !error,
   });
 
+  const showClear = value.length > 0 && !disabled;
+
   return (
     <div className={clsx('relative w-[320px]', className)}>
       <Search
@@ -64,7 +66,8 @@ export function SearchInput({
         aria-invalid={error || undefined}
         className={clsx(
           'box-border h-[44px] w-full rounded-[8px] border',
-          'py-[10px] pr-[14px] pl-[42px]',
+          'py-[10px] pl-[42px]',
+          showClear ? 'pr-[38px]' : 'pr-[14px]',
           'text-[16px] leading-[24px] font-normal',
           'shadow-[0_1px_2px_0_rgb(var(--color-shadow)/0.05)]',
           borderClass,
@@ -72,6 +75,17 @@ export function SearchInput({
           focusClass,
         )}
       />
+
+      {showClear && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label="Clear search"
+          className="absolute top-1/2 right-[12px] -translate-y-1/2 text-[rgb(var(--color-muted))] hover:text-[rgb(var(--color-text))]"
+        >
+          <X size={15} />
+        </button>
+      )}
     </div>
   );
 }
