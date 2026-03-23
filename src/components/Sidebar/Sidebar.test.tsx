@@ -32,7 +32,6 @@ const defaultAuthMock = {
   isAdmin: true,
   isSuperAdmin: false,
   role: AUTH_ROLES.ADMIN as string | null,
-  isSuperAdmin: false,
 };
 
 const renderWithProviders = (ui: React.ReactElement) =>
