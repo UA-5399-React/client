@@ -34,10 +34,12 @@ export const Dropdown = ({
       return;
     }
 
-    const values = Array.isArray(value) ? value : [value];
+    const selectedValues = Array.isArray(value) ? value : [value];
 
-    const selected = values
-      .map((v) => options.find((option) => option.value === v))
+    const selected = selectedValues
+      .map((selectedValue) =>
+        options.find((option) => option.value === selectedValue),
+      )
       .filter(Boolean) as DropdownProps['options'];
 
     onChange(selected);
