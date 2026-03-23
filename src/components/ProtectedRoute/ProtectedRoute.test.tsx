@@ -37,7 +37,12 @@ describe('Feature: ProtectedRoute', () => {
   // Successful scenario
   it('should render <Outlet /> if user is authenticated AND is an admin', () => {
     // Set up the hook as if an admin has logged in
-    (useAuth as Mock).mockReturnValue({ isAuth: true, isAdmin: true });
+    (useAuth as Mock).mockReturnValue({
+      isAuth: true,
+      isAdmin: true,
+      isSuperAdmin: false,
+      role: 'admin',
+    });
 
     render(<ProtectedRoute />);
 
@@ -49,11 +54,12 @@ describe('Feature: ProtectedRoute', () => {
   });
 
   it('should redirect to SHOP if user is authenticated but NOT an admin', () => {
-    // User is logged in but has role user
+    // User is logged in but has customer role
     (useAuth as Mock).mockReturnValue({
       isAuth: true,
       isAdmin: false,
       isSuperAdmin: false,
+      role: 'customer',
     });
 
     render(<ProtectedRoute />);
@@ -73,6 +79,7 @@ describe('Feature: ProtectedRoute', () => {
       isAuth: true,
       isAdmin: false,
       isSuperAdmin: true,
+      role: 'super_admin',
     });
 
     render(<ProtectedRoute />);
@@ -84,7 +91,12 @@ describe('Feature: ProtectedRoute', () => {
   // Failure scenario 2: Not authenticated at all (guest)
   it('should redirect to login if user is NOT authenticated', () => {
     // Neither token nor role
-    (useAuth as Mock).mockReturnValue({ isAuth: false, isAdmin: false });
+    (useAuth as Mock).mockReturnValue({
+      isAuth: false,
+      isAdmin: false,
+      isSuperAdmin: false,
+      role: null,
+    });
 
     render(<ProtectedRoute />);
 
@@ -93,5 +105,26 @@ describe('Feature: ProtectedRoute', () => {
     const navigateElement = screen.getByTestId('mock-navigate');
     expect(navigateElement).toBeInTheDocument();
     expect(navigateElement).toHaveAttribute('data-to', ROUTES.LOGIN);
+  });
+
+  it('should redirect admin away from super_admin-only routes', () => {
+    (useAuth as Mock).mockReturnValue({
+      isAuth: true,
+      isAdmin: true,
+      isSuperAdmin: false,
+      role: 'admin',
+    });
+
+    render(
+      <ProtectedRoute
+        allowedRoles={['super_admin']}
+        redirectTo={ROUTES.ADMIN_PRODUCTS}
+      />,
+    );
+
+    expect(screen.queryByTestId('mock-outlet')).not.toBeInTheDocument();
+
+    const navigateElement = screen.getByTestId('mock-navigate');
+    expect(navigateElement).toHaveAttribute('data-to', ROUTES.ADMIN_PRODUCTS);
   });
 });
