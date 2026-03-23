@@ -23,6 +23,7 @@ export const ROUTES = {
   REGISTER: '/register',
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
+  PROFILE: '/profile',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {

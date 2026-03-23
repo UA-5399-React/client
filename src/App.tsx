@@ -5,6 +5,7 @@ import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 import { MainLayout, ProtectedRoute } from './components';
 import { LoginForm } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
+import { AdminRoute } from './components/AdminRoute/AdminRoute';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { ROUTES } from './constants';
@@ -16,6 +17,7 @@ import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { Profile } from './pages/User/Profile';
 
 function App() {
   const {
@@ -33,6 +35,7 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     LOGIN,
     REGISTER,
+    PROFILE,
   } = ROUTES;
 
   return (
@@ -45,6 +48,9 @@ function App() {
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
           <Route path="*" element={<NotFound />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path={PROFILE} element={<Profile />} />
+          </Route>
         </Route>
 
         <Route element={<AuthLayout />}>
@@ -52,7 +58,7 @@ function App() {
           <Route path={REGISTER} element={<RegisterForm />} />
         </Route>
 
-        <Route element={<ProtectedRoute />}>
+        <Route element={<AdminRoute />}>
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
