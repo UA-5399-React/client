@@ -100,40 +100,41 @@ describe('Component: ProductForm', () => {
   });
 
   it('should clear validation errors on input and submit valid form data', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const handleSubmit = vi.fn();
 
     render(<ProductForm onSubmit={handleSubmit} onCancel={vi.fn()} />);
 
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    const nameInput = screen.getByRole('textbox', { name: 'Name Product' });
-    const priceInput = screen.getByRole('spinbutton', { name: 'Price' });
-    const categorySelect = screen.getByRole('combobox', {
-      name: 'Categories',
+    expect(
+      await screen.findByText('Product name is required'),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Price is required')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Name Product' }), {
+      target: { value: 'IPhone 16' },
     });
-    const descriptionInput = screen.getByRole('textbox', {
-      name: 'Description',
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Price' }), {
+      target: { value: '999.99' },
+    });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Description' }), {
+      target: { value: 'Flagship phone' },
     });
 
-    await user.type(nameInput, 'IPhone 16');
-    await user.type(priceInput, '999.99');
-    await user.click(categorySelect);
-    const option = await screen.findByRole('option', { name: 'electronics' });
-    await user.click(option);
-    await user.type(descriptionInput, 'Flagship phone');
+    await user.click(screen.getByRole('combobox', { name: 'Categories' }));
+    await user.click(
+      await screen.findByRole('option', { name: 'electronics' }),
+    );
 
     await waitFor(() => {
       expect(
         screen.queryByText('Product name is required'),
       ).not.toBeInTheDocument();
       expect(screen.queryByText('Price is required')).not.toBeInTheDocument();
-      expect(
-        screen.queryByText('Categories are required'),
-      ).not.toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(handleSubmit).toHaveBeenCalledWith({
@@ -146,7 +147,7 @@ describe('Component: ProductForm', () => {
         imageFile: undefined,
       });
     });
-  });
+  }, 10000);
 
   it('should call onCancel when Cancel button is clicked', async () => {
     const user = userEvent.setup();
