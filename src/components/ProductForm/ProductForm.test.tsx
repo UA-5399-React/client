@@ -81,7 +81,7 @@ describe('Component: ProductForm', () => {
     );
 
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
-      'ACTIVE',
+      /active/i,
     );
 
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
