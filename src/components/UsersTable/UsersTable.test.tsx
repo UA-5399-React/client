@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type * as LucideIcons from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +9,7 @@ import { UsersTable } from './UsersTable';
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof LucideIcons>();
+
   return {
     ...actual,
     EllipsisVertical: (props: HTMLAttributes<HTMLDivElement>) => (
@@ -28,6 +29,7 @@ describe('UsersTable', () => {
 
   it('renders "No users found" when list is empty', () => {
     render(<UsersTable items={[]} onUpdateUser={mockUpdate} />);
+
     expect(screen.getByText(/no users found/i)).toBeInTheDocument();
   });
 
@@ -37,8 +39,15 @@ describe('UsersTable', () => {
     const firstUser = mockUsers[0];
     const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
 
-    expect(screen.getByText(fullName)).toBeInTheDocument();
-    expect(screen.getByText(firstUser.email)).toBeInTheDocument();
+    const avatar = screen.getByRole('img', { name: fullName });
+    expect(avatar).toBeInTheDocument();
+
+    const row = avatar.closest('tr');
+    expect(row).not.toBeNull();
+
+    expect(
+      within(row as HTMLTableRowElement).getByText(firstUser.email),
+    ).toBeInTheDocument();
   });
 
   it('opens action menu and interacts with buttons', () => {
