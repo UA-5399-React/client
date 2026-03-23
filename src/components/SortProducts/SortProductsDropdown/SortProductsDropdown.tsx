@@ -49,7 +49,7 @@ export function SortProductsDropdown({
         type="button"
         aria-label="Open sorting menu"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white text-[rgb(var(--color-placeholder))] shadow-sm transition hover:bg-gray-50"
+        className="text-placeholderText flex h-11 w-11 items-center justify-center rounded-xl border border-gray-300 bg-white shadow-sm transition hover:bg-gray-50"
       >
         <ArrowUpDown size={20} />
       </button>
