@@ -45,6 +45,7 @@ export const MOCK_AUTH = {
 };
 
 export const AUTH_ROLES = {
+  SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
   USER: 'user',
 };
