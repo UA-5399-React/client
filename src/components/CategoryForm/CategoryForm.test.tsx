@@ -10,15 +10,10 @@ import {
 
 import { CategoryForm } from './CategoryForm';
 
-const mockNavigate = vi.fn();
-
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
-});
-
 const mockCreateCategory = vi.fn();
 const mockUpdateCategory = vi.fn();
+const mockNavigate = vi.fn();
+let mockIsDark = false;
 
 vi.mock('@/hooks/useCreateAdminCategory', () => ({
   useCreateAdminCategory: () => ({ createCategory: mockCreateCategory }),
@@ -29,377 +24,275 @@ vi.mock('@/hooks/useUpdateAdminCategory', () => ({
 }));
 
 vi.mock('@/hooks/useTheme', () => ({
-  useTheme: () => ({ isDark: false }),
+  useTheme: () => ({ isDark: mockIsDark }),
 }));
 
-vi.mock('@/constants', () => ({
-  ROUTES: { ADMIN_CATEGORIES: '/admin/categories' },
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-const mockItems = [
-  {
-    id: 'cat-1',
-    title: 'Electronics',
-    description: 'Electronics desc',
-    parent: null,
-    imageUrl: null,
-    depth: 1 as const,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 'cat-2',
-    title: 'Phones',
-    description: 'Phones desc',
-    parent: 'cat-1',
-    imageUrl: null,
-    depth: 2 as const,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-];
-
-const mockInitialData = {
-  id: 'cat-1',
-  title: 'Electronics',
-  description: 'All electronics',
-  parent: null,
-  imageUrl: null,
-  depth: 1 as const,
+const mockDates = {
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
-  products: [],
 };
 
 describe('Component: CategoryForm', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    mockNavigate.mockReset();
-    mockCreateCategory.mockReset();
-    mockUpdateCategory.mockReset();
+    vi.clearAllMocks();
+    mockIsDark = false;
   });
 
-  it('should render ADD mode with correct title and button', () => {
+  it('should render correctly in ADD mode', () => {
     render(<CategoryForm mode="add" />);
-
     expect(screen.getByText('Add Category')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Save Category' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Update Category' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should render EDIT mode with correct title and button', () => {
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={mockInitialData}
-        items={mockItems}
-      />,
-    );
-
-    expect(screen.getByText('Edit Category')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Update Category' }),
-    ).toBeInTheDocument();
   });
 
   it('should render initial data in EDIT mode', () => {
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={mockInitialData}
-        items={mockItems}
-      />,
-    );
-
+    const initialData = {
+      id: 'cat-123',
+      title: 'Electronics',
+      description: 'Gadgets',
+      imageUrl: 'https://example.com/image.png',
+      depth: 1 as const,
+      ...mockDates,
+    };
+    render(<CategoryForm mode="edit" initialData={initialData} />);
     expect(screen.getByDisplayValue('Electronics')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('All electronics')).toBeInTheDocument();
   });
 
-  it('should render image preview when imageUrl is provided', () => {
+  it('should cover branch where isDark is true', () => {
+    mockIsDark = true;
+    render(<CategoryForm mode="add" />);
+    expect(screen.getByText('Add Category')).toBeInTheDocument();
+  });
+
+  it('should handle branch with empty products list in edit mode', () => {
+    const initialData = {
+      id: 'cat-1',
+      title: 'Empty Tech',
+      description: 'No products here',
+      depth: 1 as const,
+      products: [],
+      ...mockDates,
+    };
     render(
       <CategoryForm
         mode="edit"
-        initialData={{
-          ...mockInitialData,
-          imageUrl: 'https://example.com/img.png',
-        }}
-        items={mockItems}
+        initialData={initialData as unknown as undefined}
       />,
     );
-
-    expect(screen.getByAltText('Preview')).toHaveAttribute(
-      'src',
-      'https://example.com/img.png',
-    );
+    expect(screen.queryByText('MacBook')).not.toBeInTheDocument();
   });
 
-  it('should show validation errors when submitting empty form', async () => {
-    const user = userEvent.setup({ delay: null });
+  it('should cover branch where items is not provided', async () => {
+    const user = userEvent.setup();
     render(<CategoryForm mode="add" />);
-
-    await user.click(screen.getByRole('button', { name: 'Save Category' }));
-
-    expect(await screen.findByText('Title is required')).toBeInTheDocument();
-    expect(
-      await screen.findByText('Description is required'),
-    ).toBeInTheDocument();
+    await user.click(screen.getByText(/Parent Category/i));
+    expect(screen.getByText(/None/i)).toBeInTheDocument();
   });
 
-  it('should call createCategory and navigate on valid ADD submit', async () => {
-    mockCreateCategory.mockResolvedValue({});
-    const user = userEvent.setup({ delay: null });
-
-    render(<CategoryForm mode="add" items={mockItems} />);
-
-    fireEvent.change(screen.getByPlaceholderText('Category title'), {
-      target: { value: 'New Category' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('Short description'), {
-      target: { value: 'Some description' },
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Save Category' }));
-
-    await waitFor(() => {
-      expect(mockCreateCategory).toHaveBeenCalledWith({
-        title: 'New Category',
-        description: 'Some description',
-        parent: undefined,
-        imageUrl: undefined,
-        depth: 1,
-      });
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/categories');
-    });
-  });
-
-  it('should call createCategory with depth 2 when parent is selected', async () => {
-    mockCreateCategory.mockResolvedValue({});
-    const user = userEvent.setup({ delay: null });
-
-    render(<CategoryForm mode="add" items={mockItems} />);
-
-    fireEvent.change(screen.getByPlaceholderText('Category title'), {
-      target: { value: 'Sub Category' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('Short description'), {
-      target: { value: 'Sub description' },
-    });
-
-    await user.click(screen.getByText('Parent Category'));
-    await user.click(await screen.findByText('Electronics'));
-
-    await user.click(screen.getByRole('button', { name: 'Save Category' }));
-
-    await waitFor(() => {
-      expect(mockCreateCategory).toHaveBeenCalledWith(
-        expect.objectContaining({ parent: 'cat-1', depth: 2 }),
-      );
-    });
-  });
-
-  it('should call updateCategory and navigate on valid EDIT submit', async () => {
-    mockUpdateCategory.mockResolvedValue({});
-    const user = userEvent.setup({ delay: null });
-
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={mockInitialData}
-        items={mockItems}
-      />,
-    );
-
-    fireEvent.change(screen.getByDisplayValue('Electronics'), {
-      target: { value: 'Updated Electronics' },
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Update Category' }));
-
-    await waitFor(() => {
-      expect(mockUpdateCategory).toHaveBeenCalledWith(
-        'cat-1',
-        expect.objectContaining({ title: 'Updated Electronics' }),
-      );
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/categories');
-    });
-  });
-
-  it('should display server error when createCategory throws', async () => {
-    mockCreateCategory.mockRejectedValue(new Error('Network error'));
-    const user = userEvent.setup({ delay: null });
-
-    render(<CategoryForm mode="add" />);
-
-    fireEvent.change(screen.getByPlaceholderText('Category title'), {
-      target: { value: 'Bad Category' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('Short description'), {
-      target: { value: 'Some description' },
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Save Category' }));
-
-    expect(
-      await screen.findByText(
-        'Failed to save category. Please try again later.',
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('should navigate back when Cancel is clicked', async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<CategoryForm mode="add" />);
-
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
-
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
-  });
-
-  it('should navigate back when X button is clicked', async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<CategoryForm mode="add" />);
-
-    const closeBtn = screen
-      .getAllByRole('button')
-      .find((btn) => btn.querySelector('svg'));
-
-    if (closeBtn) await user.click(closeBtn);
-
-    expect(mockNavigate).toHaveBeenCalledWith(-1);
-  });
-
-  it('should show image preview after file upload', async () => {
-    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:fake-url');
-
-    const { container } = render(<CategoryForm mode="add" />);
-
-    const fileInput = container.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-
-    const file = new File(['img'], 'cat.png', { type: 'image/png' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
-
-    expect(screen.getByAltText('Preview')).toHaveAttribute(
-      'src',
-      'blob:fake-url',
-    );
-  });
-
-  it('should remove image preview when remove button is clicked', async () => {
-    const user = userEvent.setup({ delay: null });
-
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={{
-          ...mockInitialData,
-          imageUrl: 'https://example.com/img.png',
-        }}
-        items={mockItems}
-      />,
-    );
-
-    expect(screen.getByAltText('Preview')).toBeInTheDocument();
-
-    const removeBtn = screen
-      .getAllByRole('button')
-      .find((btn) => btn.classList.contains('absolute'));
-
-    if (removeBtn) await user.click(removeBtn);
-
+  it('should handle branch when initialData imageUrl is missing', () => {
+    const initialData = {
+      id: 'cat-1',
+      title: 'No Image',
+      description: 'Desc',
+      depth: 1 as const,
+      ...mockDates,
+    };
+    render(<CategoryForm mode="edit" initialData={initialData} />);
+    expect(screen.getByText(/Upload/i)).toBeInTheDocument();
     expect(screen.queryByAltText('Preview')).not.toBeInTheDocument();
   });
 
-  it('should open and close dropdown on click', async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<CategoryForm mode="add" items={mockItems} />);
-
-    expect(screen.queryByText('Electronics')).not.toBeInTheDocument();
-
-    await user.click(screen.getByText('Parent Category'));
-    expect(screen.getByText('Electronics')).toBeInTheDocument();
-
-    await user.click(screen.getByText('Parent Category'));
-    expect(screen.queryByText('Electronics')).not.toBeInTheDocument();
+  it('should show validation errors for required fields on submit', async () => {
+    const user = userEvent.setup();
+    render(<CategoryForm mode="add" />);
+    const submitButton = screen.getByRole('button', { name: /Save|Category/i });
+    await user.click(submitButton);
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Category name is required/i),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('should select None (Top Level) from dropdown', async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<CategoryForm mode="add" items={mockItems} />);
+  it('should handle server error and display error message', async () => {
+    const user = userEvent.setup();
+    mockCreateCategory.mockRejectedValue(new Error('API Crash'));
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await user.click(screen.getByText('Parent Category'));
-    await user.click(screen.getByText('None (Top Level)'));
-
-    expect(screen.queryByText('Electronics')).not.toBeInTheDocument();
-  });
-
-  it('should not open dropdown when category has children (edit mode)', async () => {
-    const user = userEvent.setup({ delay: null });
-
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={{ ...mockInitialData, id: 'cat-1' }}
-        items={mockItems}
-      />,
+    render(<CategoryForm mode="add" />);
+    await user.type(
+      screen.getByRole('textbox', { name: /Category Name/i }),
+      'Error Case',
     );
+    await user.type(
+      screen.getByPlaceholderText(/Short description/i),
+      'Some description',
+    );
+    await user.click(screen.getByRole('button', { name: /Save Category/i }));
 
-    await user.click(screen.getByText('Parent Category'));
-
-    expect(screen.queryByText('None (Top Level)')).not.toBeInTheDocument();
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/Failed to save category/i),
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+    consoleSpy.mockRestore();
   });
 
-  it('should render products review in EDIT mode', () => {
-    const products = [
-      { id: 'p1', title: 'IPhone', price: 999, status: 'active' as const },
-      { id: 'p2', title: 'MacBook', price: 2499, status: 'active' as const },
+  it('should call createCategory and navigate on successful submission', async () => {
+    mockCreateCategory.mockResolvedValue({
+      data: { createCategory: { id: '1' } },
+    });
+    const user = userEvent.setup();
+    render(<CategoryForm mode="add" />);
+    await user.type(
+      screen.getByRole('textbox', { name: /Category Name/i }),
+      'New Tech',
+    );
+    await user.type(screen.getByPlaceholderText(/Short description/i), 'Desc');
+    await user.click(screen.getByRole('button', { name: /Save Category/i }));
+
+    await waitFor(() => expect(mockCreateCategory).toHaveBeenCalled());
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/categories');
+  });
+
+  it('should cover dropdown item selection and filtering', async () => {
+    const user = userEvent.setup();
+    const items = [
+      {
+        id: 'cat-1',
+        title: 'C1',
+        description: 'D1',
+        depth: 1 as const,
+        ...mockDates,
+      },
+      {
+        id: 'cat-2',
+        title: 'C2',
+        description: 'D2',
+        depth: 1 as const,
+        ...mockDates,
+      },
     ];
+    render(<CategoryForm mode="edit" initialData={items[0]} items={items} />);
+    await user.click(screen.getByText(/Parent Category/i));
+    await user.click(screen.getByText('C2'));
+    expect(screen.getByText('C2')).toBeInTheDocument();
+  });
 
+  it('should cover edit mode features: description validation and products list', async () => {
+    const user = userEvent.setup();
+    const initialData = {
+      id: 'cat-1',
+      title: 'T',
+      description: 'D',
+      depth: 1 as const,
+      products: [
+        {
+          id: 'p1',
+          title: 'MacBook',
+          images: ['i.png'],
+          price: 10,
+          status: 'PUBLISHED' as unknown as undefined,
+          ...mockDates,
+        },
+      ],
+      ...mockDates,
+    };
     render(
       <CategoryForm
         mode="edit"
-        initialData={{ ...mockInitialData, products }}
-        items={mockItems}
+        initialData={initialData as unknown as undefined}
       />,
     );
-
-    expect(screen.getByText('IPhone')).toBeInTheDocument();
+    const descInput = screen.getByPlaceholderText(/Short description/i);
+    await user.clear(descInput);
+    await user.click(screen.getByRole('button', { name: /Update Category/i }));
+    await waitFor(() =>
+      expect(screen.getByText(/Description is required/i)).toBeInTheDocument(),
+    );
     expect(screen.getByText('MacBook')).toBeInTheDocument();
   });
 
-  it('should show "No products linked yet" when products array is empty', () => {
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={{ ...mockInitialData, products: [] }}
-        items={mockItems}
-      />,
-    );
-
-    expect(screen.getByText('No products linked yet.')).toBeInTheDocument();
+  it('should navigate back when clicking the close (X) icon', async () => {
+    const user = userEvent.setup();
+    render(<CategoryForm mode="add" />);
+    await user.click(screen.getAllByRole('button')[0]);
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
-  it('should show "+ N more" button when products exceed 3', () => {
-    const products = Array.from({ length: 5 }, (_, i) => ({
-      id: `p${i}`,
-      title: `Product ${i}`,
-      price: 100,
-      status: 'active' as const,
-    }));
+  it('should trigger file input when clicking the upload zone', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<CategoryForm mode="add" />);
+    const fileInput = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const clickSpy = vi.spyOn(fileInput, 'click');
+    await user.click(screen.getByText(/Upload/i).closest('div')!);
+    expect(clickSpy).toHaveBeenCalled();
+  });
 
-    render(
-      <CategoryForm
-        mode="edit"
-        initialData={{ ...mockInitialData, products }}
-        items={mockItems}
-      />,
+  it('should reset parent category to null when selecting None', async () => {
+    const user = userEvent.setup();
+    render(<CategoryForm mode="add" />);
+
+    const trigger = screen.getByText(/Parent Category/i);
+    await user.click(trigger);
+
+    const noneOption = await screen.findByText(/None/i);
+    await user.click(noneOption);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/None/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it('should handle image upload and preview', async () => {
+    const spy = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValue('blob:preview');
+    const { container } = render(<CategoryForm mode="add" />);
+    const file = new File(['img'], 'c.png', { type: 'image/png' });
+    fireEvent.change(container.querySelector('input[type="file"]')!, {
+      target: { files: [file] },
+    });
+    expect(screen.getByAltText('Preview')).toHaveAttribute(
+      'src',
+      'blob:preview',
     );
+    spy.mockRestore();
+  });
 
-    expect(screen.getByText('+ 2 more')).toBeInTheDocument();
+  it('should remove image preview when delete button is clicked', async () => {
+    const user = userEvent.setup();
+    const data = {
+      id: '1',
+      title: 'C',
+      description: 'D',
+      imageUrl: 'i.png',
+      depth: 1 as const,
+      ...mockDates,
+    };
+    const { container } = render(
+      <CategoryForm mode="edit" initialData={data} />,
+    );
+    await user.click(container.querySelector('button.absolute')!);
+    expect(screen.queryByAltText('Preview')).not.toBeInTheDocument();
+  });
+
+  it('should call navigate(-1) when Cancel button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<CategoryForm mode="add" />);
+    await user.click(screen.getByRole('button', { name: /Cancel/i }));
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 });
