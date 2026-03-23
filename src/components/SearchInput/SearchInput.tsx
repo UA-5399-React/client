@@ -22,14 +22,15 @@ export function SearchInput({
   const borderClass = clsx({
     'border-gray-600': disabled,
     'border-red-600': error && !disabled,
-    'border-fieldBorder': !disabled && !error,
+    'border-[rgb(var(--default-border))]': !disabled && !error,
   });
 
   // Background and text styles depending on state
   const stateClass = clsx({
-    'bg-gray-200 text-muted/70 placeholder:text-placeholderText/70 cursor-not-allowed':
+    'bg-gray-200 text-[rgb(var( --color-muted)/0.7)] placeholder:text-[rgb(var(--color-placeholder)/0.7)] cursor-not-allowed':
       disabled,
-    'bg-neutral-0 text-muted placeholder:text-placeholderText': !disabled,
+    'bg-neutral-0 text-[rgb(var( --color-muted))] placeholder:text-[rgb(var(--color-placeholder))]':
+      !disabled,
   });
 
   // Focus state
@@ -40,9 +41,9 @@ export function SearchInput({
 
   // Search icon color depending on state
   const iconClass = clsx({
-    'text-muted/70': disabled,
+    'text-[rgb(var(--color-muted)/0.7)]': disabled,
     'text-red-600': error && !disabled,
-    'text-muted': !disabled && !error,
+    'text-[rgb(var(--color-muted))]': !disabled && !error,
   });
 
   return (
