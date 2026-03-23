@@ -24,7 +24,7 @@ export const Dropdown = ({
 
   const value = selectedOptions
     ? multiple
-      ? selectedOptions.map((o) => o.value)
+      ? selectedOptions.map((option) => option.value)
       : (selectedOptions[0]?.value ?? null)
     : undefined;
 
@@ -33,10 +33,13 @@ export const Dropdown = ({
       onChange([]);
       return;
     }
-    const vals = Array.isArray(value) ? value : [value];
-    const selected = vals
-      .map((v) => options.find((o) => o.value === v))
+
+    const values = Array.isArray(value) ? value : [value];
+
+    const selected = values
+      .map((v) => options.find((option) => option.value === v))
       .filter(Boolean) as DropdownProps['options'];
+
     onChange(selected);
   };
 
@@ -55,20 +58,24 @@ export const Dropdown = ({
       >
         {label}
       </Field.Label>
+
       <Select.Root
         multiple={multiple}
         onValueChange={handleValueChange}
         value={value}
+        items={options}
       >
         <Select.Trigger
           className={styles.Select + clsx(selectClassName)}
           data-border={hasBorder}
         >
           <Select.Value className={styles.Value} placeholder={placeholder} />
+
           <Select.Icon className={styles.SelectIcon}>
             <ChevronDown className="w-4" />
           </Select.Icon>
         </Select.Trigger>
+
         <Select.Portal>
           <Select.Positioner
             className={styles.Positioner}
@@ -76,15 +83,16 @@ export const Dropdown = ({
             alignItemWithTrigger={false}
           >
             <Select.Popup className={styles.Popup}>
-              {options.map((value) => (
+              {options.map((option) => (
                 <Select.Item
-                  key={value.value}
-                  value={value.value}
+                  key={option.value}
+                  value={option.value}
                   className={styles.Item}
                 >
                   <Select.ItemText className={styles.ItemText}>
-                    {value.label}
+                    {option.label}
                   </Select.ItemText>
+
                   <Select.ItemIndicator className={styles.ItemIndicator}>
                     <Check className={styles.ItemIndicatorIcon} />
                   </Select.ItemIndicator>

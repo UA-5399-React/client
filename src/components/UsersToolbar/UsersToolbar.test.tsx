@@ -1,11 +1,24 @@
+import type { ComponentProps, ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type * as LucideIcons from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import {
+  DEFAULT_USER_ROLE_FILTER,
+  DEFAULT_USER_STATUS_FILTER,
+  USER_ROLE_OPTIONS,
+  USER_STATUS_OPTIONS,
+} from '@/constants/adminUsers';
+import type {
+  UserRoleFilter,
+  UserStatusFilter,
+} from '@/types/admin-user.types';
 
 import { UsersToolbar } from './UsersToolbar';
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof LucideIcons>();
+
   return {
     ...actual,
     UserPlus: () => <div data-testid="user-plus-icon" />,
@@ -19,7 +32,7 @@ vi.mock('@/components', () => ({
     type,
     className,
   }: {
-    children: React.ReactNode;
+    children: ReactNode;
     onClick?: () => void;
     type?: 'button' | 'submit' | 'reset';
     className?: string;
@@ -85,22 +98,21 @@ vi.mock('@/components', () => ({
 }));
 
 describe('UsersToolbar', () => {
-  const defaultProps = {
+  const setSearchValue = vi.fn<(value: string) => void>();
+  const setStatusFilter = vi.fn<(value: UserStatusFilter) => void>();
+  const setRoleFilter = vi.fn<(value: UserRoleFilter) => void>();
+  const onCreateUser = vi.fn<() => void>();
+
+  const defaultProps: ComponentProps<typeof UsersToolbar> = {
     searchValue: '',
-    setSearchValue: vi.fn(),
-    statusFilter: 'all',
-    setStatusFilter: vi.fn(),
-    roleFilter: 'all',
-    setRoleFilter: vi.fn(),
-    statusOptions: [
-      { label: 'All', value: 'all' },
-      { label: 'Active', value: 'active' },
-    ],
-    roleOptions: [
-      { label: 'All Roles', value: 'all' },
-      { label: 'Admin', value: 'admin' },
-    ],
-    onCreateUser: vi.fn(),
+    setSearchValue,
+    statusFilter: DEFAULT_USER_STATUS_FILTER,
+    setStatusFilter,
+    roleFilter: DEFAULT_USER_ROLE_FILTER,
+    setRoleFilter,
+    statusOptions: USER_STATUS_OPTIONS.map((option) => ({ ...option })),
+    roleOptions: USER_ROLE_OPTIONS.map((option) => ({ ...option })),
+    onCreateUser,
   };
 
   beforeEach(() => {
@@ -132,8 +144,8 @@ describe('UsersToolbar', () => {
       target: { value: 'test user' },
     });
 
-    expect(defaultProps.setSearchValue).toHaveBeenCalledTimes(1);
-    expect(defaultProps.setSearchValue).toHaveBeenCalledWith('test user');
+    expect(setSearchValue).toHaveBeenCalledTimes(1);
+    expect(setSearchValue).toHaveBeenCalledWith('test user');
   });
 
   it('calls onCreateUser when create button is clicked', () => {
@@ -141,7 +153,13 @@ describe('UsersToolbar', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /create user/i }));
 
-    expect(defaultProps.onCreateUser).toHaveBeenCalledTimes(1);
+    expect(onCreateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fail if onCreateUser is not provided', () => {
+    render(<UsersToolbar {...defaultProps} onCreateUser={undefined} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /create user/i }));
   });
 
   it('calls setStatusFilter when status dropdown changes', () => {
@@ -151,8 +169,19 @@ describe('UsersToolbar', () => {
       target: { value: 'active' },
     });
 
-    expect(defaultProps.setStatusFilter).toHaveBeenCalledTimes(1);
-    expect(defaultProps.setStatusFilter).toHaveBeenCalledWith('active');
+    expect(setStatusFilter).toHaveBeenCalledTimes(1);
+    expect(setStatusFilter).toHaveBeenCalledWith('active');
+  });
+
+  it('falls back to default status filter when status is cleared', () => {
+    render(<UsersToolbar {...defaultProps} statusFilter="active" />);
+
+    fireEvent.change(screen.getByTestId('dropdown-status'), {
+      target: { value: '' },
+    });
+
+    expect(setStatusFilter).toHaveBeenCalledTimes(1);
+    expect(setStatusFilter).toHaveBeenCalledWith(DEFAULT_USER_STATUS_FILTER);
   });
 
   it('calls setRoleFilter when role dropdown changes', () => {
@@ -162,8 +191,19 @@ describe('UsersToolbar', () => {
       target: { value: 'admin' },
     });
 
-    expect(defaultProps.setRoleFilter).toHaveBeenCalledTimes(1);
-    expect(defaultProps.setRoleFilter).toHaveBeenCalledWith('admin');
+    expect(setRoleFilter).toHaveBeenCalledTimes(1);
+    expect(setRoleFilter).toHaveBeenCalledWith('admin');
+  });
+
+  it('falls back to default role filter when role is cleared', () => {
+    render(<UsersToolbar {...defaultProps} roleFilter="admin" />);
+
+    fireEvent.change(screen.getByTestId('dropdown-role'), {
+      target: { value: '' },
+    });
+
+    expect(setRoleFilter).toHaveBeenCalledTimes(1);
+    expect(setRoleFilter).toHaveBeenCalledWith(DEFAULT_USER_ROLE_FILTER);
   });
 
   it('uses current selected status value', () => {
@@ -176,11 +216,5 @@ describe('UsersToolbar', () => {
     render(<UsersToolbar {...defaultProps} roleFilter="admin" />);
 
     expect(screen.getByTestId('dropdown-role')).toHaveValue('admin');
-  });
-
-  it('does not fail if onCreateUser is not provided', () => {
-    render(<UsersToolbar {...defaultProps} onCreateUser={undefined} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /create user/i }));
   });
 });

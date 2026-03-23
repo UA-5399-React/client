@@ -2,13 +2,25 @@ import { useMemo, useState } from 'react';
 
 import { ITEMS_PER_PAGE } from '@/constants';
 import { mockUsers } from '@/constants/mockUsers';
+import type {
+  UserRoleFilter,
+  UserStatusFilter,
+} from '@/types/admin-user.types';
 
-export const useAdminUsers = () => {
+type UseAdminUsersParams = {
+  currentPage: number;
+  search: string;
+  statusFilter: UserStatusFilter;
+  roleFilter: UserRoleFilter;
+};
+
+export const useAdminUsers = ({
+  currentPage,
+  search,
+  statusFilter,
+  roleFilter,
+}: UseAdminUsersParams) => {
   const [users, setUsers] = useState(mockUsers);
-  const [searchValue, setSearchValue] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [roleFilter, setRoleFilter] = useState('All Roles');
-  const [currentPage, setCurrentPage] = useState(1);
 
   const totalUsers = users.length;
 
@@ -19,16 +31,40 @@ export const useAdminUsers = () => {
 
   const blockedUsers = users.filter((user) => !user.isActive).length;
 
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE) || 1;
+  const normalizedSearch = search.trim().toLowerCase();
 
-  // TODO: implement filtering and search logic in a separate task
-  // Currently pagination is applied to the full users list
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const email = user.email.toLowerCase();
+
+      const matchesSearch =
+        !normalizedSearch ||
+        fullName.includes(normalizedSearch) ||
+        email.includes(normalizedSearch);
+
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && user.isActive) ||
+        (statusFilter === 'blocked' && !user.isActive);
+
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+
+      return matchesSearch && matchesStatus && matchesRole;
+    });
+  }, [users, normalizedSearch, statusFilter, roleFilter]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / ITEMS_PER_PAGE),
+  );
+
   const paginatedUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
 
-    return users.slice(startIndex, endIndex);
-  }, [currentPage, users]);
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [currentPage, filteredUsers]);
 
   const handleUpdateUser = (
     userId: string,
@@ -43,19 +79,12 @@ export const useAdminUsers = () => {
   };
 
   return {
-    searchValue,
-    setSearchValue,
-    statusFilter,
-    setStatusFilter,
-    roleFilter,
-    setRoleFilter,
-    currentPage,
-    setCurrentPage,
     totalUsers,
     activeAdmins,
     blockedUsers,
     totalPages,
     paginatedUsers,
+    filteredUsersCount: filteredUsers.length,
     handleUpdateUser,
   };
 };
