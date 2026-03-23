@@ -94,23 +94,6 @@ describe('ActionMenu', () => {
     expect(deleteAction).toHaveBeenCalledTimes(1);
   });
 
-  it('disables Delete when isDeleteDisabled is true', async () => {
-    const user = userEvent.setup();
-    const deleteAction = vi.fn();
-    render(
-      <ActionMenu
-        editAction={vi.fn()}
-        deleteAction={deleteAction}
-        isDeleteDisabled
-      />,
-    );
-
-    await user.click(getTriggerButton());
-
-    const deleteBtn = screen.getByRole('button', { name: /delete/i });
-    expect(deleteBtn).toBeDisabled();
-  });
-
   it('closes the panel on pointerdown outside the menu', async () => {
     const user = userEvent.setup();
     render(<ActionMenu editAction={vi.fn()} deleteAction={vi.fn()} />);

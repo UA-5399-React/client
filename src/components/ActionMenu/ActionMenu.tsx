@@ -8,14 +8,9 @@ import styles from './ActionMenu.module.css';
 interface ActionMenuProps {
   editAction: () => void;
   deleteAction?: () => void;
-  isDeleteDisabled?: boolean;
 }
 
-export const ActionMenu = ({
-  editAction,
-  deleteAction,
-  isDeleteDisabled = false,
-}: ActionMenuProps) => {
+export const ActionMenu = ({ editAction, deleteAction }: ActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -65,8 +60,7 @@ export const ActionMenu = ({
           {deleteAction && (
             <Button
               type="button"
-              disabled={isDeleteDisabled}
-              className={`${styles.button} text-red700 bg-transparent disabled:cursor-not-allowed disabled:opacity-50`}
+              className={`${styles.button} text-red700 bg-transparent`}
               onClick={() => {
                 setIsOpen(false);
                 deleteAction();
