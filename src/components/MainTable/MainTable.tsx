@@ -15,6 +15,15 @@ interface MainTableProps<T extends TableItem> {
   emptyMessage?: string;
 }
 
+interface RenderBodyContentProps<T extends TableItem> {
+  loading: boolean;
+  error: Error | null;
+  items: T[];
+  colSpan: number;
+  emptyMessage: string;
+  renderRow: (item: T) => ReactNode;
+}
+
 function renderBodyContent<T extends TableItem>({
   loading,
   error,
@@ -22,14 +31,7 @@ function renderBodyContent<T extends TableItem>({
   colSpan,
   emptyMessage,
   renderRow,
-}: {
-  loading: boolean;
-  error: Error | null;
-  items: T[];
-  colSpan: number;
-  emptyMessage: string;
-  renderRow: (item: T) => ReactNode;
-}) {
+}: RenderBodyContentProps<T>) {
   if (loading) {
     return (
       <tr>
