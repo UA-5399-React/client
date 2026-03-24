@@ -1,7 +1,6 @@
-import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { AUTH_ROLES, type AuthRole, ROUTES } from '@/constants';
+import { type AuthRole, ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
@@ -10,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  allowedRoles = [AUTH_ROLES.ADMIN, AUTH_ROLES.SUPER_ADMIN],
+  allowedRoles,
   redirectTo = ROUTES.SHOP,
 }) => {
   const { isAuth, role } = useAuth();
@@ -19,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  if (!role || !allowedRoles.includes(role)) {
+  if (allowedRoles && (!role || !allowedRoles.includes(role))) {
     return <Navigate to={redirectTo} replace />;
   }
 
