@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { Dropdown, Pagination } from '@/components';
 import { ShopBanner } from '@/components/Banner';
 import type { DropdownOption } from '@/components/Dropdown';
 import { ShopFilters } from '@/components/ShopFilters';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useProducts } from '@/hooks/useProducts';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
@@ -18,8 +18,15 @@ export const Products = () => {
   const [viewType, setViewType] = useState<ViewType>('grid-5');
   const [isMobile, setIsMobile] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number(searchParams.get('page')) || 1;
+  const {
+    searchParams,
+    currentPage,
+    setPage,
+    updateSearchParams,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
+
   const defaultLimit = viewType === 'grid-5' ? 15 : 12;
   const limit = Number(searchParams.get('limit')) || defaultLimit;
   const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
@@ -42,8 +49,12 @@ export const Products = () => {
     return () => clearTimeout(timer);
   }, [isMobile]);
 
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
   const { data, isLoading, isError } = useProducts(
-    page,
+    currentPage,
     limit,
     sort,
     search,
@@ -52,30 +63,33 @@ export const Products = () => {
     maxPrice,
   );
 
+  useEffect(() => {
+    if (!data || isLoading) return;
+
+    normalizeOutOfRangePage(data.totalPages);
+  }, [data, isLoading, normalizeOutOfRangePage]);
+
   const handlePageChange = (newPage: number) => {
-    setSearchParams((prev) => {
-      prev.set('page', String(newPage));
-      return prev;
-    });
+    setPage(newPage);
   };
 
   const handleFilterChange = (newValue: DropdownOption[]) => {
-    setSearchParams((prev) => {
+    updateSearchParams((params) => {
       const selectedSort = newValue[0]?.value;
 
       if (selectedSort) {
-        prev.set('sort', selectedSort);
+        params.set('sort', selectedSort);
       } else {
-        prev.delete('sort');
+        params.delete('sort');
       }
 
-      prev.set('page', '1');
-      return prev;
+      params.set('page', '1');
     });
   };
 
   if (isLoading)
     return <div className="p-8 text-center text-gray-500">Loading...</div>;
+
   if (isError)
     return (
       <div className="p-8 text-center text-red-500">Something went wrong.</div>
@@ -108,13 +122,14 @@ export const Products = () => {
           />
         </div>
       </div>
+
       {!data?.items?.length ? (
         <div className="p-8 text-center text-gray-500">No products found.</div>
       ) : (
         <>
           <ProductsGrid products={data.items} viewType={viewType} />
           <Pagination
-            currentPage={page}
+            currentPage={currentPage}
             totalPages={data.totalPages || 1}
             onPageChange={handlePageChange}
           />
