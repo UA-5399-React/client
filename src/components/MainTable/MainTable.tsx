@@ -87,8 +87,8 @@ export function MainTable<T extends TableItem>({
       <table className="[&_td]:border-gray100 [&_thead_th]:border-gray100 w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b">
         <thead className="text-gray600 bg-backgroundSec h-[50px] px-[12px] text-center">
           <tr>
-            {columns.map((column, index) => (
-              <th key={index} className={column.className}>
+            {columns.map((column) => (
+              <th key={column.key} className={column.className}>
                 {column.label}
               </th>
             ))}
