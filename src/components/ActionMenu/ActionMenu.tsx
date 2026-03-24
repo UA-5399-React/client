@@ -35,7 +35,7 @@ export const ActionMenu = ({ editAction, deleteAction }: ActionMenuProps) => {
         className={`${styles.button} text-gray600 hover:text-bgSecInverted bg-transparent hover:border-transparent!`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <EllipsisVertical className="h-5 w-5" />
+        <EllipsisVertical className="text-bgSecInverted h-5 w-5" />
       </Button>
 
       {isOpen && (
@@ -55,7 +55,9 @@ export const ActionMenu = ({ editAction, deleteAction }: ActionMenuProps) => {
             </div>
           </Button>
 
-          <hr className="border-t-gray300 my-2 w-full border-0 border-t border-solid" />
+          {deleteAction && (
+            <hr className="border-t-gray300 my-2 w-full border-0 border-t border-solid" />
+          )}
 
           {deleteAction && (
             <Button

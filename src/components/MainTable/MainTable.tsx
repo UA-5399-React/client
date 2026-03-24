@@ -82,7 +82,7 @@ export function MainTable<T extends TableItem>({
 }: MainTableProps<T>) {
   return (
     <div className="border-gray100 mx-5 mt-5 rounded-l-lg rounded-r-lg border shadow-md">
-      <table className="[&_td]:border-gray100 [&_thead_th]:border-gray100 w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_thead_th]:border-b">
+      <table className="[&_td]:border-gray100 [&_thead_th]:border-gray100 w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b">
         <thead className="text-gray600 bg-backgroundSec h-[50px] px-[12px] text-center">
           <tr>
             {columns.map((column, index) => (

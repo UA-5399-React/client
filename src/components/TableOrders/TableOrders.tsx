@@ -1,7 +1,6 @@
+import { ActionMenu, MainTable } from '@/components';
 import type { Column } from '@/types';
 import type { OrderItem } from '@/types/tableOrders.types';
-
-import { MainTable } from '../MainTable/MainTable';
 
 // Mock data for testing
 const items: OrderItem[] = [
@@ -38,6 +37,8 @@ const columns: Column[] = [
   { key: 'actions', label: 'Actions', className: '' },
 ];
 
+const handleEdit = () => {};
+
 const renderProductRow = (item: OrderItem) => {
   return (
     <>
@@ -56,7 +57,7 @@ const renderProductRow = (item: OrderItem) => {
       <td>{item.date}</td>
       <td>{item.phone}</td>
       <td>
-        <span>View</span>
+        <ActionMenu editAction={() => handleEdit()} />
       </td>
     </>
   );
