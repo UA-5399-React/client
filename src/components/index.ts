@@ -1,3 +1,4 @@
+export { ActionMenu } from './ActionMenu/ActionMenu';
 export { AdminPageHeader } from './AdminPageHeader';
 export { Button } from './Button';
 export { CategoryForm } from './CategoryForm/CategoryForm';

@@ -116,4 +116,25 @@ describe('ProtectedRoute', () => {
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
+
+  it('should redirect admin away from super_admin-only routes', () => {
+    (useAuth as Mock).mockReturnValue({
+      isAuth: true,
+      isAdmin: true,
+      isSuperAdmin: false,
+      role: 'admin',
+    });
+
+    render(
+      <ProtectedRoute
+        allowedRoles={['super_admin']}
+        redirectTo={ROUTES.ADMIN_PRODUCTS}
+      />,
+    );
+
+    expect(screen.queryByTestId('mock-outlet')).not.toBeInTheDocument();
+
+    const navigateElement = screen.getByTestId('mock-navigate');
+    expect(navigateElement).toHaveAttribute('data-to', ROUTES.ADMIN_PRODUCTS);
+  });
 });

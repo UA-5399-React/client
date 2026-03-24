@@ -133,22 +133,26 @@ describe('Feature: LoginForm', () => {
     });
   });
 
-  it('should redirect to shop for a regular user role', async () => {
+  it('should redirect to shop for a customer role', async () => {
     const user = userEvent.setup();
     mockMutateAsync.mockResolvedValueOnce(true);
-    (authService.getMe as Mock).mockResolvedValueOnce({ role: 'user' }); // Mocking a non-admin role
+    (authService.getMe as Mock).mockResolvedValueOnce({
+      role: AUTH_ROLES.CUSTOMER,
+    });
 
     render(<LoginForm />);
 
     await user.type(
       screen.getByPlaceholderText(/Your email address/i),
-      'user@test.com',
+      'customer@test.com',
     );
     await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
     await waitFor(() => {
-      expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe('user');
+      expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe(
+        AUTH_ROLES.CUSTOMER,
+      );
       expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
     });
   });
