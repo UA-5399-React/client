@@ -60,7 +60,8 @@ describe('PasswordForm', () => {
     });
 
     expect(screen.getByDisplayValue('old-pass')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('new-pass-123')).toBeInTheDocument();
+    const inputs = screen.getAllByDisplayValue('new-pass-123');
+    expect(inputs).toHaveLength(2);
 
     const repeatedPasswordInputs = screen.getAllByDisplayValue('new-pass-123');
     expect(repeatedPasswordInputs).toHaveLength(2);
