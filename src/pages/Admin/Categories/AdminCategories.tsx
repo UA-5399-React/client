@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { AlertCircle } from 'lucide-react';
 
@@ -15,6 +15,7 @@ import { useDeleteAdminCategory } from '@/hooks';
 import { useAdminCategoriesPage } from '@/hooks/useAdminCategoriesPage';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useTheme } from '@/hooks/useTheme';
 import type { Category } from '@/types';
 
@@ -22,56 +23,46 @@ export function AdminCategories() {
   const { isDark } = useTheme();
   const { openConfirmModal } = useConfirmModal();
   const { deleteCategory } = useDeleteAdminCategory();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
-  const pageFromParams = Number(searchParams.get('page'));
-  const currentPage =
-    Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
+  const {
+    currentPage,
+    setPage,
+    resetPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
+
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
 
-  const { categories, loading, error, totalPages, total } =
-    useAdminCategoriesPage({
-      page: currentPage,
-      limit: ADMIN_PAGE_LIMIT,
-      search: debouncedSearch,
-    });
-
-  const updateSearchParams = useCallback(
-    (updater: (params: URLSearchParams) => void) => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        updater(next);
-        return next;
-      });
-    },
-    [setSearchParams],
-  );
+  const { categories, loading, error, totalPages } = useAdminCategoriesPage({
+    page: currentPage,
+    limit: ADMIN_PAGE_LIMIT,
+    search: debouncedSearch,
+  });
 
   const handlePageChange = (nextPage: number) => {
-    updateSearchParams((next) => {
-      next.set('page', String(nextPage));
-    });
+    setPage(nextPage);
   };
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    updateSearchParams((next) => {
-      next.set('page', '1');
-    });
+    resetPage();
   };
 
   useEffect(() => {
-    if (!loading && currentPage > 1 && total > 0 && categories.length === 0) {
-      updateSearchParams((next) => {
-        next.set('page', '1');
-      });
-    }
-  }, [categories.length, currentPage, loading, total, updateSearchParams]);
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    normalizeOutOfRangePage(totalPages);
+  }, [loading, normalizeOutOfRangePage, totalPages]);
 
   const handleDeleteCategory = (category: Category) => {
     setDeleteError(null);
