@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   AdminPageHeader,
@@ -16,6 +16,7 @@ import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
 import type { SortValue } from '@/types/productsSort';
@@ -24,19 +25,20 @@ import { buildSortValue, parseSortValue } from '@/utils/sorting';
 export function AdminProducts() {
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const { filters, search, sort, order, setFilters, setSearch, setSort } =
     useAdminProductsStore();
 
-  const pageFromParams = Number(searchParams.get('page'));
-  const currentPage =
-    Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
+  const {
+    currentPage,
+    setPage,
+    resetPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
 
-  // filters
   const [showFilters, setShowFilters] = useState(false);
 
-  // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
   const { deleteProduct } = useDeleteAdminProduct();
@@ -52,34 +54,34 @@ export function AdminProducts() {
 
   const selectedSortValue = buildSortValue(sort, order);
 
-  const setPageParam = (nextPage: number) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('page', String(nextPage));
-      return next;
-    });
-  };
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    normalizeOutOfRangePage(totalPages);
+  }, [loading, normalizeOutOfRangePage, totalPages]);
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
-    setPageParam(1);
+    resetPage();
   };
 
-  // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPageParam(1);
+    resetPage();
   };
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
     setSort(nextSort.sort, nextSort.order);
-    setPageParam(1);
+    resetPage();
   };
 
-  //pagination
   const handlePageChange = (newPage: number) => {
-    setPageParam(newPage);
+    setPage(newPage);
   };
 
   const handleCreateProduct = () => {

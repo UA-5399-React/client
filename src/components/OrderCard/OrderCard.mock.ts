@@ -5,7 +5,7 @@ export const MOCK_ORDERS: Order[] = [
     id: '1',
     orderNumber: '#3456_768',
     createdAt: 'December 1, 2025',
-    status: 'shipping',
+    status: 'processed',
     totalPrice: 1234.0,
   },
   {
@@ -19,14 +19,14 @@ export const MOCK_ORDERS: Order[] = [
     id: '3',
     orderNumber: '#3456_230',
     createdAt: 'April 13, 2023',
-    status: 'cancelled',
+    status: 'shipped',
     totalPrice: 120.0,
   },
   {
     id: '4',
     orderNumber: '#3456_120',
     createdAt: 'January 14, 2023',
-    status: 'processing',
+    status: 'cancelled',
     totalPrice: 50.0,
   },
 ];
