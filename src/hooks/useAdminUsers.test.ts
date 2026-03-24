@@ -9,18 +9,14 @@ import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 
 import { useAdminUsers } from './useAdminUsers';
 
-const { MockedProvider } = (ApolloTesting as unknown as Record<string, unknown>)
-  .MockedProvider
-  ? (ApolloTesting as unknown as {
-      MockedProvider: React.ComponentType<Record<string, unknown>>;
-    })
-  : (
-      ApolloTesting as unknown as {
-        default: {
-          MockedProvider: React.ComponentType<Record<string, unknown>>;
-        };
-      }
-    ).default;
+const MockedProvider = ((ApolloTesting as unknown as Record<string, unknown>)
+  .MockedProvider ||
+  (ApolloTesting as unknown as { default: Record<string, unknown> }).default
+    ?.MockedProvider) as React.ComponentType<{
+  mocks?: readonly unknown[];
+  addTypename?: boolean;
+  children?: React.ReactNode;
+}>;
 
 const mocks = [
   {
