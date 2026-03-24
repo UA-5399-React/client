@@ -12,11 +12,16 @@ vi.mock('@/hooks/useUpdateAdminUser', () => ({
   }),
 }));
 
-vi.mock('lucide-react', () => ({
-  EllipsisVertical: () => <div data-testid="ellipsis" />,
-  Pencil: () => <div data-testid="pencil" />,
-  Trash: () => <div data-testid="trash" />,
-}));
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, React.FC>;
+
+  return {
+    ...actual,
+    EllipsisVertical: () => <div data-testid="ellipsis" />,
+    Pencil: () => <div data-testid="pencil" />,
+    Trash: () => <div data-testid="trash" />,
+  };
+});
 
 describe('UsersTable', () => {
   it('renders "No users found" when list is empty', () => {
