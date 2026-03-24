@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ROUTES } from '@/constants';
+import { AUTH_ROLES, type AuthRole, ROUTES } from '@/constants';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { render, screen, userEvent } from '@/utils/test-utils';
@@ -35,8 +35,10 @@ const defaultAuthMock = {
   logout: vi.fn(),
   isAdmin: true,
   isSuperAdmin: false,
+  isCustomer: false,
+  canAccessAdminPanel: true,
   isAuth: true,
-  role: 'admin' as string | null,
+  role: AUTH_ROLES.ADMIN as AuthRole | null,
 };
 
 const defaultProps = {
@@ -88,7 +90,9 @@ describe('UI Component: MobileSidebar', () => {
       screen.getByRole('link', { name: 'Categories' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Products' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Settings' }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Logout/i })).toBeInTheDocument();
   });
 
@@ -128,6 +132,7 @@ describe('UI Component: MobileSidebar', () => {
     vi.mocked(useAuth).mockReturnValue({
       ...defaultAuthMock,
       isAdmin: false,
+      canAccessAdminPanel: true,
       logout: mockLogout,
     });
 
@@ -140,15 +145,30 @@ describe('UI Component: MobileSidebar', () => {
     expect(mockNavigate).toHaveBeenCalledWith(ROUTES.LOGIN);
   });
 
-  it('should render Products and Settings links with correct hrefs', () => {
+  it('should render Products and Categories links with correct hrefs for admin', () => {
     renderWithTheme({ ...defaultProps, isSidebarOpen: true });
 
     const categoriesLink = screen.getByRole('link', { name: 'Categories' });
     const productsLink = screen.getByRole('link', { name: 'Products' });
-    const settingsLink = screen.getByRole('link', { name: 'Settings' });
 
     expect(categoriesLink).toHaveAttribute('href', ROUTES.ADMIN_CATEGORIES);
     expect(productsLink).toHaveAttribute('href', ROUTES.ADMIN_PRODUCTS);
-    expect(settingsLink).toHaveAttribute('href', ROUTES.ADMIN_SETTING);
+  });
+
+  it('should render super admin links when role is super_admin', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      ...defaultAuthMock,
+      isAdmin: false,
+      isSuperAdmin: true,
+      canAccessAdminPanel: true,
+      role: AUTH_ROLES.SUPER_ADMIN,
+    });
+
+    renderWithTheme({ ...defaultProps, isSidebarOpen: true });
+
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute(
+      'href',
+      ROUTES.ADMIN_SETTING,
+    );
   });
 });

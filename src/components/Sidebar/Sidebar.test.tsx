@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { AUTH_ROLES } from '@/constants';
+import { AUTH_ROLES, type AuthRole } from '@/constants';
 import { ConfirmModalProvider } from '@/contexts/ConfirmModalProvider';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +31,9 @@ const defaultAuthMock = {
   isAuth: true,
   isAdmin: true,
   isSuperAdmin: false,
-  role: AUTH_ROLES.ADMIN as string | null,
+  isCustomer: false,
+  canAccessAdminPanel: true,
+  role: AUTH_ROLES.ADMIN as AuthRole | null,
 };
 
 const renderWithProviders = (ui: React.ReactElement) =>
@@ -48,6 +50,22 @@ describe('UI Component: Sidebar', () => {
 
     expect(screen.getByText('Categories')).toBeInTheDocument();
     expect(screen.getByText('Products')).toBeInTheDocument();
+    expect(screen.queryByText('Users')).not.toBeInTheDocument();
+    expect(screen.queryByText('Settings')).not.toBeInTheDocument();
+  });
+
+  it('should render super admin links for super_admin role', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      ...defaultAuthMock,
+      isAdmin: false,
+      isSuperAdmin: true,
+      canAccessAdminPanel: true,
+      role: AUTH_ROLES.SUPER_ADMIN,
+    });
+
+    renderWithProviders(<Sidebar />);
+
+    expect(screen.getByText('Users')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
@@ -56,6 +74,7 @@ describe('UI Component: Sidebar', () => {
     vi.mocked(useAuth).mockReturnValue({
       ...defaultAuthMock,
       isAdmin: false,
+      canAccessAdminPanel: true,
       logout: mockLogout,
     });
 

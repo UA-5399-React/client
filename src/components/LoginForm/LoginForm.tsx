@@ -6,9 +6,10 @@ import { z } from 'zod';
 
 import { Checkbox } from '@/components';
 import { Input } from '@/components';
-import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
+import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
+import { canAccessAdminPanel, isAuthRole } from '@/utils/permissions';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Username or email is required'),
@@ -51,10 +52,11 @@ export const LoginForm: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
-    const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+    const storedRole = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+    const role = isAuthRole(storedRole) ? storedRole : null;
 
     if (token && expires && Date.now() < Number(expires)) {
-      if (role === AUTH_ROLES.ADMIN || role === AUTH_ROLES.SUPER_ADMIN) {
+      if (canAccessAdminPanel(role)) {
         navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);
@@ -74,10 +76,7 @@ export const LoginForm: React.FC = () => {
       localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
       localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
 
-      if (
-        user.role === AUTH_ROLES.ADMIN ||
-        user.role === AUTH_ROLES.SUPER_ADMIN
-      ) {
+      if (canAccessAdminPanel(isAuthRole(user.role) ? user.role : null)) {
         navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);

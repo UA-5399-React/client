@@ -50,9 +50,9 @@ export const RegisterForm: React.FC = () => {
 
     localStorage.setItem(MOCK_AUTH.TOKEN_KEY, MOCK_AUTH.MOCK_TOKEN);
     localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-    localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.ADMIN);
+    localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.CUSTOMER);
 
-    navigate(ROUTES.ADMIN_PRODUCTS);
+    navigate(ROUTES.SHOP);
   };
 
   return (
