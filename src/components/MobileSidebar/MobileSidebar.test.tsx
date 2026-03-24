@@ -34,6 +34,7 @@ Object.defineProperty(window, 'matchMedia', {
 const defaultAuthMock = {
   logout: vi.fn(),
   isAdmin: true,
+  isSuperAdmin: false,
   isAuth: true,
   role: 'admin' as string | null,
 };
