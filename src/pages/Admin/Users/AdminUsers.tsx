@@ -169,10 +169,7 @@ export const AdminUsers = () => {
           roleOptions={[...USER_ROLE_OPTIONS]}
         />
 
-        <UsersTable
-          items={usersState.paginatedUsers}
-          onUpdateUser={usersState.handleUpdateUser}
-        />
+        <UsersTable items={usersState.paginatedUsers} />
 
         <Pagination
           currentPage={currentPage}

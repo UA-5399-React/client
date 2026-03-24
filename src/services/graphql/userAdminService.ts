@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const UPDATE_USER = gql`
-  mutation UpdateUser($updateUserInput: UpdateUserInput!) {
-    updateUser(updateUserInput: $updateUserInput) {
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
       id
       role
       isActive
@@ -11,15 +11,20 @@ export const UPDATE_USER = gql`
 `;
 
 export const GET_USERS_LIST = gql`
-  query GetUsersList($input: GetUsersInput) {
-    getUsers(input: $input) {
-      id
-      firstName
-      lastName
-      email
-      role
-      isActive
-      createdAt
+  query GetUsersList($limit: Int, $page: Int, $search: String) {
+    users(limit: $limit, page: $page, search: $search) {
+      items {
+        id
+        firstName
+        lastName
+        email
+        role
+        isActive
+        createdAt
+        updatedAt
+        lastLoginAt
+      }
+      total
     }
   }
 `;

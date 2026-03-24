@@ -4,36 +4,27 @@ import {
   GET_USERS_LIST,
   UPDATE_USER,
 } from '@/services/graphql/userAdminService';
-import type { UpdateUserInput, User } from '@/types';
+import type { UpdateUserInput } from '@/types/admin-user.types';
 
-interface UpdateUserData {
-  updateUser: User;
-}
+export const useUpdateAdminUser = () => {
+  const [updateUser, { loading }] = useMutation(UPDATE_USER);
 
-interface UpdateUserVariables {
-  updateUserInput: UpdateUserInput & { _id: string };
-}
-
-export function useUpdateAdminUser() {
-  const [updateUserMutation, { data, loading, error }] = useMutation<
-    UpdateUserData,
-    UpdateUserVariables
-  >(UPDATE_USER, {
-    // Після успіху GraphQL сам перевпевить список користувачів
-    refetchQueries: [{ query: GET_USERS_LIST }],
-    awaitRefetchQueries: true,
-  });
-
-  const updateUser = async (id: string, inputData: UpdateUserInput) => {
-    return updateUserMutation({
-      variables: {
-        updateUserInput: {
-          _id: id,
-          ...inputData,
+  const handleUpdate = async (
+    id: string,
+    data: Partial<Omit<UpdateUserInput, 'id'>>,
+  ) => {
+    try {
+      await updateUser({
+        variables: {
+          input: { id, ...data },
         },
-      },
-    });
+        refetchQueries: [{ query: GET_USERS_LIST }],
+        awaitRefetchQueries: true,
+      });
+    } catch (e) {
+      console.error('Failed to update user:', e);
+    }
   };
 
-  return { updateUser, data, loading, error };
-}
+  return { handleUpdate, isUpdating: loading };
+};
