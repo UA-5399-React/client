@@ -50,6 +50,8 @@ export const AUTH_ROLES = {
   USER: 'user',
 };
 
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
+
 export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;
 

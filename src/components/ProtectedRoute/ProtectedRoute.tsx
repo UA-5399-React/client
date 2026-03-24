@@ -1,14 +1,27 @@
-import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { ROUTES } from '@/constants';
+import { type AuthRole, ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 
-export const ProtectedRoute: React.FC = () => {
-  const { isAuth } = useAuth();
+interface ProtectedRouteProps {
+  allowedRoles?: AuthRole[];
+  redirectTo?: string;
+}
 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  allowedRoles,
+  redirectTo = ROUTES.SHOP,
+}) => {
+  const { isAuth, role } = useAuth();
+
+  // 1. не залогінений
   if (!isAuth) {
     return <Navigate to={ROUTES.LOGIN} replace />;
+  }
+
+  // 2. якщо є перевірка ролей
+  if (allowedRoles && (!role || !allowedRoles.includes(role))) {
+    return <Navigate to={redirectTo} replace />;
   }
 
   return <Outlet />;

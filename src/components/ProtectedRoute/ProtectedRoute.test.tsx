@@ -1,51 +1,119 @@
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
-import { ROUTES } from '@/constants';
+import { AUTH_ROLES, ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
-import { render, screen } from '@/utils/test-utils';
 
 import { ProtectedRoute } from './ProtectedRoute';
 
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
+vi.mock('@/hooks/useAuth');
 
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+const MockPage = () => <div>Protected Content</div>;
 
-  return {
-    ...actual,
-    Navigate: vi.fn(({ to, replace }) => (
-      <div data-testid="navigate" data-to={to} data-replace={String(replace)} />
-    )),
-    Outlet: vi.fn(() => <div data-testid="outlet">Outlet</div>),
-  };
+type UseAuthReturn = ReturnType<typeof useAuth>;
+
+const createUseAuthMock = (
+  overrides: Partial<UseAuthReturn> = {},
+): UseAuthReturn => ({
+  isAuth: false,
+  role: null,
+  isAdmin: false,
+  isSuperAdmin: false,
+  logout: vi.fn(),
+  ...overrides,
 });
 
 describe('ProtectedRoute', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  it('redirects to login if not authenticated', () => {
+    vi.mocked(useAuth).mockReturnValue(
+      createUseAuthMock({
+        isAuth: false,
+      }),
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/protected" element={<MockPage />} />
+          </Route>
+          <Route path={ROUTES.LOGIN} element={<div>Login Page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
   });
 
-  it('renders Outlet when user is authenticated', () => {
-    (useAuth as Mock).mockReturnValue({ isAuth: true });
+  it('renders outlet if authenticated and no roles required', () => {
+    vi.mocked(useAuth).mockReturnValue(
+      createUseAuthMock({
+        isAuth: true,
+        role: AUTH_ROLES.USER,
+      }),
+    );
 
-    render(<ProtectedRoute />);
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/protected" element={<MockPage />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
 
-    expect(screen.getByTestId('outlet')).toBeInTheDocument();
-    expect(screen.queryByTestId('navigate')).not.toBeInTheDocument();
+    expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
 
-  it('redirects to LOGIN when user is not authenticated', () => {
-    (useAuth as Mock).mockReturnValue({ isAuth: false });
+  it('redirects if role is not allowed', () => {
+    vi.mocked(useAuth).mockReturnValue(
+      createUseAuthMock({
+        isAuth: true,
+        role: AUTH_ROLES.USER,
+      }),
+    );
 
-    render(<ProtectedRoute />);
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <Routes>
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={[AUTH_ROLES.ADMIN]}
+                redirectTo="/forbidden"
+              />
+            }
+          >
+            <Route path="/protected" element={<MockPage />} />
+          </Route>
+          <Route path="/forbidden" element={<div>Forbidden</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
-    expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    expect(screen.getByText('Forbidden')).toBeInTheDocument();
+  });
 
-    const navigate = screen.getByTestId('navigate');
-    expect(navigate).toBeInTheDocument();
-    expect(navigate).toHaveAttribute('data-to', ROUTES.LOGIN);
-    expect(navigate).toHaveAttribute('data-replace', 'true');
+  it('renders outlet if role is allowed', () => {
+    vi.mocked(useAuth).mockReturnValue(
+      createUseAuthMock({
+        isAuth: true,
+        role: AUTH_ROLES.ADMIN,
+      }),
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <Routes>
+          <Route element={<ProtectedRoute allowedRoles={[AUTH_ROLES.ADMIN]} />}>
+            <Route path="/protected" element={<MockPage />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
 });
