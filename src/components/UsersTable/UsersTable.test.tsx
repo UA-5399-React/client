@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react';
+import * as ApolloTesting from '@apollo/client/testing';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import type * as LucideIcons from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
@@ -6,6 +7,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { mockUsers } from '@/constants/mockUsers';
 
 import { UsersTable } from './UsersTable';
+
+const { MockedProvider } = ApolloTesting as unknown as {
+  MockedProvider: React.ComponentType<Record<string, unknown>>;
+};
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof LucideIcons>();
@@ -25,17 +30,21 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 describe('UsersTable', () => {
-  const mockUpdate = vi.fn();
+  const renderWithApollo = (ui: React.ReactElement) => {
+    return render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {ui}
+      </MockedProvider>,
+    );
+  };
 
   it('renders "No users found" when list is empty', () => {
-    render(<UsersTable items={[]} onUpdateUser={mockUpdate} />);
-
+    renderWithApollo(<UsersTable items={[]} />);
     expect(screen.getByText(/no users found/i)).toBeInTheDocument();
   });
 
   it('renders user information correctly', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderWithApollo(<UsersTable items={mockUsers} />);
     const firstUser = mockUsers[0];
     const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
 
@@ -51,8 +60,7 @@ describe('UsersTable', () => {
   });
 
   it('opens action menu and interacts with buttons', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderWithApollo(<UsersTable items={mockUsers} />);
     const firstUser = mockUsers[0];
     const menuBtn = screen.getByLabelText(
       new RegExp(`actions for ${firstUser.firstName}`, 'i'),
@@ -70,8 +78,7 @@ describe('UsersTable', () => {
   });
 
   it('renders dropdowns for status and role', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderWithApollo(<UsersTable items={mockUsers} />);
     const statusButtons = screen.getAllByRole('combobox', { name: /status/i });
     const roleButtons = screen.getAllByRole('combobox', { name: /role/i });
 
