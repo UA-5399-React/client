@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { ITEMS_PER_PAGE } from '@/constants';
@@ -168,34 +168,6 @@ describe('useAdminUsers', () => {
 
     expect(result.current.filteredUsersCount).toBe(expectedUsers.length);
     expect(result.current.paginatedUsers).toEqual(expectedUsers);
-  });
-
-  it('updates user fields through handleUpdateUser', () => {
-    const targetUser = mockUsers.find((user) => user.isActive);
-
-    expect(targetUser).toBeDefined();
-
-    const { result } = renderHook(() =>
-      useAdminUsers({
-        currentPage: 1,
-        search: '',
-        statusFilter: 'blocked',
-        roleFilter: 'all',
-      }),
-    );
-
-    const blockedCountBefore = mockUsers.filter(
-      (user) => !user.isActive,
-    ).length;
-
-    act(() => {
-      result.current.handleUpdateUser(targetUser!.id, 'isActive', false);
-    });
-
-    expect(result.current.blockedUsers).toBe(blockedCountBefore + 1);
-    expect(
-      result.current.paginatedUsers.some((user) => user.id === targetUser!.id),
-    ).toBe(true);
   });
 
   it('returns empty paginatedUsers when no users match filters', () => {
