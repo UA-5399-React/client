@@ -9,7 +9,11 @@ import { mockUsers } from '@/constants/mockUsers';
 import { UsersTable } from './UsersTable';
 
 const { MockedProvider } = ApolloTesting as unknown as {
-  MockedProvider: React.ComponentType<Record<string, unknown>>;
+  MockedProvider: React.ComponentType<{
+    mocks?: readonly unknown[];
+    addTypename?: boolean;
+    children?: React.ReactNode;
+  }>;
 };
 
 vi.mock('lucide-react', async (importOriginal) => {

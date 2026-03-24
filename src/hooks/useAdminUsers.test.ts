@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as TestingUtils from '@apollo/client/testing/index.js';
+import * as ApolloTesting from '@apollo/client/testing';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -9,11 +9,9 @@ import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 
 import { useAdminUsers } from './useAdminUsers';
 
-const ApolloMockedProvider = (
-  TestingUtils as unknown as {
-    MockedProvider: React.ComponentType<Record<string, unknown>>;
-  }
-).MockedProvider;
+const { MockedProvider } = ApolloTesting as unknown as {
+  MockedProvider: React.ComponentType<Record<string, unknown>>;
+};
 
 const mocks = [
   {
@@ -34,8 +32,8 @@ const mocks = [
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(
-    ApolloMockedProvider,
-    { mocks, addTypename: false },
+    MockedProvider,
+    { mocks: mocks, addTypename: false },
     children,
   );
 
