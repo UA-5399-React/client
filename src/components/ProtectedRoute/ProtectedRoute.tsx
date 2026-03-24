@@ -14,12 +14,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuth, role } = useAuth();
 
-  // 1. не залогінений
   if (!isAuth) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  // 2. якщо є перевірка ролей
   if (allowedRoles && (!role || !allowedRoles.includes(role))) {
     return <Navigate to={redirectTo} replace />;
   }
