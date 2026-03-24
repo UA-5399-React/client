@@ -44,10 +44,12 @@ export const MOCK_AUTH = {
 };
 
 export const AUTH_ROLES = {
+  CUSTOMER: 'customer',
   SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
-  USER: 'user',
-};
+} as const;
+
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
 export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;

@@ -7,7 +7,7 @@ import { LoginForm } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
-import { ROUTES } from './constants';
+import { AUTH_ROLES, ROUTES } from './constants';
 import { Cart, Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -57,10 +57,19 @@ function App() {
             <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
-            <Route path={ADMIN_USERS} element={<AdminUsers />} />
-            <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
+            <Route
+              element={
+                <ProtectedRoute
+                  allowedRoles={[AUTH_ROLES.SUPER_ADMIN]}
+                  redirectTo={ADMIN_PRODUCTS}
+                />
+              }
+            >
+              <Route path={ADMIN_USERS} element={<AdminUsers />} />
+              <Route path={ADMIN_SETTING} element={<AdminSettings />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

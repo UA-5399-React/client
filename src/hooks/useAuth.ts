@@ -1,7 +1,14 @@
 import { useState } from 'react';
 
-import { AUTH_ROLES, MOCK_AUTH } from '@/constants';
+import { MOCK_AUTH } from '@/constants';
 import { authService } from '@/services/authService';
+import {
+  canAccessAdminPanel,
+  isAdminRole,
+  isAuthRole,
+  isCustomerRole,
+  isSuperAdminRole,
+} from '@/utils/permissions';
 
 export const useAuth = () => {
   const [isAuth, setIsAuth] = useState(() => {
@@ -27,10 +34,20 @@ export const useAuth = () => {
     }
   };
 
-  const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+  const storedRole = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+  const role = isAuthRole(storedRole) ? storedRole : null;
 
-  const isAdmin = role === AUTH_ROLES.ADMIN;
-  const isSuperAdmin = role === AUTH_ROLES.SUPER_ADMIN;
+  const isAdmin = isAdminRole(role);
+  const isSuperAdmin = isSuperAdminRole(role);
+  const isCustomer = isCustomerRole(role);
 
-  return { isAuth, role, isAdmin, isSuperAdmin, logout };
+  return {
+    isAuth,
+    role,
+    isAdmin,
+    isSuperAdmin,
+    isCustomer,
+    canAccessAdminPanel: canAccessAdminPanel(role),
+    logout,
+  };
 };
