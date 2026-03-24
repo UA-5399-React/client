@@ -37,18 +37,14 @@ describe('AccountSidebar', () => {
   });
 
   it('renders fallback name "User" when first and last name are missing', () => {
-    render(
-      <MemoryRouter initialEntries={[ROUTES.PROFILE]}>
-        <AccountSidebar
-          user={{ ...mockUser, firstName: '', lastName: '' } as never}
-        />
-      </MemoryRouter>,
-    );
+    renderComponent({
+      user: { ...mockUser, firstName: '', lastName: '' } as never,
+    });
 
     expect(screen.getByText('User')).toBeInTheDocument();
   });
 
-  it('renders avatar from user avatarUrl', () => {
+  it('renders avatar image when avatarUrl exists', () => {
     renderComponent();
 
     const avatar = screen.getByAltText('avatar');
@@ -56,18 +52,25 @@ describe('AccountSidebar', () => {
     expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
   });
 
-  it('renders default avatar when avatarUrl is missing', () => {
-    render(
-      <MemoryRouter initialEntries={[ROUTES.PROFILE]}>
-        <AccountSidebar user={{ ...mockUser, avatarUrl: '' } as never} />
-      </MemoryRouter>,
-    );
+  it('does not render avatar image when avatarUrl is missing', () => {
+    renderComponent({
+      user: { ...mockUser, avatarUrl: '' } as never,
+    });
 
-    const avatar = screen.getByAltText('avatar');
-    expect(avatar).toHaveAttribute(
-      'src',
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+    expect(screen.queryByAltText('avatar')).not.toBeInTheDocument();
+  });
+
+  it('renders avatar placeholder when avatarUrl is missing', () => {
+    const { container } = renderComponent({
+      user: { ...mockUser, avatarUrl: '' } as never,
+    });
+
+    expect(screen.queryByAltText('avatar')).not.toBeInTheDocument();
+
+    const placeholder = container.querySelector(
+      '.bg-\\[rgb\\(var\\(--color-gray-200\\)\\)\\]',
     );
+    expect(placeholder).toBeInTheDocument();
   });
 
   it('calls onAvatarClick when avatar button is clicked', () => {

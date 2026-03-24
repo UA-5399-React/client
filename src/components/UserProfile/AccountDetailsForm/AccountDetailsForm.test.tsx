@@ -1,131 +1,140 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { type FieldErrors, useForm } from 'react-hook-form';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+
+import type { User } from '@/types/user';
 
 import { AccountDetailsForm } from './AccountDetailsForm';
 
-vi.mock('../AccountInput/AccountInput', () => ({
-  AccountInput: ({
-    label,
-    value,
-    onChange,
-    disabled,
-    placeholder,
-    type,
-  }: {
-    label: string;
-    value: string;
-    onChange?: (value: string) => void;
-    disabled?: boolean;
-    placeholder?: string;
-    type?: string;
-  }) => (
-    <div>
-      <label>{label}</label>
-      <input
-        aria-label={label}
-        value={value}
-        placeholder={placeholder}
-        type={type ?? 'text'}
-        disabled={disabled}
-        onChange={(e) => onChange?.(e.target.value)}
+type ProfileFormValues = {
+  firstName: string;
+  lastName: string;
+  oldPassword: string;
+  newPassword: string;
+  repeatPassword: string;
+};
+
+const mockUser: User = {
+  id: '1',
+  email: 'test@example.com',
+  firstName: 'Anna',
+  lastName: 'Smith',
+  role: 'user',
+  isActive: true,
+  isEmailConfirmed: true,
+};
+
+function renderComponent({
+  defaultValues,
+  errors,
+}: {
+  defaultValues?: Partial<ProfileFormValues>;
+  errors?: FieldErrors<ProfileFormValues>;
+} = {}) {
+  function TestWrapper() {
+    const { control } = useForm<ProfileFormValues>({
+      defaultValues: {
+        firstName: '',
+        lastName: '',
+        oldPassword: '',
+        newPassword: '',
+        repeatPassword: '',
+        ...defaultValues,
+      },
+    });
+
+    return (
+      <AccountDetailsForm
+        user={mockUser}
+        control={control}
+        errors={errors ?? {}}
       />
-    </div>
-  ),
-}));
+    );
+  }
+
+  return render(<TestWrapper />);
+}
 
 describe('AccountDetailsForm', () => {
-  const mockUser = {
-    email: 'test@example.com',
-  };
-
-  it('renders heading and all account fields', () => {
-    render(
-      <AccountDetailsForm
-        user={mockUser as never}
-        firstName="Anna"
-        lastName="Smith"
-        onFirstNameChange={vi.fn()}
-        onLastNameChange={vi.fn()}
-      />,
-    );
+  it('renders heading and inputs', () => {
+    renderComponent({
+      defaultValues: {
+        firstName: 'Anna',
+        lastName: 'Smith',
+      },
+    });
 
     expect(screen.getByText('Account Details')).toBeInTheDocument();
-    expect(screen.getByLabelText('First name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Last name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('First name')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Last name')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument();
   });
 
-  it('renders first name and last name values', () => {
-    render(
-      <AccountDetailsForm
-        user={mockUser as never}
-        firstName="Anna"
-        lastName="Smith"
-        onFirstNameChange={vi.fn()}
-        onLastNameChange={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByLabelText('First name')).toHaveValue('Anna');
-    expect(screen.getByLabelText('Last name')).toHaveValue('Smith');
-  });
-
-  it('renders email from user and disables email input', () => {
-    render(
-      <AccountDetailsForm
-        user={mockUser as never}
-        firstName="Anna"
-        lastName="Smith"
-        onFirstNameChange={vi.fn()}
-        onLastNameChange={vi.fn()}
-      />,
-    );
-
-    const emailInput = screen.getByLabelText('Email');
-
-    expect(emailInput).toHaveValue('test@example.com');
-    expect(emailInput).toBeDisabled();
-  });
-
-  it('calls onFirstNameChange when first name changes', () => {
-    const onFirstNameChange = vi.fn();
-
-    render(
-      <AccountDetailsForm
-        user={mockUser as never}
-        firstName="Anna"
-        lastName="Smith"
-        onFirstNameChange={onFirstNameChange}
-        onLastNameChange={vi.fn()}
-      />,
-    );
-
-    fireEvent.change(screen.getByLabelText('First name'), {
-      target: { value: 'Maria' },
+  it('renders default first and last name values', () => {
+    renderComponent({
+      defaultValues: {
+        firstName: 'Anna',
+        lastName: 'Smith',
+      },
     });
 
-    expect(onFirstNameChange).toHaveBeenCalledTimes(1);
-    expect(onFirstNameChange).toHaveBeenCalledWith('Maria');
+    expect(screen.getByDisplayValue('Anna')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Smith')).toBeInTheDocument();
   });
 
-  it('calls onLastNameChange when last name changes', () => {
-    const onLastNameChange = vi.fn();
+  it('allows changing first and last name', async () => {
+    const user = userEvent.setup();
 
-    render(
-      <AccountDetailsForm
-        user={mockUser as never}
-        firstName="Anna"
-        lastName="Smith"
-        onFirstNameChange={vi.fn()}
-        onLastNameChange={onLastNameChange}
-      />,
-    );
-
-    fireEvent.change(screen.getByLabelText('Last name'), {
-      target: { value: 'Brown' },
+    renderComponent({
+      defaultValues: {
+        firstName: 'Anna',
+        lastName: 'Smith',
+      },
     });
 
-    expect(onLastNameChange).toHaveBeenCalledTimes(1);
-    expect(onLastNameChange).toHaveBeenCalledWith('Brown');
+    const firstNameInput = screen.getByPlaceholderText('First name');
+    const lastNameInput = screen.getByPlaceholderText('Last name');
+
+    await user.clear(firstNameInput);
+    await user.type(firstNameInput, 'Kate');
+
+    await user.clear(lastNameInput);
+    await user.type(lastNameInput, 'Brown');
+
+    expect(firstNameInput).toHaveValue('Kate');
+    expect(lastNameInput).toHaveValue('Brown');
+  });
+
+  it('renders disabled email input', () => {
+    renderComponent();
+
+    expect(screen.getByDisplayValue('test@example.com')).toBeDisabled();
+  });
+
+  it('renders first name error message', () => {
+    renderComponent({
+      errors: {
+        firstName: {
+          type: 'required',
+          message: 'First name is required',
+        },
+      },
+    });
+
+    expect(screen.getByText('First name is required')).toBeInTheDocument();
+  });
+
+  it('renders last name error message', () => {
+    renderComponent({
+      errors: {
+        lastName: {
+          type: 'required',
+          message: 'Last name is required',
+        },
+      },
+    });
+
+    expect(screen.getByText('Last name is required')).toBeInTheDocument();
   });
 });

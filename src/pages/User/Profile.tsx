@@ -1,31 +1,128 @@
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar } from '@/components';
-import { AccountDetailsForm } from '@/components';
-import { PasswordForm } from '@/components';
+import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
 import { authService } from '@/services';
 import { usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 
+type ProfileFormValues = {
+  firstName: string;
+  lastName: string;
+  oldPassword: string;
+  newPassword: string;
+  repeatPassword: string;
+};
+
 export function Profile() {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
-
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [repeatPassword, setRepeatPassword] = useState('');
-
   const [isSaving, setIsSaving] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const navigate = useNavigate();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ProfileFormValues>({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      oldPassword: '',
+      newPassword: '',
+      repeatPassword: '',
+    },
+  });
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await usersService.getMe();
+        setUser(currentUser);
+
+        reset({
+          firstName: currentUser.firstName ?? '',
+          lastName: currentUser.lastName ?? '',
+          oldPassword: '',
+          newPassword: '',
+          repeatPassword: '',
+        });
+      } catch (err) {
+        setPageError(
+          err instanceof Error ? err.message : 'Failed to load profile',
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadUser();
+  }, [reset]);
+
+  const onSubmit = async (values: ProfileFormValues) => {
+    if (!user) return;
+
+    try {
+      setIsSaving(true);
+      setSubmitError('');
+      setSuccessMessage('');
+
+      const profileChanged =
+        values.firstName !== (user.firstName ?? '') ||
+        values.lastName !== (user.lastName ?? '');
+
+      const hasAnyPasswordValue =
+        values.oldPassword.trim() !== '' ||
+        values.newPassword.trim() !== '' ||
+        values.repeatPassword.trim() !== '';
+
+      if (!profileChanged && !hasAnyPasswordValue) {
+        throw new Error('No changes to save');
+      }
+
+      let updatedUser = user;
+
+      if (profileChanged) {
+        await usersService.updateMe({
+          firstName: values.firstName,
+          lastName: values.lastName,
+        });
+
+        updatedUser = await usersService.getMe();
+        setUser(updatedUser);
+      }
+
+      if (hasAnyPasswordValue) {
+        await usersService.changePassword({
+          oldPassword: values.oldPassword,
+          newPassword: values.newPassword,
+        });
+      }
+
+      reset({
+        firstName: updatedUser.firstName ?? values.firstName,
+        lastName: updatedUser.lastName ?? values.lastName,
+        oldPassword: '',
+        newPassword: '',
+        repeatPassword: '',
+      });
+
+      setSuccessMessage('Profile updated successfully');
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Failed to update profile',
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -36,93 +133,22 @@ export function Profile() {
       localStorage.removeItem('role');
       localStorage.removeItem('user');
 
-      navigate(ROUTES.HOME, { replace: true });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const data = await usersService.getMe();
-        setUser(data);
-        setFirstName(data.firstName ?? '');
-        setLastName(data.lastName ?? '');
-      } catch (err) {
-        setPageError(
-          err instanceof Error ? err.message : 'Failed to load profile',
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUser();
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!user) return;
-
-    try {
-      setIsSaving(true);
+      setUser(null);
+      setPageError('');
       setSubmitError('');
       setSuccessMessage('');
 
-      let updatedUser = user;
+      reset({
+        firstName: '',
+        lastName: '',
+        oldPassword: '',
+        newPassword: '',
+        repeatPassword: '',
+      });
 
-      const profileChanged =
-        firstName !== (user.firstName ?? '') ||
-        lastName !== (user.lastName ?? '');
-
-      if (profileChanged) {
-        updatedUser = await usersService.updateMe({
-          firstName,
-          lastName,
-        });
-
-        setUser(updatedUser);
-      }
-
-      const hasAnyPasswordValue =
-        oldPassword.trim() !== '' ||
-        newPassword.trim() !== '' ||
-        repeatPassword.trim() !== '';
-
-      if (hasAnyPasswordValue) {
-        if (!oldPassword || !newPassword || !repeatPassword) {
-          throw new Error('Fill in all password fields');
-        }
-
-        if (newPassword !== repeatPassword) {
-          throw new Error('Passwords do not match');
-        }
-
-        if (newPassword.length < 6) {
-          throw new Error('New password must be at least 6 characters');
-        }
-
-        await usersService.changePassword({
-          oldPassword,
-          newPassword,
-        });
-
-        setOldPassword('');
-        setNewPassword('');
-        setRepeatPassword('');
-      }
-
-      if (!profileChanged && !hasAnyPasswordValue) {
-        throw new Error('No changes to save');
-      }
-
-      setSuccessMessage('Profile updated successfully');
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : 'Failed to update profile',
-      );
-    } finally {
-      setIsSaving(false);
+      navigate(ROUTES.HOME, { replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -151,43 +177,35 @@ export function Profile() {
           <AccountSidebar user={user} onLogout={handleLogout} />
 
           <div className="max-w-[760px] px-[72px]">
-            <AccountDetailsForm
-              user={user}
-              firstName={firstName}
-              lastName={lastName}
-              onFirstNameChange={setFirstName}
-              onLastNameChange={setLastName}
-            />
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <AccountDetailsForm
+                user={user}
+                control={control}
+                errors={errors}
+              />
 
-            <PasswordForm
-              oldPassword={oldPassword}
-              newPassword={newPassword}
-              repeatPassword={repeatPassword}
-              onOldPasswordChange={setOldPassword}
-              onNewPasswordChange={setNewPassword}
-              onRepeatPasswordChange={setRepeatPassword}
-            />
+              <PasswordForm control={control} errors={errors} />
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSaving}
-              className="mt-6 h-[44px] min-w-[90px] cursor-pointer rounded-md bg-black px-6 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-            >
-              {isSaving ? 'Saving...' : 'Edit'}
-            </button>
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="mt-6 h-[44px] min-w-[90px] cursor-pointer rounded-md bg-black px-6 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                {isSaving ? 'Saving...' : 'Save changes'}
+              </button>
 
-            {submitError && (
-              <p className="mt-3 text-sm text-[rgb(var(--color-red-600))]">
-                {submitError}
-              </p>
-            )}
+              {submitError && (
+                <p className="mt-3 text-sm text-[rgb(var(--color-red-600))]">
+                  {submitError}
+                </p>
+              )}
 
-            {successMessage && (
-              <p className="mt-3 text-sm text-[rgb(var(--color-green-600))]">
-                {successMessage}
-              </p>
-            )}
+              {successMessage && (
+                <p className="mt-3 text-sm text-[rgb(var(--color-green-600))]">
+                  {successMessage}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       </div>

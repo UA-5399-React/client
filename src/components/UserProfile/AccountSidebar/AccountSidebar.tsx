@@ -1,16 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Camera } from 'lucide-react';
+import { Camera, User as UserIcon } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
 import type { User } from '@/types/user';
 
-const DEFAULT_AVATAR_URL =
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330';
-
 type AccountSidebarProps = {
   user: User;
   onAvatarClick?: () => void;
-  onLogout?: () => void;
+  onLogout: () => void;
 };
 
 export function AccountSidebar({
@@ -19,6 +16,7 @@ export function AccountSidebar({
   onLogout,
 }: AccountSidebarProps) {
   const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+  const displayName = fullName || 'User';
 
   const navItemClass =
     'block w-full border-b pb-2 text-[16px] font-semibold transition';
@@ -27,11 +25,20 @@ export function AccountSidebar({
     <aside className="w-full max-w-[220px] rounded-md bg-[rgb(var(--color-gray-100))] px-4 py-10">
       <div className="flex flex-col items-center">
         <div className="relative h-[82px] w-[82px]">
-          <img
-            src={user.avatarUrl || DEFAULT_AVATAR_URL}
-            alt="avatar"
-            className="h-full w-full rounded-full object-cover"
-          />
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt="avatar"
+              className="h-full w-full rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-[rgb(var(--color-gray-200))]">
+              <UserIcon
+                size={32}
+                className="text-[rgb(var(--color-gray-500))]"
+              />
+            </div>
+          )}
 
           <button
             type="button"
@@ -43,7 +50,7 @@ export function AccountSidebar({
         </div>
 
         <h3 className="mt-3 mb-0 text-[20px] leading-none font-semibold text-[rgb(var(--color-neutral-900))]">
-          {fullName || 'User'}
+          {displayName}
         </h3>
       </div>
 

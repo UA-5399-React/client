@@ -1,6 +1,5 @@
+import { API_BASE_URL } from '@/constants';
 import type { User } from '@/types/user';
-
-const API_URL = 'http://localhost:3000';
 
 export type UpdateMePayload = {
   firstName?: string;
@@ -9,7 +8,7 @@ export type UpdateMePayload = {
 
 export const usersService = {
   getMe: async (): Promise<User> => {
-    const response = await fetch(`${API_URL}/users/me`, {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
       credentials: 'include',
     });
@@ -22,7 +21,7 @@ export const usersService = {
   },
 
   updateMe: async (data: UpdateMePayload): Promise<User> => {
-    const response = await fetch(`${API_URL}/users/me`, {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +41,7 @@ export const usersService = {
     oldPassword: string;
     newPassword: string;
   }) => {
-    const response = await fetch(`${API_URL}/users/me/password`, {
+    const response = await fetch(`${API_BASE_URL}/users/me/password`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
