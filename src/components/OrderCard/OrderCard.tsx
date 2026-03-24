@@ -8,7 +8,7 @@ import {
   IN_PROGRESS_STATUSES,
   PENDING_STATUSES,
   STATUS_LABELS,
-} from './OrderCard.constants';
+} from './constants';
 import { OrderProgressBar } from './OrderProgressBar/OrderProgressBar';
 
 interface OrderCardProps {
