@@ -9,9 +9,18 @@ import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 
 import { useAdminUsers } from './useAdminUsers';
 
-const { MockedProvider } = ApolloTesting as unknown as {
-  MockedProvider: React.ComponentType<Record<string, unknown>>;
-};
+const { MockedProvider } = (ApolloTesting as unknown as Record<string, unknown>)
+  .MockedProvider
+  ? (ApolloTesting as unknown as {
+      MockedProvider: React.ComponentType<Record<string, unknown>>;
+    })
+  : (
+      ApolloTesting as unknown as {
+        default: {
+          MockedProvider: React.ComponentType<Record<string, unknown>>;
+        };
+      }
+    ).default;
 
 const mocks = [
   {
@@ -31,11 +40,7 @@ const mocks = [
 ];
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
-  React.createElement(
-    MockedProvider,
-    { mocks: mocks, addTypename: false },
-    children,
-  );
+  React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
 describe('useAdminUsers', () => {
   it('returns correct widget values for the full users list', () => {

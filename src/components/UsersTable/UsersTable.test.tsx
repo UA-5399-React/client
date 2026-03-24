@@ -8,13 +8,14 @@ import { mockUsers } from '@/constants/mockUsers';
 
 import { UsersTable } from './UsersTable';
 
-const { MockedProvider } = ApolloTesting as unknown as {
-  MockedProvider: React.ComponentType<{
-    mocks?: readonly unknown[];
-    addTypename?: boolean;
-    children?: React.ReactNode;
-  }>;
-};
+const MockedProvider = ((ApolloTesting as unknown as Record<string, unknown>)
+  .MockedProvider ||
+  (ApolloTesting as unknown as { default: Record<string, unknown> }).default
+    ?.MockedProvider) as React.ComponentType<{
+  mocks?: readonly unknown[];
+  addTypename?: boolean;
+  children?: React.ReactNode;
+}>;
 
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof LucideIcons>();
