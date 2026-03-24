@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AUTH_ROLES, ROUTES } from '@/constants';
@@ -18,7 +18,9 @@ const createUseAuthMock = (
   role: null,
   isAdmin: false,
   isSuperAdmin: false,
-  logout: vi.fn(),
+  isCustomer: false,
+  canAccessAdminPanel: false,
+  logout: vi.fn(async () => {}),
   ...overrides,
 });
 
@@ -48,7 +50,8 @@ describe('ProtectedRoute', () => {
     vi.mocked(useAuth).mockReturnValue(
       createUseAuthMock({
         isAuth: true,
-        role: AUTH_ROLES.USER,
+        role: AUTH_ROLES.CUSTOMER,
+        isCustomer: true,
       }),
     );
 
@@ -70,6 +73,8 @@ describe('ProtectedRoute', () => {
       createUseAuthMock({
         isAuth: true,
         role: AUTH_ROLES.ADMIN,
+        isAdmin: true,
+        canAccessAdminPanel: true,
       }),
     );
 
@@ -99,6 +104,8 @@ describe('ProtectedRoute', () => {
       createUseAuthMock({
         isAuth: true,
         role: AUTH_ROLES.SUPER_ADMIN,
+        isSuperAdmin: true,
+        canAccessAdminPanel: true,
       }),
     );
 
