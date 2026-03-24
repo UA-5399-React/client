@@ -4,6 +4,7 @@ import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 import { Button } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { canAccessAdminRoute } from '@/utils/permissions';
 
 const MOBILE_LINKS = [
   { to: ROUTES.ADMIN_CATEGORIES, label: 'Categories' },
@@ -21,8 +22,11 @@ export const MobileSidebar = ({
   isSidebarOpen,
   onSidebarChange,
 }: MobileSidebarProps) => {
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
   const navigate = useNavigate();
+  const visibleLinks = MOBILE_LINKS.filter(({ to }) =>
+    canAccessAdminRoute(role, to),
+  );
 
   const handleLogout = () => {
     logout();
@@ -51,7 +55,7 @@ export const MobileSidebar = ({
 
             <nav className="px-4">
               <ul className="list-none p-0">
-                {MOBILE_LINKS.map(({ to, label }) => (
+                {visibleLinks.map(({ to, label }) => (
                   <li
                     key={to}
                     className="x-4 mt-4 h-[40px] border-b border-gray-200"
