@@ -1,17 +1,10 @@
 import type { Control, FieldErrors } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 
+import type { ProfileFormValues } from '@/schemas/profile.schema';
 import type { User } from '@/types/user';
 
 import { AccountInput } from '../AccountInput/AccountInput';
-
-type ProfileFormValues = {
-  firstName: string;
-  lastName: string;
-  oldPassword: string;
-  newPassword: string;
-  repeatPassword: string;
-};
 
 type AccountDetailsFormProps = {
   user: User;
@@ -34,18 +27,11 @@ export function AccountDetailsForm({
         <Controller
           name="firstName"
           control={control}
-          rules={{
-            required: 'First name is required',
-            minLength: {
-              value: 2,
-              message: 'First name must be at least 2 characters',
-            },
-          }}
           render={({ field }) => (
             <AccountInput
               label="First name"
               placeholder="First name"
-              value={field.value}
+              value={field.value ?? ''}
               onChange={field.onChange}
             />
           )}
@@ -59,18 +45,11 @@ export function AccountDetailsForm({
         <Controller
           name="lastName"
           control={control}
-          rules={{
-            required: 'Last name is required',
-            minLength: {
-              value: 2,
-              message: 'Last name must be at least 2 characters',
-            },
-          }}
           render={({ field }) => (
             <AccountInput
               label="Last name"
               placeholder="Last name"
-              value={field.value}
+              value={field.value ?? ''}
               onChange={field.onChange}
             />
           )}
@@ -81,7 +60,12 @@ export function AccountDetailsForm({
           </p>
         ) : null}
 
-        <AccountInput label="Email" type="email" value={user.email} disabled />
+        <AccountInput
+          label="Email"
+          type="email"
+          value={user.email ?? ''}
+          disabled
+        />
       </div>
     </section>
   );
