@@ -13,3 +13,5 @@ export interface Order {
   status: OrderStatus;
   totalPrice: number;
 }
+
+export type OrderCounts = Record<OrderStatus | 'all', number>;
