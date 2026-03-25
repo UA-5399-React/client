@@ -11,13 +11,15 @@ import { ROUTES } from '@/constants';
 import { useCreateAdminCategory } from '@/hooks/useCreateAdminCategory';
 import { useTheme } from '@/hooks/useTheme';
 import { useUpdateAdminCategory } from '@/hooks/useUpdateAdminCategory';
+import { useUploadProductImage } from '@/hooks/useUploadProductImage';
 import type { Category, Product } from '@/types';
 
 const categorySchema = z.object({
   title: z.string().trim().min(1, 'Category name is required'),
   description: z.string().trim().min(1, 'Description is required'),
   parent: z.string().nullable().optional(),
-  imageUrl: z.string().optional().or(z.literal('')),
+  imagePreview: z.string().nullable().optional(),
+  imageFile: z.instanceof(File).optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -38,6 +40,7 @@ export const CategoryForm = ({
   const isEdit = mode === 'edit';
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -55,15 +58,17 @@ export const CategoryForm = ({
       title: initialData?.title || '',
       description: initialData?.description || '',
       parent: initialData?.parent || null,
-      imageUrl: initialData?.imageUrl || undefined,
+      imagePreview: initialData?.imageUrl || null,
+      imageFile: undefined,
     },
   });
 
-  const preview = useWatch({ control, name: 'imageUrl' });
+  const preview = useWatch({ control, name: 'imagePreview' });
   const parentValue = useWatch({ control, name: 'parent' });
 
-  const { createCategory } = useCreateAdminCategory();
-  const { updateCategory } = useUpdateAdminCategory();
+  const { createCategory, loading: isCreating } = useCreateAdminCategory();
+  const { updateCategory, loading: isUpdating } = useUpdateAdminCategory();
+  const { uploadImage, loading: isUploading } = useUploadProductImage();
 
   const products = initialData?.products || [];
   const hasChildren =
@@ -82,22 +87,63 @@ export const CategoryForm = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
+
   const handleRemoveImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setValue('imageUrl', undefined);
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+    setValue('imagePreview', null);
+    setValue('imageFile', undefined);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      setValue('imageFile', undefined);
+      return;
+    }
+
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = previewUrl;
+
+    setValue('imageFile', file, { shouldDirty: true, shouldValidate: true });
+    setValue('imagePreview', previewUrl, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   const onSubmit = async (data: CategoryFormData) => {
     setServerError(null);
 
     const depth: 1 | 2 = data.parent ? 2 : 1;
+    let uploadedImageUrl = data.imagePreview || undefined;
+
+    if (data.imageFile) {
+      const uploadedImage = await uploadImage(data.imageFile);
+      uploadedImageUrl = uploadedImage.imageUrl;
+    }
 
     const payload = {
       title: data.title,
       description: data.description,
       parent: data.parent || undefined,
-      imageUrl: data.imageUrl || undefined,
+      imageUrl: uploadedImageUrl,
       depth,
     };
 
@@ -124,6 +170,7 @@ export const CategoryForm = ({
 
   const labelStyles =
     'mb-1.5 block w-full text-[13px] font-semibold text-[#1A1C1E] font-sans';
+  const isSaving = isCreating || isUpdating || isUploading;
 
   return (
     <div
@@ -191,9 +238,9 @@ export const CategoryForm = ({
               )}
             </div>
 
-            {errors.imageUrl && (
+            {errors.imagePreview && (
               <p className="mt-2 text-xs text-red-500">
-                {errors.imageUrl.message}
+                {errors.imagePreview.message}
               </p>
             )}
 
@@ -202,10 +249,7 @@ export const CategoryForm = ({
               ref={fileInputRef}
               className="hidden"
               accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setValue('imageUrl', URL.createObjectURL(file));
-              }}
+              onChange={handleImageChange}
             />
           </div>
 
@@ -407,15 +451,21 @@ export const CategoryForm = ({
           )}
           <button
             onClick={() => navigate(-1)}
+            disabled={isSaving}
             className="cursor-pointer border-none bg-transparent text-sm font-bold text-[#8A92A6] transition-colors hover:text-[#1A1C1E]"
           >
             Cancel
           </button>
           <button
             type="submit"
+            disabled={isSaving}
             className="cursor-pointer rounded-xl border-none bg-[#38CB89] px-8 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#32b87a] active:scale-95"
           >
-            {isEdit ? 'Update Category' : 'Save Category'}
+            {isSaving
+              ? 'Saving...'
+              : isEdit
+                ? 'Update Category'
+                : 'Save Category'}
           </button>
         </div>
       </form>
