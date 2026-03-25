@@ -33,7 +33,7 @@ export const useAdminUsers = ({
     fetchPolicy: 'cache-and-network',
   });
 
-  const users: AdminUser[] = data?.users?.items ?? [];
+  const users = useMemo(() => data?.users?.items || [], [data]);
 
   const totalUsers = users.length;
 
