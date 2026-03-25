@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Camera, User as UserIcon } from 'lucide-react';
 
@@ -6,17 +7,35 @@ import type { User } from '@/types/user';
 
 type AccountSidebarProps = {
   user: User;
-  onAvatarClick?: () => void;
+  onAvatarClick?: (file: File) => void;
   onLogout: () => void;
+  isAvatarUploading?: boolean;
 };
 
 export function AccountSidebar({
   user,
   onAvatarClick,
   onLogout,
+  isAvatarUploading = false,
 }: AccountSidebarProps) {
   const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
   const displayName = fullName || 'User';
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleOpenFilePicker = () => {
+    if (isAvatarUploading) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    onAvatarClick?.(file);
+    event.target.value = '';
+  };
 
   const navItemClass =
     'block w-full border-b pb-2 text-[16px] font-semibold transition';
@@ -42,11 +61,20 @@ export function AccountSidebar({
 
           <button
             type="button"
-            onClick={onAvatarClick}
-            className="absolute -right-1 -bottom-1 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[rgb(var(--color-neutral-0))] bg-[rgb(var(--color-neutral-900))] text-[rgb(var(--color-neutral-0))] shadow-md transition hover:scale-110"
+            onClick={handleOpenFilePicker}
+            disabled={isAvatarUploading}
+            className="absolute -right-1 -bottom-1 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-full border-2 border-[rgb(var(--color-neutral-0))] bg-[rgb(var(--color-neutral-900))] text-[rgb(var(--color-neutral-0))] shadow-md transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Camera size={16} />
           </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </div>
 
         <h3 className="mt-3 mb-0 text-[20px] leading-none font-semibold text-[rgb(var(--color-neutral-900))]">
@@ -63,7 +91,7 @@ export function AccountSidebar({
               className={({ isActive }) =>
                 `${navItemClass} ${
                   isActive
-                    ? 'border-[rgb(var(--neutral-800))] text-black'
+                    ? 'border-[rgb(var(--color-neutral-800))] text-black'
                     : 'border-transparent text-[rgb(var(--color-neutral-500))] hover:text-[rgb(var(--color-neutral-900))]'
                 }`
               }
