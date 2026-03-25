@@ -8,7 +8,7 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
-import { Cart, Home } from './pages';
+import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
@@ -26,6 +26,8 @@ function App() {
     PRODUCT,
     CONTACT_US,
     CART,
+    CHECKOUT,
+    ORDER_CONFIRMATION,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_PRODUCTS,
@@ -51,6 +53,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
+            <Route path={CHECKOUT} element={<Checkout />} />
+            <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
           </Route>
         </Route>
 

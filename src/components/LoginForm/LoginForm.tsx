@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -31,7 +31,10 @@ const getExpirationTime = (rememberMe?: boolean) => {
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { mutateAsync: loginMutation, isPending } = useLogin();
+  const redirectTo =
+    typeof location.state?.from === 'string' ? location.state.from : null;
 
   const {
     register,
@@ -56,6 +59,11 @@ export const LoginForm: React.FC = () => {
     const role = isAuthRole(storedRole) ? storedRole : null;
 
     if (token && expires && Date.now() < Number(expires)) {
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+        return;
+      }
+
       if (canAccessAdminPanel(role)) {
         navigate(ROUTES.ADMIN);
       } else {
@@ -64,7 +72,7 @@ export const LoginForm: React.FC = () => {
     } else {
       clearAuthData();
     }
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
@@ -75,6 +83,11 @@ export const LoginForm: React.FC = () => {
       localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
       localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
       localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
+
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+        return;
+      }
 
       if (canAccessAdminPanel(isAuthRole(user.role) ? user.role : null)) {
         navigate(ROUTES.ADMIN);
