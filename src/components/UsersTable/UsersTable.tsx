@@ -3,23 +3,13 @@ import clsx from 'clsx';
 import { EllipsisVertical, Pencil, Trash } from 'lucide-react';
 
 import { Button, Checkbox, Dropdown } from '@/components';
+import { USER_ROLE_OPTIONS, USER_STATUS_OPTIONS } from '@/constants/adminUsers';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
 import type { AdminUser, UserRole } from '@/types/admin-user.types';
 
 interface UsersTableProps {
   items: AdminUser[];
 }
-
-const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Blocked', value: 'blocked' },
-];
-
-const roleOptions = [
-  { label: 'Super Admin', value: 'SUPER_ADMIN' },
-  { label: 'Admin', value: 'ADMIN' },
-  { label: 'Customer', value: 'CUSTOMER' },
-];
 
 const getFullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
 
@@ -119,7 +109,7 @@ export function UsersTable({ items }: UsersTableProps) {
                   <Dropdown
                     label="Status"
                     labelClassName="hidden"
-                    options={statusOptions}
+                    options={[...USER_STATUS_OPTIONS]}
                     selectedValues={[currentStatus]}
                     onChange={(selected) =>
                       handleStatusChange(
@@ -150,7 +140,7 @@ export function UsersTable({ items }: UsersTableProps) {
                   <Dropdown
                     label="Role"
                     labelClassName="hidden"
-                    options={roleOptions}
+                    options={[...USER_ROLE_OPTIONS]}
                     selectedValues={[currentRole]}
                     onChange={(selected) =>
                       handleRoleChange(user.id, selected as { value: string }[])

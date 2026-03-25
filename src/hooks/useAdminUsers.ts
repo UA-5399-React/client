@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
 
-import { ITEMS_PER_PAGE } from '@/constants';
+import { AUTH_ROLES, ITEMS_PER_PAGE } from '@/constants';
+import {
+  DEFAULT_USER_ROLE_FILTER,
+  DEFAULT_USER_STATUS_FILTER,
+} from '@/constants/adminUsers';
 import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 import type {
   AdminUser,
@@ -41,8 +45,7 @@ export const useAdminUsers = ({
     () =>
       users.filter(
         (u) =>
-          (u.role.toLocaleLowerCase() === 'admin' ||
-            u.role.toLocaleLowerCase() === 'super_admin') &&
+          (u.role === AUTH_ROLES.ADMIN || u.role === AUTH_ROLES.SUPER_ADMIN) &&
           u.isActive,
       ).length,
     [users],
@@ -66,12 +69,12 @@ export const useAdminUsers = ({
         email.includes(normalizedSearch);
 
       const matchesStatus =
-        statusFilter === 'all' ||
+        statusFilter === DEFAULT_USER_STATUS_FILTER ||
         (statusFilter === 'active' && user.isActive) ||
         (statusFilter === 'blocked' && !user.isActive);
 
       const matchesRole =
-        roleFilter === 'all' ||
+        roleFilter === DEFAULT_USER_ROLE_FILTER ||
         user.role.toLocaleLowerCase() === roleFilter.toLocaleLowerCase();
 
       return matchesSearch && matchesStatus && matchesRole;
