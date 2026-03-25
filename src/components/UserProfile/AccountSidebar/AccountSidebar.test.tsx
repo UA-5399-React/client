@@ -73,15 +73,22 @@ describe('AccountSidebar', () => {
     expect(placeholder).toBeInTheDocument();
   });
 
-  it('calls onAvatarClick when avatar button is clicked', () => {
+  it('calls onAvatarClick when file is selected', () => {
     const onAvatarClick = vi.fn();
 
-    renderComponent({ onAvatarClick });
+    const { container } = renderComponent({ onAvatarClick });
 
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[0]);
+    const input = container.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const file = new File(['avatar'], 'avatar.png', { type: 'image/png' });
+
+    fireEvent.change(input, {
+      target: { files: [file] },
+    });
 
     expect(onAvatarClick).toHaveBeenCalledTimes(1);
+    expect(onAvatarClick).toHaveBeenCalledWith(file);
   });
 
   it('calls onLogout when logout button is clicked', () => {
