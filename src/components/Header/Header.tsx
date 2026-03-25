@@ -15,6 +15,7 @@ import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
 import { Button, FlyoutCart, SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore } from '@/store/useCartStore';
@@ -45,6 +46,12 @@ export const Header = () => {
   const debouncedSearch = useDebouncedValue(searchValue, 500);
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
+
+  const { isAuth } = useAuth();
+
+  const handleUserNavigate = () => {
+    navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
+  };
 
   if (initialSearch !== prevUrlSearch) {
     setPrevUrlSearch(initialSearch);
@@ -187,7 +194,7 @@ export const Header = () => {
             </div>
 
             <button
-              onClick={() => navigate(ROUTES.LOGIN)}
+              onClick={handleUserNavigate}
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
@@ -316,11 +323,11 @@ export const Header = () => {
               <Button
                 onClick={() => {
                   closeMenu();
-                  navigate(ROUTES.LOGIN);
+                  handleUserNavigate();
                 }}
                 className="w-full"
               >
-                Sign In
+                {isAuth ? 'My Account' : 'Sign In'}
               </Button>
             </div>
           </div>
