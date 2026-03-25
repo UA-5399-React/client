@@ -23,6 +23,8 @@ export const ROUTES = {
   REGISTER: '/register',
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
+  ADMIN_ORDERS: '/admin/orders',
+  PROFILE: '/profile',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
@@ -44,10 +46,12 @@ export const MOCK_AUTH = {
 };
 
 export const AUTH_ROLES = {
+  CUSTOMER: 'customer',
   SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
-  USER: 'user',
-};
+} as const;
+
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
 export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;

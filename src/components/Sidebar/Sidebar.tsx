@@ -4,6 +4,7 @@ import {
   LogOut,
   PackageIcon,
   SettingsIcon,
+  ShoppingCartIcon,
   UsersIcon,
 } from 'lucide-react';
 
@@ -12,6 +13,7 @@ import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useTheme } from '@/hooks/useTheme';
+import { canAccessAdminRoute } from '@/utils/permissions';
 
 const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products', icon: <PackageIcon /> },
@@ -21,14 +23,18 @@ const SIDEBAR_LINKS = [
     icon: <ChartBarStacked />,
   },
   { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
+  { to: ROUTES.ADMIN_ORDERS, label: 'Orders', icon: <ShoppingCartIcon /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
 ];
 
 export const Sidebar = () => {
   const { isDark } = useTheme();
-  const { logout } = useAuth();
+  const { logout, role } = useAuth();
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
+  const visibleLinks = SIDEBAR_LINKS.filter(({ to }) =>
+    canAccessAdminRoute(role, to),
+  );
 
   const handleLogout = () => {
     openConfirmModal({
@@ -50,7 +56,7 @@ export const Sidebar = () => {
         </h1>
 
         <nav>
-          {SIDEBAR_LINKS.map(({ to, label, icon }) => (
+          {visibleLinks.map(({ to, label, icon }) => (
             <NavLink
               key={to}
               to={to}

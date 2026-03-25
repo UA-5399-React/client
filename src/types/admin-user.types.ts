@@ -1,4 +1,9 @@
-export type UserRole = 'super_admin' | 'admin' | 'customer';
+import type { AuthRole } from '@/constants';
+
+export type UserRole = AuthRole;
+
+export type UserStatusFilter = 'all' | 'active' | 'blocked';
+export type UserRoleFilter = 'all' | UserRole;
 
 export interface AdminUser {
   id: string;

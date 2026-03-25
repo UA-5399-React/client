@@ -7,15 +7,17 @@ import { LoginForm } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
-import { ROUTES } from './constants';
+import { AUTH_ROLES, ROUTES } from './constants';
 import { Cart, Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
+import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { Profile } from './pages/User/Profile';
 
 function App() {
   const {
@@ -33,6 +35,8 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     LOGIN,
     REGISTER,
+    ADMIN_ORDERS,
+    PROFILE,
   } = ROUTES;
 
   return (
@@ -45,6 +49,9 @@ function App() {
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
           <Route path="*" element={<NotFound />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path={PROFILE} element={<Profile />} />
+          </Route>
         </Route>
 
         <Route element={<AuthLayout />}>
@@ -52,15 +59,31 @@ function App() {
           <Route path={REGISTER} element={<RegisterForm />} />
         </Route>
 
-        <Route element={<ProtectedRoute />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={[AUTH_ROLES.ADMIN, AUTH_ROLES.SUPER_ADMIN]}
+            />
+          }
+        >
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
-            <Route path={ADMIN_USERS} element={<AdminUsers />} />
-            <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
+            <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
+            <Route
+              element={
+                <ProtectedRoute
+                  allowedRoles={[AUTH_ROLES.SUPER_ADMIN]}
+                  redirectTo={ADMIN_PRODUCTS}
+                />
+              }
+            >
+              <Route path={ADMIN_USERS} element={<AdminUsers />} />
+              <Route path={ADMIN_SETTING} element={<AdminSettings />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

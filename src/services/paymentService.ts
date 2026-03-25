@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '@/constants';
+
 import { apiClient } from './api';
 
 export interface CheckoutItem {
@@ -19,13 +21,26 @@ export interface SessionStatusResponse {
 }
 
 export const paymentService = {
-  createCheckoutSession(
+  async createCheckoutSession(
     items: CheckoutItem[],
   ): Promise<CheckoutSessionResponse> {
-    return apiClient.post<CheckoutSessionResponse>(
-      '/payments/create-checkout-session',
-      { items },
+    const response = await fetch(
+      `${API_BASE_URL}/payments/create-checkout-session`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ items }),
+      },
     );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   },
 
   getSessionStatus(sessionId: string): Promise<SessionStatusResponse> {

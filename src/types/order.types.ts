@@ -1,7 +1,7 @@
 export type OrderStatus =
   | 'new'
-  | 'processing'
-  | 'shipping'
+  | 'processed'
+  | 'shipped'
   | 'completed'
   | 'cancelled';
 export type ProgressStep = 'processed' | 'shipped' | 'completed';
