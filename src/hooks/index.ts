@@ -2,6 +2,7 @@ export * from './useAdminCategories';
 export * from './useAdminCategoriesPage';
 export * from './useAdminUsers';
 export * from './useAuth';
+export * from './useCheckout';
 export * from './useCreateAdminCategory';
 export * from './useDeleteAdminCategory';
 export * from './useGetAdminCategory';
