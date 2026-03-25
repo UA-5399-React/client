@@ -228,6 +228,66 @@ describe('Page: Checkout', () => {
     expect(orderService.createOrder).not.toHaveBeenCalled();
   });
 
+  it('syncs restored browser values after returning to checkout and submits them correctly', async () => {
+    render(<Checkout />);
+
+    const firstNameInput = screen.getByPlaceholderText(
+      'First name',
+    ) as HTMLInputElement;
+    const lastNameInput = screen.getByPlaceholderText(
+      'Last name',
+    ) as HTMLInputElement;
+    const phoneInput = screen.getByPlaceholderText(
+      'Phone number',
+    ) as HTMLInputElement;
+    const emailInput = screen.getByPlaceholderText(
+      'Email address',
+    ) as HTMLInputElement;
+    const cityInput = screen.getByPlaceholderText(
+      'Town / City',
+    ) as HTMLInputElement;
+    const branchInput = screen.getByPlaceholderText(
+      'Department code',
+    ) as HTMLInputElement;
+
+    firstNameInput.value = 'Pavlo';
+    lastNameInput.value = 'Cat';
+    phoneInput.value = '+380501112233';
+    emailInput.value = 'customer@test.com';
+    cityInput.value = 'Kyiv';
+    branchInput.value = '12';
+
+    window.dispatchEvent(new Event('pageshow'));
+
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole('button', { name: 'Continue to Stripe' }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Phone number is required'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Email address is required'),
+      ).not.toBeInTheDocument();
+      expect(orderService.createOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: expect.objectContaining({
+            firstName: 'Pavlo',
+            lastName: 'Cat',
+            phone: '+380501112233',
+            email: 'customer@test.com',
+          }),
+          shippingAddress: expect.objectContaining({
+            city: 'Kyiv',
+            branchNumber: '12',
+          }),
+        }),
+      );
+    });
+  });
+
   it('creates a cash-on-delivery order, clears the cart, and navigates to confirmation', async () => {
     render(<Checkout />);
 

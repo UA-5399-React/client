@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, type UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,9 +60,52 @@ const checkoutSchema = z.object({
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
+type CheckoutFieldName = keyof CheckoutFormValues;
 
 const isMongoId = (value?: string) =>
   Boolean(value && /^[a-f\d]{24}$/i.test(value));
+
+const checkoutFieldNames: CheckoutFieldName[] = [
+  'firstName',
+  'lastName',
+  'phone',
+  'email',
+  'carrier',
+  'city',
+  'branchNumber',
+  'paymentMethod',
+  'message',
+];
+
+const readControlValue = (
+  control: Element | RadioNodeList | null,
+): string | null => {
+  if (!control) {
+    return null;
+  }
+
+  if (
+    typeof RadioNodeList !== 'undefined' &&
+    control instanceof RadioNodeList
+  ) {
+    const checkedInput = Array.from(control).find(
+      (item): item is HTMLInputElement =>
+        item instanceof HTMLInputElement && item.checked,
+    );
+
+    return checkedInput?.value ?? null;
+  }
+
+  if (
+    control instanceof HTMLInputElement ||
+    control instanceof HTMLTextAreaElement ||
+    control instanceof HTMLSelectElement
+  ) {
+    return control.value;
+  }
+
+  return null;
+};
 
 const getFieldClassName = (isDark: boolean, hasError = false) =>
   clsx(
@@ -87,6 +130,7 @@ export const Checkout = () => {
   const { isDark } = useTheme();
   const { items, clearCart, removeItem, updateQuantity, getCartTotal } =
     useCartStore();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState('');
@@ -98,6 +142,9 @@ export const Checkout = () => {
     control,
     register,
     handleSubmit,
+    clearErrors,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -118,6 +165,51 @@ export const Checkout = () => {
     control,
     name: 'paymentMethod',
   });
+
+  useEffect(() => {
+    const syncRestoredValues = () => {
+      const form = formRef.current;
+
+      if (!form) {
+        return;
+      }
+
+      checkoutFieldNames.forEach((fieldName) => {
+        const restoredValue = readControlValue(
+          form.elements.namedItem(fieldName),
+        );
+
+        if (restoredValue === null || restoredValue === getValues(fieldName)) {
+          return;
+        }
+
+        setValue(
+          fieldName,
+          restoredValue as CheckoutFormValues[typeof fieldName],
+          {
+            shouldDirty: restoredValue !== '',
+            shouldTouch: false,
+            shouldValidate: false,
+          },
+        );
+
+        if (restoredValue.trim() !== '') {
+          clearErrors(fieldName);
+        }
+      });
+    };
+
+    const syncOnPageShow = () => {
+      window.requestAnimationFrame(syncRestoredValues);
+    };
+
+    syncOnPageShow();
+    window.addEventListener('pageshow', syncOnPageShow);
+
+    return () => {
+      window.removeEventListener('pageshow', syncOnPageShow);
+    };
+  }, [clearErrors, getValues, setValue]);
 
   const checkoutItems = useMemo(
     () =>
@@ -269,7 +361,11 @@ export const Checkout = () => {
         <MobileProcess isDark={isDark} />
 
         <div className="mt-10 lg:grid lg:grid-cols-[minmax(0,643px)_376px] lg:items-start lg:justify-between lg:gap-[101px]">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
             <CheckoutSection
               title="Contact Infomation"
               isDark={isDark}
