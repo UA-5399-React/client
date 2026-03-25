@@ -1,9 +1,9 @@
 export const ORDER_STATUS = {
-  NEW: 'New',
-  PENDING: 'Pending',
-  PAID: 'Paid',
-  SHIPPED: 'Shipped',
-  CANCELLED: 'Cancelled',
+  NEW: 'new',
+  PENDING: 'pending',
+  PAID: 'paid',
+  SHIPPED: 'shipped',
+  CANCELLED: 'cancelled',
 } as const;
 
 export type OrderStatus =
@@ -15,11 +15,37 @@ export type OrderStatus =
 
 export interface OrderItem {
   id: string;
-  productName: string;
-  customerName: string;
   orderId: string;
+  items: OrderedProduct[];
+  user: OrderUser;
   amount: number;
+  totalPrice: number;
   status: OrderStatus;
-  date: string;
+  createdAt: string;
+}
+
+export interface OrderedProduct {
+  title: string;
+  imageUrl: string;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface OrderUser {
+  firstName: string;
+  lastName: string;
+  email: string;
   phone: string;
+}
+
+export interface OrdersPage {
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  items: OrderItem[];
+}
+
+export interface GetOrdersData {
+  orders: OrdersPage;
 }
