@@ -8,6 +8,7 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
+import { useCartSync } from './hooks/useCartSync';
 import { Cart, Home } from './pages';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -20,6 +21,7 @@ import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { Profile } from './pages/User/Profile';
 
 function App() {
+  useCartSync();
   const {
     HOME,
     SHOP,
