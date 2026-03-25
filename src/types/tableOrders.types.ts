@@ -1,16 +1,16 @@
 export const ORDER_STATUS = {
   NEW: 'new',
-  PENDING: 'pending',
-  PAID: 'paid',
-  SHIPPED: 'shipped',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  SHIPPING: 'shipping',
   CANCELLED: 'cancelled',
 } as const;
 
 export type OrderStatus =
   | typeof ORDER_STATUS.NEW
-  | typeof ORDER_STATUS.PENDING
-  | typeof ORDER_STATUS.PAID
-  | typeof ORDER_STATUS.SHIPPED
+  | typeof ORDER_STATUS.PROCESSING
+  | typeof ORDER_STATUS.COMPLETED
+  | typeof ORDER_STATUS.SHIPPING
   | typeof ORDER_STATUS.CANCELLED;
 
 export interface OrderItem {

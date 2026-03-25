@@ -1,6 +1,9 @@
-import { ActionMenu, MainTable } from '@/components';
+import clsx from 'clsx';
+
+import { ActionMenu, Dropdown, MainTable } from '@/components';
 import type { Column } from '@/types';
-import type { OrderItem } from '@/types/tableOrders.types';
+import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
+import { capitalizeFirst, formatDate } from '@/utils';
 
 interface TableOrdersProps {
   items: OrderItem[];
@@ -19,12 +22,21 @@ const columns: Column[] = [
   { key: 'actions', label: 'Actions', className: '' },
 ];
 
+const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
+  label: capitalizeFirst(status),
+  value: status,
+}));
+
 const handleEdit = () => {};
 
 const renderProductRow = (item: OrderItem) => {
+  const handleStatusChange = () => {
+    // TODO: handle status change
+  };
+
   const firstProduct = item.items[0];
   const customerName = `${item.user.firstName} ${item.user.lastName}`.trim();
-  const createdAt = new Date(item.createdAt).toLocaleDateString('uk-UA');
+  const selectedStatus = item.status ? [String(item.status).toLowerCase()] : [];
 
   return (
     <>
@@ -48,12 +60,34 @@ const renderProductRow = (item: OrderItem) => {
       <td>#{item.orderId}</td>
       <td>${item.totalPrice.toFixed(2)}</td>
       <td>
-        <span>{item.status}</span>
+        <div className="flex justify-center">
+          <Dropdown
+            label="Status"
+            labelClassName="hidden"
+            options={statusOptions}
+            selectedValues={selectedStatus}
+            onChange={() => handleStatusChange()}
+            multiple={false}
+            hasBorder={true}
+            placeholder="Status"
+            selectClassName={
+              ' ' +
+              clsx(
+                '!flex !items-center !justify-between',
+                '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
+                '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+              )
+            }
+          />
+        </div>
       </td>
-      <td>{createdAt}</td>
+      <td>{formatDate(new Date(item.createdAt))}</td>
       <td>{item.user.phone}</td>
       <td>
-        <ActionMenu editAction={() => handleEdit()} />
+        <ActionMenu
+          className="top-0 left-[-135px]"
+          editAction={() => handleEdit()}
+        />
       </td>
     </>
   );
