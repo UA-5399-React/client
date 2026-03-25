@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MOCK_AUTH } from '@/constants';
+import { API_BASE_URL, MOCK_AUTH } from '@/constants';
 
 import { apiClient } from './api';
 
@@ -59,7 +59,7 @@ describe('service: apiClient', () => {
     });
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      'http://localhost:3001/auth/refresh',
+      `${API_BASE_URL}/auth/refresh`,
       expect.objectContaining({
         method: 'POST',
         credentials: 'include',
@@ -67,7 +67,7 @@ describe('service: apiClient', () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       3,
-      'http://localhost:3001/payments/create-checkout-session',
+      `${API_BASE_URL}/payments/create-checkout-session`,
       expect.objectContaining({
         method: 'POST',
         credentials: 'include',

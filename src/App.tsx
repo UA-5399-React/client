@@ -9,8 +9,10 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { Cart, Checkout, Home, OrderConfirmation } from './pages';
+import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
+import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
@@ -30,6 +32,8 @@ function App() {
     ORDER_CONFIRMATION,
     ADMIN,
     ADMIN_CATEGORIES,
+    ADMIN_CATEGORY_ADD,
+    ADMIN_CATEGORY_EDIT,
     ADMIN_PRODUCTS,
     ADMIN_USERS,
     ADMIN_SETTING,
@@ -73,6 +77,8 @@ function App() {
           <Route path={ADMIN} element={<AdminLayout />}>
             <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
+            <Route path={ADMIN_CATEGORY_ADD} element={<AddCategory />} />
+            <Route path={ADMIN_CATEGORY_EDIT} element={<EditCategory />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />

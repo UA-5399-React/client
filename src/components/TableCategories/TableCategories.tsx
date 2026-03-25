@@ -13,6 +13,7 @@ interface TableCategoriesProps {
   error?: Error | null;
   deletingId?: string | null;
   onDelete: (category: Category) => void;
+  onEdit: (category: Category) => void;
 }
 
 const formatCategoryDate = (value: string) =>
@@ -32,6 +33,7 @@ type CategoryRowProps = {
   isExpanded: boolean;
   deletingId?: string | null;
   onDelete: (category: Category) => void;
+  onEdit: (category: Category) => void;
   onToggle: (categoryId: string) => void;
 };
 
@@ -42,6 +44,7 @@ function CategoryRow({
   isExpanded,
   deletingId,
   onDelete,
+  onEdit,
   onToggle,
 }: CategoryRowProps) {
   const isDeleting = deletingId === category.id;
@@ -126,6 +129,7 @@ function CategoryRow({
           aria-label={`Edit ${category.title}`}
           className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
           type="button"
+          onClick={() => onEdit(category)}
         >
           <Pencil className="h-[20px] w-[20px]" />
         </Button>
@@ -141,6 +145,7 @@ function TableCategoriesContent({
   isDark,
   deletingId,
   onDelete,
+  onEdit,
 }: {
   items: Category[];
   loading: boolean;
@@ -148,6 +153,7 @@ function TableCategoriesContent({
   isDark: boolean;
   deletingId?: string | null;
   onDelete: (category: Category) => void;
+  onEdit: (category: Category) => void;
 }) {
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
@@ -236,6 +242,7 @@ function TableCategoriesContent({
         isExpanded={isExpanded}
         deletingId={deletingId}
         onDelete={onDelete}
+        onEdit={onEdit}
         onToggle={toggleCategory}
       />,
     ];
@@ -251,6 +258,7 @@ function TableCategoriesContent({
             isExpanded={false}
             deletingId={deletingId}
             onDelete={onDelete}
+            onEdit={onEdit}
             onToggle={toggleCategory}
           />
         )),
@@ -267,11 +275,12 @@ export function TableCategories({
   error,
   deletingId,
   onDelete,
+  onEdit,
 }: TableCategoriesProps) {
   const { isDark } = useTheme();
 
   return (
-    <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
+    <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
       <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_td]:px-4 [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] text-[#8A92A6]">
           <tr>
@@ -294,6 +303,7 @@ export function TableCategories({
             isDark={isDark}
             deletingId={deletingId}
             onDelete={onDelete}
+            onEdit={onEdit}
           />
         </tbody>
       </table>

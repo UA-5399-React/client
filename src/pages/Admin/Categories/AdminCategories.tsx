@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { AlertCircle } from 'lucide-react';
 
@@ -10,7 +10,7 @@ import {
   SearchInput,
   TableCategories,
 } from '@/components';
-import { ADMIN_PAGE_LIMIT } from '@/constants';
+import { ADMIN_PAGE_LIMIT, ROUTES } from '@/constants';
 import { useDeleteAdminCategory } from '@/hooks';
 import { useAdminCategoriesPage } from '@/hooks/useAdminCategoriesPage';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
@@ -89,6 +89,10 @@ export function AdminCategories() {
     });
   };
 
+  const handleEditCategory = (category: Category) => {
+    navigate(generatePath(ROUTES.ADMIN_CATEGORY_EDIT, { id: category.id }));
+  };
+
   return (
     <div>
       <AdminPageHeader />
@@ -97,7 +101,7 @@ export function AdminCategories() {
         <Button
           variant="primary"
           type="button"
-          onClick={() => navigate('/admin/categories/add')}
+          onClick={() => navigate(ROUTES.ADMIN_CATEGORY_ADD)}
         >
           + Add Category
         </Button>
@@ -141,6 +145,7 @@ export function AdminCategories() {
           error={error}
           deletingId={deletingId}
           onDelete={handleDeleteCategory}
+          onEdit={handleEditCategory}
         />
 
         <Pagination

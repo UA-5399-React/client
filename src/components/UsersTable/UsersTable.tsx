@@ -3,54 +3,53 @@ import clsx from 'clsx';
 import { EllipsisVertical, Pencil, Trash } from 'lucide-react';
 
 import { Button, Checkbox, Dropdown } from '@/components';
-import type { AdminUser } from '@/types/admin-user.types';
+import { USER_ROLE_OPTIONS, USER_STATUS_OPTIONS } from '@/constants/adminUsers';
+import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
+import type { AdminUser, UserRole } from '@/types/admin-user.types';
 
 interface UsersTableProps {
   items: AdminUser[];
-  onUpdateUser: (
-    userId: string,
-    field: 'role' | 'isActive',
-    value: string | boolean,
-  ) => void;
 }
-
-const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Blocked', value: 'blocked' },
-];
-
-const roleOptions = [
-  { label: 'Super Admin', value: 'super_admin' },
-  { label: 'Admin', value: 'admin' },
-  { label: 'Customer', value: 'customer' },
-];
 
 const getFullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
 
-const getActivityLabel = (date: string) => {
-  const diffMs = Date.now() - new Date(date).getTime();
-  const diffDays = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+const getActivityLabel = (dateString: string | undefined) => {
+  if (!dateString) return 'Never';
 
-  return `${diffDays} days ago`;
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) return 'Unknown';
+
+  const diffInMs = new Date().getTime() - date.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays === 0) return 'Today';
+  if (diffInDays === 1) return 'Yesterday';
+  return `${diffInDays} days ago`;
 };
 
-export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
+export function UsersTable({ items }: UsersTableProps) {
   const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
 
-  const handleStatusChange = (
+  const { handleUpdate, isUpdating } = useUpdateAdminUser();
+
+  const handleStatusChange = async (
     userId: string,
     selected: { value: string }[],
   ) => {
     const newValue = selected[0]?.value;
     if (newValue) {
-      onUpdateUser(userId, 'isActive', newValue === 'active');
+      await handleUpdate(userId, { isActive: newValue === 'active' });
     }
   };
 
-  const handleRoleChange = (userId: string, selected: { value: string }[]) => {
-    const newValue = selected[0]?.value;
+  const handleRoleChange = async (
+    userId: string,
+    selected: { value: string }[],
+  ) => {
+    const newValue = selected[0]?.value as UserRole;
     if (newValue) {
-      onUpdateUser(userId, 'role', newValue);
+      await handleUpdate(userId, { role: newValue });
     }
   };
 
@@ -63,7 +62,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
   }
 
   return (
-    <div className="mt-5 rounded-lg border border-[#E5E7EB] bg-white shadow-md">
+    <div className="mt-5 overflow-x-auto rounded-lg border border-[#E5E7EB] bg-white shadow-md">
       <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#E5E7EB] [&_thead_th]:border-b [&_thead_th]:border-[#E5E7EB] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] text-[#8A92A6]">
           <tr>
@@ -80,7 +79,12 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
             <th className="w-[80px]"></th>
           </tr>
         </thead>
-        <tbody className="bg-white [&_td]:px-4 [&_td]:py-4">
+        <tbody
+          className={clsx(
+            'bg-white [&_td]:px-4 [&_td]:py-4',
+            isUpdating && 'pointer-events-none opacity-50',
+          )}
+        >
           {items.map((user) => {
             const currentStatus = user.isActive ? 'active' : 'blocked';
             const currentRole = user.role;
@@ -105,7 +109,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                   <Dropdown
                     label="Status"
                     labelClassName="hidden"
-                    options={statusOptions}
+                    options={[...USER_STATUS_OPTIONS]}
                     selectedValues={[currentStatus]}
                     onChange={(selected) =>
                       handleStatusChange(
@@ -136,7 +140,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
                   <Dropdown
                     label="Role"
                     labelClassName="hidden"
-                    options={roleOptions}
+                    options={[...USER_ROLE_OPTIONS]}
                     selectedValues={[currentRole]}
                     onChange={(selected) =>
                       handleRoleChange(user.id, selected as { value: string }[])
