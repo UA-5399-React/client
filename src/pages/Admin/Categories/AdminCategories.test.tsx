@@ -173,6 +173,51 @@ describe('Page: AdminCategories', () => {
     );
   });
 
+  it('should navigate to add category page when add button is clicked', async () => {
+    const user = userEvent.setup();
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [],
+      loading: false,
+      error: null,
+      totalPages: 1,
+      total: 0,
+    });
+
+    render(<AdminCategories />);
+
+    await user.click(screen.getByRole('button', { name: '+ Add Category' }));
+
+    expect(window.location.pathname).toBe('/admin/categories/add');
+  });
+
+  it('should navigate to edit category page when edit button is clicked', async () => {
+    const user = userEvent.setup();
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [
+        {
+          id: 'parent-2',
+          title: 'Accessories',
+          imageUrl: null,
+          description: 'Category without children',
+          parent: null,
+          depth: 1,
+          createdAt: '2025-10-14T12:00:00Z',
+          updatedAt: '2025-10-15T12:00:00Z',
+        },
+      ],
+      loading: false,
+      error: null,
+      totalPages: 1,
+      total: 1,
+    });
+
+    render(<AdminCategories />);
+
+    await user.click(screen.getByRole('button', { name: 'Edit Accessories' }));
+
+    expect(window.location.pathname).toBe('/admin/categories/edit/parent-2');
+  });
+
   it('should execute delete mutation when modal confirm callback is called', async () => {
     useAdminCategoriesPageMock.mockReturnValue({
       categories: [

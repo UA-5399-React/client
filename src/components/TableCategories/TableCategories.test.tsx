@@ -10,6 +10,7 @@ vi.mock('@/hooks/useTheme', () => ({
 }));
 
 const mockDelete = vi.fn();
+const mockEdit = vi.fn();
 
 const mockCategories: Category[] = [
   {
@@ -57,7 +58,12 @@ const mockCategories: Category[] = [
 describe('UI Component: TableCategories', () => {
   it('should render the table and all column headers', () => {
     render(
-      <TableCategories items={[]} loading={false} onDelete={mockDelete} />,
+      <TableCategories
+        items={[]}
+        loading={false}
+        onDelete={mockDelete}
+        onEdit={mockEdit}
+      />,
     );
 
     expect(screen.getByRole('table')).toBeInTheDocument();
@@ -71,7 +77,14 @@ describe('UI Component: TableCategories', () => {
   });
 
   it('should show loading state', () => {
-    render(<TableCategories items={[]} loading={true} onDelete={mockDelete} />);
+    render(
+      <TableCategories
+        items={[]}
+        loading={true}
+        onDelete={mockDelete}
+        onEdit={mockEdit}
+      />,
+    );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -83,6 +96,7 @@ describe('UI Component: TableCategories', () => {
         loading={false}
         error={new Error('Network failure')}
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 
@@ -93,7 +107,12 @@ describe('UI Component: TableCategories', () => {
 
   it('should show empty state when there are no categories', () => {
     render(
-      <TableCategories items={[]} loading={false} onDelete={mockDelete} />,
+      <TableCategories
+        items={[]}
+        loading={false}
+        onDelete={mockDelete}
+        onEdit={mockEdit}
+      />,
     );
 
     expect(screen.getByText('No categories found')).toBeInTheDocument();
@@ -105,6 +124,7 @@ describe('UI Component: TableCategories', () => {
         items={mockCategories}
         loading={false}
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 
@@ -121,6 +141,7 @@ describe('UI Component: TableCategories', () => {
         items={mockCategories}
         loading={false}
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 
@@ -143,6 +164,7 @@ describe('UI Component: TableCategories', () => {
         items={mockCategories}
         loading={false}
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 
@@ -163,6 +185,7 @@ describe('UI Component: TableCategories', () => {
     await user.click(editButton);
     await user.click(deleteButton);
 
+    expect(mockEdit).toHaveBeenCalledWith(mockCategories[2]);
     expect(mockDelete).toHaveBeenCalledWith(mockCategories[2]);
   });
 
@@ -173,6 +196,7 @@ describe('UI Component: TableCategories', () => {
         loading={false}
         deletingId="parent-2"
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 
@@ -187,6 +211,7 @@ describe('UI Component: TableCategories', () => {
         items={mockCategories}
         loading={false}
         onDelete={mockDelete}
+        onEdit={mockEdit}
       />,
     );
 

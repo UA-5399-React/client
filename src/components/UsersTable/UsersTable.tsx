@@ -63,7 +63,7 @@ export function UsersTable({ items, onUpdateUser }: UsersTableProps) {
   }
 
   return (
-    <div className="mt-5 rounded-lg border border-[#E5E7EB] bg-white shadow-md">
+    <div className="mt-5 overflow-x-auto rounded-lg border border-[#E5E7EB] bg-white shadow-md">
       <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#E5E7EB] [&_thead_th]:border-b [&_thead_th]:border-[#E5E7EB] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] text-[#8A92A6]">
           <tr>
