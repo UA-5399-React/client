@@ -33,7 +33,8 @@ describe('UsersTable', () => {
     render(<UsersTable items={mockUsers} />);
     const firstUser = mockUsers[0];
     const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
-    expect(screen.getByText(fullName)).toBeInTheDocument();
+    const nameElements = screen.getAllByText(fullName);
+    expect(nameElements[0]).toBeInTheDocument();
     expect(screen.getByText(firstUser.email)).toBeInTheDocument();
   });
 
