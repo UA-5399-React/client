@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
+import {
+  type ProfileFormValues,
+  profileSchema,
+} from '@/schemas/profile.schema';
 import { authService } from '@/services';
 import { usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
-
-type ProfileFormValues = {
-  firstName: string;
-  lastName: string;
-  oldPassword: string;
-  newPassword: string;
-  repeatPassword: string;
-};
 
 export function Profile() {
   const navigate = useNavigate();
@@ -32,6 +29,7 @@ export function Profile() {
     reset,
     formState: { errors },
   } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -74,9 +72,12 @@ export function Profile() {
       setSubmitError('');
       setSuccessMessage('');
 
+      const normalizedFirstName = values.firstName.trim();
+      const normalizedLastName = values.lastName.trim();
+
       const profileChanged =
-        values.firstName !== (user.firstName ?? '') ||
-        values.lastName !== (user.lastName ?? '');
+        normalizedFirstName !== (user.firstName ?? '') ||
+        normalizedLastName !== (user.lastName ?? '');
 
       const hasAnyPasswordValue =
         values.oldPassword.trim() !== '' ||
@@ -84,15 +85,15 @@ export function Profile() {
         values.repeatPassword.trim() !== '';
 
       if (!profileChanged && !hasAnyPasswordValue) {
-        throw new Error('No changes to save');
+        return;
       }
 
       let updatedUser = user;
 
       if (profileChanged) {
         await usersService.updateMe({
-          firstName: values.firstName,
-          lastName: values.lastName,
+          firstName: normalizedFirstName,
+          lastName: normalizedLastName,
         });
 
         updatedUser = await usersService.getMe();
@@ -101,20 +102,26 @@ export function Profile() {
 
       if (hasAnyPasswordValue) {
         await usersService.changePassword({
-          oldPassword: values.oldPassword,
-          newPassword: values.newPassword,
+          oldPassword: values.oldPassword.trim(),
+          newPassword: values.newPassword.trim(),
         });
       }
 
       reset({
-        firstName: updatedUser.firstName ?? values.firstName,
-        lastName: updatedUser.lastName ?? values.lastName,
+        firstName: updatedUser.firstName ?? normalizedFirstName,
+        lastName: updatedUser.lastName ?? normalizedLastName,
         oldPassword: '',
         newPassword: '',
         repeatPassword: '',
       });
 
-      setSuccessMessage('Profile updated successfully');
+      if (profileChanged && hasAnyPasswordValue) {
+        setSuccessMessage('Profile and password updated successfully');
+      } else if (profileChanged) {
+        setSuccessMessage('Profile updated successfully');
+      } else {
+        setSuccessMessage('Password updated successfully');
+      }
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : 'Failed to update profile',

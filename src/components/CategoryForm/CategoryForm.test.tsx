@@ -1,17 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  fireEvent,
-  render,
-  screen,
-  userEvent,
-  waitFor,
-} from '@/utils/test-utils';
+import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { CategoryForm } from './CategoryForm';
 
 const mockCreateCategory = vi.fn();
 const mockUpdateCategory = vi.fn();
+const mockUploadImage = vi.fn();
 const mockNavigate = vi.fn();
 let mockIsDark = false;
 
@@ -21,6 +16,13 @@ vi.mock('@/hooks/useCreateAdminCategory', () => ({
 
 vi.mock('@/hooks/useUpdateAdminCategory', () => ({
   useUpdateAdminCategory: () => ({ updateCategory: mockUpdateCategory }),
+}));
+
+vi.mock('@/hooks/useUploadProductImage', () => ({
+  useUploadProductImage: () => ({
+    uploadImage: mockUploadImage,
+    loading: false,
+  }),
 }));
 
 vi.mock('@/hooks/useTheme', () => ({
@@ -165,6 +167,41 @@ describe('Component: CategoryForm', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/admin/categories');
   });
 
+  it('should upload image and save category with uploaded image URL', async () => {
+    mockUploadImage.mockResolvedValue({
+      imageUrl: 'https://cdn.example.com/category.png',
+      imagePublicId: 'products/category',
+    });
+    mockCreateCategory.mockResolvedValue({
+      data: { createCategory: { id: '1' } },
+    });
+
+    const user = userEvent.setup();
+    const { container } = render(<CategoryForm mode="add" />);
+    const file = new File(['img'], 'category.png', { type: 'image/png' });
+
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
+
+    await user.upload(
+      container.querySelector('input[type="file"]') as HTMLInputElement,
+      file,
+    );
+
+    await user.type(
+      screen.getByRole('textbox', { name: /Category Name/i }),
+      'Uploaded Category',
+    );
+    await user.type(screen.getByPlaceholderText(/Short description/i), 'Desc');
+    await user.click(screen.getByRole('button', { name: /Save Category/i }));
+
+    await waitFor(() => expect(mockUploadImage).toHaveBeenCalledWith(file));
+    expect(mockCreateCategory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        imageUrl: 'https://cdn.example.com/category.png',
+      }),
+    );
+  });
+
   it('should cover dropdown item selection and filtering', async () => {
     const user = userEvent.setup();
     const items = [
@@ -257,18 +294,24 @@ describe('Component: CategoryForm', () => {
   });
 
   it('should handle image upload and preview', async () => {
+    const user = userEvent.setup();
     const spy = vi
       .spyOn(URL, 'createObjectURL')
       .mockReturnValue('blob:preview');
     const { container } = render(<CategoryForm mode="add" />);
     const file = new File(['img'], 'c.png', { type: 'image/png' });
-    fireEvent.change(container.querySelector('input[type="file"]')!, {
-      target: { files: [file] },
-    });
-    expect(screen.getByAltText('Preview')).toHaveAttribute(
-      'src',
-      'blob:preview',
+    await user.upload(
+      container.querySelector('input[type="file"]') as HTMLInputElement,
+      file,
     );
+
+    await waitFor(() => {
+      expect(screen.getByAltText('Preview')).toHaveAttribute(
+        'src',
+        'blob:preview',
+      );
+    });
+
     spy.mockRestore();
   });
 

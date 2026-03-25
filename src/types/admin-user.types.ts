@@ -16,3 +16,9 @@ export interface AdminUser {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UpdateUserInput {
+  id: string;
+  role?: UserRole;
+  isActive?: boolean;
+}

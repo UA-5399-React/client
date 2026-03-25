@@ -3,6 +3,7 @@ export * from './useAdminCategoriesPage';
 export * from './useAdminUsers';
 export * from './useAuth';
 export * from './useCartSync';
+export * from './useCheckout';
 export * from './useCreateAdminCategory';
 export * from './useDeleteAdminCategory';
 export * from './useGetAdminCategory';
