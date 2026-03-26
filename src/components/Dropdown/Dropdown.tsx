@@ -68,7 +68,7 @@ export const Dropdown = ({
         items={options}
       >
         <Select.Trigger
-          className={styles.Select + clsx(selectClassName)}
+          className={clsx(styles.Select, selectClassName)}
           data-border={hasBorder}
         >
           <Select.Value className={styles.Value} placeholder={placeholder} />

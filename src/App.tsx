@@ -10,6 +10,7 @@ import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { Cart, Home } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
+import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
@@ -37,6 +38,7 @@ function App() {
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
+    ADMIN_ORDER_CREATE,
     LOGIN,
     REGISTER,
     ADMIN_ORDERS,
@@ -79,6 +81,7 @@ function App() {
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
+            <Route path={ADMIN_ORDER_CREATE} element={<AdminCreateOrder />} />
             <Route
               element={
                 <ProtectedRoute

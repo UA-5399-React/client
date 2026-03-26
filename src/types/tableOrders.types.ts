@@ -23,3 +23,13 @@ export interface OrderItem {
   date: string;
   phone: string;
 }
+
+export interface OrderFormData {
+  customerName: string;
+  email: string;
+  phone: string;
+  status: OrderStatus;
+  productName: string;
+  price: string;
+  quantity: string;
+}
