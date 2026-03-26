@@ -7,15 +7,19 @@ import { useAdminOrders } from '@/hooks/useAdminOrders';
 export function AdminOrders() {
   const navigate = useNavigate();
   const { orders, loading, error } = useAdminOrders();
+  const handleCreateOrder = () => {
+    navigate(ROUTES.ADMIN_ORDER_CREATE);
+  };
 
   return (
     <div>
-      <div className="flex items-center justify-end border-b border-[#e5e7eb] px-4 py-3">
+      <div className="flex items-center justify-start border-b px-4 py-3">
         <Button
           variant="primary"
-          onClick={() => navigate(ROUTES.ADMIN_ORDER_CREATE)}
+          onClick={handleCreateOrder}
+          className="text-neutral-0 bg-blue-800"
         >
-          + Add Order
+          + Create Order
         </Button>
       </div>
 
