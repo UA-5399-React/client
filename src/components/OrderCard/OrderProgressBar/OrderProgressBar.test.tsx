@@ -37,15 +37,14 @@ describe('UI Component: OrderProgressBar', () => {
   it('should render active label text for processed step', () => {
     render(<OrderProgressBar currentStep="processed" />);
 
-    expect(screen.getByText('Processed')).toHaveClass('text-text');
-
-    expect(screen.getByText('En Route')).not.toHaveClass('text-text');
+    expect(screen.getByText('Processed')).toHaveClass('text-black');
+    expect(screen.getByText('En Route')).not.toHaveClass('text-black');
   });
 
   it('should render active label text for shipped step', () => {
     render(<OrderProgressBar currentStep="shipped" />);
 
-    expect(screen.getByText('En Route')).toHaveClass('text-text');
-    expect(screen.getByText('Completed')).not.toHaveClass('text-text');
+    expect(screen.getByText('En Route')).toHaveClass('text-black');
+    expect(screen.getByText('Completed')).not.toHaveClass('text-black');
   });
 });
