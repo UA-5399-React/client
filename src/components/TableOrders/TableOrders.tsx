@@ -1,30 +1,15 @@
-import { ActionMenu, MainTable } from '@/components';
-import type { Column } from '@/types';
-import type { OrderItem } from '@/types/tableOrders.types';
+import clsx from 'clsx';
 
-// Mock data for testing
-const items: OrderItem[] = [
-  {
-    id: 'order-1',
-    productName: 'Product 1',
-    customerName: 'Customer 1',
-    orderId: '1234567890',
-    amount: 100,
-    status: 'Pending',
-    date: '2021-01-01',
-    phone: '1234567890',
-  },
-  {
-    id: 'order-2',
-    productName: 'Product 2',
-    customerName: 'Customer 2',
-    orderId: '1234567890',
-    amount: 200,
-    status: 'Shipped',
-    date: '2021-01-01',
-    phone: '1234567890',
-  },
-];
+import { ActionMenu, Dropdown, MainTable } from '@/components';
+import type { Column } from '@/types';
+import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
+import { capitalizeFirst, formatDate } from '@/utils';
+
+interface TableOrdersProps {
+  items: OrderItem[];
+  loading: boolean;
+  error: Error | null | undefined;
+}
 
 const columns: Column[] = [
   { key: 'product', label: 'Product Name', className: '!min-w-[55%]' },
@@ -37,37 +22,78 @@ const columns: Column[] = [
   { key: 'actions', label: 'Actions', className: '' },
 ];
 
+const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
+  label: capitalizeFirst(status),
+  value: status,
+}));
+
 const handleEdit = () => {};
 
 const renderProductRow = (item: OrderItem) => {
+  const handleStatusChange = () => {
+    // TODO: handle status change
+  };
+
+  const firstProduct = item.items[0];
+  const customerName = `${item.user.firstName} ${item.user.lastName}`.trim();
+  const selectedStatus = item.status ? [String(item.status).toLowerCase()] : [];
+
   return (
     <>
       <td>
-        <div className="flex flex-col items-center gap-2">
-          {item.productName}
-          <span>Image</span>
+        <div className="flex flex-row gap-2">
+          {firstProduct?.imageUrl ? (
+            <img
+              src={firstProduct.imageUrl}
+              alt={firstProduct.title}
+              className="h-10 w-10 rounded object-cover"
+            />
+          ) : null}
+          <div className="flex flex-col gap-1 text-left">
+            <span>{firstProduct?.title ?? 'No items'}</span>
+
+            <span> Items: {item.items.length}</span>
+          </div>
         </div>
       </td>
-      <td>{item.customerName}</td>
+      <td>{customerName}</td>
       <td>#{item.orderId}</td>
-      <td>${item.amount}</td>
+      <td>${item.totalPrice.toFixed(2)}</td>
       <td>
-        <span>{item.status}</span>
+        <div className="flex justify-center">
+          <Dropdown
+            label="Status"
+            labelClassName="hidden"
+            options={statusOptions}
+            selectedValues={selectedStatus}
+            onChange={() => handleStatusChange()}
+            multiple={false}
+            hasBorder={true}
+            placeholder="Status"
+            selectClassName={
+              ' ' +
+              clsx(
+                '!flex !items-center !justify-between',
+                '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
+                '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+              )
+            }
+          />
+        </div>
       </td>
-      <td>{item.date}</td>
-      <td>{item.phone}</td>
+      <td>{formatDate(new Date(item.createdAt))}</td>
+      <td>{item.user.phone}</td>
       <td>
-        <ActionMenu editAction={() => handleEdit()} />
+        <ActionMenu
+          className="top-0 left-[-135px]"
+          editAction={() => handleEdit()}
+        />
       </td>
     </>
   );
 };
 
-export function TableOrders() {
-  // TODO: add loading and error states
-  const loading = false;
-  const error = null;
-
+export function TableOrders({ items, loading, error }: TableOrdersProps) {
   return (
     <MainTable
       columns={columns}

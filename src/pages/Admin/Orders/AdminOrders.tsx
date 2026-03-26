@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button, TableOrders } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAdminOrders } from '@/hooks/useAdminOrders';
 
 export function AdminOrders() {
   const navigate = useNavigate();
+  const { orders, loading, error } = useAdminOrders();
 
   return (
     <div>
@@ -17,7 +19,7 @@ export function AdminOrders() {
         </Button>
       </div>
 
-      <TableOrders />
+      <TableOrders items={orders} loading={loading} error={error} />
     </div>
   );
 }
