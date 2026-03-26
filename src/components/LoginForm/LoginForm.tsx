@@ -9,6 +9,8 @@ import { Input } from '@/components';
 import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
+import { cartService } from '@/services/cartService';
+import { useCartStore } from '@/store/useCartStore';
 import { canAccessAdminPanel, isAuthRole } from '@/utils/permissions';
 
 const loginSchema = z.object({
@@ -70,6 +72,23 @@ export const LoginForm: React.FC = () => {
     try {
       await loginMutation({ email: data.email, password: data.password });
       const user = await authService.getMe();
+
+      try {
+        const store = useCartStore.getState();
+        const guestItems = store.items.map((item) => ({
+          productId: String(item.product.id || item.product._id),
+          quantity: item.quantity,
+        }));
+
+        const syncedCart = await cartService.syncCart(guestItems);
+        const newCartItems = syncedCart.items.map((i) => ({
+          product: i.product,
+          quantity: i.quantity,
+        }));
+        store.setCart(newCartItems);
+      } catch (err) {
+        console.error('Failed to sync cart:', err);
+      }
 
       const expirationTime = getExpirationTime(data.rememberMe);
       localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
