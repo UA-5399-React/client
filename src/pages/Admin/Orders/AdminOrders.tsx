@@ -6,7 +6,7 @@ import { useAdminOrders } from '@/hooks/useAdminOrders';
 
 export function AdminOrders() {
   const navigate = useNavigate();
-  const { orders, loading, error } = useAdminOrders();
+  const { orders, loading, error, handleOrderStatusChange } = useAdminOrders();
   const handleCreateOrder = () => {
     navigate(ROUTES.ADMIN_ORDER_CREATE);
   };
@@ -23,7 +23,12 @@ export function AdminOrders() {
         </Button>
       </div>
 
-      <TableOrders items={orders} loading={loading} error={error} />
+      <TableOrders
+        items={orders}
+        loading={loading}
+        error={error}
+        onStatusChange={handleOrderStatusChange}
+      />
     </div>
   );
 }

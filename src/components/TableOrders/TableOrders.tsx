@@ -2,13 +2,23 @@ import clsx from 'clsx';
 
 import { ActionMenu, Dropdown, MainTable } from '@/components';
 import type { Column } from '@/types';
-import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
+import {
+  ORDER_STATUS,
+  type OrderItem,
+  type OrderStatus,
+} from '@/types/tableOrders.types';
 import { capitalizeFirst, formatDate } from '@/utils';
+
+import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
 interface TableOrdersProps {
   items: OrderItem[];
   loading: boolean;
   error: Error | null | undefined;
+  onStatusChange: (
+    orderId: string,
+    status: OrderItem['status'],
+  ) => Promise<void>;
 }
 
 const columns: Column[] = [
@@ -29,14 +39,24 @@ const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
 
 const handleEdit = () => {};
 
-const renderProductRow = (item: OrderItem) => {
-  const handleStatusChange = () => {
-    // TODO: handle status change
-  };
-
+const renderProductRow = (
+  item: OrderItem,
+  onStatusChange: (orderId: string, status: OrderStatus) => Promise<void>,
+) => {
   const firstProduct = item.items[0];
   const customerName = `${item.user.firstName} ${item.user.lastName}`.trim();
   const selectedStatus = item.status ? [String(item.status).toLowerCase()] : [];
+
+  const handleStatusSelect = (selected: DropdownOption[]) => {
+    const nextStatus = selected[0]?.value as OrderStatus;
+    const currentStatus = item.status.toLowerCase();
+
+    if (!nextStatus || nextStatus.toLowerCase() === currentStatus) {
+      return;
+    }
+
+    void onStatusChange(item.orderId, nextStatus);
+  };
 
   return (
     <>
@@ -66,7 +86,7 @@ const renderProductRow = (item: OrderItem) => {
             labelClassName="hidden"
             options={statusOptions}
             selectedValues={selectedStatus}
-            onChange={() => handleStatusChange()}
+            onChange={handleStatusSelect}
             multiple={false}
             hasBorder={true}
             placeholder="Status"
@@ -74,8 +94,8 @@ const renderProductRow = (item: OrderItem) => {
               ' ' +
               clsx(
                 '!flex !items-center !justify-between',
-                '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
-                '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+                '!h-8 !w-[120px] !rounded-[10px] !border !border-gray-600 !bg-white !px-3 !py-0 !text-xs !font-normal !text-neutral-800 !shadow-none hover:!bg-white',
+                '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-blue-500',
               )
             }
           />
@@ -93,7 +113,12 @@ const renderProductRow = (item: OrderItem) => {
   );
 };
 
-export function TableOrders({ items, loading, error }: TableOrdersProps) {
+export function TableOrders({
+  items,
+  loading,
+  error,
+  onStatusChange,
+}: TableOrdersProps) {
   return (
     <MainTable
       columns={columns}
@@ -101,7 +126,7 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
       loading={loading}
       error={error}
       emptyMessage="No orders found"
-      renderRow={renderProductRow}
+      renderRow={(item) => renderProductRow(item, onStatusChange)}
     />
   );
 }
