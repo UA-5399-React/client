@@ -138,7 +138,7 @@ export const AdminUsers = () => {
   }, [usersState.totalPages, normalizeOutOfRangePage]);
 
   return (
-    <section className="min-h-screen bg-[#FCFCFC] px-6 py-8">
+    <section className="bg-background text-text min-h-screen px-6 py-8 transition-colors duration-300">
       <div className="mx-auto">
         <UsersTopWidgets
           totalUsers={usersState.totalUsers}
