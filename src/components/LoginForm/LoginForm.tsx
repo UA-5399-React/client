@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { Checkbox } from '@/components';
+import { Button, Checkbox } from '@/components';
 import { Input } from '@/components';
 import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
@@ -112,8 +112,10 @@ export const LoginForm: React.FC = () => {
   return (
     <div className="flex w-full max-w-md flex-col px-4 sm:px-6">
       <div className="mb-8">
-        <h2 className="text-4xl font-medium text-gray-900">Sign In</h2>
-        <p className="mt-2 text-sm text-gray-500">
+        <h2 className="text-(rgb(var(--color-text))) text-4xl font-medium">
+          Sign In
+        </h2>
+        <p className="text-(rgb(var(--color-text))) mt-2 text-sm">
           Don't have an account yet?{' '}
           <Link to={ROUTES.REGISTER} className="font-medium hover:opacity-80">
             <span className="text-green-500">Sign Up</span>
@@ -129,7 +131,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('email')}
           variant="underlined"
-          inputClassName="bg-white text-black"
+          inputClassName="text-black bg-background"
           placeholder="Your email address"
           state={errors.email ? 'error' : 'default'}
           helperText={errors.email?.message}
@@ -139,7 +141,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('password')}
           type="password"
-          inputClassName="bg-white text-black"
+          inputClassName="text-black bg-background"
           variant="underlined"
           placeholder="Password"
           state={errors.password ? 'error' : 'default'}
@@ -156,8 +158,8 @@ export const LoginForm: React.FC = () => {
                 label="Remember me"
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                labelClassName="text-sm text-gray-500"
-                checkboxClassName="h-5 w-5 rounded border-gray-300"
+                labelClassName="text-sm text-[rgb(var(--color-gray-600))] dark:text-[rgb(var(--color-gray-600))]"
+                checkboxClassName="h-5 w-5 rounded border-gray-300 bg-[rgb(var(--color-gray-50))] dark:bg-white dark:hover:bg-[rgb(var(--color-gray-50))]"
               />
             )}
           />
@@ -175,13 +177,13 @@ export const LoginForm: React.FC = () => {
             {errors.root.message}
           </p>
         )}
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none"
+          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] bg-[rgb(var(--color-bg-sec-inverted))] px-4 py-3.5 text-center text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-colors hover:bg-black hover:text-[rgb(var(--color-text))] focus:ring-4 focus:ring-gray-300 focus:outline-none"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
-        </button>
+        </Button>
       </form>
     </div>
   );
