@@ -19,6 +19,7 @@ import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
+import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { Profile } from './pages/User/Profile';
 
@@ -41,6 +42,7 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     LOGIN,
     REGISTER,
+    EMAIL_CONFIRMATION,
     ADMIN_ORDERS,
     PROFILE,
   } = ROUTES;
@@ -63,6 +65,10 @@ function App() {
         <Route element={<AuthLayout />}>
           <Route path={LOGIN} element={<LoginForm />} />
           <Route path={REGISTER} element={<RegisterForm />} />
+          <Route
+            path={EMAIL_CONFIRMATION}
+            element={<EmailConfirmationPage />}
+          />
         </Route>
 
         <Route

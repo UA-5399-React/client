@@ -21,6 +21,7 @@ export const ROUTES = {
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
+  EMAIL_CONFIRMATION: '/email-confirmation',
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
   ADMIN_ORDERS: '/admin/orders',
