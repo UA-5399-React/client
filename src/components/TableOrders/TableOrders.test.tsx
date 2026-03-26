@@ -1,17 +1,42 @@
 import { describe, expect, it } from 'vitest';
 
+import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
+import { formatDate } from '@/utils';
 import { render, screen } from '@/utils/test-utils';
 
 import { TableOrders } from './TableOrders';
 
+const orderItem: OrderItem = {
+  id: 'order-1',
+  orderId: 'ORD-20250324-0001',
+  items: [
+    {
+      title: 'Test product',
+      imageUrl: 'https://example.com/product.jpg',
+      unitPrice: 999.99,
+      amount: 2,
+    },
+  ],
+  user: {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    phone: '+380501234567',
+  },
+  amount: 1999.98,
+  totalPrice: 1999.98,
+  status: ORDER_STATUS.PROCESSING,
+  createdAt: '2025-03-24T12:00:00.000Z',
+};
+
 describe('UI Component: TableOrders', () => {
   it('should render the table', () => {
-    render(<TableOrders />);
+    render(<TableOrders items={[]} loading={false} error={null} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
-    render(<TableOrders />);
+    render(<TableOrders items={[]} loading={false} error={null} />);
 
     expect(
       screen.getByRole('columnheader', { name: 'Product Name' }),
@@ -37,5 +62,33 @@ describe('UI Component: TableOrders', () => {
     expect(
       screen.getByRole('columnheader', { name: 'Actions' }),
     ).toBeInTheDocument();
+  });
+
+  it('should render empty state when there are no orders', () => {
+    render(<TableOrders items={[]} loading={false} error={null} />);
+
+    expect(screen.getByText('No orders found')).toBeInTheDocument();
+  });
+
+  it('should render order row values', () => {
+    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+
+    expect(screen.getByText('Test product')).toBeInTheDocument();
+    expect(screen.getByText('Items: 1')).toBeInTheDocument();
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('#ORD-20250324-0001')).toBeInTheDocument();
+    expect(screen.getByText('$1999.98')).toBeInTheDocument();
+    expect(screen.getByText('+380501234567')).toBeInTheDocument();
+    expect(
+      screen.getByText(formatDate(new Date(orderItem.createdAt))),
+    ).toBeInTheDocument();
+  });
+
+  it('should show selected order status in dropdown trigger', () => {
+    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+
+    expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
+      'Processing',
+    );
   });
 });
