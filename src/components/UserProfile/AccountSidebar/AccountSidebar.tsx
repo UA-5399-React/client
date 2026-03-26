@@ -73,12 +73,18 @@ export function AccountSidebar({
           </li>
 
           <li>
-            <span
-              aria-disabled="true"
-              className={`${navItemClass} border-transparent text-[rgb(var(--color-neutral-400))]`}
+            <NavLink
+              to={ROUTES.MYORDERS}
+              className={({ isActive }) =>
+                `${navItemClass} ${
+                  isActive
+                    ? 'border-[rgb(var(--neutral-800))] text-black'
+                    : 'border-transparent text-[rgb(var(--color-neutral-500))] hover:text-[rgb(var(--color-neutral-900))]'
+                }`
+              }
             >
               Orders
-            </span>
+            </NavLink>
           </li>
 
           <li>
