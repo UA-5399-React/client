@@ -12,6 +12,7 @@ import { useCartSync } from './hooks/useCartSync';
 import { Cart, Home } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
+import { AdminEditOrder } from './pages/Admin/AdminEditOrder/AdminEditOrder';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
@@ -41,6 +42,7 @@ function App() {
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
     ADMIN_ORDER_CREATE,
+    ADMIN_ORDER_EDIT,
     LOGIN,
     REGISTER,
     ADMIN_ORDERS,
@@ -84,6 +86,7 @@ function App() {
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
             <Route path={ADMIN_ORDER_CREATE} element={<AdminCreateOrder />} />
+            <Route path={ADMIN_ORDER_EDIT} element={<AdminEditOrder />} />
             <Route
               element={
                 <ProtectedRoute

@@ -14,10 +14,16 @@ export function AdminCreateOrder() {
       email: formData.email,
       phone: formData.phone,
       status: formData.status,
-      productName: formData.productName,
-      price: Number(formData.price),
-      quantity: Number(formData.quantity),
-      totalPrice: Number(formData.price) * Number(formData.quantity),
+      items: formData.items.map((item) => ({
+        productName: item.productName,
+        price: Number(item.price),
+        quantity: Number(item.quantity),
+        totalPrice: Number(item.price) * Number(item.quantity),
+      })),
+      totalPrice: formData.items.reduce(
+        (sum, item) => sum + Number(item.price) * Number(item.quantity),
+        0,
+      ),
     });
 
     navigate(ROUTES.ADMIN_ORDERS);

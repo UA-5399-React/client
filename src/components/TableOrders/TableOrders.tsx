@@ -7,7 +7,7 @@ import {
   type OrderItem,
   type OrderStatus,
 } from '@/types/tableOrders.types';
-import { capitalizeFirst, formatDate } from '@/utils';
+import { capitalizeFirst, formatDateToShort } from '@/utils';
 
 import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
@@ -15,6 +15,7 @@ interface TableOrdersProps {
   items: OrderItem[];
   loading: boolean;
   error: Error | null | undefined;
+  onEdit: (item: OrderItem) => void;
   onStatusChange: (
     orderId: string,
     status: OrderItem['status'],
@@ -37,10 +38,9 @@ const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
   value: status,
 }));
 
-const handleEdit = () => {};
-
 const renderProductRow = (
   item: OrderItem,
+  onEdit: (item: OrderItem) => void,
   onStatusChange: (orderId: string, status: OrderStatus) => Promise<void>,
 ) => {
   const firstProduct = item.items[0];
@@ -101,12 +101,12 @@ const renderProductRow = (
           />
         </div>
       </td>
-      <td>{formatDate(new Date(item.createdAt))}</td>
+      <td>{formatDateToShort(new Date(item.createdAt))}</td>
       <td>{item.user.phone}</td>
       <td>
         <ActionMenu
           className="top-0 left-[-135px]"
-          editAction={() => handleEdit()}
+          editAction={() => onEdit(item)}
         />
       </td>
     </>
@@ -117,6 +117,7 @@ export function TableOrders({
   items,
   loading,
   error,
+  onEdit,
   onStatusChange,
 }: TableOrdersProps) {
   return (
@@ -126,7 +127,7 @@ export function TableOrders({
       loading={loading}
       error={error}
       emptyMessage="No orders found"
-      renderRow={(item) => renderProductRow(item, onStatusChange)}
+      renderRow={(item) => renderProductRow(item, onEdit, onStatusChange)}
     />
   );
 }

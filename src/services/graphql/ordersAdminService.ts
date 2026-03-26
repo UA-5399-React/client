@@ -25,6 +25,7 @@ export const GET_ORDERS = gql`
           imageUrl
           unitPrice
           amount
+          product
         }
         user {
           email

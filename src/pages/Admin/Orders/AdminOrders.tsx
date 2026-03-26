@@ -3,12 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Button, TableOrders } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
+import type { OrderItem } from '@/types/tableOrders.types';
 
 export function AdminOrders() {
   const navigate = useNavigate();
   const { orders, loading, error, handleOrderStatusChange } = useAdminOrders();
   const handleCreateOrder = () => {
     navigate(ROUTES.ADMIN_ORDER_CREATE);
+  };
+
+  const handleEditOrder = (order: OrderItem) => {
+    navigate(ROUTES.ADMIN_ORDER_EDIT.replace(':id', order.orderId), {
+      state: { order },
+    });
   };
 
   return (
@@ -27,6 +34,7 @@ export function AdminOrders() {
         items={orders}
         loading={loading}
         error={error}
+        onEdit={handleEditOrder}
         onStatusChange={handleOrderStatusChange}
       />
     </div>
