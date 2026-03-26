@@ -18,3 +18,14 @@ export const USER_ROLE_OPTIONS = [
   { label: 'Admin', value: 'admin' },
   { label: 'Customer', value: 'customer' },
 ] as const;
+
+export const USER_ROLE_EDIT_OPTIONS = [
+  { label: 'Super Admin', value: 'SUPER_ADMIN' },
+  { label: 'Admin', value: 'ADMIN' },
+  { label: 'Customer', value: 'CUSTOMER' },
+] as const;
+
+export const USER_STATUS_EDIT_OPTIONS = [
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Blocked', value: 'BLOCKED' },
+] as const;
