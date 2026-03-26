@@ -9,12 +9,14 @@ interface ActionMenuProps {
   editAction: () => void;
   deleteAction?: () => void;
   className?: string;
+  triggerAriaLabel?: string;
 }
 
 export const ActionMenu = ({
   editAction,
   deleteAction,
   className,
+  triggerAriaLabel,
 }: ActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -37,6 +39,7 @@ export const ActionMenu = ({
     <div ref={rootRef} className="relative">
       <Button
         type="button"
+        aria-label={triggerAriaLabel}
         className={`${styles.button} hover:text-bgSecInverted bg-transparent text-gray-600 hover:!border-transparent`}
         onClick={() => setIsOpen((prev) => !prev)}
       >

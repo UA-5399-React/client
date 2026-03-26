@@ -162,8 +162,9 @@ export function UsersTable({ items }: UsersTableProps) {
 
                 <td className="relative text-right">
                   <ActionMenu
-                    editAction={() => undefined}
-                    deleteAction={() => undefined}
+                    triggerAriaLabel={`Actions for ${getFullName(user)}`}
+                    editAction={() => {}}
+                    deleteAction={() => {}}
                     className={clsx(
                       'right-0 left-auto',
                       shouldOpenUpward ? 'top-auto bottom-10' : 'top-10',
