@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import { EllipsisVertical, Pencil, Trash } from 'lucide-react';
 
 import { Button, Checkbox, Dropdown } from '@/components';
-import { USER_ROLE_OPTIONS, USER_STATUS_OPTIONS } from '@/constants/adminUsers';
+import {
+  USER_ROLE_EDIT_OPTIONS,
+  USER_STATUS_EDIT_OPTIONS,
+} from '@/constants/adminUsers';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
 import type { AdminUser, UserRole } from '@/types/admin-user.types';
 
@@ -39,7 +42,7 @@ export function UsersTable({ items }: UsersTableProps) {
   ) => {
     const newValue = selected[0]?.value;
     if (newValue) {
-      await handleUpdate(userId, { isActive: newValue === 'active' });
+      await handleUpdate(userId, { isActive: newValue === 'ACTIVE' });
     }
   };
 
@@ -47,9 +50,9 @@ export function UsersTable({ items }: UsersTableProps) {
     userId: string,
     selected: { value: string }[],
   ) => {
-    const newValue = selected[0]?.value as UserRole;
-    if (newValue) {
-      await handleUpdate(userId, { role: newValue });
+    const newValue = selected[0]?.value;
+    if (newValue && newValue !== 'all') {
+      await handleUpdate(userId, { role: newValue.toUpperCase() as UserRole });
     }
   };
 
@@ -109,8 +112,8 @@ export function UsersTable({ items }: UsersTableProps) {
                   <Dropdown
                     label="Status"
                     labelClassName="hidden"
-                    options={[...USER_STATUS_OPTIONS]}
-                    selectedValues={[currentStatus]}
+                    options={[...USER_STATUS_EDIT_OPTIONS]}
+                    selectedValues={[currentStatus.toUpperCase()]}
                     onChange={(selected) =>
                       handleStatusChange(
                         user.id,
@@ -140,8 +143,8 @@ export function UsersTable({ items }: UsersTableProps) {
                   <Dropdown
                     label="Role"
                     labelClassName="hidden"
-                    options={[...USER_ROLE_OPTIONS]}
-                    selectedValues={[currentRole]}
+                    options={[...USER_ROLE_EDIT_OPTIONS]}
+                    selectedValues={[currentRole.toUpperCase()]}
                     onChange={(selected) =>
                       handleRoleChange(user.id, selected as { value: string }[])
                     }
