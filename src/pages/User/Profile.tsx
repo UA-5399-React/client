@@ -22,6 +22,7 @@ export function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
 
   const {
     control,
@@ -159,6 +160,37 @@ export function Profile() {
     }
   };
 
+  const handleAvatarUpload = async (file: File) => {
+    if (!user) return;
+
+    try {
+      setIsAvatarUploading(true);
+      setSubmitError('');
+      setSuccessMessage('');
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const maxSize = 5 * 1024 * 1024;
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, and WEBP files are allowed');
+      }
+
+      if (file.size > maxSize) {
+        throw new Error('Maximum file size is 5 MB');
+      }
+
+      const updatedUser = await usersService.uploadAvatar(file);
+      setUser(updatedUser);
+      setSuccessMessage('Avatar updated successfully');
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Failed to upload avatar',
+      );
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="p-10">Loading...</div>;
   }
@@ -181,7 +213,12 @@ export function Profile() {
 
       <div className="mx-auto max-w-[1180px]">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-          <AccountSidebar user={user} onLogout={handleLogout} />
+          <AccountSidebar
+            user={user}
+            onAvatarClick={handleAvatarUpload}
+            onLogout={handleLogout}
+            isAvatarUploading={isAvatarUploading}
+          />
 
           <div className="max-w-[760px] px-[72px]">
             <form onSubmit={handleSubmit(onSubmit)}>

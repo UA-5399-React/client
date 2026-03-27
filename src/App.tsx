@@ -8,7 +8,8 @@ import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
-import { Cart, Checkout, Home, OrderConfirmation } from './pages';
+import { useCartSync } from './hooks/useCartSync';
+import { Cart, Checkout, Home, OrderConfirmation, OrderDetail } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -22,6 +23,7 @@ import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { Profile } from './pages/User/Profile';
 
 function App() {
+  useCartSync();
   const {
     HOME,
     SHOP,
@@ -30,6 +32,7 @@ function App() {
     CART,
     CHECKOUT,
     ORDER_CONFIRMATION,
+    ORDER_DETAIL,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_CATEGORY_ADD,
@@ -59,6 +62,7 @@ function App() {
             <Route path={PROFILE} element={<Profile />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
+            <Route path={ORDER_DETAIL} element={<OrderDetail />} />
           </Route>
         </Route>
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
+import { cartService } from '@/services/cartService';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { LoginForm } from './LoginForm';
@@ -29,6 +30,21 @@ vi.mock('@/hooks/useLogin', () => ({
 vi.mock('@/services/authService', () => ({
   authService: {
     getMe: vi.fn(),
+  },
+}));
+
+vi.mock('@/services/cartService', () => ({
+  cartService: {
+    syncCart: vi.fn(),
+  },
+}));
+
+vi.mock('@/store/useCartStore', () => ({
+  useCartStore: {
+    getState: vi.fn(() => ({
+      items: [],
+      setCart: vi.fn(),
+    })),
   },
 }));
 
@@ -86,6 +102,13 @@ describe('Feature: LoginForm', () => {
       role: AUTH_ROLES.ADMIN,
     });
 
+    // Default cartService.syncCart mock
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
+
     render(<LoginForm />);
 
     // Fill the form
@@ -120,6 +143,11 @@ describe('Feature: LoginForm', () => {
     (authService.getMe as Mock).mockResolvedValueOnce({
       role: AUTH_ROLES.SUPER_ADMIN,
     });
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -143,6 +171,11 @@ describe('Feature: LoginForm', () => {
     mockMutateAsync.mockResolvedValueOnce(true);
     (authService.getMe as Mock).mockResolvedValueOnce({
       role: AUTH_ROLES.CUSTOMER,
+    });
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
     });
 
     render(<LoginForm />);

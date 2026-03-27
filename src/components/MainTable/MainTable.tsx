@@ -85,7 +85,7 @@ export function MainTable<T extends TableItem>({
   return (
     <div className="border-gray100 mx-5 mt-5 rounded-l-lg rounded-r-lg border shadow-md">
       <table className="[&_td]:border-gray100 [&_thead_th]:border-gray100 w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b">
-        <thead className="text-gray600 bg-backgroundSec h-[50px] px-[12px] text-center">
+        <thead className="text-gray600 bg-backgroundSec h-[50px] px-[12px] text-center [&_th]:px-2">
           <tr>
             {columns.map((column) => (
               <th key={column.key} className={column.className}>
@@ -95,7 +95,7 @@ export function MainTable<T extends TableItem>({
           </tr>
         </thead>
 
-        <tbody className={`bg-background [&_td]:px-4`}>
+        <tbody className={`bg-background [&_td]:px-2`}>
           {renderBodyContent({
             loading: !!loading,
             error: error ?? null,

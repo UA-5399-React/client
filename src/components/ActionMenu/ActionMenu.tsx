@@ -8,9 +8,14 @@ import styles from './ActionMenu.module.css';
 interface ActionMenuProps {
   editAction: () => void;
   deleteAction?: () => void;
+  className?: string;
 }
 
-export const ActionMenu = ({ editAction, deleteAction }: ActionMenuProps) => {
+export const ActionMenu = ({
+  editAction,
+  deleteAction,
+  className,
+}: ActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -39,7 +44,9 @@ export const ActionMenu = ({ editAction, deleteAction }: ActionMenuProps) => {
       </Button>
 
       {isOpen && (
-        <div className="align-center bg-background border-gray300 absolute top-0 left-10 z-20 flex w-[140px] flex-col rounded-xl border p-2 shadow-lg">
+        <div
+          className={`align-center bg-background border-gray300 absolute top-0 left-10 z-20 flex w-[140px] flex-col rounded-xl border p-2 shadow-lg ${className}`}
+        >
           <Button
             type="button"
             className={`${styles.button} text-text border-b-red700 border-b-2 bg-transparent`}

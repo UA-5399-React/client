@@ -54,4 +54,23 @@ export const usersService = {
       throw new Error('Failed to change password');
     }
   },
+
+  uploadAvatar: async (file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/users/me/avatar`, {
+      method: 'PATCH',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.log('upload avatar error', errorData);
+      throw new Error(errorData.message || 'Failed to upload avatar');
+    }
+
+    return response.json();
+  },
 };
