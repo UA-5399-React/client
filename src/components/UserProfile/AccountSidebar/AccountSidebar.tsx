@@ -6,13 +6,8 @@ import { ROUTES } from '@/constants';
 import type { User } from '@/types/user';
 
 const SIDEBAR_LINKS = [
-  {
-    to: ROUTES.PROFILE,
-    end: true,
-    label: 'Account',
-    liClassName: 'text-black',
-  },
-  { to: ROUTES.MYORDERS, label: 'Orders', liClassName: 'text-black' },
+  { to: ROUTES.PROFILE, end: true, label: 'Account' },
+  { to: ROUTES.MYORDERS, label: 'Orders' },
 ] as const;
 
 type AccountSidebarProps = {
@@ -51,18 +46,18 @@ export function AccountSidebar({
     'block w-full border-b pb-2 text-[16px] font-semibold transition';
 
   return (
-    <aside className="w-full max-w-[220px] rounded-md bg-gray-100 px-4 py-10">
+    <aside className="border-fieldBorder bg-backgroundSec w-full max-w-[220px] rounded-md border px-4 py-10">
       <div className="flex flex-col items-center">
         <div className="relative h-[82px] w-[82px]">
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt="avatar"
-              className="h-full w-full rounded-full object-cover"
+              className="border-fieldBorder h-full w-full rounded-full border object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-200">
-              <UserIcon size={32} className="text-gray-600" />
+            <div className="border-fieldBorder bg-background flex h-full w-full items-center justify-center rounded-full border">
+              <UserIcon size={32} className="text-muted" />
             </div>
           )}
 
@@ -84,23 +79,23 @@ export function AccountSidebar({
           />
         </div>
 
-        <h3 className="mt-3 mb-0 text-[20px] leading-none font-semibold text-neutral-900">
+        <h3 className="text-text mt-3 mb-0 text-center text-[20px] leading-none font-semibold">
           {displayName}
         </h3>
       </div>
 
       <nav className="mt-10">
         <ul className="flex list-none flex-col gap-3 pl-0 text-[16px] font-semibold">
-          {SIDEBAR_LINKS.map(({ to, label, liClassName }) => (
-            <li key={to} className={liClassName}>
+          {SIDEBAR_LINKS.map(({ to, label }) => (
+            <li key={to}>
               <NavLink
                 to={to}
                 end={to === ROUTES.PROFILE}
                 className={({ isActive }) =>
                   `${navItemClass} ${
                     isActive
-                      ? 'text-neutral-0 border-neutral-800'
-                      : 'border-transparent text-neutral-600 hover:text-neutral-900'
+                      ? 'text-text border-text'
+                      : 'text-muted hover:text-text border-transparent'
                   }`
                 }
               >
@@ -122,7 +117,7 @@ export function AccountSidebar({
             <button
               type="button"
               onClick={onLogout}
-              className="block w-full cursor-pointer appearance-none border-b border-transparent bg-transparent p-0 pb-2 text-left text-[15px] leading-none font-semibold text-neutral-800 transition hover:text-neutral-900"
+              className="text-text block w-full cursor-pointer appearance-none border-b border-transparent bg-transparent p-0 pb-2 text-left text-[15px] leading-none font-semibold transition hover:text-red-600"
             >
               Log Out
             </button>

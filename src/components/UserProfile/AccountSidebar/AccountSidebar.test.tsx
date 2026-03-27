@@ -152,8 +152,11 @@ describe('AccountSidebar', () => {
     const accountLink = screen.getByRole('link', { name: 'Account' });
     const ordersLink = screen.getByRole('link', { name: 'Orders' });
 
-    expect(accountLink.className).toContain('text-neutral-0');
+    expect(accountLink.className).toContain('text-text');
+    expect(accountLink.className).toContain('border-text');
+
     expect(ordersLink.className).toContain('border-transparent');
+    expect(ordersLink.className).toContain('text-muted');
   });
 
   it('marks orders link as active on /my-orders route', () => {
@@ -162,7 +165,10 @@ describe('AccountSidebar', () => {
     const accountLink = screen.getByRole('link', { name: 'Account' });
     const ordersLink = screen.getByRole('link', { name: 'Orders' });
 
-    expect(ordersLink.className).toContain('text-neutral-0');
+    expect(ordersLink.className).toContain('text-text');
+    expect(ordersLink.className).toContain('border-text');
+
     expect(accountLink.className).toContain('border-transparent');
+    expect(accountLink.className).toContain('text-muted');
   });
 });
