@@ -13,7 +13,7 @@ type PasswordFormProps = {
 export function PasswordForm({ control, errors }: PasswordFormProps) {
   return (
     <section className="mt-10">
-      <h2 className="mt-0 mb-6 text-[20px] font-semibold text-[rgb(var(--color-neutral-900))]">
+      <h2 className="text-text mt-0 mb-6 text-[20px] font-semibold">
         Password
       </h2>
 
@@ -33,7 +33,7 @@ export function PasswordForm({ control, errors }: PasswordFormProps) {
           )}
         />
         {errors.oldPassword?.message ? (
-          <p className="text-sm text-[rgb(var(--color-red-600))]">
+          <p className="text-sm text-red-600">
             {String(errors.oldPassword.message)}
           </p>
         ) : null}
@@ -53,7 +53,7 @@ export function PasswordForm({ control, errors }: PasswordFormProps) {
           )}
         />
         {errors.newPassword?.message ? (
-          <p className="text-sm text-[rgb(var(--color-red-600))]">
+          <p className="text-sm text-red-600">
             {String(errors.newPassword.message)}
           </p>
         ) : null}
@@ -73,7 +73,7 @@ export function PasswordForm({ control, errors }: PasswordFormProps) {
           )}
         />
         {errors.repeatPassword?.message ? (
-          <p className="text-sm text-[rgb(var(--color-red-600))]">
+          <p className="text-sm text-red-600">
             {String(errors.repeatPassword.message)}
           </p>
         ) : null}
