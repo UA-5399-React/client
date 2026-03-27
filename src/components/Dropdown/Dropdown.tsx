@@ -17,6 +17,7 @@ export const Dropdown = ({
   placeholder = 'Select options',
   hasBorder = true,
   multiple = true,
+  disabled = false,
 }: DropdownProps) => {
   const selectedOptions = selectedValues
     ? options.filter((option) => selectedValues.includes(option.value))
@@ -48,13 +49,11 @@ export const Dropdown = ({
   return (
     <Field.Root className={styles.Field}>
       <Field.Label
-        className={
-          styles.Label +
-          clsx(
-            'cursor-default text-xs font-medium text-(--color-text) uppercase',
-            labelClassName,
-          )
-        }
+        className={clsx(
+          styles.Label,
+          'cursor-default text-xs font-medium text-(--color-text) uppercase',
+          labelClassName,
+        )}
         nativeLabel={false}
         render={<div />}
       >
@@ -66,10 +65,12 @@ export const Dropdown = ({
         onValueChange={handleValueChange}
         value={value}
         items={options}
+        disabled={disabled}
       >
         <Select.Trigger
-          className={styles.Select + clsx(selectClassName)}
+          className={clsx(styles.Select, selectClassName)}
           data-border={hasBorder}
+          data-disabled={disabled || undefined}
         >
           <Select.Value className={styles.Value} placeholder={placeholder} />
 
