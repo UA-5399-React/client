@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import clsx from 'clsx';
-import { EllipsisVertical, Pencil, Trash } from 'lucide-react';
 
-import { Button, Checkbox, Dropdown } from '@/components';
+import { ActionMenu, Checkbox, Dropdown } from '@/components';
+import { UserAvatar } from '@/components/UserAvatar';
 import {
   USER_ROLE_EDIT_OPTIONS,
   USER_STATUS_EDIT_OPTIONS,
@@ -32,8 +31,6 @@ const getActivityLabel = (dateString: string | undefined) => {
 };
 
 export function UsersTable({ items }: UsersTableProps) {
-  const [openedMenuId, setOpenedMenuId] = useState<string | null>(null);
-
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
 
   const handleStatusChange = async (
@@ -58,18 +55,17 @@ export function UsersTable({ items }: UsersTableProps) {
 
   if (!items.length) {
     return (
-      <div className="mt-5 rounded-lg border border-[#E5E7EB] bg-white p-8 text-center text-[#8A92A6] shadow-md">
+      <div className="border-fieldBorder bg-neutral-0 text-muted dark:bg-backgroundSec mt-5 rounded-lg border p-8 text-center shadow-md">
         No users found
       </div>
     );
   }
-
   return (
-    <div className="mt-5 overflow-x-auto rounded-lg border border-[#E5E7EB] bg-white shadow-md">
-      <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#E5E7EB] [&_thead_th]:border-b [&_thead_th]:border-[#E5E7EB] [&_thead_th]:px-4">
-        <thead className="h-[50px] bg-[#F9FAFB] text-[#8A92A6]">
+    <div className="border-fieldBorder mt-5 rounded-lg border shadow-md">
+      <table className="[&_td]:border-fieldBorder [&_thead_th]:border-fieldBorder w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b [&_thead_th]:px-4">
+        <thead className="text-muted h-[56px] bg-gray-50">
           <tr>
-            <th className="w-[250px] text-left">
+            <th className="w-[280px] text-left">
               <div className="flex items-center gap-2">
                 <Checkbox className="h-[20px] w-[20px]" />
                 <span>User</span>
@@ -82,27 +78,25 @@ export function UsersTable({ items }: UsersTableProps) {
             <th className="w-[80px]"></th>
           </tr>
         </thead>
+
         <tbody
           className={clsx(
-            'bg-white [&_td]:px-4 [&_td]:py-4',
+            'bg-neutral-0 dark:bg-backgroundSec [&_td]:px-4 [&_td]:py-5 [&_td]:text-left',
             isUpdating && 'pointer-events-none opacity-50',
           )}
         >
-          {items.map((user) => {
+          {items.map((user, index) => {
             const currentStatus = user.isActive ? 'active' : 'blocked';
             const currentRole = user.role;
+            const shouldOpenUpward = index >= items.length - 2;
 
             return (
-              <tr key={user.id} className="text-[rgb(var(--color-text))]">
+              <tr key={user.id} className="text-text text-base">
                 <td>
                   <div className="flex items-center gap-3">
                     <Checkbox className="h-[20px] w-[20px]" />
-                    <img
-                      src={user.avatarUrl}
-                      alt={getFullName(user)}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                    <span className="text-sm font-medium text-[#2C2C2C]">
+                    <UserAvatar user={user} />
+                    <span className="text-text text-base font-medium">
                       {getFullName(user)}
                     </span>
                   </div>
@@ -126,18 +120,18 @@ export function UsersTable({ items }: UsersTableProps) {
                     selectClassName={
                       ' ' +
                       clsx(
-                        '!flex !items-center !justify-between',
-                        '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !shadow-none hover:!bg-white',
-                        '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+                        '!flex !h-8 !min-w-[140px] !items-center !justify-between',
+                        '!whitespace-nowrap !rounded-[10px] !border !border-fieldBorder !bg-neutral-0 !px-3 !py-0 !text-sm !font-normal !shadow-none hover:!bg-gray-50',
+                        '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-blue-500',
                         currentStatus === 'active'
-                          ? '!text-[#38CB89]'
-                          : '!text-[#EF4444]',
+                          ? '!text-primary'
+                          : '!text-red-700',
                       )
                     }
                   />
                 </td>
 
-                <td className="text-sm text-[#525252]">{user.email}</td>
+                <td className="text-text text-base">{user.email}</td>
 
                 <td>
                   <Dropdown
@@ -154,59 +148,28 @@ export function UsersTable({ items }: UsersTableProps) {
                     selectClassName={
                       ' ' +
                       clsx(
-                        '!flex !items-center !justify-between',
-                        '!h-8 !w-[120px] !rounded-[10px] !border !border-[#8F96A3] !bg-white !px-3 !py-0 !text-xs !font-normal !text-[#2C2C2C] !shadow-none hover:!bg-white',
-                        '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+                        '!flex !h-10 !min-w-[170px] !items-center !justify-between',
+                        '!whitespace-nowrap !rounded-[10px] !border !border-fieldBorder !bg-neutral-0 !px-3 !py-0 !text-sm !font-normal !text-neutral-800 !shadow-none hover:!bg-gray-50',
+                        '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-blue-500',
                       )
                     }
                   />
                 </td>
 
-                <td className="text-sm text-[#525252]">
-                  {getActivityLabel(user.updatedAt)}
+                <td className="text-text text-base">
+                  {getActivityLabel(user.lastLoginAt)}
                 </td>
 
-                <td className="relative">
-                  <Button
-                    type="button"
-                    aria-label={`Actions for ${getFullName(user)}`}
-                    className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-                    onClick={() =>
-                      setOpenedMenuId((prev) =>
-                        prev === user.id ? null : user.id,
-                      )
-                    }
-                  >
-                    <EllipsisVertical className="h-5 w-5" />
-                  </Button>
-
-                  {openedMenuId === user.id && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setOpenedMenuId(null)}
-                      />
-                      <div className="absolute top-12 right-0 z-20 w-[140px] rounded-xl border border-[#E5E7EB] bg-white shadow-lg">
-                        <Button
-                          type="button"
-                          className="flex w-full items-center gap-2 rounded-none bg-transparent px-4 py-3 text-left text-sm text-[#2C2C2C] hover:bg-[#F9FAFB]"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Edit
-                        </Button>
-
-                        <div className="mx-3 border-t border-[#E5E7EB]" />
-
-                        <Button
-                          type="button"
-                          className="flex w-full items-center gap-2 rounded-none bg-transparent px-4 py-3 text-left text-sm text-[#DB162D] hover:bg-[#F9FAFB]"
-                        >
-                          <Trash className="h-4 w-4" />
-                          Delete
-                        </Button>
-                      </div>
-                    </>
-                  )}
+                <td className="relative text-right">
+                  <ActionMenu
+                    triggerAriaLabel={`Actions for ${getFullName(user)}`}
+                    editAction={() => {}}
+                    deleteAction={() => {}}
+                    className={clsx(
+                      'right-0 left-auto',
+                      shouldOpenUpward ? 'top-auto bottom-10' : 'top-10',
+                    )}
+                  />
                 </td>
               </tr>
             );
