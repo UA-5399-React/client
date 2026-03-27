@@ -1,6 +1,7 @@
 export { ActionMenu } from './ActionMenu/ActionMenu';
 export { AdminPageHeader } from './AdminPageHeader';
 export { Button } from './Button';
+export { CartCounter } from './CartCounter';
 export { CategoryForm } from './CategoryForm/CategoryForm';
 export { Checkbox } from './Checkbox';
 export { ConfirmModal } from './ConfirmModal/ConfirmModal';
