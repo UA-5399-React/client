@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Pagination,
@@ -6,6 +7,7 @@ import {
   UsersToolbar,
   UsersTopWidgets,
 } from '@/components';
+import { ROUTES } from '@/constants';
 import {
   DEFAULT_USER_ROLE_FILTER,
   DEFAULT_USER_STATUS_FILTER,
@@ -43,6 +45,9 @@ const isValidRoleFilter = (value: string | null): value is UserRoleFilter =>
   value !== null && VALID_ROLE_FILTERS.includes(value as UserRoleFilter);
 
 export const AdminUsers = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const {
     searchParams,
     currentPage,
@@ -126,6 +131,26 @@ export const AdminUsers = () => {
     setPage(page);
   };
 
+  useEffect(() => {
+    const locationState = location.state as
+      | { successMessage?: string }
+      | null
+      | undefined;
+
+    if (!locationState?.successMessage) {
+      return;
+    }
+
+    setSuccessMessage(locationState.successMessage);
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+      },
+      { replace: true, state: null },
+    );
+  }, [location.pathname, location.search, location.state, navigate]);
+
   const usersState = useAdminUsers({
     currentPage,
     search: debouncedSearch,
@@ -140,6 +165,12 @@ export const AdminUsers = () => {
   return (
     <section className="bg-background text-text min-h-screen px-6 py-8 transition-colors duration-300">
       <div className="mx-auto">
+        {successMessage && (
+          <div className="mb-4 rounded-lg border border-[#b7ebcf] bg-[#ecfdf3] px-4 py-3 text-sm text-[#027a48]">
+            {successMessage}
+          </div>
+        )}
+
         <UsersTopWidgets
           totalUsers={usersState.totalUsers}
           activeAdmins={usersState.activeAdmins}
@@ -155,6 +186,7 @@ export const AdminUsers = () => {
           setRoleFilter={handleRoleFilterChange}
           statusOptions={[...USER_STATUS_OPTIONS]}
           roleOptions={[...USER_ROLE_OPTIONS]}
+          onCreateUser={() => navigate(ROUTES.ADMIN_USER_CREATE)}
         />
 
         <UsersTable items={usersState.paginatedUsers} />

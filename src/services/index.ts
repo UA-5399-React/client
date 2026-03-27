@@ -1,5 +1,6 @@
 export { apiClient } from './api';
 export { authService } from './authService';
+export { categoryService } from './categoryService';
 export {
   CREATE_CATEGORY,
   DELETE_CATEGORY,

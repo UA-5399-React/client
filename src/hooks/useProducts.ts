@@ -7,7 +7,7 @@ export const useProducts = (
   limit: number,
   sort?: 'price' | 'title' | 'createdAt',
   search?: string,
-  category?: string,
+  category?: string[],
   minPrice?: string,
   maxPrice?: string,
 ) => {
