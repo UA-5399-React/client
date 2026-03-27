@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar, OrderCard } from '@/components';
-import { MOCK_ORDERS } from '@/components';
+import { AccountSidebar, MOCK_ORDERS, OrderCard } from '@/components';
 import { ROUTES } from '@/constants';
 import { authService } from '@/services';
 import { usersService } from '@/services/users.service';
@@ -71,7 +70,6 @@ export function MyOrders() {
           <AccountSidebar user={user} onLogout={handleLogout} />
 
           <div className="-full min-w-0 px-[72px]">
-            {' '}
             <h2 className="mb-6 text-xl font-semibold text-black">
               Orders History
             </h2>

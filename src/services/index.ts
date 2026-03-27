@@ -12,6 +12,7 @@ export {
   CREATE_PRODUCT,
   GET_PRODUCTS_PAGE,
 } from './graphql/productAdminService';
+export { orderService } from './orderService';
 export { paymentService } from './paymentService';
 export { productService } from './productService';
 export { uploadService } from './uploadService';

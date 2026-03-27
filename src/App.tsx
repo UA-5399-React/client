@@ -9,7 +9,7 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
-import { Cart, Home } from './pages';
+import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -31,6 +31,8 @@ function App() {
     PRODUCT,
     CONTACT_US,
     CART,
+    CHECKOUT,
+    ORDER_CONFIRMATION,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_CATEGORY_ADD,
@@ -60,6 +62,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
             <Route path={MYORDERS} element={<MyOrders />} />
+            <Route path={CHECKOUT} element={<Checkout />} />
+            <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
           </Route>
         </Route>
 
