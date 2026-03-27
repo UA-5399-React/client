@@ -11,12 +11,12 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
   const progress = activeIndex / (STEPS.length - 1);
 
   return (
-    <div className="relative flex items-start justify-between">
-      <div className="bg-gray300 absolute top-[18px] right-[18px] left-[18px] h-[2px]" />
+    <div className="relative flex w-full items-start justify-between px-6">
+      <div className="absolute top-[18px] right-10 left-10 h-[2px] bg-gray-300" />
       <div
-        className="absolute top-[18px] left-[18px] h-[2px] bg-violet-600 transition-all duration-500"
+        className="absolute top-[18px] left-10 h-[2px] bg-violet-600 transition-all duration-500"
         style={{
-          width: `calc(${progress * 100}% - ${progress * 36}px)`,
+          width: `calc(${progress * 100}% - ${progress * 80}px)`,
         }}
       />
 
@@ -54,17 +54,19 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
                   />
                 </svg>
               ) : (
-                <div className="bg-gray300 h-2 w-2 rounded-full" />
+                <div className="h-2 w-2 rounded-full bg-gray-300" />
               )}
             </div>
+
             <Icon
               className={`h-8 w-8 transition-colors duration-300 ${
-                isDone ? 'text-text' : 'text-gray300'
+                isDone ? 'text-black' : 'text-gray-300'
               }`}
             />
+
             <span
               className={`text-xs font-medium transition-colors duration-300 ${
-                isDone ? 'text-text' : 'text-muted'
+                isDone ? 'text-black' : 'text-gray-500'
               }`}
             >
               {label}

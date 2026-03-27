@@ -20,6 +20,7 @@ import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { MyOrders } from './pages/User/MyOrders';
 import { Profile } from './pages/User/Profile';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
     REGISTER,
     ADMIN_ORDERS,
     PROFILE,
+    MYORDERS,
   } = ROUTES;
 
   return (
@@ -57,6 +59,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
+            <Route path={MYORDERS} element={<MyOrders />} />
           </Route>
         </Route>
 

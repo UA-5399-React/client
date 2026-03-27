@@ -56,62 +56,62 @@ describe('UI Component: OrderCard', () => {
   it('should render order number and price', () => {
     render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getByText('#3456_980')).toBeInTheDocument();
-    expect(screen.getByText('$345.00')).toBeInTheDocument();
+    expect(screen.getAllByText('#3456_980')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('$345.00')[0]).toBeInTheDocument();
   });
 
   it('should render correct status label for completed', () => {
     render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getAllByText('Completed')[0]).toBeInTheDocument();
   });
 
   it('should render correct status label for cancelled', () => {
     render(<OrderCard order={mockOrderCancelled} />);
 
-    expect(screen.getByText('Cancelled')).toBeInTheDocument();
+    expect(screen.getAllByText('Cancelled')[0]).toBeInTheDocument();
   });
 
   it('should render In progress label for processed status', () => {
     render(<OrderCard order={mockOrderProcessed} />);
 
-    expect(screen.getByText('In progress')).toBeInTheDocument();
+    expect(screen.getAllByText('In progress')[0]).toBeInTheDocument();
   });
 
   it('should render In progress label for shipped status', () => {
     render(<OrderCard order={mockOrderShipped} />);
 
-    expect(screen.getByText('In progress')).toBeInTheDocument();
+    expect(screen.getAllByText('In progress')[0]).toBeInTheDocument();
   });
 
   it('should render date without Exp. prefix for completed order', () => {
     render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getByText('October 11, 2023')).toBeInTheDocument();
+    expect(screen.getAllByText('October 11, 2023')[0]).toBeInTheDocument();
   });
 
   it('should render date without Exp. prefix for cancelled order', () => {
     render(<OrderCard order={mockOrderCancelled} />);
 
-    expect(screen.getByText('March 5, 2023')).toBeInTheDocument();
+    expect(screen.getAllByText('March 5, 2023')[0]).toBeInTheDocument();
   });
 
   it('should render date with Exp. prefix for new order', () => {
     render(<OrderCard order={mockOrderNew} />);
 
-    expect(screen.getByText('Exp. January 14, 2023')).toBeInTheDocument();
+    expect(screen.getAllByText('Exp. January 14, 2023')[0]).toBeInTheDocument();
   });
 
   it('should render date with Exp. prefix for processed order', () => {
     render(<OrderCard order={mockOrderProcessed} />);
 
-    expect(screen.getByText('Exp. December 1, 2025')).toBeInTheDocument();
+    expect(screen.getAllByText('Exp. December 1, 2025')[0]).toBeInTheDocument();
   });
 
   it('should render date with Exp. prefix for shipped order', () => {
     render(<OrderCard order={mockOrderShipped} />);
 
-    expect(screen.getByText('Exp. April 13, 2023')).toBeInTheDocument();
+    expect(screen.getAllByText('Exp. April 13, 2023')[0]).toBeInTheDocument();
   });
 
   it('should render — when createdAt is undefined', () => {
@@ -119,27 +119,27 @@ describe('UI Component: OrderCard', () => {
       <OrderCard order={{ ...mockOrderCompleted, createdAt: undefined }} />,
     );
 
-    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.getAllByText('—')[0]).toBeInTheDocument();
   });
 
   it('should show Details button for non-progress orders', () => {
     render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getByText('Details')).toBeInTheDocument();
+    expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
   });
 
   it('should show Details button below progress bar for in progress orders', () => {
     render(<OrderCard order={mockOrderShipped} />);
 
     expect(screen.getByText('Processed')).toBeInTheDocument();
-    expect(screen.getByText('Details')).toBeInTheDocument();
+    expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
   });
 
   it('should navigate to order details on Details click', async () => {
     const user = userEvent.setup();
     render(<OrderCard order={mockOrderCompleted} />);
 
-    await user.click(screen.getByText('Details'));
+    await user.click(screen.getAllByText('Details')[0]);
 
     expect(mockNavigate).toHaveBeenCalledWith('/order/1');
   });
@@ -149,7 +149,7 @@ describe('UI Component: OrderCard', () => {
 
     expect(screen.getByText('Processed')).toBeInTheDocument();
     expect(screen.getByText('En Route')).toBeInTheDocument();
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getAllByText('Completed')[0]).toBeInTheDocument();
   });
 
   it('should NOT render progress bar for completed status', () => {

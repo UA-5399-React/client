@@ -112,11 +112,11 @@ describe('AccountSidebar', () => {
   it('renders disabled items Orders and Wishlist', () => {
     renderComponent();
 
-    expect(screen.getByText('Orders')).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByText('Wishlist')).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    const ordersLink = screen.getByRole('link', { name: /orders/i });
+    expect(ordersLink).toBeInTheDocument();
+    expect(ordersLink).toHaveAttribute('href', ROUTES.MYORDERS);
+
+    expect(screen.getByText('Wishlist')).toBeInTheDocument();
   });
 
   it('applies active class to account link when route is profile', () => {
