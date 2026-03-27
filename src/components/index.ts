@@ -33,6 +33,7 @@ export { TableCategories } from './TableCategories/TableCategories';
 export { TableOrders } from './TableOrders/TableOrders';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
+export { UserAvatar } from './UserAvatar';
 export { AccountDetailsForm } from './UserProfile/AccountDetailsForm/AccountDetailsForm';
 export { AccountInput } from './UserProfile/AccountInput/AccountInput';
 export { AccountSidebar } from './UserProfile/AccountSidebar/AccountSidebar';

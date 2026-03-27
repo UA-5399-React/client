@@ -15,6 +15,7 @@ export interface AdminUser {
   avatarUrl?: string;
   createdAt: string;
   updatedAt: string;
+  lastLoginAt?: string;
 }
 
 export interface UpdateUserInput {
