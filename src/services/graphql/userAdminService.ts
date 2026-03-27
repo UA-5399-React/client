@@ -23,6 +23,7 @@ export const GET_USERS_LIST = gql`
         createdAt
         updatedAt
         lastLoginAt
+        avatarUrl
       }
       total
     }

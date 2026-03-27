@@ -1,4 +1,4 @@
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -44,6 +44,32 @@ describe('ProtectedRoute', () => {
     );
 
     expect(screen.getByText('Login Page')).toBeInTheDocument();
+  });
+
+  it('preserves the original destination when redirecting to login', () => {
+    vi.mocked(useAuth).mockReturnValue(
+      createUseAuthMock({
+        isAuth: false,
+      }),
+    );
+
+    const LoginPage = () => {
+      const location = useLocation();
+      return <div>{(location.state as { from?: string } | null)?.from}</div>;
+    };
+
+    render(
+      <MemoryRouter initialEntries={['/checkout?step=details']}>
+        <Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/checkout" element={<div>Checkout Page</div>} />
+          </Route>
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('/checkout?step=details')).toBeInTheDocument();
   });
 
   it('renders outlet if user is authenticated and no roles are required', () => {

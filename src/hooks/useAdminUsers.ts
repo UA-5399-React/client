@@ -45,7 +45,8 @@ export const useAdminUsers = ({
     () =>
       users.filter(
         (u) =>
-          (u.role === AUTH_ROLES.ADMIN || u.role === AUTH_ROLES.SUPER_ADMIN) &&
+          (u.role.toLowerCase() === AUTH_ROLES.ADMIN.toLowerCase() ||
+            u.role.toLowerCase() === AUTH_ROLES.SUPER_ADMIN.toLowerCase()) &&
           u.isActive,
       ).length,
     [users],

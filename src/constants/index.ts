@@ -11,6 +11,8 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  CHECKOUT: '/checkout',
+  ORDER_CONFIRMATION: '/order-confirmation',
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
@@ -21,10 +23,12 @@ export const ROUTES = {
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
+  EMAIL_CONFIRMATION: '/email-confirmation',
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
   ADMIN_ORDERS: '/admin/orders',
   PROFILE: '/profile',
+  MYORDERS: '/profile/myOrders',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {

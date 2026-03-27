@@ -10,12 +10,16 @@ import { LoginForm } from './LoginForm';
 
 // Mock dependencies
 const mockNavigate = vi.fn();
+let mockLocationState: Record<string, unknown> | null = null;
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useLocation: () => ({
+      state: mockLocationState,
+    }),
   };
 });
 
@@ -50,6 +54,7 @@ describe('Feature: LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    mockLocationState = null;
 
     // Default mock implementation
     (useLogin as Mock).mockReturnValue({
@@ -187,6 +192,30 @@ describe('Feature: LoginForm', () => {
         AUTH_ROLES.CUSTOMER,
       );
       expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
+    });
+  });
+
+  it('should redirect back to the original page after successful login when a from state exists', async () => {
+    const user = userEvent.setup();
+    mockLocationState = { from: ROUTES.CHECKOUT };
+    mockMutateAsync.mockResolvedValueOnce(true);
+    (authService.getMe as Mock).mockResolvedValueOnce({
+      role: AUTH_ROLES.CUSTOMER,
+    });
+
+    render(<LoginForm />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'customer@test.com',
+    );
+    await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.CHECKOUT, {
+        replace: true,
+      });
     });
   });
 
