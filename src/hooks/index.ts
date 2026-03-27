@@ -9,6 +9,7 @@ export * from './useDeleteAdminCategory';
 export * from './useGetAdminCategory';
 export * from './useLocalStorage';
 export * from './useLogin';
+export * from './useRegister';
 export * from './useTheme';
 export * from './useUpdateAdminCategory';
 export * from './useUploadProductImage';

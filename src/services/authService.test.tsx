@@ -8,7 +8,11 @@ import {
   vi,
 } from 'vitest';
 
-import { authService, type LoginPayload } from './authService';
+import {
+  authService,
+  type LoginPayload,
+  type RegisterPayload,
+} from './authService';
 
 global.fetch = vi.fn();
 
@@ -67,6 +71,49 @@ describe('Service: authService', () => {
       // Check that the service threw our custom error
       await expect(authService.login(mockCredentials)).rejects.toThrow(
         'Invalid email or password',
+      );
+    });
+  });
+
+  describe('register()', () => {
+    const mockPayload: RegisterPayload = {
+      email: 'newuser@test.com',
+      password: 'Password1!',
+      passwordConfirmation: 'Password1!',
+    };
+
+    it('should send correct POST request and return data on success', async () => {
+      const mockResponseData = {
+        status: 'success',
+        message: 'User created successfully.',
+      };
+
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponseData,
+      });
+
+      const result = await authService.register(mockPayload);
+
+      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(mockPayload),
+        credentials: 'include',
+      });
+      expect(result).toEqual(mockResponseData);
+    });
+
+    it('should throw backend error message on failed registration', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: 'Email already in use' }),
+      });
+
+      await expect(authService.register(mockPayload)).rejects.toThrow(
+        'Email already in use',
       );
     });
   });
