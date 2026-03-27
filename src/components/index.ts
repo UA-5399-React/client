@@ -17,6 +17,8 @@ export { MainTable } from './MainTable/MainTable';
 export { MobileSidebar } from './MobileSidebar/MobileSidebar';
 export { NewArrivals } from './NewArrivals/NewArrivals';
 export { Newsletter } from './Newsletter';
+export { OrderCard } from './OrderCard';
+export { MOCK_ORDERS } from './OrderCard/OrderCard.mock';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';

@@ -27,6 +27,7 @@ export const ROUTES = {
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
   ADMIN_ORDERS: '/admin/orders',
   PROFILE: '/profile',
+  MYORDERS: '/profile/myOrders',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {

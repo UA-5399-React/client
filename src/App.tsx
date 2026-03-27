@@ -9,7 +9,7 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
-import { Cart, Checkout, Home, OrderConfirmation, OrderDetail } from './pages';
+import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
@@ -20,6 +20,7 @@ import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { MyOrders } from './pages/User/MyOrders';
 import { Profile } from './pages/User/Profile';
 
 function App() {
@@ -32,7 +33,6 @@ function App() {
     CART,
     CHECKOUT,
     ORDER_CONFIRMATION,
-    ORDER_DETAIL,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_CATEGORY_ADD,
@@ -46,6 +46,7 @@ function App() {
     REGISTER,
     ADMIN_ORDERS,
     PROFILE,
+    MYORDERS,
   } = ROUTES;
 
   return (
@@ -60,9 +61,9 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
+            <Route path={MYORDERS} element={<MyOrders />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
-            <Route path={ORDER_DETAIL} element={<OrderDetail />} />
           </Route>
         </Route>
 
