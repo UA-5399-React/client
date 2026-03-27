@@ -7,24 +7,22 @@ import {
   type OrderStatusFilter,
 } from '@/constants/orders';
 
-interface OrderTabsProps {
-  counts: Record<string, number>;
-}
-
-export function OrderTabs({ counts }: OrderTabsProps) {
+export function OrderTabs() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentStatus =
-    (searchParams.get('status') as OrderStatusFilter) ||
-    DEFAULT_ORDER_STATUS_FILTER;
+  const statusFromUrl = searchParams.get('status')?.toLowerCase() as
+    | OrderStatusFilter
+    | undefined;
 
-  const handleTabChange = (value: OrderStatusFilter) => {
+  const currentStatus = statusFromUrl || DEFAULT_ORDER_STATUS_FILTER;
+
+  const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
 
     if (value === 'all') {
       newParams.delete('status');
     } else {
-      newParams.set('status', value);
+      newParams.set('status', value.toLowerCase());
     }
 
     newParams.set('page', '1');
@@ -32,10 +30,9 @@ export function OrderTabs({ counts }: OrderTabsProps) {
   };
 
   return (
-    <div className="no-scrollbar mb-6 flex items-center gap-2 overflow-x-auto">
+    <div className="no-scrollbar mb-8 flex items-center gap-4 overflow-x-auto pb-2">
       {ORDER_STATUS_OPTIONS.map((tab) => {
-        const isActive = currentStatus === tab.value;
-        const count = counts[tab.value] || 0;
+        const isActive = currentStatus === tab.value.toLowerCase();
 
         return (
           <button
@@ -43,13 +40,13 @@ export function OrderTabs({ counts }: OrderTabsProps) {
             type="button"
             onClick={() => handleTabChange(tab.value)}
             className={clsx(
-              'rounded-lg px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all',
+              'cursor-pointer border-none px-6 py-2.5 text-sm font-semibold whitespace-nowrap transition-all duration-300 ease-in-out focus:outline-none',
               isActive
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white',
+                ? 'rounded-xl bg-[#437EF7] text-white shadow-md'
+                : 'rounded-xl bg-transparent text-[#5E6366] hover:bg-gray-50/50 hover:text-[#2C2C2C]',
             )}
           >
-            {tab.label} <span className="ml-1 opacity-70">({count})</span>
+            {tab.label}
           </button>
         );
       })}

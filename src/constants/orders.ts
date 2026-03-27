@@ -1,14 +1,15 @@
-import type { OrderStatus } from '@/types/order.types';
+import type { OrderStatus } from '@/types/tableOrders.types';
+import { ORDER_STATUS } from '@/types/tableOrders.types';
 
 export type OrderStatusFilter = OrderStatus | 'all';
 
-export const DEFAULT_ORDER_STATUS_FILTER: OrderStatusFilter = 'new';
+export const DEFAULT_ORDER_STATUS_FILTER: OrderStatusFilter = 'all';
 
 export const ORDER_STATUS_OPTIONS = [
-  { label: 'New', value: 'new' },
-  { label: 'Processing', value: 'processed' },
-  { label: 'Shipping', value: 'shipped' },
-  { id: 'completed', label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'New', value: ORDER_STATUS.NEW },
+  { label: 'Processing', value: ORDER_STATUS.PROCESSING },
+  { label: 'Shipping', value: ORDER_STATUS.SHIPPING },
+  { label: 'Completed', value: ORDER_STATUS.COMPLETED },
+  { label: 'Cancelled', value: ORDER_STATUS.CANCELLED },
   { label: 'All', value: 'all' },
 ] as const;
