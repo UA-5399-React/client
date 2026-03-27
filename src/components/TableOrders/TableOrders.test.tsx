@@ -1,4 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/hooks/useDeleteAdminOrder', () => ({
+  useDeleteAdminOrder: () => ({
+    deleteOrder: vi.fn(),
+    data: undefined,
+    loading: false,
+    error: undefined,
+  }),
+}));
 
 import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
 import { formatDate } from '@/utils';
@@ -66,7 +75,6 @@ describe('UI Component: TableOrders', () => {
 
   it('should render empty state when there are no orders', () => {
     render(<TableOrders items={[]} loading={false} error={null} />);
-
     expect(screen.getByText('No orders found')).toBeInTheDocument();
   });
 
