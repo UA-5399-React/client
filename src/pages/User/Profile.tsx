@@ -10,8 +10,9 @@ import {
   profileSchema,
 } from '@/schemas/profile.schema';
 import { authService } from '@/services';
-import { usersService } from '@/services/users.service';
+import { UnauthorizedError, usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
+import { clearAuthStorage } from '@/utils/auth-storage';
 
 export function Profile() {
   const navigate = useNavigate();
@@ -20,9 +21,9 @@ export function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
 
   const {
     control,
@@ -40,6 +41,24 @@ export function Profile() {
     },
   });
 
+  const handleUnauthorized = () => {
+    clearAuthStorage();
+    setUser(null);
+    setPageError('');
+    setSubmitError('');
+    setSuccessMessage('');
+
+    reset({
+      firstName: '',
+      lastName: '',
+      oldPassword: '',
+      newPassword: '',
+      repeatPassword: '',
+    });
+
+    navigate(ROUTES.LOGIN, { replace: true });
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -54,6 +73,11 @@ export function Profile() {
           repeatPassword: '',
         });
       } catch (err) {
+        if (err instanceof UnauthorizedError) {
+          handleUnauthorized();
+          return;
+        }
+
         setPageError(
           err instanceof Error ? err.message : 'Failed to load profile',
         );
@@ -63,7 +87,43 @@ export function Profile() {
     };
 
     void loadUser();
-  }, [reset]);
+  }, [navigate, reset]);
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!user) return;
+
+    try {
+      setIsAvatarUploading(true);
+      setSubmitError('');
+      setSuccessMessage('');
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      const maxSize = 5 * 1024 * 1024;
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, and WEBP files are allowed');
+      }
+
+      if (file.size > maxSize) {
+        throw new Error('Maximum file size is 5 MB');
+      }
+
+      const updatedUser = await usersService.uploadAvatar(file);
+      setUser(updatedUser);
+      setSuccessMessage('Avatar updated successfully');
+    } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        handleUnauthorized();
+        return;
+      }
+
+      setSubmitError(
+        err instanceof Error ? err.message : 'Failed to upload avatar',
+      );
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
@@ -124,6 +184,11 @@ export function Profile() {
         setSuccessMessage('Password updated successfully');
       }
     } catch (err) {
+      if (err instanceof UnauthorizedError) {
+        handleUnauthorized();
+        return;
+      }
+
       setSubmitError(
         err instanceof Error ? err.message : 'Failed to update profile',
       );
@@ -135,11 +200,10 @@ export function Profile() {
   const handleLogout = async () => {
     try {
       await authService.logout();
-
-      localStorage.removeItem('token');
-      localStorage.removeItem('token_expires');
-      localStorage.removeItem('role');
-      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      clearAuthStorage();
 
       setUser(null);
       setPageError('');
@@ -155,39 +219,6 @@ export function Profile() {
       });
 
       navigate(ROUTES.HOME, { replace: true });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-
-  const handleAvatarUpload = async (file: File) => {
-    if (!user) return;
-
-    try {
-      setIsAvatarUploading(true);
-      setSubmitError('');
-      setSuccessMessage('');
-
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-      const maxSize = 5 * 1024 * 1024;
-
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Only JPEG, PNG, and WEBP files are allowed');
-      }
-
-      if (file.size > maxSize) {
-        throw new Error('Maximum file size is 5 MB');
-      }
-
-      const updatedUser = await usersService.uploadAvatar(file);
-      setUser(updatedUser);
-      setSuccessMessage('Avatar updated successfully');
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : 'Failed to upload avatar',
-      );
-    } finally {
-      setIsAvatarUploading(false);
     }
   };
 
