@@ -7,6 +7,7 @@ import {
 
 import { AdminOrderForm, Button } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAdminEditOrderFlow } from '@/hooks';
 import type { OrderFormData, OrderItem } from '@/types/tableOrders.types';
 
 type EditOrderLocationState = {
@@ -17,6 +18,7 @@ export function AdminEditOrder() {
   const { id } = useParams<{ id: string }>();
   const { state } = useLocation() as { state: EditOrderLocationState | null };
   const navigate = useNavigate();
+  const { updateUserInfo, isUpdatingUserInfo } = useAdminEditOrderFlow();
 
   if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
 
@@ -57,20 +59,10 @@ export function AdminEditOrder() {
   };
 
   const handleSubmit = async (formData: OrderFormData) => {
-    // Temporary behavior until backend mutation for full order editing is added.
-    console.log('Update order payload:', {
-      orderId: id,
-      ...formData,
-      items: formData.items.map((item) => ({
-        productName: item.productName,
-        price: Number(item.price),
-        quantity: Number(item.quantity),
-        totalPrice: Number(item.price) * Number(item.quantity),
-      })),
-      totalPrice: formData.items.reduce(
-        (sum, item) => sum + Number(item.price) * Number(item.quantity),
-        0,
-      ),
+    await updateUserInfo(id, {
+      customerName: formData.customerName,
+      email: formData.email,
+      phone: formData.phone,
     });
 
     navigate(ROUTES.ADMIN_ORDERS);
@@ -83,6 +75,7 @@ export function AdminEditOrder() {
           initialData={initialData}
           onSubmit={handleSubmit}
           onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
+          isLoading={isUpdatingUserInfo}
           isEditMode={true}
           updatedAt={order.updatedAt}
         />
