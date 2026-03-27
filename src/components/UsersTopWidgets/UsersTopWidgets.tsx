@@ -33,15 +33,15 @@ export function UsersTopWidgets({
         <div
           key={item.id}
           className={clsx(
-            'flex flex-col items-center justify-center py-6',
+            'flex flex-col items-center justify-center py-6 transition-colors duration-300',
             index !== widgetItems.length - 1 &&
-              'md:border-r md:border-[#D9D9D9]',
+              'md:border-fieldBorder md:border-r',
           )}
         >
-          <p className="m-0 text-6xl font-medium text-[#2C2C2C]">
+          <p className="text-text m-0 text-6xl font-medium">
             {values[item.valueKey]}
           </p>
-          <p className="text-sm font-medium text-[#BDBDBD]">{item.label}</p>
+          <p className="text-muted text-sm font-medium">{item.label}</p>
         </div>
       ))}
     </div>

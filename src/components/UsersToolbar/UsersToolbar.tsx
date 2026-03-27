@@ -47,15 +47,17 @@ export function UsersToolbar({
           onChange={setSearchValue}
           placeholder="Search"
         />
+
         <Button
           type="button"
           onClick={onCreateUser}
-          className="flex h-[48px] items-center gap-2 rounded-xl bg-[#1D4ED8] px-6 text-sm font-medium text-white hover:bg-[#1E40AF]"
+          className="text-neutral-0 flex h-[48px] items-center gap-2 rounded-xl bg-blue-500 px-6 text-sm font-medium transition-colors duration-300 hover:bg-blue-800"
         >
           <UserPlus className="h-[18px] w-[18px]" />
           Create user
         </Button>
       </div>
+
       <div className="flex flex-wrap gap-4">
         <Dropdown
           label="Status"
@@ -74,12 +76,14 @@ export function UsersToolbar({
           selectClassName={
             ' ' +
             clsx(
-              '!flex !items-center !justify-between',
-              '!h-10 !min-w-[100px] !rounded-xl !bg-[#F3F4F6] !px-4 !py-0 !text-sm !font-medium !text-[#1F2937] !shadow-none hover:!bg-[#E5E7EB]',
-              '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+              '!flex !h-10 !min-w-[100px] !items-center !justify-between',
+              '!rounded-xl !border !border-fieldBorder !bg-backgroundSec dark:!bg-neutral-0 !px-4 !py-0 !text-sm !font-medium !text-text dark:!text-neutral-800 !shadow-none !transition-colors !duration-300',
+              'hover:!opacity-90',
+              '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-blue-500',
             )
           }
         />
+
         <Dropdown
           label="Role"
           labelClassName="sr-only"
@@ -97,9 +101,10 @@ export function UsersToolbar({
           selectClassName={
             ' ' +
             clsx(
-              '!flex !items-center !justify-between',
-              '!h-10 !min-w-[140px] !rounded-xl !bg-[#F3F4F6] !px-4 !py-0 !text-sm !font-medium !text-[#1F2937] !shadow-none hover:!bg-[#E5E7EB]',
-              '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-[#2563EB]',
+              '!flex !h-10 !min-w-[150px] !items-center !justify-between',
+              '!whitespace-nowrap !rounded-xl !border !border-fieldBorder !bg-backgroundSec dark:!bg-neutral-0 !px-4 !py-0 !text-sm !font-medium !text-text dark:!text-neutral-800 !shadow-none !transition-colors !duration-300',
+              'hover:!opacity-90',
+              '[&_svg]:!h-4 [&_svg]:!w-4 [&_svg]:!text-blue-500',
             )
           }
         />

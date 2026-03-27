@@ -11,6 +11,8 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  CHECKOUT: '/checkout',
+  ORDER_CONFIRMATION: '/order-confirmation',
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
@@ -27,6 +29,7 @@ export const ROUTES = {
   ADMIN_ORDER_CREATE: '/admin/orders/create',
   ADMIN_ORDER_EDIT: '/admin/orders/:id',
   PROFILE: '/profile',
+  MYORDERS: '/profile/myOrders',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
