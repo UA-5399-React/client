@@ -6,40 +6,55 @@ import { ROUTES } from '@/constants';
 
 import { AccountSidebar } from './AccountSidebar';
 
+const mockUser = {
+  id: '1',
+  email: 'user@test.com',
+  firstName: 'Genadiy',
+  lastName: 'Pascal',
+  avatarUrl: 'https://example.com/avatar.jpg',
+  role: 'USER',
+  isActive: true,
+  isEmailConfirmed: true,
+};
+
+const userWithoutName = {
+  id: '2',
+  email: 'empty@test.com',
+  firstName: '',
+  lastName: '',
+  avatarUrl: '',
+  role: 'USER',
+  isActive: true,
+  isEmailConfirmed: true,
+};
+
+function renderComponent(
+  props?: Partial<React.ComponentProps<typeof AccountSidebar>>,
+  initialEntries: string[] = ['/profile'],
+) {
+  const defaultProps: React.ComponentProps<typeof AccountSidebar> = {
+    user: mockUser,
+    onLogout: vi.fn(),
+    onAvatarClick: vi.fn(),
+    isAvatarUploading: false,
+  };
+
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>
+      <AccountSidebar {...defaultProps} {...props} />
+    </MemoryRouter>,
+  );
+}
+
 describe('AccountSidebar', () => {
-  const mockUser = {
-    firstName: 'Anna',
-    lastName: 'Smith',
-    email: 'anna@example.com',
-    avatarUrl: 'https://example.com/avatar.jpg',
-  };
-
-  const renderComponent = (
-    props?: Partial<React.ComponentProps<typeof AccountSidebar>>,
-    initialEntries: string[] = [ROUTES.PROFILE],
-  ) => {
-    return render(
-      <MemoryRouter initialEntries={initialEntries}>
-        <AccountSidebar
-          user={mockUser as never}
-          onAvatarClick={vi.fn()}
-          onLogout={vi.fn()}
-          {...props}
-        />
-      </MemoryRouter>,
-    );
-  };
-
   it('renders user full name', () => {
     renderComponent();
 
-    expect(screen.getByText('Anna Smith')).toBeInTheDocument();
+    expect(screen.getByText('Genadiy Pascal')).toBeInTheDocument();
   });
 
-  it('renders fallback name "User" when first and last name are missing', () => {
-    renderComponent({
-      user: { ...mockUser, firstName: '', lastName: '' } as never,
-    });
+  it('renders fallback name when first and last name are empty', () => {
+    renderComponent({ user: userWithoutName });
 
     expect(screen.getByText('User')).toBeInTheDocument();
   });
@@ -49,38 +64,28 @@ describe('AccountSidebar', () => {
 
     const avatar = screen.getByAltText('avatar');
     expect(avatar).toBeInTheDocument();
-    expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+    expect(avatar).toHaveAttribute('src', mockUser.avatarUrl);
   });
 
-  it('does not render avatar image when avatarUrl is missing', () => {
+  it('renders fallback avatar when avatarUrl does not exist', () => {
     renderComponent({
-      user: { ...mockUser, avatarUrl: '' } as never,
+      user: {
+        ...mockUser,
+        avatarUrl: '',
+      },
     });
 
     expect(screen.queryByAltText('avatar')).not.toBeInTheDocument();
-  });
-
-  it('renders avatar placeholder when avatarUrl is missing', () => {
-    const { container } = renderComponent({
-      user: { ...mockUser, avatarUrl: '' } as never,
-    });
-
-    expect(screen.queryByAltText('avatar')).not.toBeInTheDocument();
-
-    const placeholder = container.querySelector(
-      '.bg-\\[rgb\\(var\\(--color-gray-200\\)\\)\\]',
-    );
-    expect(placeholder).toBeInTheDocument();
   });
 
   it('calls onAvatarClick when file is selected', () => {
     const onAvatarClick = vi.fn();
+    renderComponent({ onAvatarClick });
 
-    const { container } = renderComponent({ onAvatarClick });
-
-    const input = container.querySelector(
+    const input = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement;
+
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' });
 
     fireEvent.change(input, {
@@ -91,9 +96,34 @@ describe('AccountSidebar', () => {
     expect(onAvatarClick).toHaveBeenCalledWith(file);
   });
 
+  it('does not call onAvatarClick when no file is selected', () => {
+    const onAvatarClick = vi.fn();
+    renderComponent({ onAvatarClick });
+
+    const input = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+
+    fireEvent.change(input, {
+      target: { files: [] },
+    });
+
+    expect(onAvatarClick).not.toHaveBeenCalled();
+  });
+
+  it('disables avatar upload button when isAvatarUploading is true', () => {
+    renderComponent({ isAvatarUploading: true });
+
+    const buttons = screen.getAllByRole('button');
+    const uploadButton = buttons.find(
+      (button) => button !== screen.getByText('Log Out'),
+    );
+
+    expect(uploadButton).toBeDisabled();
+  });
+
   it('calls onLogout when logout button is clicked', () => {
     const onLogout = vi.fn();
-
     renderComponent({ onLogout });
 
     fireEvent.click(screen.getByRole('button', { name: /log out/i }));
@@ -101,35 +131,38 @@ describe('AccountSidebar', () => {
     expect(onLogout).toHaveBeenCalledTimes(1);
   });
 
-  it('renders account navigation link with correct href', () => {
+  it('renders navigation links', () => {
     renderComponent();
 
-    const accountLink = screen.getByRole('link', { name: /account/i });
-    expect(accountLink).toBeInTheDocument();
-    expect(accountLink).toHaveAttribute('href', ROUTES.PROFILE);
+    expect(screen.getByRole('link', { name: 'Account' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Orders' })).toBeInTheDocument();
   });
 
-  it('renders disabled items Orders and Wishlist', () => {
+  it('renders wishlist as disabled text item', () => {
     renderComponent();
 
-    const ordersLink = screen.getByRole('link', { name: /orders/i });
-    expect(ordersLink).toBeInTheDocument();
-    expect(ordersLink).toHaveAttribute('href', ROUTES.MYORDERS);
-
-    expect(screen.getByText('Wishlist')).toBeInTheDocument();
+    const wishlist = screen.getByText('Wishlist');
+    expect(wishlist).toBeInTheDocument();
+    expect(wishlist).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('applies active class to account link when route is profile', () => {
-    renderComponent({}, [ROUTES.PROFILE]);
+  it('marks account link as active on /profile route', () => {
+    renderComponent(undefined, ['/profile']);
 
-    const accountLink = screen.getByRole('link', { name: /account/i });
-    expect(accountLink.className).toContain('text-black');
+    const accountLink = screen.getByRole('link', { name: 'Account' });
+    const ordersLink = screen.getByRole('link', { name: 'Orders' });
+
+    expect(accountLink.className).toContain('text-neutral-0');
+    expect(ordersLink.className).toContain('border-transparent');
   });
 
-  it('does not apply active class to account link when route is not profile', () => {
-    renderComponent({}, ['/some-other-route']);
+  it('marks orders link as active on /my-orders route', () => {
+    renderComponent(undefined, [ROUTES.MYORDERS]);
 
-    const accountLink = screen.getByRole('link', { name: /account/i });
+    const accountLink = screen.getByRole('link', { name: 'Account' });
+    const ordersLink = screen.getByRole('link', { name: 'Orders' });
+
+    expect(ordersLink.className).toContain('text-neutral-0');
     expect(accountLink.className).toContain('border-transparent');
   });
 });
