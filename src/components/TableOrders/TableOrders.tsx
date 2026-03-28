@@ -64,13 +64,10 @@ export function TableOrders({
 
   const confirmDelete = async () => {
     if (!selectedOrderId) return;
-    console.log('selectedOrderId');
     try {
       await deleteOrder(selectedOrderId);
-      console.log('deleteOrder selectedOrderId');
       closeDeleteModal();
     } catch (error) {
-      console.log('error');
       console.error('Failed to delete order:', error);
     }
   };
