@@ -5,7 +5,11 @@ import clsx from 'clsx';
 const BASE_INPUT_CLASSES =
   'w-full bg-transparent transition-colors outline-none ' +
   'text-[rgb(var(--color-text))] caret-text ' +
-  'disabled:cursor-not-allowed';
+  'disabled:cursor-not-allowed ' +
+  '[&:-webkit-autofill]:![box-shadow:0_0_0_1000px_rgb(var(--color-bg))_inset] ' +
+  '[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))] ' +
+  'dark:[&:-webkit-autofill]:![box-shadow:0_0_0_1000px_rgb(var(--color-bg))_inset] ' +
+  'dark:[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))]';
 
 const WRAPPER_CLASSES =
   'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';

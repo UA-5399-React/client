@@ -47,3 +47,9 @@ export const UPDATE_ORDER_STATUS = gql`
     }
   }
 `;
+
+export const DELETE_ORDER = gql`
+  mutation DeleteOrder($orderId: String!) {
+    deleteOrder(orderId: $orderId)
+  }
+`;

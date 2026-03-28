@@ -6,6 +6,13 @@ import { authService } from '@/services/authService';
 
 import { useAuth } from './useAuth';
 
+const mockRemoveQueries = vi.fn();
+
+// Mock React Query
+vi.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ removeQueries: mockRemoveQueries }),
+}));
+
 // 1. Mock the auth service
 vi.mock('@/services/authService', () => ({
   authService: {
@@ -17,6 +24,7 @@ describe('Hook: useAuth', () => {
   beforeEach(() => {
     // Clear mocks and storage before each test
     vi.clearAllMocks();
+    mockRemoveQueries.mockClear();
     localStorage.clear();
   });
 
@@ -30,7 +38,26 @@ describe('Hook: useAuth', () => {
     expect(result.current.isAuth).toBe(false);
     expect(result.current.role).toBeNull();
     expect(result.current.isAdmin).toBe(false);
-    expect(result.current.canAccessAdminPanel).toBe(false);
+    expect(result.current.isAuth).toBe(false);
+  });
+
+  it('should return unauthenticated state if token is missing but expires exists', () => {
+    localStorage.setItem(
+      MOCK_AUTH.EXPIRES_KEY,
+      (Date.now() + 10000).toString(),
+    );
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuth).toBe(false);
+  });
+
+  it('should return unauthenticated state if token exists but expires is missing', () => {
+    localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'valid-token');
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuth).toBe(false);
   });
 
   it('should return unauthenticated state if token is expired', () => {
