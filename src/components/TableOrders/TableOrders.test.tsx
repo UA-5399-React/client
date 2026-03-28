@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
 import { formatDate } from '@/utils';
@@ -29,14 +29,30 @@ const orderItem: OrderItem = {
   createdAt: '2025-03-24T12:00:00.000Z',
 };
 
+const onStatusChange = vi.fn(async () => {});
+
 describe('UI Component: TableOrders', () => {
   it('should render the table', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(
       screen.getByRole('columnheader', { name: 'Product Name' }),
@@ -65,13 +81,27 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should render empty state when there are no orders', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(screen.getByText('No orders found')).toBeInTheDocument();
   });
 
   it('should render order row values', () => {
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(screen.getByText('Test product')).toBeInTheDocument();
     expect(screen.getByText('Items: 1')).toBeInTheDocument();
@@ -85,7 +115,14 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should show selected order status in dropdown trigger', () => {
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
       'Processing',
