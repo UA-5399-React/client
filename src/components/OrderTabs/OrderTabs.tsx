@@ -4,8 +4,8 @@ import clsx from 'clsx';
 import {
   DEFAULT_ORDER_STATUS_FILTER,
   ORDER_STATUS_OPTIONS,
-  type OrderStatusFilter,
 } from '@/constants/orders';
+import { ALL_STATUS, type OrderStatusFilter } from '@/types/tableOrders.types';
 
 export function OrderTabs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,7 +19,7 @@ export function OrderTabs() {
   const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
 
-    if (value === 'all') {
+    if (value === ALL_STATUS) {
       newParams.delete('status');
     } else {
       newParams.set('status', value.toLowerCase());
