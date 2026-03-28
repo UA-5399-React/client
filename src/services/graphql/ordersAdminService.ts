@@ -36,3 +36,9 @@ export const GET_ORDERS = gql`
     }
   }
 `;
+
+export const DELETE_ORDER = gql`
+  mutation DeleteOrder($orderId: String!) {
+    deleteOrder(orderId: $orderId)
+  }
+`;
