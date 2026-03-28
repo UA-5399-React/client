@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const deleteOrderMock = vi.fn();
 
 vi.mock('@/hooks/useDeleteAdminOrder', () => ({
   useDeleteAdminOrder: () => ({
-    deleteOrder: vi.fn(),
+    deleteOrder: deleteOrderMock,
     data: undefined,
     loading: false,
     error: undefined,
@@ -39,6 +42,10 @@ const orderItem: OrderItem = {
 };
 
 describe('UI Component: TableOrders', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should render the table', () => {
     render(<TableOrders items={[]} loading={false} error={null} />);
     expect(screen.getByRole('table')).toBeInTheDocument();
@@ -98,5 +105,36 @@ describe('UI Component: TableOrders', () => {
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
       'Processing',
     );
+  });
+
+  it('should open delete confirmation modal', async () => {
+    const user = userEvent.setup();
+
+    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+
+    const actionButtons = screen.getAllByRole('button');
+    await user.click(actionButtons[actionButtons.length - 1]);
+
+    expect(screen.getByText('Delete')).toBeInTheDocument();
+
+    await user.click(screen.getByText('Delete'));
+
+    expect(
+      screen.getByText('Are you sure you want to delete this order?'),
+    ).toBeInTheDocument();
+  });
+
+  it('should call deleteOrder with orderId after confirm', async () => {
+    const user = userEvent.setup();
+
+    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+
+    const actionButtons = screen.getAllByRole('button');
+    await user.click(actionButtons[actionButtons.length - 1]);
+
+    await user.click(screen.getByText('Delete'));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(deleteOrderMock).toHaveBeenCalledWith(orderItem.orderId);
   });
 });

@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import clsx from 'clsx';
 
-import { ActionMenu, Dropdown, MainTable } from '@/components';
+import { ActionMenu, ConfirmModal, Dropdown, MainTable } from '@/components';
 import { useDeleteAdminOrder } from '@/hooks/useDeleteAdminOrder';
 import type { Column } from '@/types';
 import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
@@ -31,17 +32,27 @@ const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
 export function TableOrders({ items, loading, error }: TableOrdersProps) {
   const { deleteOrder } = useDeleteAdminOrder();
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
   const handleEdit = () => {};
 
-  const handleDelete = async (id: string) => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this order?',
-    );
+  const openDeleteModal = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setIsDeleteModalOpen(true);
+  };
 
-    if (!confirmed) return;
+  const closeDeleteModal = () => {
+    setSelectedOrderId(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedOrderId) return;
 
     try {
-      await deleteOrder(id);
+      await deleteOrder(selectedOrderId);
+      closeDeleteModal();
     } catch (error) {
       console.error('Failed to delete order:', error);
     }
@@ -111,7 +122,7 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
           <ActionMenu
             className="top-0 left-[-135px]"
             editAction={() => handleEdit()}
-            deleteAction={() => handleDelete(item.orderId)}
+            deleteAction={() => openDeleteModal(item.orderId)}
           />
         </td>
       </>
@@ -119,13 +130,27 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
   };
 
   return (
-    <MainTable
-      columns={columns}
-      items={items}
-      loading={loading}
-      error={error}
-      emptyMessage="No orders found"
-      renderRow={renderProductRow}
-    />
+    <>
+      <MainTable
+        columns={columns}
+        items={items}
+        loading={loading}
+        error={error}
+        emptyMessage="No orders found"
+        renderRow={renderProductRow}
+      />
+
+      {isDeleteModalOpen && (
+        <ConfirmModal
+          title="Delete order"
+          description="Are you sure you want to delete this order?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          isCritical={true}
+          onConfirm={confirmDelete}
+          onCancel={closeDeleteModal}
+        />
+      )}
+    </>
   );
 }
