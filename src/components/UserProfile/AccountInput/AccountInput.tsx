@@ -34,7 +34,7 @@ export function AccountInput({
     <div className="flex flex-col gap-3">
       <label
         htmlFor={inputId}
-        className="text-[12px] font-bold text-[rgb(var(--color-gray-600))] uppercase"
+        className="text-muted text-[12px] font-bold uppercase"
       >
         {label}
       </label>
@@ -49,7 +49,7 @@ export function AccountInput({
           disabled={disabled}
           autoComplete={autoComplete}
           onChange={(e) => onChange?.(e.target.value)}
-          className="h-[40px] w-full rounded-md border border-[rgb(var(--color-gray-300))] pl-4 text-sm text-[rgb(var(--color-neutral-900))] transition outline-none focus:border-[rgb(var(--color-neutral-900))] disabled:bg-[rgb(var(--color-neutral-600))]"
+          className="border-fieldBorder bg-background text-text placeholder:text-placeholderText focus:border-text disabled:bg-backgroundSec disabled:text-muted h-[40px] w-full rounded-md border px-4 text-sm transition outline-none"
         />
 
         {isPasswordField && (
@@ -58,7 +58,7 @@ export function AccountInput({
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-1 flex items-center border-none bg-transparent text-[rgb(var(--color-gray-600))]"
+            className="text-muted absolute inset-y-0 right-1 flex items-center border-none bg-transparent"
           >
             {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>

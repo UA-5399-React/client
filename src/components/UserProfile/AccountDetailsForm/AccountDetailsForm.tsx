@@ -19,7 +19,7 @@ export function AccountDetailsForm({
 }: AccountDetailsFormProps) {
   return (
     <section>
-      <h2 className="mt-0 mb-6 text-[20px] font-semibold text-[rgb(var(--color-neutral-900))]">
+      <h2 className="text-text mt-0 mb-6 text-[20px] font-semibold">
         Account Details
       </h2>
 
@@ -37,7 +37,7 @@ export function AccountDetailsForm({
           )}
         />
         {errors.firstName?.message ? (
-          <p className="text-sm text-[rgb(var(--color-red-600))]">
+          <p className="text-sm text-red-600">
             {String(errors.firstName.message)}
           </p>
         ) : null}
@@ -55,7 +55,7 @@ export function AccountDetailsForm({
           )}
         />
         {errors.lastName?.message ? (
-          <p className="text-sm text-[rgb(var(--color-red-600))]">
+          <p className="text-sm text-red-600">
             {String(errors.lastName.message)}
           </p>
         ) : null}
