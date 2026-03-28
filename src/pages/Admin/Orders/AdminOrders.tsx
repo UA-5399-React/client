@@ -3,11 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { OrdersTopWidgets, OrderTabs, TableOrders } from '@/components';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
+import { ALL_STATUS } from '@/types/tableOrders.types';
 
 export function AdminOrders() {
   const [searchParams] = useSearchParams();
 
-  const currentStatus = searchParams.get('status') || 'all';
+  const currentStatus = searchParams.get('status') || ALL_STATUS;
 
   const { orders, loading, error } = useAdminOrders(currentStatus);
   const { counts, loading: countsLoading } = useAdminOrdersCounts();
@@ -16,13 +17,9 @@ export function AdminOrders() {
       <div className="flex items-center">
         <h1 className="text-2xl font-bold text-[#2C2C2C]">Orders</h1>
       </div>
-
       <OrdersTopWidgets counts={counts} loading={countsLoading} />
-
       <OrderTabs />
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-        <TableOrders items={orders} loading={loading} error={error} />;
-      </div>
+      <TableOrders items={orders} loading={loading} error={error} />;
     </div>
   );
 }

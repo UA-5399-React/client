@@ -1,18 +1,18 @@
 import { CheckCircle2, ClipboardList, Package, XCircle } from 'lucide-react';
 
-import { ORDER_STATUS } from '@/types/tableOrders.types';
+import { type ALL_STATUS, ORDER_STATUS } from '@/types/tableOrders.types';
 
 interface OrdersTopWidgetsProps {
   counts: {
     [key in (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS]]?: number;
-  } & { all?: number };
+  } & { [ALL_STATUS]?: number };
   loading: boolean;
 }
 
 export function OrdersTopWidgets({ counts, loading }: OrdersTopWidgetsProps) {
   const widgetItems = [
     {
-      id: 'total',
+      id: ORDER_STATUS.NEW,
       label: 'Total New Orders',
       value: counts[ORDER_STATUS.NEW] || 0,
       icon: ClipboardList,
@@ -20,7 +20,7 @@ export function OrdersTopWidgets({ counts, loading }: OrdersTopWidgetsProps) {
       borderColor: 'border-emerald-500',
     },
     {
-      id: 'completed',
+      id: ORDER_STATUS.COMPLETED,
       label: 'Completed',
       value: counts[ORDER_STATUS.COMPLETED] || 0,
       icon: CheckCircle2,
@@ -28,7 +28,7 @@ export function OrdersTopWidgets({ counts, loading }: OrdersTopWidgetsProps) {
       borderColor: 'border-blue-500',
     },
     {
-      id: 'cancelled',
+      id: ORDER_STATUS.CANCELLED,
       label: 'Cancelled',
       value: counts[ORDER_STATUS.CANCELLED] || 0,
       icon: XCircle,
@@ -36,7 +36,7 @@ export function OrdersTopWidgets({ counts, loading }: OrdersTopWidgetsProps) {
       borderColor: 'border-rose-500',
     },
     {
-      id: 'processing',
+      id: ORDER_STATUS.PROCESSING,
       label: 'Processing',
       value: counts[ORDER_STATUS.PROCESSING] || 0,
       icon: Package,
