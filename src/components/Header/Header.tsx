@@ -17,6 +17,7 @@ import { Button, CartCounter, FlyoutCart, SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useMe } from '@/hooks/useMe';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore } from '@/store/useCartStore';
 
@@ -43,7 +44,17 @@ export const Header = () => {
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
 
-  const { isAuth } = useAuth();
+  const { isAuth, isCustomer } = useAuth();
+
+  const { data: me } = useMe(isAuth && isCustomer);
+
+  const userInitials = (() => {
+    if (!me) return null;
+    const first = me.firstName?.trim()[0]?.toUpperCase() ?? '';
+    const last = me.lastName?.trim()[0]?.toUpperCase() ?? '';
+    if (first || last) return `${first}${last}`;
+    return me.email?.[0]?.toUpperCase() ?? null;
+  })();
 
   const handleUserNavigate = () => {
     navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
@@ -186,7 +197,13 @@ export const Header = () => {
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
-              <UserCircle className="h-6 w-6" />
+              {userInitials ? (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                  {userInitials}
+                </span>
+              ) : (
+                <UserCircle className="h-6 w-6" />
+              )}
             </button>
 
             <button
