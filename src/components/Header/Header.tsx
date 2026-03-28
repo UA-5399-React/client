@@ -13,7 +13,7 @@ import {
 
 import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
-import { Button, FlyoutCart, SearchInput } from '@/components';
+import { Button, CartCounter, FlyoutCart, SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -33,11 +33,7 @@ export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const { items: cartItems, openCart } = useCartStore();
-  const cartItemCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const { openCart } = useCartStore();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -127,15 +123,7 @@ export const Header = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
-                  {cartItemCount}
-                </span>
-              )}
+              <CartCounter />
             </button>
           </div>
         </div>
@@ -219,15 +207,7 @@ export const Header = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
-                  {cartItemCount}
-                </span>
-              )}
+              <CartCounter />
             </button>
           </div>
         </div>
@@ -298,15 +278,7 @@ export const Header = () => {
                 <span>Cart</span>
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
-                  {cartItemCount > 0 && (
-                    <span
-                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                        isDark ? 'bg-white text-black' : 'bg-black text-white'
-                      }`}
-                    >
-                      {cartItemCount}
-                    </span>
-                  )}
+                  <CartCounter />
                 </div>
               </button>
 
