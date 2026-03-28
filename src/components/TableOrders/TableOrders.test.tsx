@@ -14,7 +14,7 @@ vi.mock('@/hooks/useDeleteAdminOrder', () => ({
 
 import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
 import { formatDate } from '@/utils';
-import { render, screen } from '@/utils/test-utils';
+import { render, screen, waitFor } from '@/utils/test-utils';
 
 import { TableOrders } from './TableOrders';
 
@@ -41,18 +41,34 @@ const orderItem: OrderItem = {
   createdAt: '2025-03-24T12:00:00.000Z',
 };
 
+const onStatusChange = vi.fn(async () => {});
+
 describe('UI Component: TableOrders', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should render the table', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(
       screen.getByRole('columnheader', { name: 'Product Name' }),
@@ -81,12 +97,27 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should render empty state when there are no orders', () => {
-    render(<TableOrders items={[]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
+
     expect(screen.getByText('No orders found')).toBeInTheDocument();
   });
 
   it('should render order row values', () => {
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(screen.getByText('Test product')).toBeInTheDocument();
     expect(screen.getByText('Items: 1')).toBeInTheDocument();
@@ -100,7 +131,14 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should show selected order status in dropdown trigger', () => {
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
       'Processing',
@@ -110,7 +148,14 @@ describe('UI Component: TableOrders', () => {
   it('should open delete confirmation modal', async () => {
     const user = userEvent.setup();
 
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     const actionButtons = screen.getAllByRole('button');
     await user.click(actionButtons[actionButtons.length - 1]);
@@ -127,7 +172,14 @@ describe('UI Component: TableOrders', () => {
   it('should call deleteOrder with orderId after confirm', async () => {
     const user = userEvent.setup();
 
-    render(<TableOrders items={[orderItem]} loading={false} error={null} />);
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
 
     const actionButtons = screen.getAllByRole('button');
     await user.click(actionButtons[actionButtons.length - 1]);
@@ -136,5 +188,47 @@ describe('UI Component: TableOrders', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     expect(deleteOrderMock).toHaveBeenCalledWith(orderItem.orderId);
+  });
+
+  it('should call onStatusChange with orderId and new status when status changes', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Status' }));
+    await user.click(screen.getByRole('option', { name: 'Completed' }));
+
+    await waitFor(() => {
+      expect(onStatusChange).toHaveBeenCalledTimes(1);
+    });
+    expect(onStatusChange).toHaveBeenCalledWith(
+      orderItem.orderId,
+      ORDER_STATUS.COMPLETED,
+    );
+  });
+
+  it('should not call onStatusChange when selecting the current status', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <TableOrders
+        items={[orderItem]}
+        loading={false}
+        error={null}
+        onStatusChange={onStatusChange}
+      />,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Status' }));
+    await user.click(screen.getByRole('option', { name: 'Processing' }));
+
+    expect(onStatusChange).not.toHaveBeenCalled();
   });
 });

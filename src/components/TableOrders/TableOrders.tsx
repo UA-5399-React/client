@@ -4,13 +4,23 @@ import clsx from 'clsx';
 import { ActionMenu, ConfirmModal, Dropdown, MainTable } from '@/components';
 import { useDeleteAdminOrder } from '@/hooks/useDeleteAdminOrder';
 import type { Column } from '@/types';
-import { ORDER_STATUS, type OrderItem } from '@/types/tableOrders.types';
+import {
+  ORDER_STATUS,
+  type OrderItem,
+  type OrderStatus,
+} from '@/types/tableOrders.types';
 import { capitalizeFirst, formatDate } from '@/utils';
+
+import type { DropdownOption } from '../Dropdown/Dropdown.types';
 
 interface TableOrdersProps {
   items: OrderItem[];
   loading: boolean;
   error: Error | null | undefined;
+  onStatusChange: (
+    orderId: string,
+    status: OrderItem['status'],
+  ) => Promise<void>;
 }
 
 const columns: Column[] = [
@@ -29,7 +39,12 @@ const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
   value: status,
 }));
 
-export function TableOrders({ items, loading, error }: TableOrdersProps) {
+export function TableOrders({
+  items,
+  loading,
+  error,
+  onStatusChange,
+}: TableOrdersProps) {
   const { deleteOrder } = useDeleteAdminOrder();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -49,7 +64,6 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
 
   const confirmDelete = async () => {
     if (!selectedOrderId) return;
-
     try {
       await deleteOrder(selectedOrderId);
       closeDeleteModal();
@@ -59,8 +73,15 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
   };
 
   const renderProductRow = (item: OrderItem) => {
-    const handleStatusChange = () => {
-      // TODO: handle status change
+    const handleStatusSelect = (selected: DropdownOption[]) => {
+      const nextStatus = selected[0]?.value as OrderStatus;
+      const currentStatus = item.status.toLowerCase();
+
+      if (!nextStatus || nextStatus.toLowerCase() === currentStatus) {
+        return;
+      }
+
+      void onStatusChange(item.orderId, nextStatus);
     };
 
     const firstProduct = item.items[0];
@@ -99,7 +120,7 @@ export function TableOrders({ items, loading, error }: TableOrdersProps) {
               labelClassName="hidden"
               options={statusOptions}
               selectedValues={selectedStatus}
-              onChange={() => handleStatusChange()}
+              onChange={handleStatusSelect}
               multiple={false}
               hasBorder={true}
               placeholder="Status"
