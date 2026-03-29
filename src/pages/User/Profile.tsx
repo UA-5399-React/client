@@ -5,17 +5,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import {
   type ProfileFormValues,
   profileSchema,
 } from '@/schemas/profile.schema';
-import { authService } from '@/services';
 import { UnauthorizedError, usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 import { clearAuthStorage } from '@/utils/auth-storage';
 
 export function Profile() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,7 +88,7 @@ export function Profile() {
     };
 
     void loadUser();
-  }, [navigate, reset]);
+  }, [navigate, reset, handleUnauthorized]);
 
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
@@ -198,28 +199,8 @@ export function Profile() {
   };
 
   const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      clearAuthStorage();
-
-      setUser(null);
-      setPageError('');
-      setSubmitError('');
-      setSuccessMessage('');
-
-      reset({
-        firstName: '',
-        lastName: '',
-        oldPassword: '',
-        newPassword: '',
-        repeatPassword: '',
-      });
-
-      navigate(ROUTES.HOME, { replace: true });
-    }
+    await logout();
+    navigate(ROUTES.HOME, { replace: true });
   };
 
   if (isLoading) {

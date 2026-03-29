@@ -10,7 +10,8 @@ export function AdminOrders() {
 
   const currentStatus = searchParams.get('status') || ALL_STATUS;
 
-  const { orders, loading, error } = useAdminOrders(currentStatus);
+  const { orders, loading, error, handleOrderStatusChange } =
+    useAdminOrders(currentStatus);
   const { counts, loading: countsLoading } = useAdminOrdersCounts();
   return (
     <div className="flex flex-col gap-6 p-8">
@@ -19,7 +20,13 @@ export function AdminOrders() {
       </div>
       <OrdersTopWidgets counts={counts} loading={countsLoading} />
       <OrderTabs />
-      <TableOrders items={orders} loading={loading} error={error} />;
+
+      <TableOrders
+        items={orders}
+        loading={loading}
+        error={error}
+        onStatusChange={handleOrderStatusChange}
+      />
     </div>
   );
 }
