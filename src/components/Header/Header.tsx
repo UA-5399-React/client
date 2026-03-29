@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Heart,
+  //Heart,
   Menu,
   Moon,
   Search,
@@ -299,14 +299,14 @@ export const Header = () => {
                 </div>
               </button>
 
-              <Link
+              {/*<Link
                 to="#"
                 onClick={closeMenu}
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Wishlist</span>
                 <Heart className="h-5 w-5 shrink-0 text-gray-400" />
-              </Link>
+              </Link>*/}
             </div>
             <div className="shrink-0 px-6 pt-2 pb-6">
               <Button
