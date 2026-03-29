@@ -50,8 +50,6 @@ export function TableOrders({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  const handleEdit = () => {};
-
   const openDeleteModal = (orderId: string) => {
     setSelectedOrderId(orderId);
     setIsDeleteModalOpen(true);
@@ -142,7 +140,6 @@ export function TableOrders({
         <td>
           <ActionMenu
             className="top-0 left-[-135px]"
-            editAction={() => handleEdit()}
             deleteAction={() => openDeleteModal(item.orderId)}
           />
         </td>
