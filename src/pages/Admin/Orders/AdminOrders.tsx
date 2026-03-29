@@ -1,14 +1,15 @@
 import { useSearchParams } from 'react-router-dom';
 
 import { OrdersTopWidgets, OrderTabs, TableOrders } from '@/components';
+import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
-import { ALL_STATUS } from '@/types/tableOrders.types';
 
 export function AdminOrders() {
   const [searchParams] = useSearchParams();
 
-  const currentStatus = searchParams.get('status') || ALL_STATUS;
+  const currentStatus =
+    searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
 
   const { orders, loading, error, handleOrderStatusChange } =
     useAdminOrders(currentStatus);

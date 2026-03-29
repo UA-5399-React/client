@@ -5,7 +5,7 @@ import {
   DEFAULT_ORDER_STATUS_FILTER,
   ORDER_STATUS_OPTIONS,
 } from '@/constants/orders';
-import { ALL_STATUS, type OrderStatusFilter } from '@/types/tableOrders.types';
+import type { OrderStatusFilter } from '@/types/tableOrders.types';
 
 export function OrderTabs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,11 +19,7 @@ export function OrderTabs() {
   const handleTabChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
 
-    if (value === ALL_STATUS) {
-      newParams.delete('status');
-    } else {
-      newParams.set('status', value.toLowerCase());
-    }
+    newParams.set('status', value.toLowerCase());
 
     newParams.set('page', '1');
     setSearchParams(newParams);
