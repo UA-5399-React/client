@@ -24,7 +24,7 @@ import { useCartStore } from '@/store/useCartStore';
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home', end: true },
   { path: ROUTES.SHOP, label: 'Shop', end: false },
-  { path: ROUTES.PRODUCT, label: 'Product', end: false },
+  //{ path: ROUTES.PRODUCT, label: 'Product', end: false },
   //{ path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
 ];
 
