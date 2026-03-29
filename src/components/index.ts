@@ -37,6 +37,7 @@ export { TableOrders } from './TableOrders/TableOrders';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TextArea } from './TextArea';
 export { UserAvatar } from './UserAvatar';
+export { UserForm } from './UserForm/UserForm';
 export { AccountDetailsForm } from './UserProfile/AccountDetailsForm/AccountDetailsForm';
 export { AccountInput } from './UserProfile/AccountInput/AccountInput';
 export { AccountSidebar } from './UserProfile/AccountSidebar/AccountSidebar';

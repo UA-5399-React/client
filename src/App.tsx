@@ -2,8 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
-import { MainLayout, ProtectedRoute } from './components';
-import { LoginForm } from './components';
+import { LoginForm, MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
@@ -13,8 +12,10 @@ import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
+import { CreateUser } from './pages/Admin/CreateUser/CreateUser';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
+import { EditUser } from './pages/Admin/EditUser/EditUser';
 import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
@@ -40,6 +41,8 @@ function App() {
     ADMIN_CATEGORY_EDIT,
     ADMIN_PRODUCTS,
     ADMIN_USERS,
+    ADMIN_USER_CREATE,
+    ADMIN_USER_EDIT,
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
@@ -103,6 +106,8 @@ function App() {
               }
             >
               <Route path={ADMIN_USERS} element={<AdminUsers />} />
+              <Route path={ADMIN_USER_CREATE} element={<CreateUser />} />
+              <Route path={ADMIN_USER_EDIT} element={<EditUser />} />
               <Route path={ADMIN_SETTING} element={<AdminSettings />} />
             </Route>
           </Route>

@@ -1,13 +1,15 @@
+import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 import { ActionMenu, Checkbox, Dropdown } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
+import { ROUTES } from '@/constants';
 import {
   USER_ROLE_EDIT_OPTIONS,
   USER_STATUS_EDIT_OPTIONS,
 } from '@/constants/adminUsers';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
-import type { AdminUser, UserRole } from '@/types/admin-user.types';
+import type { AdminUser, UserRoleValue } from '@/types/admin-user.types';
 
 interface UsersTableProps {
   items: AdminUser[];
@@ -37,6 +39,7 @@ const getActivityLabel = (dateString: string | undefined) => {
 };
 
 export function UsersTable({ items }: UsersTableProps) {
+  const navigate = useNavigate();
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
 
   const handleStatusChange = async (
@@ -55,7 +58,7 @@ export function UsersTable({ items }: UsersTableProps) {
   ) => {
     const newValue = selected[0]?.value;
     if (newValue && newValue !== 'all') {
-      await handleUpdate(userId, { role: newValue.toUpperCase() as UserRole });
+      await handleUpdate(userId, { role: newValue as UserRoleValue });
     }
   };
 
@@ -169,7 +172,9 @@ export function UsersTable({ items }: UsersTableProps) {
                 <td className="relative text-right">
                   <ActionMenu
                     triggerAriaLabel={`Actions for ${getFullName(user)}`}
-                    editAction={() => {}}
+                    editAction={() =>
+                      navigate(generatePath(ROUTES.ADMIN_USER_EDIT, { id: user.id }))
+                    }
                     deleteAction={() => {}}
                     className={clsx(
                       'right-0 left-auto',

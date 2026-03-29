@@ -43,7 +43,9 @@ export interface InputProps extends React.ComponentPropsWithoutRef<
   variant?: 'outlined' | 'underlined';
   state?: 'default' | 'success' | 'error';
   label?: string;
+  labelClassName?: string;
   helperText?: string;
+  helperTextClassName?: string;
   leftIcon?: React.ReactNode;
   rightElement?: React.ReactNode;
   inputClassName?: string;
@@ -55,7 +57,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       variant = 'outlined',
       state = 'default',
       label,
+      labelClassName = '',
       helperText,
+      helperTextClassName = '',
       leftIcon,
       rightElement,
       type = 'text',
@@ -83,7 +87,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={clsx(WRAPPER_CLASSES, className)}>
         {label && (
-          <label htmlFor={inputId} className={LABEL_CLASSES}>
+          <label
+            htmlFor={inputId}
+            className={clsx(LABEL_CLASSES, labelClassName)}
+          >
             {label}
           </label>
         )}
@@ -151,6 +158,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={clsx(
               HELPER_TEXT_CLASSES,
               state === 'error' ? 'text-red-600' : 'text-green-700',
+              helperTextClassName,
             )}
           >
             {helperText}
