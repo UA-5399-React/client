@@ -11,6 +11,7 @@ export * from './useGetAdminCategory';
 export * from './useGetAdminUser';
 export * from './useLocalStorage';
 export * from './useLogin';
+export * from './useRegister';
 export * from './useTheme';
 export * from './useUpdateAdminCategory';
 export * from './useUpdateAdminUser';

@@ -5,17 +5,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import {
   type ProfileFormValues,
   profileSchema,
 } from '@/schemas/profile.schema';
-import { authService } from '@/services';
 import { UnauthorizedError, usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 import { clearAuthStorage } from '@/utils/auth-storage';
 
 export function Profile() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,7 +88,7 @@ export function Profile() {
     };
 
     void loadUser();
-  }, [navigate, reset]);
+  }, [navigate, reset, handleUnauthorized]);
 
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
@@ -198,47 +199,25 @@ export function Profile() {
   };
 
   const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      clearAuthStorage();
-
-      setUser(null);
-      setPageError('');
-      setSubmitError('');
-      setSuccessMessage('');
-
-      reset({
-        firstName: '',
-        lastName: '',
-        oldPassword: '',
-        newPassword: '',
-        repeatPassword: '',
-      });
-
-      navigate(ROUTES.HOME, { replace: true });
-    }
+    await logout();
+    navigate(ROUTES.HOME, { replace: true });
   };
 
   if (isLoading) {
-    return <div className="p-10">Loading...</div>;
+    return <div className="bg-background text-text p-10">Loading...</div>;
   }
 
   if (pageError) {
-    return (
-      <div className="p-10 text-[rgb(var(--color-red-600))]">{pageError}</div>
-    );
+    return <div className="bg-background p-10 text-red-600">{pageError}</div>;
   }
 
   if (!user) {
-    return <div className="p-10">User not found</div>;
+    return <div className="bg-background text-text p-10">User not found</div>;
   }
 
   return (
-    <section className="min-h-screen bg-white px-4 md:px-8 lg:px-40">
-      <h1 className="mt-10 mb-16 text-center text-[54px] leading-none font-semibold text-black">
+    <section className="bg-background text-text min-h-screen px-4 md:px-8 lg:px-40">
+      <h1 className="text-text mt-10 mb-16 text-center text-[54px] leading-none font-semibold">
         My Account
       </h1>
 
@@ -264,21 +243,17 @@ export function Profile() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="mt-6 h-[44px] min-w-[90px] cursor-pointer rounded-md bg-black px-6 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+                className="bg-text text-background mt-6 h-[44px] min-w-[90px] cursor-pointer rounded-md px-6 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save changes'}
               </button>
 
               {submitError && (
-                <p className="mt-3 text-sm text-[rgb(var(--color-red-600))]">
-                  {submitError}
-                </p>
+                <p className="mt-3 text-sm text-red-600">{submitError}</p>
               )}
 
               {successMessage && (
-                <p className="mt-3 text-sm text-[rgb(var(--color-green-600))]">
-                  {successMessage}
-                </p>
+                <p className="mt-3 text-sm text-green-600">{successMessage}</p>
               )}
             </form>
           </div>

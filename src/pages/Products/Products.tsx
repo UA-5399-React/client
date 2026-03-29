@@ -30,7 +30,11 @@ export const Products = () => {
   const defaultLimit = viewType === 'grid-5' ? 15 : 12;
   const limit = Number(searchParams.get('limit')) || defaultLimit;
   const sort = (searchParams.get('sort') as 'title' | 'price') || 'title';
-  const category = searchParams.get('category') || '';
+  const category = searchParams
+    .getAll('category')
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
   const search = searchParams.get('search') || undefined;

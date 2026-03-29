@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 
 import { CategoryDropdown, Dropdown } from '@/components/Dropdown';
-import { useAdminCategories } from '@/hooks/useAdminCategories';
+import { useShopCategories } from '@/hooks/useShopCategories';
 
 const PRICE_OPTIONS = [
   { label: 'Under $500', value: '0-500' },
@@ -10,35 +10,72 @@ const PRICE_OPTIONS = [
   { label: 'Over $2000', value: '2000+' },
 ];
 
+const getSelectedCategories = (searchParams: URLSearchParams) => {
+  const categories = searchParams
+    .getAll('category')
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (categories.length) {
+    return categories;
+  }
+
+  const legacyCategory = searchParams.get('category');
+
+  return legacyCategory
+    ? legacyCategory
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+    : [];
+};
+
 export function ShopFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { categories } = useAdminCategories();
+  const {
+    data: categories = [],
+    isLoading,
+    isError,
+  } = useShopCategories();
 
   const categoryOptions = categories.map((c) => ({
     label: c.title,
     value: String(c.id),
   }));
 
-  const currentCategory = searchParams.get('category')?.split(',') || [];
-  const categoryLabel = currentCategory.length
-    ? currentCategory
-        .map((v) => categoryOptions.find((o) => o.value === v)?.label)
-        .filter(Boolean)
-        .join(', ')
-    : 'All Electronics';
+  const currentCategory = getSelectedCategories(searchParams);
+  const isCategoryDisabled =
+    isLoading || isError || categoryOptions.length === 0;
+  const categoryPlaceholder = isLoading
+    ? 'Loading categories...'
+    : isError
+      ? 'Failed to load categories'
+      : categoryOptions.length === 0
+        ? 'No categories available'
+        : 'All Electronics';
+  const selectedCategoryLabels = currentCategory
+    .map((v) => categoryOptions.find((o) => o.value === v)?.label)
+    .filter(Boolean)
+    .join(', ');
+  const categoryLabel = selectedCategoryLabels || categoryPlaceholder;
+
   const handleCategoryChange = (values: { value: string }[]) => {
     const filtered = values.map((v) => v.value).filter(Boolean);
 
     setSearchParams((prev) => {
-      if (filtered.length) {
-        prev.set('category', filtered.join(','));
-      } else {
-        prev.delete('category');
-      }
-      prev.set('page', '1');
-      return prev;
+      const next = new URLSearchParams(prev);
+
+      next.delete('category');
+      filtered.forEach((value) => {
+        next.append('category', value);
+      });
+      next.set('page', '1');
+
+      return next;
     });
   };
+
   const currentPriceValue =
     searchParams.get('minPrice') && searchParams.get('maxPrice')
       ? `${searchParams.get('minPrice')}-${searchParams.get('maxPrice')}`
@@ -79,6 +116,7 @@ export function ShopFilters() {
         onChange={handleCategoryChange}
         placeholder={categoryLabel}
         selectedValues={currentCategory}
+        disabled={isCategoryDisabled}
       />
       <Dropdown
         label="Price"

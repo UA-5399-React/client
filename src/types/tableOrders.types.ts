@@ -6,12 +6,16 @@ export const ORDER_STATUS = {
   CANCELLED: 'cancelled',
 } as const;
 
+export const ALL_STATUS = 'all' as const;
+
 export type OrderStatus =
   | typeof ORDER_STATUS.NEW
   | typeof ORDER_STATUS.PROCESSING
   | typeof ORDER_STATUS.COMPLETED
   | typeof ORDER_STATUS.SHIPPING
   | typeof ORDER_STATUS.CANCELLED;
+
+export type OrderStatusFilter = OrderStatus | typeof ALL_STATUS;
 
 export interface OrderItem {
   id: string;

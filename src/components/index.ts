@@ -1,6 +1,7 @@
 export { ActionMenu } from './ActionMenu/ActionMenu';
 export { AdminPageHeader } from './AdminPageHeader';
 export { Button } from './Button';
+export { CartCounter } from './CartCounter';
 export { CategoryForm } from './CategoryForm/CategoryForm';
 export { Checkbox } from './Checkbox';
 export { ConfirmModal } from './ConfirmModal/ConfirmModal';
@@ -19,6 +20,8 @@ export { NewArrivals } from './NewArrivals/NewArrivals';
 export { Newsletter } from './Newsletter';
 export { OrderCard } from './OrderCard';
 export { MOCK_ORDERS } from './OrderCard/OrderCard.mock';
+export { OrdersTopWidgets } from './OrdersTopWidgets/OrdersTopWidgets';
+export { OrderTabs } from './OrderTabs/OrderTabs';
 export { Pagination } from './Pagination';
 export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';

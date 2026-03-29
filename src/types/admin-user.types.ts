@@ -9,12 +9,12 @@ export type UserRoleFilter = 'all' | UserRole;
 
 export interface AdminUser {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string | null;
+  lastName?: string | null;
   email: string;
   role: UserRoleResponse;
   isActive: boolean;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
@@ -33,6 +33,7 @@ export interface CreateAdminUserInput {
   lastName?: string;
   avatarUrl?: string;
 }
+
 
 export interface UpdateUserInput {
   id: string;
