@@ -46,8 +46,7 @@ describe('useAdminUsers', () => {
   it('filters users by full name, ignoring case and extra spaces', () => {
     mockApolloResponse();
     const targetUser = mockUsers[0];
-    const searchValue = `  ${targetUser.firstName.toUpperCase()} ${targetUser.lastName.toUpperCase()}  `;
-
+    const searchValue = `  ${(targetUser.firstName ?? '').toUpperCase()} ${(targetUser.lastName ?? '').toUpperCase()}  `;
     const { result } = renderHook(() =>
       useAdminUsers({
         currentPage: 1,
@@ -152,7 +151,10 @@ describe('useAdminUsers', () => {
     );
 
     const expectedUsers = mockUsers.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const fullName = [user.firstName, user.lastName]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
       const email = user.email.toLowerCase();
 
       const matchesSearch =
