@@ -75,6 +75,36 @@ describe('service: apiClient', () => {
     );
   });
 
+  it('serializes array query params as repeated search params', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: [], totalPages: 1 }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    await apiClient.get('/products', {
+      params: {
+        page: 1,
+        limit: 12,
+        category: ['cat-1', 'cat-2'],
+      },
+    });
+
+    const requestUrl = new URL(String(fetchMock.mock.calls[0][0]));
+
+    expect(requestUrl.searchParams.getAll('category')).toEqual([
+      'cat-1',
+      'cat-2',
+    ]);
+    expect(requestUrl.searchParams.get('page')).toBe('1');
+    expect(requestUrl.searchParams.get('limit')).toBe('12');
+  });
+
   it('clears local auth markers when refresh fails after a 401 response', async () => {
     const fetchMock = vi
       .fn()
