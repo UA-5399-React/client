@@ -1,5 +1,6 @@
 export { apiClient } from './api';
 export { authService } from './authService';
+export { categoryService } from './categoryService';
 export {
   CREATE_CATEGORY,
   DELETE_CATEGORY,
@@ -12,6 +13,8 @@ export {
   CREATE_PRODUCT,
   GET_PRODUCTS_PAGE,
 } from './graphql/productAdminService';
+export { orderService } from './orderService';
+export { paymentService } from './paymentService';
 export { productService } from './productService';
 export { uploadService } from './uploadService';
 export { userService } from './userService';

@@ -5,7 +5,11 @@ import clsx from 'clsx';
 const BASE_INPUT_CLASSES =
   'w-full bg-transparent transition-colors outline-none ' +
   'text-[rgb(var(--color-text))] caret-text ' +
-  'disabled:cursor-not-allowed';
+  'disabled:cursor-not-allowed ' +
+  '[&:-webkit-autofill]:![box-shadow:0_0_0_1000px_rgb(var(--color-bg))_inset] ' +
+  '[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))] ' +
+  'dark:[&:-webkit-autofill]:![box-shadow:0_0_0_1000px_rgb(var(--color-bg))_inset] ' +
+  'dark:[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))]';
 
 const WRAPPER_CLASSES =
   'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
@@ -39,7 +43,9 @@ export interface InputProps extends React.ComponentPropsWithoutRef<
   variant?: 'outlined' | 'underlined';
   state?: 'default' | 'success' | 'error';
   label?: string;
+  labelClassName?: string;
   helperText?: string;
+  helperTextClassName?: string;
   leftIcon?: React.ReactNode;
   rightElement?: React.ReactNode;
   inputClassName?: string;
@@ -51,7 +57,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       variant = 'outlined',
       state = 'default',
       label,
+      labelClassName = '',
       helperText,
+      helperTextClassName = '',
       leftIcon,
       rightElement,
       type = 'text',
@@ -79,7 +87,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={clsx(WRAPPER_CLASSES, className)}>
         {label && (
-          <label htmlFor={inputId} className={LABEL_CLASSES}>
+          <label
+            htmlFor={inputId}
+            className={clsx(LABEL_CLASSES, labelClassName)}
+          >
             {label}
           </label>
         )}
@@ -147,6 +158,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={clsx(
               HELPER_TEXT_CLASSES,
               state === 'error' ? 'text-red-600' : 'text-green-700',
+              helperTextClassName,
             )}
           >
             {helperText}

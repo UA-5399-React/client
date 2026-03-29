@@ -13,9 +13,11 @@ import {
 
 import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
-import { Button, FlyoutCart, SearchInput } from '@/components';
+import { Button, CartCounter, FlyoutCart, SearchInput } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useMe } from '@/hooks/useMe';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore } from '@/store/useCartStore';
 
@@ -23,7 +25,7 @@ const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home', end: true },
   { path: ROUTES.SHOP, label: 'Shop', end: false },
   { path: ROUTES.PRODUCT, label: 'Product', end: false },
-  { path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
+  //{ path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
 ];
 
 export const Header = () => {
@@ -32,11 +34,7 @@ export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const { items: cartItems, openCart } = useCartStore();
-  const cartItemCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const { openCart } = useCartStore();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -45,6 +43,22 @@ export const Header = () => {
   const debouncedSearch = useDebouncedValue(searchValue, 500);
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
+
+  const { isAuth, isCustomer } = useAuth();
+
+  const { data: me } = useMe(isAuth && isCustomer);
+
+  const userInitials = (() => {
+    if (!me) return null;
+    const first = me.firstName?.trim()[0]?.toUpperCase() ?? '';
+    const last = me.lastName?.trim()[0]?.toUpperCase() ?? '';
+    if (first || last) return `${first}${last}`;
+    return me.email?.[0]?.toUpperCase() ?? null;
+  })();
+
+  const handleUserNavigate = () => {
+    navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
+  };
 
   if (initialSearch !== prevUrlSearch) {
     setPrevUrlSearch(initialSearch);
@@ -120,15 +134,7 @@ export const Header = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
-                  {cartItemCount}
-                </span>
-              )}
+              <CartCounter />
             </button>
           </div>
         </div>
@@ -187,11 +193,17 @@ export const Header = () => {
             </div>
 
             <button
-              onClick={() => navigate(ROUTES.LOGIN)}
+              onClick={handleUserNavigate}
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
-              <UserCircle className="h-6 w-6" />
+              {userInitials ? (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                  {userInitials}
+                </span>
+              ) : (
+                <UserCircle className="h-6 w-6" />
+              )}
             </button>
 
             <button
@@ -212,15 +224,7 @@ export const Header = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-6 w-6" />
-              {cartItemCount > 0 && (
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isDark ? 'bg-white text-black' : 'bg-black text-white'
-                  }`}
-                >
-                  {cartItemCount}
-                </span>
-              )}
+              <CartCounter />
             </button>
           </div>
         </div>
@@ -291,15 +295,7 @@ export const Header = () => {
                 <span>Cart</span>
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-5 w-5 shrink-0 text-gray-400" />
-                  {cartItemCount > 0 && (
-                    <span
-                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                        isDark ? 'bg-white text-black' : 'bg-black text-white'
-                      }`}
-                    >
-                      {cartItemCount}
-                    </span>
-                  )}
+                  <CartCounter />
                 </div>
               </button>
 
@@ -316,11 +312,11 @@ export const Header = () => {
               <Button
                 onClick={() => {
                   closeMenu();
-                  navigate(ROUTES.LOGIN);
+                  handleUserNavigate();
                 }}
                 className="w-full"
               >
-                Sign In
+                {isAuth ? 'My Account' : 'Sign In'}
               </Button>
             </div>
           </div>

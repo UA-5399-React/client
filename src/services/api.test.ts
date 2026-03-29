@@ -1,0 +1,214 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { API_BASE_URL, MOCK_AUTH } from '@/constants';
+
+import { apiClient } from './api';
+
+describe('service: apiClient', () => {
+  const originalFetch = global.fetch;
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('retries a protected POST request after refreshing the auth session', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 401,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ status: 'success' }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            sessionId: 'cs_test',
+            sessionUrl: 'https://stripe.test',
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    const response = await apiClient.post('/payments/create-checkout-session', {
+      items: [],
+    });
+
+    expect(response).toEqual({
+      sessionId: 'cs_test',
+      sessionUrl: 'https://stripe.test',
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      `${API_BASE_URL}/auth/refresh`,
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      `${API_BASE_URL}/payments/create-checkout-session`,
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+      }),
+    );
+  });
+
+  it('serializes array query params as repeated search params', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: [], totalPages: 1 }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    await apiClient.get('/products', {
+      params: {
+        page: 1,
+        limit: 12,
+        category: ['cat-1', 'cat-2'],
+      },
+    });
+
+    const requestUrl = new URL(String(fetchMock.mock.calls[0][0]));
+
+    expect(requestUrl.searchParams.getAll('category')).toEqual([
+      'cat-1',
+      'cat-2',
+    ]);
+    expect(requestUrl.searchParams.get('page')).toBe('1');
+    expect(requestUrl.searchParams.get('limit')).toBe('12');
+  });
+
+  it('clears local auth markers when refresh fails after a 401 response', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 401,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 401,
+        }),
+      );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
+    localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, String(Date.now() + 60_000));
+    localStorage.setItem(MOCK_AUTH.ROLE_KEY, 'customer');
+
+    await expect(
+      apiClient.post('/payments/create-checkout-session', { items: [] }),
+    ).rejects.toThrow('HTTP error! status: 401');
+
+    expect(localStorage.getItem(MOCK_AUTH.TOKEN_KEY)).toBeNull();
+    expect(localStorage.getItem(MOCK_AUTH.EXPIRES_KEY)).toBeNull();
+    expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBeNull();
+  });
+
+  it('retries a GET request after refreshing the auth session', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 })) // Original 401
+      .mockResolvedValueOnce(new Response(null, { status: 200 })) // Refresh success
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: 'ok' }), { status: 200 }),
+      ); // Retried GET
+
+    global.fetch = fetchMock as typeof fetch;
+
+    const response = await apiClient.get<{ data: string }>('/test-get');
+
+    expect(response).toEqual({ data: 'ok' });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `${API_BASE_URL}/test-get`,
+      expect.objectContaining({ method: 'GET' }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      `${API_BASE_URL}/auth/refresh`,
+      expect.objectContaining({ method: 'POST' }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      `${API_BASE_URL}/test-get`,
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('retries a PUT request after refreshing the auth session', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: 'updated' }), { status: 200 }),
+      );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    const response = await apiClient.put<{ data: string }>('/test-put', {
+      key: 'value',
+    });
+
+    expect(response).toEqual({ data: 'updated' });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `${API_BASE_URL}/test-put`,
+      expect.objectContaining({ method: 'PUT' }),
+    );
+  });
+
+  it('retries a DELETE request after refreshing the auth session', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ status: 'deleted' }), { status: 200 }),
+      );
+
+    global.fetch = fetchMock as typeof fetch;
+
+    const response = await apiClient.delete<{ status: string }>('/test-delete');
+
+    expect(response).toEqual({ status: 'deleted' });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `${API_BASE_URL}/test-delete`,
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+});

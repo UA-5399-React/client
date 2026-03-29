@@ -5,8 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        /* background colors */
         background: 'rgb(var(--color-bg) / <alpha-value>)',
         backgroundSec: 'rgb(var(--color-bg-sec) / <alpha-value>)',
+        bgSecInverted: 'rgb(var(--color-bg-sec-inverted) / <alpha-value>)',
+
+        /* text colors */
         text: 'rgb(var(--color-text) / <alpha-value>)',
         muted: 'rgb(var(--color-muted) / <alpha-value>)',
         primary: 'rgb(var(--color-primary) / <alpha-value>)',

@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { Checkbox } from '@/components';
+import { Button, Checkbox } from '@/components';
 import { Input } from '@/components';
-import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
+import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
+import { cartService } from '@/services/cartService';
+import { useCartStore } from '@/store/useCartStore';
+import { canAccessAdminPanel, isAuthRole } from '@/utils/permissions';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Username or email is required'),
@@ -30,7 +33,10 @@ const getExpirationTime = (rememberMe?: boolean) => {
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { mutateAsync: loginMutation, isPending } = useLogin();
+  const redirectTo =
+    typeof location.state?.from === 'string' ? location.state.from : null;
 
   const {
     register,
@@ -51,10 +57,16 @@ export const LoginForm: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
-    const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+    const storedRole = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+    const role = isAuthRole(storedRole) ? storedRole : null;
 
     if (token && expires && Date.now() < Number(expires)) {
-      if (role === AUTH_ROLES.ADMIN || role === AUTH_ROLES.SUPER_ADMIN) {
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+        return;
+      }
+
+      if (canAccessAdminPanel(role)) {
         navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);
@@ -62,22 +74,41 @@ export const LoginForm: React.FC = () => {
     } else {
       clearAuthData();
     }
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
       await loginMutation({ email: data.email, password: data.password });
       const user = await authService.getMe();
 
+      try {
+        const store = useCartStore.getState();
+        const guestItems = store.items.map((item) => ({
+          productId: String(item.product.id || item.product._id),
+          quantity: item.quantity,
+        }));
+
+        const syncedCart = await cartService.syncCart(guestItems);
+        const newCartItems = syncedCart.items.map((i) => ({
+          product: i.product,
+          quantity: i.quantity,
+        }));
+        store.setCart(newCartItems);
+      } catch (err) {
+        console.error('Failed to sync cart:', err);
+      }
+
       const expirationTime = getExpirationTime(data.rememberMe);
       localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
       localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
       localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
 
-      if (
-        user.role === AUTH_ROLES.ADMIN ||
-        user.role === AUTH_ROLES.SUPER_ADMIN
-      ) {
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true });
+        return;
+      }
+
+      if (canAccessAdminPanel(isAuthRole(user.role) ? user.role : null)) {
         navigate(ROUTES.ADMIN);
       } else {
         navigate(ROUTES.SHOP);
@@ -94,8 +125,10 @@ export const LoginForm: React.FC = () => {
   return (
     <div className="flex w-full max-w-md flex-col px-4 sm:px-6">
       <div className="mb-8">
-        <h2 className="text-4xl font-medium text-gray-900">Sign In</h2>
-        <p className="mt-2 text-sm text-gray-500">
+        <h2 className="text-(rgb(var(--color-text))) text-4xl font-medium">
+          Sign In
+        </h2>
+        <p className="text-(rgb(var(--color-text))) mt-2 text-sm">
           Don't have an account yet?{' '}
           <Link to={ROUTES.REGISTER} className="font-medium hover:opacity-80">
             <span className="text-green-500">Sign Up</span>
@@ -111,7 +144,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('email')}
           variant="underlined"
-          inputClassName="bg-white text-black"
+          inputClassName="text-text bg-background"
           placeholder="Your email address"
           state={errors.email ? 'error' : 'default'}
           helperText={errors.email?.message}
@@ -121,7 +154,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('password')}
           type="password"
-          inputClassName="bg-white text-black"
+          inputClassName="text-text bg-background"
           variant="underlined"
           placeholder="Password"
           state={errors.password ? 'error' : 'default'}
@@ -138,8 +171,8 @@ export const LoginForm: React.FC = () => {
                 label="Remember me"
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                labelClassName="text-sm text-gray-500"
-                checkboxClassName="h-5 w-5 rounded border-gray-300"
+                labelClassName="text-sm text-[rgb(var(--color-gray-600))] dark:text-[rgb(var(--color-gray-600))]"
+                checkboxClassName="h-5 w-5 rounded border-gray-300 bg-[rgb(var(--color-gray-50))] dark:bg-white dark:hover:bg-[rgb(var(--color-gray-50))]"
               />
             )}
           />
@@ -157,13 +190,13 @@ export const LoginForm: React.FC = () => {
             {errors.root.message}
           </p>
         )}
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none"
+          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] bg-[rgb(var(--color-bg-sec-inverted))] px-4 py-3.5 text-center text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-colors hover:bg-black hover:text-[rgb(var(--color-text))] focus:ring-4 focus:ring-gray-300 focus:outline-none"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
-        </button>
+        </Button>
       </form>
     </div>
   );

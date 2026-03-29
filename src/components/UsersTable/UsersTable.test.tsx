@@ -1,77 +1,64 @@
-import type { HTMLAttributes } from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import type * as LucideIcons from 'lucide-react';
+import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { mockUsers } from '@/constants/mockUsers';
 
 import { UsersTable } from './UsersTable';
 
+vi.mock('@/hooks/useUpdateAdminUser', () => ({
+  useUpdateAdminUser: () => ({
+    handleUpdate: vi.fn(),
+    isUpdating: false,
+  }),
+}));
+
 vi.mock('lucide-react', async (importOriginal) => {
-  const actual = await importOriginal<typeof LucideIcons>();
+  const actual = (await importOriginal()) as Record<string, React.FC>;
 
   return {
     ...actual,
-    EllipsisVertical: (props: HTMLAttributes<HTMLDivElement>) => (
-      <div data-testid="ellipsis" {...props} />
-    ),
-    Pencil: (props: HTMLAttributes<HTMLDivElement>) => (
-      <div data-testid="pencil" {...props} />
-    ),
-    Trash: (props: HTMLAttributes<HTMLDivElement>) => (
-      <div data-testid="trash" {...props} />
-    ),
+    EllipsisVertical: () => <div data-testid="ellipsis" />,
+    Pencil: () => <div data-testid="pencil" />,
+    Trash: () => <div data-testid="trash" />,
   };
 });
 
 describe('UsersTable', () => {
-  const mockUpdate = vi.fn();
+  const renderTable = (items = mockUsers) =>
+    render(
+      <MemoryRouter>
+        <UsersTable items={items} />
+      </MemoryRouter>,
+    );
 
   it('renders "No users found" when list is empty', () => {
-    render(<UsersTable items={[]} onUpdateUser={mockUpdate} />);
-
+    renderTable([]);
     expect(screen.getByText(/no users found/i)).toBeInTheDocument();
   });
 
   it('renders user information correctly', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderTable();
     const firstUser = mockUsers[0];
     const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
-
-    const avatar = screen.getByRole('img', { name: fullName });
-    expect(avatar).toBeInTheDocument();
-
-    const row = avatar.closest('tr');
-    expect(row).not.toBeNull();
-
-    expect(
-      within(row as HTMLTableRowElement).getByText(firstUser.email),
-    ).toBeInTheDocument();
+    const nameElements = screen.getAllByText(fullName);
+    expect(nameElements[0]).toBeInTheDocument();
+    expect(screen.getByText(firstUser.email)).toBeInTheDocument();
   });
 
   it('opens action menu and interacts with buttons', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderTable();
     const firstUser = mockUsers[0];
     const menuBtn = screen.getByLabelText(
       new RegExp(`actions for ${firstUser.firstName}`, 'i'),
     );
-
     fireEvent.click(menuBtn);
-
-    const editBtn = screen.getByText(/edit/i);
-    const deleteBtn = screen.getByText(/delete/i);
-
-    expect(editBtn).toBeInTheDocument();
-    expect(deleteBtn).toBeInTheDocument();
-
-    fireEvent.click(editBtn);
+    expect(screen.getByText(/edit/i)).toBeInTheDocument();
+    expect(screen.getByText(/delete/i)).toBeInTheDocument();
   });
 
   it('renders dropdowns for status and role', () => {
-    render(<UsersTable items={mockUsers} onUpdateUser={mockUpdate} />);
-
+    renderTable();
     const statusButtons = screen.getAllByRole('combobox', { name: /status/i });
     const roleButtons = screen.getAllByRole('combobox', { name: /role/i });
 

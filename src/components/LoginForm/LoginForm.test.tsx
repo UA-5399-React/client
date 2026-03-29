@@ -3,18 +3,23 @@ import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
+import { cartService } from '@/services/cartService';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { LoginForm } from './LoginForm';
 
 // Mock dependencies
 const mockNavigate = vi.fn();
+let mockLocationState: Record<string, unknown> | null = null;
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useLocation: () => ({
+      state: mockLocationState,
+    }),
   };
 });
 
@@ -28,12 +33,28 @@ vi.mock('@/services/authService', () => ({
   },
 }));
 
+vi.mock('@/services/cartService', () => ({
+  cartService: {
+    syncCart: vi.fn(),
+  },
+}));
+
+vi.mock('@/store/useCartStore', () => ({
+  useCartStore: {
+    getState: vi.fn(() => ({
+      items: [],
+      setCart: vi.fn(),
+    })),
+  },
+}));
+
 describe('Feature: LoginForm', () => {
   const mockMutateAsync = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    mockLocationState = null;
 
     // Default mock implementation
     (useLogin as Mock).mockReturnValue({
@@ -81,6 +102,13 @@ describe('Feature: LoginForm', () => {
       role: AUTH_ROLES.ADMIN,
     });
 
+    // Default cartService.syncCart mock
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
+
     render(<LoginForm />);
 
     // Fill the form
@@ -115,6 +143,11 @@ describe('Feature: LoginForm', () => {
     (authService.getMe as Mock).mockResolvedValueOnce({
       role: AUTH_ROLES.SUPER_ADMIN,
     });
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -133,23 +166,56 @@ describe('Feature: LoginForm', () => {
     });
   });
 
-  it('should redirect to shop for a regular user role', async () => {
+  it('should redirect to shop for a customer role', async () => {
     const user = userEvent.setup();
     mockMutateAsync.mockResolvedValueOnce(true);
-    (authService.getMe as Mock).mockResolvedValueOnce({ role: 'user' }); // Mocking a non-admin role
+    (authService.getMe as Mock).mockResolvedValueOnce({
+      role: AUTH_ROLES.CUSTOMER,
+    });
+    vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
     await user.type(
       screen.getByPlaceholderText(/Your email address/i),
-      'user@test.com',
+      'customer@test.com',
     );
     await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
     await waitFor(() => {
-      expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe('user');
+      expect(localStorage.getItem(MOCK_AUTH.ROLE_KEY)).toBe(
+        AUTH_ROLES.CUSTOMER,
+      );
       expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
+    });
+  });
+
+  it('should redirect back to the original page after successful login when a from state exists', async () => {
+    const user = userEvent.setup();
+    mockLocationState = { from: ROUTES.CHECKOUT };
+    mockMutateAsync.mockResolvedValueOnce(true);
+    (authService.getMe as Mock).mockResolvedValueOnce({
+      role: AUTH_ROLES.CUSTOMER,
+    });
+
+    render(<LoginForm />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'customer@test.com',
+    );
+    await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTES.CHECKOUT, {
+        replace: true,
+      });
     });
   });
 

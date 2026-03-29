@@ -6,6 +6,13 @@ import { authService } from '@/services/authService';
 
 import { useAuth } from './useAuth';
 
+const mockRemoveQueries = vi.fn();
+
+// Mock React Query
+vi.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ removeQueries: mockRemoveQueries }),
+}));
+
 // 1. Mock the auth service
 vi.mock('@/services/authService', () => ({
   authService: {
@@ -17,6 +24,7 @@ describe('Hook: useAuth', () => {
   beforeEach(() => {
     // Clear mocks and storage before each test
     vi.clearAllMocks();
+    mockRemoveQueries.mockClear();
     localStorage.clear();
   });
 
@@ -30,6 +38,26 @@ describe('Hook: useAuth', () => {
     expect(result.current.isAuth).toBe(false);
     expect(result.current.role).toBeNull();
     expect(result.current.isAdmin).toBe(false);
+    expect(result.current.isAuth).toBe(false);
+  });
+
+  it('should return unauthenticated state if token is missing but expires exists', () => {
+    localStorage.setItem(
+      MOCK_AUTH.EXPIRES_KEY,
+      (Date.now() + 10000).toString(),
+    );
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuth).toBe(false);
+  });
+
+  it('should return unauthenticated state if token exists but expires is missing', () => {
+    localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'valid-token');
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuth).toBe(false);
   });
 
   it('should return unauthenticated state if token is expired', () => {
@@ -55,17 +83,33 @@ describe('Hook: useAuth', () => {
     expect(result.current.isAdmin).toBe(true);
   });
 
-  it('should return authenticated state as USER if valid token and user role exist', () => {
+  it('should return authenticated state as CUSTOMER if valid token and customer role exist', () => {
     const futureTime = (Date.now() + 10000).toString();
     localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'valid-token');
     localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, futureTime);
-    localStorage.setItem(MOCK_AUTH.ROLE_KEY, 'user'); // Standard role
+    localStorage.setItem(MOCK_AUTH.ROLE_KEY, AUTH_ROLES.CUSTOMER);
 
     const { result } = renderHook(() => useAuth());
 
     expect(result.current.isAuth).toBe(true);
-    expect(result.current.role).toBe('user');
-    expect(result.current.isAdmin).toBe(false); // Check the flag
+    expect(result.current.role).toBe(AUTH_ROLES.CUSTOMER);
+    expect(result.current.isAdmin).toBe(false);
+    expect(result.current.isCustomer).toBe(true);
+    expect(result.current.canAccessAdminPanel).toBe(false);
+  });
+
+  it('should ignore unsupported role values from localStorage', () => {
+    const futureTime = (Date.now() + 10000).toString();
+    localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'valid-token');
+    localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, futureTime);
+    localStorage.setItem(MOCK_AUTH.ROLE_KEY, 'user');
+
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.isAuth).toBe(true);
+    expect(result.current.role).toBeNull();
+    expect(result.current.isAdmin).toBe(false);
+    expect(result.current.isSuperAdmin).toBe(false);
   });
 
   // --- Block 2: Asynchronous actions (Logout) ---

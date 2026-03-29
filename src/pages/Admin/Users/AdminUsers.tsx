@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Pagination,
@@ -7,6 +7,7 @@ import {
   UsersToolbar,
   UsersTopWidgets,
 } from '@/components';
+import { ROUTES } from '@/constants';
 import {
   DEFAULT_USER_ROLE_FILTER,
   DEFAULT_USER_STATUS_FILTER,
@@ -15,6 +16,7 @@ import {
 } from '@/constants/adminUsers';
 import { useAdminUsers } from '@/hooks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type {
   UserRoleFilter,
   UserStatusFilter,
@@ -42,14 +44,20 @@ const isValidStatusFilter = (value: string | null): value is UserStatusFilter =>
 const isValidRoleFilter = (value: string | null): value is UserRoleFilter =>
   value !== null && VALID_ROLE_FILTERS.includes(value as UserRoleFilter);
 
-const getValidPage = (value: string | null) => {
-  const page = Number(value);
-
-  return Number.isInteger(page) && page > 0 ? page : 1;
-};
-
 export const AdminUsers = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const {
+    searchParams,
+    currentPage,
+    setPage,
+    updateSearchParams,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam({
+    paramName: USERS_QUERY_PARAMS.PAGE,
+  });
 
   const searchFromParams = searchParams.get(USERS_QUERY_PARAMS.SEARCH) ?? '';
 
@@ -65,8 +73,6 @@ export const AdminUsers = () => {
     ? (searchParams.get(USERS_QUERY_PARAMS.ROLE) as UserRoleFilter)
     : DEFAULT_USER_ROLE_FILTER;
 
-  const currentPage = getValidPage(searchParams.get(USERS_QUERY_PARAMS.PAGE));
-
   const [searchValue, setSearchValue] = useState(searchFromParams);
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 500);
 
@@ -74,16 +80,9 @@ export const AdminUsers = () => {
     setSearchValue(searchFromParams);
   }, [searchFromParams]);
 
-  const updateSearchParams = useCallback(
-    (updater: (params: URLSearchParams) => void) => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        updater(next);
-        return next;
-      });
-    },
-    [setSearchParams],
-  );
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
 
   useEffect(() => {
     const currentSearchParam =
@@ -129,10 +128,28 @@ export const AdminUsers = () => {
   };
 
   const handlePageChange = (page: number) => {
-    updateSearchParams((next) => {
-      next.set(USERS_QUERY_PARAMS.PAGE, String(page));
-    });
+    setPage(page);
   };
+
+  useEffect(() => {
+    const locationState = location.state as
+      | { successMessage?: string }
+      | null
+      | undefined;
+
+    if (!locationState?.successMessage) {
+      return;
+    }
+
+    setSuccessMessage(locationState.successMessage);
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+      },
+      { replace: true, state: null },
+    );
+  }, [location.pathname, location.search, location.state, navigate]);
 
   const usersState = useAdminUsers({
     currentPage,
@@ -142,16 +159,18 @@ export const AdminUsers = () => {
   });
 
   useEffect(() => {
-    if (currentPage > usersState.totalPages) {
-      updateSearchParams((next) => {
-        next.set(USERS_QUERY_PARAMS.PAGE, '1');
-      });
-    }
-  }, [currentPage, usersState.totalPages, updateSearchParams]);
+    normalizeOutOfRangePage(usersState.totalPages);
+  }, [usersState.totalPages, normalizeOutOfRangePage]);
 
   return (
-    <section className="min-h-screen bg-[#FCFCFC] px-6 py-8">
+    <section className="bg-background text-text min-h-screen px-6 py-8 transition-colors duration-300">
       <div className="mx-auto">
+        {successMessage && (
+          <div className="mb-4 rounded-lg border border-[#b7ebcf] bg-[#ecfdf3] px-4 py-3 text-sm text-[#027a48]">
+            {successMessage}
+          </div>
+        )}
+
         <UsersTopWidgets
           totalUsers={usersState.totalUsers}
           activeAdmins={usersState.activeAdmins}
@@ -167,12 +186,10 @@ export const AdminUsers = () => {
           setRoleFilter={handleRoleFilterChange}
           statusOptions={[...USER_STATUS_OPTIONS]}
           roleOptions={[...USER_ROLE_OPTIONS]}
+          onCreateUser={() => navigate(ROUTES.ADMIN_USER_CREATE)}
         />
 
-        <UsersTable
-          items={usersState.paginatedUsers}
-          onUpdateUser={usersState.handleUpdateUser}
-        />
+        <UsersTable items={usersState.paginatedUsers} />
 
         <Pagination
           currentPage={currentPage}

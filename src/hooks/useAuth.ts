@@ -1,9 +1,19 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { AUTH_ROLES, MOCK_AUTH } from '@/constants';
+import { MOCK_AUTH } from '@/constants';
 import { authService } from '@/services/authService';
+import {
+  canAccessAdminPanel,
+  isAdminRole,
+  isAuthRole,
+  isCustomerRole,
+  isSuperAdminRole,
+} from '@/utils/permissions';
 
 export const useAuth = () => {
+  const queryClient = useQueryClient();
+
   const [isAuth, setIsAuth] = useState(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
@@ -23,14 +33,25 @@ export const useAuth = () => {
       localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
       localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
 
+      queryClient.removeQueries({ queryKey: ['me'] });
       setIsAuth(false);
     }
   };
 
-  const role = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+  const storedRole = localStorage.getItem(MOCK_AUTH.ROLE_KEY);
+  const role = isAuthRole(storedRole) ? storedRole : null;
 
-  const isAdmin = role === AUTH_ROLES.ADMIN;
-  const isSuperAdmin = role === AUTH_ROLES.SUPER_ADMIN;
+  const isAdmin = isAdminRole(role);
+  const isSuperAdmin = isSuperAdminRole(role);
+  const isCustomer = isCustomerRole(role);
 
-  return { isAuth, role, isAdmin, isSuperAdmin, logout };
+  return {
+    isAuth,
+    role,
+    isAdmin,
+    isSuperAdmin,
+    isCustomer,
+    canAccessAdminPanel: canAccessAdminPanel(role),
+    logout,
+  };
 };

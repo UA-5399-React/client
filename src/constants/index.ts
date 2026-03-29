@@ -11,18 +11,27 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  CHECKOUT: '/checkout',
+  ORDER_CONFIRMATION: '/order-confirmation',
+  ORDER_DETAIL: '/order/:orderId',
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_USERS: '/admin/users',
+  ADMIN_USER_CREATE: '/admin/users/create',
+  ADMIN_USER_EDIT: '/admin/users/:id/edit',
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
+  EMAIL_CONFIRMATION: '/email-confirmation',
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
+  ADMIN_ORDERS: '/admin/orders',
+  PROFILE: '/profile',
+  MYORDERS: '/profile/myOrders',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
@@ -44,10 +53,12 @@ export const MOCK_AUTH = {
 };
 
 export const AUTH_ROLES = {
+  CUSTOMER: 'customer',
   SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
-  USER: 'user',
-};
+} as const;
+
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
 export const ADMIN_PAGE_LIMIT = 10;
 export const NEW_ARRIVALS_LIMIT = 10;

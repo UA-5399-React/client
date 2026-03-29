@@ -198,6 +198,27 @@ The Button component demonstrates Tailwind utility classes:
 <Button variant="outline">Outline</Button>
 ```
 
+### Color Usage Convention
+
+Preferred by default:
+
+- semantic theme tokens from `tailwind.config.js`, for example `text-primary`
+
+Allowed when a semantic token is not needed:
+
+- standard Tailwind palette classes, for example `text-blue-800`
+
+Avoid arbitrary color values in class names, such as:
+
+- `text-[rgb(var(--color-primary))]`
+- `text-[#3e12ac]`
+
+Rule of thumb:
+
+- prefer semantic tokens when the color has UI meaning
+- use standard Tailwind palette classes when a semantic token is not needed
+- use arbitrary colors only as a rare exception with a strong technical reason
+
 ## 🛠️ Development
 
 ### Install dependencies

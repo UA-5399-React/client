@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ListFilter } from 'lucide-react';
 
 import {
   AdminPageHeader,
@@ -16,6 +17,7 @@ import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
 import type { SortValue } from '@/types/productsSort';
@@ -24,19 +26,20 @@ import { buildSortValue, parseSortValue } from '@/utils/sorting';
 export function AdminProducts() {
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const { filters, search, sort, order, setFilters, setSearch, setSort } =
     useAdminProductsStore();
 
-  const pageFromParams = Number(searchParams.get('page'));
-  const currentPage =
-    Number.isInteger(pageFromParams) && pageFromParams > 0 ? pageFromParams : 1;
+  const {
+    currentPage,
+    setPage,
+    resetPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
 
-  // filters
   const [showFilters, setShowFilters] = useState(false);
 
-  // debounce for product search
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
   const { deleteProduct } = useDeleteAdminProduct();
@@ -52,34 +55,34 @@ export function AdminProducts() {
 
   const selectedSortValue = buildSortValue(sort, order);
 
-  const setPageParam = (nextPage: number) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('page', String(nextPage));
-      return next;
-    });
-  };
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    normalizeOutOfRangePage(totalPages);
+  }, [loading, normalizeOutOfRangePage, totalPages]);
 
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
-    setPageParam(1);
+    resetPage();
   };
 
-  // reset page immediately when yser types
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPageParam(1);
+    resetPage();
   };
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
     setSort(nextSort.sort, nextSort.order);
-    setPageParam(1);
+    resetPage();
   };
 
-  //pagination
   const handlePageChange = (newPage: number) => {
-    setPageParam(newPage);
+    setPage(newPage);
   };
 
   const handleCreateProduct = () => {
@@ -100,18 +103,34 @@ export function AdminProducts() {
     <div>
       <AdminPageHeader />
 
-      <div className="flex items-center justify-between border-b border-[#e5e7eb] px-4 py-3">
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters((prev) => !prev)}
-          className="flex items-center gap-2 border-gray-300 text-gray-700"
-        >
-          Filters
-        </Button>
+      <div className="flex items-center justify-between px-4 pt-6">
+        <div className="flex items-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters((prev) => !prev)}
+            className="flex items-center gap-2 !border-gray-300 bg-white text-gray-700 shadow-sm transition hover:bg-gray-50"
+          >
+            <ListFilter className="h-5 w-5" />
+            Filters
+          </Button>
 
-        <Button variant="primary" onClick={handleCreateProduct}>
-          + Add Product
-        </Button>
+          <Button
+            className="ml-3 bg-blue-800 text-white hover:bg-transparent hover:text-blue-800"
+            variant="primary"
+            onClick={handleCreateProduct}
+          >
+            + Add Product
+          </Button>
+        </div>
+
+        <div className="flex items-center justify-end gap-4 p-4">
+          <SortProductsDropdown
+            value={selectedSortValue}
+            onChange={handleSortChange}
+          />
+
+          <SearchInput value={search} onChange={handleSearchChange} />
+        </div>
       </div>
 
       {showFilters && (
@@ -121,15 +140,6 @@ export function AdminProducts() {
       )}
 
       <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
-        <div className="flex items-center justify-end gap-4 border-b border-[#e5e7eb] p-4">
-          <SortProductsDropdown
-            value={selectedSortValue}
-            onChange={handleSortChange}
-          />
-
-          <SearchInput value={search} onChange={handleSearchChange} />
-        </div>
-
         <TableProducts
           items={items}
           loading={loading}

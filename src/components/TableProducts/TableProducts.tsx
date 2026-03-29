@@ -132,7 +132,7 @@ export function TableProducts({
   const navigate = useNavigate();
 
   return (
-    <div className="mx-5 mt-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
+    <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
       <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] px-[12px] text-[#8A92A6]">
           <tr>

@@ -1,8 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@apollo/client/react';
 
-import { ITEMS_PER_PAGE } from '@/constants';
-import { mockUsers } from '@/constants/mockUsers';
+import { AUTH_ROLES, ITEMS_PER_PAGE } from '@/constants';
+import {
+  DEFAULT_USER_ROLE_FILTER,
+  DEFAULT_USER_STATUS_FILTER,
+} from '@/constants/adminUsers';
+import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 import type {
+  AdminUser,
   UserRoleFilter,
   UserStatusFilter,
 } from '@/types/admin-user.types';
@@ -14,28 +20,51 @@ type UseAdminUsersParams = {
   roleFilter: UserRoleFilter;
 };
 
+interface GetUsersListData {
+  users: {
+    items: AdminUser[];
+    totalCount?: number;
+  };
+}
+
 export const useAdminUsers = ({
   currentPage,
   search,
   statusFilter,
   roleFilter,
 }: UseAdminUsersParams) => {
-  const [users, setUsers] = useState(mockUsers);
+  const { data, loading, error } = useQuery<GetUsersListData>(GET_USERS_LIST, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const users = useMemo(() => data?.users?.items || [], [data]);
 
   const totalUsers = users.length;
 
-  const activeAdmins = users.filter(
-    (user) =>
-      (user.role === 'admin' || user.role === 'super_admin') && user.isActive,
-  ).length;
+  const activeAdmins = useMemo(
+    () =>
+      users.filter(
+        (u) =>
+          (u.role.toLowerCase() === AUTH_ROLES.ADMIN.toLowerCase() ||
+            u.role.toLowerCase() === AUTH_ROLES.SUPER_ADMIN.toLowerCase()) &&
+          u.isActive,
+      ).length,
+    [users],
+  );
 
-  const blockedUsers = users.filter((user) => !user.isActive).length;
+  const blockedUsers = useMemo(
+    () => users.filter((u) => !u.isActive).length,
+    [users],
+  );
 
   const normalizedSearch = search.trim().toLowerCase();
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const fullName = [user.firstName, user.lastName]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
       const email = user.email.toLowerCase();
 
       const matchesSearch =
@@ -44,11 +73,13 @@ export const useAdminUsers = ({
         email.includes(normalizedSearch);
 
       const matchesStatus =
-        statusFilter === 'all' ||
+        statusFilter === DEFAULT_USER_STATUS_FILTER ||
         (statusFilter === 'active' && user.isActive) ||
         (statusFilter === 'blocked' && !user.isActive);
 
-      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+      const matchesRole =
+        roleFilter === DEFAULT_USER_ROLE_FILTER ||
+        user.role.toLocaleLowerCase() === roleFilter.toLocaleLowerCase();
 
       return matchesSearch && matchesStatus && matchesRole;
     });
@@ -66,18 +97,6 @@ export const useAdminUsers = ({
     return filteredUsers.slice(startIndex, endIndex);
   }, [currentPage, filteredUsers]);
 
-  const handleUpdateUser = (
-    userId: string,
-    field: 'role' | 'isActive',
-    newValue: string | boolean,
-  ) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === userId ? { ...user, [field]: newValue } : user,
-      ),
-    );
-  };
-
   return {
     totalUsers,
     activeAdmins,
@@ -85,6 +104,7 @@ export const useAdminUsers = ({
     totalPages,
     paginatedUsers,
     filteredUsersCount: filteredUsers.length,
-    handleUpdateUser,
+    loading,
+    error,
   };
 };
