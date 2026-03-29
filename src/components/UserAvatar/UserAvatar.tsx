@@ -7,10 +7,11 @@ interface UserAvatarProps {
 }
 
 const getUserInitials = (user: AdminUser) => {
-  const firstInitial = user.firstName ? user.firstName[0] : '';
-  const lastInitial = user.lastName ? user.lastName[0] : '';
+  const firstInitial = user.firstName?.trim()?.[0] ?? '';
+  const lastInitial = user.lastName?.trim()?.[0] ?? '';
+  const initials = `${firstInitial}${lastInitial}`.toUpperCase();
 
-  return `${firstInitial}${lastInitial}`.toUpperCase();
+  return initials || user.email?.[0]?.toUpperCase() || '_';
 };
 
 export const UserAvatar = ({ user }: UserAvatarProps) => {
