@@ -61,7 +61,10 @@ export const useAdminUsers = ({
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const fullName = [user.firstName, user.lastName]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
       const email = user.email.toLowerCase();
 
       const matchesSearch =

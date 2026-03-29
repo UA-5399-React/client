@@ -13,7 +13,13 @@ interface UsersTableProps {
   items: AdminUser[];
 }
 
-const getFullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
+const getFullName = (user: AdminUser) => {
+  const fullName = [user.firstName, user.lastName]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .join(' ');
+
+  return fullName || '_';
+};
 
 const getActivityLabel = (dateString: string | undefined) => {
   if (!dateString) return 'Never';
