@@ -5,38 +5,47 @@ import {
   GET_ORDERS,
   UPDATE_ORDER_STATUS,
 } from '@/services/graphql/ordersAdminService';
-import type { GetOrdersData, OrderStatus } from '@/types/tableOrders.types';
+import {
+  ALL_STATUS,
+  type GetOrdersData,
+  type OrderStatus,
+} from '@/types/tableOrders.types';
 
-const ORDERS_QUERY_VARIABLES = {
-  page: PAGE,
-  limit: PAGE_LIMIT,
-  sort: SORT,
-  order: ORDER,
-} as const;
+export function useAdminOrders(status?: string) {
+  const filter =
+    status && status !== ALL_STATUS ? { status: status.toUpperCase() } : {};
 
-export function useAdminOrders() {
+  const queryVariables = {
+    page: PAGE,
+    limit: PAGE_LIMIT,
+    sort: SORT,
+    order: ORDER,
+    filter,
+  };
+
   const [updateOrderStatus] = useMutation(UPDATE_ORDER_STATUS);
 
   const { data, loading, error } = useQuery<GetOrdersData>(GET_ORDERS, {
-    variables: ORDERS_QUERY_VARIABLES,
+    variables: queryVariables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const handleOrderStatusChange = async (
     orderId: string,
-    status: OrderStatus,
+    newStatus: OrderStatus,
   ) => {
     try {
       await updateOrderStatus({
         variables: {
           input: {
             orderId,
-            status: status.toUpperCase(),
+            status: newStatus.toUpperCase(),
           },
         },
         refetchQueries: [
           {
             query: GET_ORDERS,
-            variables: ORDERS_QUERY_VARIABLES,
+            variables: queryVariables,
           },
         ],
         awaitRefetchQueries: true,
