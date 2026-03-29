@@ -14,11 +14,12 @@ export function AdminOrders() {
     useAdminOrders(currentStatus);
   const { counts, loading: countsLoading } = useAdminOrdersCounts();
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col p-8">
       <div className="flex items-center">
         <h1 className="text-2xl font-bold text-[#2C2C2C]">Orders</h1>
       </div>
       <OrdersTopWidgets counts={counts} loading={countsLoading} />
+
       <OrderTabs />
 
       <TableOrders
