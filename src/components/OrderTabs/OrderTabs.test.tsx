@@ -61,13 +61,14 @@ describe('OrderTabs', () => {
     expect(locationDisplay.textContent).toContain('page=1');
   });
 
-  it('removes status parameter from URL when All tab is clicked', () => {
+  it('sets status=all in URL when All tab is clicked', () => {
     renderWithRouter(['/orders?status=completed&page=2']);
 
     const allTab = screen.getByRole('button', { name: /all/i });
     fireEvent.click(allTab);
 
     const locationDisplay = screen.getByTestId('location-display');
+    expect(locationDisplay.textContent).toContain('status=all');
     expect(locationDisplay.textContent).not.toContain('status=completed');
     expect(locationDisplay.textContent).toContain('page=1');
   });

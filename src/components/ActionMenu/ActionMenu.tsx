@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import styles from './ActionMenu.module.css';
 
 interface ActionMenuProps {
-  editAction: () => void;
+  editAction?: () => void;
   deleteAction?: () => void;
   className?: string;
   triggerAriaLabel?: string;
@@ -50,21 +50,23 @@ export const ActionMenu = ({
         <div
           className={`bg-background absolute top-0 left-10 z-20 flex w-[140px] flex-col rounded-xl border border-gray-300 p-2 shadow-lg ${className ?? ''}`}
         >
-          <Button
-            type="button"
-            className={`${styles.button} border-fieldBorder text-text border-b-2 bg-transparent`}
-            onClick={() => {
-              setIsOpen(false);
-              editAction();
-            }}
-          >
-            <div className={styles.buttonActionContent}>
-              <Pencil />
-              <span>Edit</span>
-            </div>
-          </Button>
+          {editAction && (
+            <Button
+              type="button"
+              className={`${styles.button} border-fieldBorder text-text border-b-2 bg-transparent`}
+              onClick={() => {
+                setIsOpen(false);
+                editAction();
+              }}
+            >
+              <div className={styles.buttonActionContent}>
+                <Pencil />
+                <span>Edit</span>
+              </div>
+            </Button>
+          )}
 
-          {deleteAction && (
+          {deleteAction && editAction && (
             <hr className="my-2 w-full border-0 border-t border-gray-300" />
           )}
 
