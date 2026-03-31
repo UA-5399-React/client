@@ -52,6 +52,15 @@ vi.mock('@/store/useCartStore', () => ({
 }));
 
 describe('Page: OrderConfirmation', () => {
+  const createDeferred = <T,>() => {
+    let resolve!: (value: T) => void;
+    const promise = new Promise<T>((resolver) => {
+      resolve = resolver;
+    });
+
+    return { promise, resolve };
+  };
+
   const renderPage = (
     initialEntries: Parameters<typeof MemoryRouter>[0]['initialEntries'],
   ) => {
@@ -104,16 +113,30 @@ describe('Page: OrderConfirmation', () => {
       ...orderSnapshot,
       paymentMethod: 'stripe',
     });
-    (paymentService.getSessionStatus as Mock).mockResolvedValue({
-      status: 'complete',
-      paymentStatus: 'paid',
-    });
+    const deferredStatus = createDeferred<{
+      status: string;
+      paymentStatus: string;
+    }>();
+    (paymentService.getSessionStatus as Mock).mockReturnValue(
+      deferredStatus.promise,
+    );
 
     renderPage(['/order-confirmation?session_id=cs_test_123']);
 
     expect(
       await screen.findByText('Checking your payment status...'),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByText('We could not confirm this order'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Back to checkout' }),
+    ).not.toBeInTheDocument();
+
+    deferredStatus.resolve({
+      status: 'complete',
+      paymentStatus: 'paid',
+    });
 
     await waitFor(() => {
       expect(paymentService.getSessionStatus).toHaveBeenCalledWith(
