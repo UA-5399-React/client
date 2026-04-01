@@ -11,6 +11,7 @@ interface TableCategoriesProps {
   items: Category[];
   loading: boolean;
   error?: Error | null;
+  autoExpandedIds?: string[];
   deletingId?: string | null;
   onDelete: (category: Category) => void;
   onEdit: (category: Category) => void;
@@ -143,6 +144,7 @@ function TableCategoriesContent({
   loading,
   error,
   isDark,
+  autoExpandedIds,
   deletingId,
   onDelete,
   onEdit,
@@ -151,11 +153,15 @@ function TableCategoriesContent({
   loading: boolean;
   error: Error | null;
   isDark: boolean;
+  autoExpandedIds?: string[];
   deletingId?: string | null;
   onDelete: (category: Category) => void;
   onEdit: (category: Category) => void;
 }) {
-  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const resolvedAutoExpandedIds = autoExpandedIds ?? [];
+  const [expandedIds, setExpandedIds] = useState<string[]>(
+    resolvedAutoExpandedIds,
+  );
 
   if (loading) {
     return (
@@ -273,11 +279,13 @@ export function TableCategories({
   items,
   loading,
   error,
+  autoExpandedIds,
   deletingId,
   onDelete,
   onEdit,
 }: TableCategoriesProps) {
   const { isDark } = useTheme();
+  const autoExpandedIdsSignature = (autoExpandedIds ?? []).join('|');
 
   return (
     <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
@@ -297,10 +305,12 @@ export function TableCategories({
 
         <tbody>
           <TableCategoriesContent
+            key={autoExpandedIdsSignature}
             items={items}
             loading={loading}
             error={error ?? null}
             isDark={isDark}
+            autoExpandedIds={autoExpandedIds}
             deletingId={deletingId}
             onDelete={onDelete}
             onEdit={onEdit}

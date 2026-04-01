@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { act, render, screen, userEvent, waitFor } from '@/utils/test-utils';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@/utils/test-utils';
 
 import { AdminCategories } from './AdminCategories';
 
@@ -36,6 +43,7 @@ vi.mock('@/hooks/useTheme', () => ({
 describe('Page: AdminCategories', () => {
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it('should read page from URL params', () => {
@@ -327,5 +335,55 @@ describe('Page: AdminCategories', () => {
     });
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
+  });
+
+  it('should auto-expand parent row when backend returns a matching subcategory', async () => {
+    vi.useFakeTimers();
+
+    useAdminCategoriesPageMock.mockReturnValue({
+      categories: [
+        {
+          id: 'parent-1',
+          title: 'Laptops',
+          imageUrl: null,
+          description: 'Main laptops category',
+          parent: null,
+          depth: 1,
+          createdAt: '2025-10-10T12:00:00Z',
+          updatedAt: '2025-10-11T12:00:00Z',
+        },
+        {
+          id: 'child-1',
+          title: 'Ultrabooks',
+          imageUrl: null,
+          description: 'Slim laptops',
+          parent: 'parent-1',
+          depth: 2,
+          createdAt: '2025-10-12T12:00:00Z',
+          updatedAt: '2025-10-13T12:00:00Z',
+        },
+      ],
+      loading: false,
+      error: null,
+      totalPages: 1,
+      total: 1,
+    });
+
+    render(<AdminCategories />);
+
+    expect(screen.queryByText('Ultrabooks')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'ultra' },
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(screen.getByText('Ultrabooks')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Collapse Laptops' }),
+    ).toBeInTheDocument();
   });
 });
