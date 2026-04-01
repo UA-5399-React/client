@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import {
   CheckCircle2,
   CreditCard,
+  LoaderCircle,
   PackageCheck,
   Truck,
   XCircle,
@@ -45,7 +46,10 @@ export const OrderConfirmation = () => {
     retry: false,
   });
 
+  const isStripeStatusPending =
+    Boolean(sessionId) && sessionQuery.status === 'pending';
   const isStripeSuccess =
+    Boolean(sessionId) &&
     sessionQuery.data?.status === 'complete' &&
     sessionQuery.data?.paymentStatus === 'paid';
   const isCodSuccess =
@@ -54,13 +58,13 @@ export const OrderConfirmation = () => {
     (locationState?.paymentStatus === 'pending' || Boolean(orderSnapshot));
   const isSuccess = isStripeSuccess || isCodSuccess;
 
-  const title = sessionQuery.isLoading
+  const title = isStripeStatusPending
     ? 'Checking your payment status...'
     : isSuccess
       ? 'Order confirmed'
       : 'We could not confirm this order';
 
-  const description = sessionQuery.isLoading
+  const description = isStripeStatusPending
     ? 'Please wait while we verify the checkout session.'
     : isSuccess
       ? 'Your checkout has been completed successfully.'
@@ -90,7 +94,9 @@ export const OrderConfirmation = () => {
         >
           <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              {isSuccess ? (
+              {isStripeStatusPending ? (
+                <LoaderCircle className="h-10 w-10 animate-spin text-[#6C7275]" />
+              ) : isSuccess ? (
                 <CheckCircle2 className="text-primary h-10 w-10" />
               ) : (
                 <XCircle className="h-10 w-10 text-red-500" />
@@ -137,7 +143,9 @@ export const OrderConfirmation = () => {
               value={
                 isCashOnDelivery
                   ? 'Cash on delivery'
-                  : (sessionQuery.data?.paymentStatus ?? 'Card payment')
+                  : isStripeStatusPending
+                    ? 'Checking status...'
+                    : (sessionQuery.data?.paymentStatus ?? 'Card payment')
               }
             />
             <InfoCard
@@ -227,7 +235,7 @@ export const OrderConfirmation = () => {
                 Continue shopping
               </Button>
             </Link>
-            {!isSuccess && (
+            {!isStripeStatusPending && !isSuccess && (
               <Link to={ROUTES.CHECKOUT} className="sm:flex-1">
                 <Button
                   className={clsx(
