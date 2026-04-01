@@ -1,7 +1,10 @@
 import { API_BASE_URL, MOCK_AUTH } from '../constants';
 
 interface FetchOptions extends RequestInit {
-  params?: Record<string, string | number | boolean | undefined>;
+  params?: Record<
+    string,
+    string | number | boolean | Array<string | number | boolean> | undefined
+  >;
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -15,6 +18,13 @@ const buildUrl = (
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            url.searchParams.append(key, String(item));
+          });
+          return;
+        }
+
         url.searchParams.append(key, String(value));
       }
     });

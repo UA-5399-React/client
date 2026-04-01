@@ -13,4 +13,5 @@ export interface DropdownProps {
   placeholder?: string;
   hasBorder?: boolean;
   multiple?: boolean;
+  disabled?: boolean;
 }

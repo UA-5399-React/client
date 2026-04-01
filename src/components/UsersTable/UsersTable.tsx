@@ -1,19 +1,34 @@
+import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { ActionMenu, Checkbox, Dropdown } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
+import { ROUTES } from '@/constants';
 import {
   USER_ROLE_EDIT_OPTIONS,
   USER_STATUS_EDIT_OPTIONS,
 } from '@/constants/adminUsers';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
-import type { AdminUser, UserRole } from '@/types/admin-user.types';
+import type {
+  AdminUser,
+  UserLastLoginSortOrder,
+  UserRoleValue,
+} from '@/types/admin-user.types';
 
 interface UsersTableProps {
   items: AdminUser[];
+  lastLoginSort: UserLastLoginSortOrder | null;
+  onLastLoginSortChange: (order: UserLastLoginSortOrder) => void;
 }
 
-const getFullName = (user: AdminUser) => `${user.firstName} ${user.lastName}`;
+const getFullName = (user: AdminUser) => {
+  const fullName = [user.firstName, user.lastName]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .join(' ');
+
+  return fullName || '_';
+};
 
 const getActivityLabel = (dateString: string | undefined) => {
   if (!dateString) return 'Never';
@@ -30,7 +45,12 @@ const getActivityLabel = (dateString: string | undefined) => {
   return `${diffInDays} days ago`;
 };
 
-export function UsersTable({ items }: UsersTableProps) {
+export function UsersTable({
+  items,
+  lastLoginSort,
+  onLastLoginSortChange,
+}: UsersTableProps) {
+  const navigate = useNavigate();
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
 
   const handleStatusChange = async (
@@ -49,7 +69,7 @@ export function UsersTable({ items }: UsersTableProps) {
   ) => {
     const newValue = selected[0]?.value;
     if (newValue && newValue !== 'all') {
-      await handleUpdate(userId, { role: newValue.toUpperCase() as UserRole });
+      await handleUpdate(userId, { role: newValue as UserRoleValue });
     }
   };
 
@@ -74,7 +94,25 @@ export function UsersTable({ items }: UsersTableProps) {
             <th className="text-left">Status</th>
             <th className="text-left">Email</th>
             <th className="text-left">Role</th>
-            <th className="text-left">Activity</th>
+            <th className="text-left">
+              <button
+                className="flex cursor-pointer items-center gap-1 font-semibold"
+                onClick={() =>
+                  onLastLoginSortChange(
+                    lastLoginSort === 'asc' ? 'desc' : 'asc',
+                  )
+                }
+              >
+                Activity
+                {lastLoginSort === 'asc' ? (
+                  <ArrowUp size={14} />
+                ) : lastLoginSort === 'desc' ? (
+                  <ArrowDown size={14} />
+                ) : (
+                  <ArrowUpDown size={14} className="text-muted" />
+                )}
+              </button>
+            </th>
             <th className="w-[80px]"></th>
           </tr>
         </thead>
@@ -163,7 +201,11 @@ export function UsersTable({ items }: UsersTableProps) {
                 <td className="relative text-right">
                   <ActionMenu
                     triggerAriaLabel={`Actions for ${getFullName(user)}`}
-                    editAction={() => {}}
+                    editAction={() =>
+                      navigate(
+                        generatePath(ROUTES.ADMIN_USER_EDIT, { id: user.id }),
+                      )
+                    }
                     deleteAction={() => {}}
                     className={clsx(
                       'right-0 left-auto',

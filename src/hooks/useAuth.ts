@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { MOCK_AUTH } from '@/constants';
 import { authService } from '@/services/authService';
@@ -11,6 +12,8 @@ import {
 } from '@/utils/permissions';
 
 export const useAuth = () => {
+  const queryClient = useQueryClient();
+
   const [isAuth, setIsAuth] = useState(() => {
     const token = localStorage.getItem(MOCK_AUTH.TOKEN_KEY);
     const expires = localStorage.getItem(MOCK_AUTH.EXPIRES_KEY);
@@ -30,6 +33,7 @@ export const useAuth = () => {
       localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
       localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
 
+      queryClient.removeQueries({ queryKey: ['me'] });
       setIsAuth(false);
     }
   };

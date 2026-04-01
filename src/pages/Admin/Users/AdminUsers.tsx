@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Pagination,
@@ -6,6 +7,7 @@ import {
   UsersToolbar,
   UsersTopWidgets,
 } from '@/components';
+import { ROUTES } from '@/constants';
 import {
   DEFAULT_USER_ROLE_FILTER,
   DEFAULT_USER_STATUS_FILTER,
@@ -16,6 +18,7 @@ import { useAdminUsers } from '@/hooks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type {
+  UserLastLoginSortOrder,
   UserRoleFilter,
   UserStatusFilter,
 } from '@/types/admin-user.types';
@@ -25,6 +28,7 @@ const USERS_QUERY_PARAMS = {
   STATUS: 'status',
   ROLE: 'role',
   PAGE: 'page',
+  LAST_LOGIN_SORT: 'lastLoginSort',
 } as const;
 
 const VALID_STATUS_FILTERS: UserStatusFilter[] = ['all', 'active', 'blocked'];
@@ -36,13 +40,24 @@ const VALID_ROLE_FILTERS: UserRoleFilter[] = [
   'customer',
 ];
 
+const VALID_LAST_LOGIN_SORT: UserLastLoginSortOrder[] = ['asc', 'desc'];
+
 const isValidStatusFilter = (value: string | null): value is UserStatusFilter =>
   value !== null && VALID_STATUS_FILTERS.includes(value as UserStatusFilter);
 
 const isValidRoleFilter = (value: string | null): value is UserRoleFilter =>
   value !== null && VALID_ROLE_FILTERS.includes(value as UserRoleFilter);
 
+const isValidLastLoginSort = (
+  value: string | null,
+): value is UserLastLoginSortOrder =>
+  value !== null &&
+  VALID_LAST_LOGIN_SORT.includes(value as UserLastLoginSortOrder);
+
 export const AdminUsers = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const {
     searchParams,
     currentPage,
@@ -67,6 +82,14 @@ export const AdminUsers = () => {
   )
     ? (searchParams.get(USERS_QUERY_PARAMS.ROLE) as UserRoleFilter)
     : DEFAULT_USER_ROLE_FILTER;
+
+  const lastLoginSortFromParams = isValidLastLoginSort(
+    searchParams.get(USERS_QUERY_PARAMS.LAST_LOGIN_SORT),
+  )
+    ? (searchParams.get(
+        USERS_QUERY_PARAMS.LAST_LOGIN_SORT,
+      ) as UserLastLoginSortOrder)
+    : null;
 
   const [searchValue, setSearchValue] = useState(searchFromParams);
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 500);
@@ -122,15 +145,43 @@ export const AdminUsers = () => {
     });
   };
 
+  const handleLastLoginSortChange = (order: UserLastLoginSortOrder) => {
+    updateSearchParams((next) => {
+      next.set(USERS_QUERY_PARAMS.LAST_LOGIN_SORT, order);
+      next.set(USERS_QUERY_PARAMS.PAGE, '1');
+    });
+  };
+
   const handlePageChange = (page: number) => {
     setPage(page);
   };
+
+  useEffect(() => {
+    const locationState = location.state as
+      | { successMessage?: string }
+      | null
+      | undefined;
+
+    if (!locationState?.successMessage) {
+      return;
+    }
+
+    setSuccessMessage(locationState.successMessage);
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+      },
+      { replace: true, state: null },
+    );
+  }, [location.pathname, location.search, location.state, navigate]);
 
   const usersState = useAdminUsers({
     currentPage,
     search: debouncedSearch,
     statusFilter: statusFromParams,
     roleFilter: roleFromParams,
+    lastLoginSort: lastLoginSortFromParams,
   });
 
   useEffect(() => {
@@ -140,6 +191,12 @@ export const AdminUsers = () => {
   return (
     <section className="bg-background text-text min-h-screen px-6 py-8 transition-colors duration-300">
       <div className="mx-auto">
+        {successMessage && (
+          <div className="mb-4 rounded-lg border border-[#b7ebcf] bg-[#ecfdf3] px-4 py-3 text-sm text-[#027a48]">
+            {successMessage}
+          </div>
+        )}
+
         <UsersTopWidgets
           totalUsers={usersState.totalUsers}
           activeAdmins={usersState.activeAdmins}
@@ -155,9 +212,14 @@ export const AdminUsers = () => {
           setRoleFilter={handleRoleFilterChange}
           statusOptions={[...USER_STATUS_OPTIONS]}
           roleOptions={[...USER_ROLE_OPTIONS]}
+          onCreateUser={() => navigate(ROUTES.ADMIN_USER_CREATE)}
         />
 
-        <UsersTable items={usersState.paginatedUsers} />
+        <UsersTable
+          items={usersState.paginatedUsers}
+          lastLoginSort={lastLoginSortFromParams}
+          onLastLoginSortChange={handleLastLoginSortChange}
+        />
 
         <Pagination
           currentPage={currentPage}

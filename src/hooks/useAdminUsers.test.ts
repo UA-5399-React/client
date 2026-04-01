@@ -28,6 +28,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -46,14 +47,14 @@ describe('useAdminUsers', () => {
   it('filters users by full name, ignoring case and extra spaces', () => {
     mockApolloResponse();
     const targetUser = mockUsers[0];
-    const searchValue = `  ${targetUser.firstName.toUpperCase()} ${targetUser.lastName.toUpperCase()}  `;
-
+    const searchValue = `  ${(targetUser.firstName ?? '').toUpperCase()} ${(targetUser.lastName ?? '').toUpperCase()}  `;
     const { result } = renderHook(() =>
       useAdminUsers({
         currentPage: 1,
         search: searchValue,
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -73,6 +74,7 @@ describe('useAdminUsers', () => {
         search: targetUser.email,
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -88,6 +90,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'active',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -104,6 +107,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'blocked',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -126,6 +130,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'all',
         roleFilter: 'admin',
+        lastLoginSort: null,
       }),
     );
 
@@ -148,11 +153,15 @@ describe('useAdminUsers', () => {
         search: 'admin',
         statusFilter: 'active',
         roleFilter: 'super_admin',
+        lastLoginSort: null,
       }),
     );
 
     const expectedUsers = mockUsers.filter((user) => {
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const fullName = [user.firstName, user.lastName]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
       const email = user.email.toLowerCase();
 
       const matchesSearch =
@@ -175,6 +184,7 @@ describe('useAdminUsers', () => {
         search: 'user-that-does-not-exist',
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 

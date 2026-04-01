@@ -1,13 +1,25 @@
 import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
-import { Button, TableOrders } from '@/components';
+import { Button, OrdersTopWidgets, OrderTabs, TableOrders } from '@/components';
 import { ROUTES } from '@/constants';
+import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
 import { useAdminOrders } from '@/hooks/useAdminOrders';
+import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
 import type { OrderItem } from '@/types/tableOrders.types';
 
 export function AdminOrders() {
+  const [searchParams] = useSearchParams();
+
+  const currentStatus =
+    searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
+
+  const { orders, loading, error, handleOrderStatusChange } =
+    useAdminOrders(currentStatus);
+  const { counts, loading: countsLoading } = useAdminOrdersCounts();
+
   const navigate = useNavigate();
-  const { orders, loading, error, handleOrderStatusChange } = useAdminOrders();
+
   const handleCreateOrder = () => {
     navigate(ROUTES.ADMIN_ORDER_CREATE);
   };
@@ -19,8 +31,14 @@ export function AdminOrders() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-start border-b px-4 py-3">
+    <div className="flex flex-col p-8">
+      <div className="flex items-center">
+        <h1 className="text-2xl font-bold text-[#2C2C2C]">Orders</h1>
+      </div>
+
+      <OrdersTopWidgets counts={counts} loading={countsLoading} />
+
+      <div className="flex items-center justify-start py-3">
         <Button
           variant="primary"
           onClick={handleCreateOrder}
@@ -29,6 +47,8 @@ export function AdminOrders() {
           + Create Order
         </Button>
       </div>
+
+      <OrderTabs />
 
       <TableOrders
         items={orders}

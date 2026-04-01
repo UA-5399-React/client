@@ -17,7 +17,7 @@ export function AdminLayout() {
       </aside>
 
       <div
-        className={`flex w-full bg-[rgb(var(--color-bg-sec))] md:hidden ${isOpen ? '' : 'min-w-[730px]'}`}
+        className={`flex w-full bg-[rgb(var(--color-bg-sec))] md:hidden ${isOpen ? '' : 'min-w-[920px]'}`}
       >
         <MobileSidebar isSidebarOpen={isOpen} onSidebarChange={isSetOpen} />
       </div>
@@ -26,7 +26,7 @@ export function AdminLayout() {
         className={`text-text bg-background flex-1 ${
           isOpen
             ? 'max-md:invisible max-md:h-screen max-md:overflow-hidden'
-            : 'min-w-[730px]'
+            : 'min-w-[920px]'
         }`}
       >
         <Outlet />

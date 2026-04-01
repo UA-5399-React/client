@@ -144,7 +144,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('email')}
           variant="underlined"
-          inputClassName="text-black bg-background"
+          inputClassName="text-text bg-background"
           placeholder="Your email address"
           state={errors.email ? 'error' : 'default'}
           helperText={errors.email?.message}
@@ -154,7 +154,7 @@ export const LoginForm: React.FC = () => {
         <Input
           {...register('password')}
           type="password"
-          inputClassName="text-black bg-background"
+          inputClassName="text-text bg-background"
           variant="underlined"
           placeholder="Password"
           state={errors.password ? 'error' : 'default'}

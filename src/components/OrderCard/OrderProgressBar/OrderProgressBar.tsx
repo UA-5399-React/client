@@ -8,7 +8,8 @@ interface OrderProgressBarProps {
 
 export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
   const activeIndex = STEP_INDEX[currentStep];
-  const progress = activeIndex / (STEPS.length - 1);
+  const hasActiveStep = activeIndex >= 0;
+  const progress = hasActiveStep ? activeIndex / (STEPS.length - 1) : 0;
 
   return (
     <div className="relative flex w-full items-start justify-between px-6">
@@ -22,7 +23,7 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
 
       {STEPS.map(({ key, label, Icon }, index) => {
         const isDone = index <= activeIndex;
-        const isActive = index === activeIndex;
+        const isActive = hasActiveStep && index === activeIndex;
 
         return (
           <div

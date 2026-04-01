@@ -4,7 +4,7 @@ export type OrderStatus =
   | 'shipped'
   | 'completed'
   | 'cancelled';
-export type ProgressStep = 'processed' | 'shipped' | 'completed';
+export type ProgressStep = 'new' | 'processed' | 'shipped' | 'completed';
 
 export interface Order {
   id: string;

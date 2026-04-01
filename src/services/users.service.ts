@@ -6,12 +6,23 @@ export type UpdateMePayload = {
   lastName?: string;
 };
 
+export class UnauthorizedError extends Error {
+  constructor(message = 'Unauthorized') {
+    super(message);
+    this.name = 'UnauthorizedError';
+  }
+}
+
 export const usersService = {
   getMe: async (): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
       credentials: 'include',
     });
+
+    if (response.status === 401) {
+      throw new UnauthorizedError();
+    }
 
     if (!response.ok) {
       throw new Error('Failed to fetch current user');
@@ -29,6 +40,10 @@ export const usersService = {
       credentials: 'include',
       body: JSON.stringify(data),
     });
+
+    if (response.status === 401) {
+      throw new UnauthorizedError();
+    }
 
     if (!response.ok) {
       throw new Error('Failed to update profile');
@@ -50,6 +65,10 @@ export const usersService = {
       body: JSON.stringify(data),
     });
 
+    if (response.status === 401) {
+      throw new UnauthorizedError();
+    }
+
     if (!response.ok) {
       throw new Error('Failed to change password');
     }
@@ -64,6 +83,10 @@ export const usersService = {
       body: formData,
       credentials: 'include',
     });
+
+    if (response.status === 401) {
+      throw new UnauthorizedError();
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

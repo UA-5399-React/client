@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -24,13 +25,24 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 describe('UsersTable', () => {
+  const renderTable = (items = mockUsers) =>
+    render(
+      <MemoryRouter>
+        <UsersTable
+          items={items}
+          lastLoginSort={null}
+          onLastLoginSortChange={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+
   it('renders "No users found" when list is empty', () => {
-    render(<UsersTable items={[]} />);
+    renderTable([]);
     expect(screen.getByText(/no users found/i)).toBeInTheDocument();
   });
 
   it('renders user information correctly', () => {
-    render(<UsersTable items={mockUsers} />);
+    renderTable();
     const firstUser = mockUsers[0];
     const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
     const nameElements = screen.getAllByText(fullName);
@@ -39,7 +51,7 @@ describe('UsersTable', () => {
   });
 
   it('opens action menu and interacts with buttons', () => {
-    render(<UsersTable items={mockUsers} />);
+    renderTable();
     const firstUser = mockUsers[0];
     const menuBtn = screen.getByLabelText(
       new RegExp(`actions for ${firstUser.firstName}`, 'i'),
@@ -50,7 +62,7 @@ describe('UsersTable', () => {
   });
 
   it('renders dropdowns for status and role', () => {
-    render(<UsersTable items={mockUsers} />);
+    renderTable();
     const statusButtons = screen.getAllByRole('combobox', { name: /status/i });
     const roleButtons = screen.getAllByRole('combobox', { name: /role/i });
 

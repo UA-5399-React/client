@@ -58,7 +58,7 @@ export const Features: React.FC = () => {
                 <h3 className="m-0 text-base/7 font-medium text-neutral-900 md:text-xl/7">
                   {feature.title}
                 </h3>
-                <p className="m-0 mt-1 text-xs/5 font-normal text-neutral-500 md:text-sm/6">
+                <p className="m-0 mt-1 text-xs/5 font-normal text-neutral-700 md:text-sm/6">
                   {feature.description}
                 </p>
               </div>

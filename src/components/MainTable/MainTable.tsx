@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import clsx from 'clsx';
 import { AlertCircle } from 'lucide-react';
 
 import type { Column } from '@/types';
@@ -45,7 +46,7 @@ function renderBodyContent<T extends TableItem>({
     return (
       <tr role="alert">
         <td colSpan={colSpan} className="py-8">
-          <div className="border-red600 text-red600 bg-red600/10 mx-auto flex max-w-md items-center gap-3 rounded-lg border p-2">
+          <div className="mx-auto flex max-w-md items-center gap-3 rounded-lg border border-red-600 bg-red-600/10 p-2 text-red-600">
             <AlertCircle className="h-6 w-6 shrink-0" />
 
             <div>
@@ -83,12 +84,19 @@ export function MainTable<T extends TableItem>({
   emptyMessage = 'No data found',
 }: MainTableProps<T>) {
   return (
-    <div className="border-gray100 mx-5 mt-5 rounded-l-lg rounded-r-lg border shadow-md">
-      <table className="[&_td]:border-gray100 [&_thead_th]:border-gray100 w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b">
-        <thead className="text-gray600 bg-backgroundSec h-[50px] px-[12px] text-center [&_th]:px-2">
+    <div className="rounded-l-lg rounded-r-lg border border-gray-100 shadow-md">
+      <table className="w-full border-separate border-spacing-0 rounded-t-lg rounded-b-lg [&_tbody_tr:last-child_td:first-child]:rounded-bl-lg [&_tbody_tr:last-child_td:last-child]:rounded-br-lg [&_td]:border-b [&_td]:border-gray-100 [&_thead_th]:border-b [&_thead_th]:border-gray-100">
+        <thead className="bg-backgroundSec h-[50px] rounded-tl-lg rounded-tr-lg px-[12px] text-center text-gray-600 [&_th]:px-2">
           <tr>
-            {columns.map((column) => (
-              <th key={column.key} className={column.className}>
+            {columns.map((column, index) => (
+              <th
+                key={column.key}
+                className={clsx(
+                  column.className,
+                  index === 0 && 'rounded-tl-lg',
+                  index === columns.length - 1 && 'rounded-tr-lg',
+                )}
+              >
                 {column.label}
               </th>
             ))}
