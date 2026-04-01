@@ -9,6 +9,7 @@ import {
 import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
 import type {
   AdminUser,
+  UserLastLoginSortOrder,
   UserRoleFilter,
   UserStatusFilter,
 } from '@/types/admin-user.types';
@@ -18,6 +19,7 @@ type UseAdminUsersParams = {
   search: string;
   statusFilter: UserStatusFilter;
   roleFilter: UserRoleFilter;
+  lastLoginSort: UserLastLoginSortOrder | null;
 };
 
 interface GetUsersListData {
@@ -32,6 +34,7 @@ export const useAdminUsers = ({
   search,
   statusFilter,
   roleFilter,
+  lastLoginSort,
 }: UseAdminUsersParams) => {
   const { data, loading, error } = useQuery<GetUsersListData>(GET_USERS_LIST, {
     fetchPolicy: 'cache-and-network',
@@ -85,17 +88,32 @@ export const useAdminUsers = ({
     });
   }, [users, normalizedSearch, statusFilter, roleFilter]);
 
+  const sortedUsers = useMemo(() => {
+    if (!lastLoginSort) return filteredUsers;
+
+    return [...filteredUsers].sort((a, b) => {
+      const aTime = a.lastLoginAt
+        ? new Date(a.lastLoginAt).getTime()
+        : -Infinity;
+      const bTime = b.lastLoginAt
+        ? new Date(b.lastLoginAt).getTime()
+        : -Infinity;
+
+      return lastLoginSort === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+  }, [filteredUsers, lastLoginSort]);
+
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredUsers.length / ITEMS_PER_PAGE),
+    Math.ceil(sortedUsers.length / ITEMS_PER_PAGE),
   );
 
   const paginatedUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
 
-    return filteredUsers.slice(startIndex, endIndex);
-  }, [currentPage, filteredUsers]);
+    return sortedUsers.slice(startIndex, endIndex);
+  }, [currentPage, sortedUsers]);
 
   return {
     totalUsers,
@@ -103,7 +121,7 @@ export const useAdminUsers = ({
     blockedUsers,
     totalPages,
     paginatedUsers,
-    filteredUsersCount: filteredUsers.length,
+    filteredUsersCount: sortedUsers.length,
     loading,
     error,
   };

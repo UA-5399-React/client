@@ -28,7 +28,11 @@ describe('UsersTable', () => {
   const renderTable = (items = mockUsers) =>
     render(
       <MemoryRouter>
-        <UsersTable items={items} />
+        <UsersTable
+          items={items}
+          lastLoginSort={null}
+          onLastLoginSortChange={vi.fn()}
+        />
       </MemoryRouter>,
     );
 
