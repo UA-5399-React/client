@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar, MOCK_ORDERS, OrderCard } from '@/components';
+import { AccountSidebar, OrderCard } from '@/components';
 import { ROUTES } from '@/constants';
 import { authService } from '@/services';
+import { orderService } from '@/services/orderService';
 import { usersService } from '@/services/users.service';
+import type { Order } from '@/types/order.types';
 import type { User } from '@/types/user';
+import { mapApiOrderToOrder } from '@/utils/orderMappers';
 
 export function MyOrders() {
   const navigate = useNavigate();
@@ -13,6 +16,10 @@ export function MyOrders() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -28,7 +35,22 @@ export function MyOrders() {
       }
     };
 
+    const loadOrders = async () => {
+      try {
+        const apiOrders = await orderService.getMyOrders();
+        const mappedOrders = apiOrders.map(mapApiOrderToOrder);
+        setOrders(mappedOrders);
+      } catch (err) {
+        setOrdersError(
+          err instanceof Error ? err.message : 'Failed to load orders',
+        );
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
     void loadUser();
+    void loadOrders();
   }, []);
 
   const handleLogout = async () => {
@@ -81,9 +103,21 @@ export function MyOrders() {
               <span />
             </div>
             <div className="flex flex-col">
-              {MOCK_ORDERS.map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
+              {ordersLoading ? (
+                <div className="py-6 text-sm text-gray-500">
+                  Loading orders...
+                </div>
+              ) : ordersError ? (
+                <div className="py-6 text-sm text-red-600">{ordersError}</div>
+              ) : orders.length === 0 ? (
+                <div className="py-6 text-sm text-gray-500">
+                  You have no orders yet.
+                </div>
+              ) : (
+                orders.map((order) => (
+                  <OrderCard key={order.id} order={order} />
+                ))
+              )}
             </div>
           </div>
         </div>

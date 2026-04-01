@@ -1,11 +1,10 @@
 import type React from 'react';
 import { House, Package, Truck } from 'lucide-react';
 
-import type { Order } from '@/types/order.types';
-import type { ProgressStep } from '@/types/order.types';
+import type { Order, ProgressStep } from '@/types/order.types';
 
 export const STEPS: {
-  key: ProgressStep;
+  key: Exclude<ProgressStep, 'new'>;
   label: string;
   Icon: React.ComponentType<{ className?: string }>;
 }[] = [
@@ -15,10 +14,12 @@ export const STEPS: {
 ];
 
 export const STEP_INDEX: Record<ProgressStep, number> = {
+  new: -1,
   processed: 0,
   shipped: 1,
   completed: 2,
 };
+
 export const STATUS_LABELS: Record<Order['status'], string> = {
   new: 'New',
   processed: 'In progress',
@@ -28,6 +29,7 @@ export const STATUS_LABELS: Record<Order['status'], string> = {
 };
 
 export const IN_PROGRESS_STATUSES = new Set<Order['status']>([
+  'new',
   'processed',
   'shipped',
 ]);
