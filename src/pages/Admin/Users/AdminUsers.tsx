@@ -18,6 +18,7 @@ import { useAdminUsers } from '@/hooks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type {
+  UserLastLoginSortOrder,
   UserRoleFilter,
   UserStatusFilter,
 } from '@/types/admin-user.types';
@@ -27,6 +28,7 @@ const USERS_QUERY_PARAMS = {
   STATUS: 'status',
   ROLE: 'role',
   PAGE: 'page',
+  LAST_LOGIN_SORT: 'lastLoginSort',
 } as const;
 
 const VALID_STATUS_FILTERS: UserStatusFilter[] = ['all', 'active', 'blocked'];
@@ -38,11 +40,19 @@ const VALID_ROLE_FILTERS: UserRoleFilter[] = [
   'customer',
 ];
 
+const VALID_LAST_LOGIN_SORT: UserLastLoginSortOrder[] = ['asc', 'desc'];
+
 const isValidStatusFilter = (value: string | null): value is UserStatusFilter =>
   value !== null && VALID_STATUS_FILTERS.includes(value as UserStatusFilter);
 
 const isValidRoleFilter = (value: string | null): value is UserRoleFilter =>
   value !== null && VALID_ROLE_FILTERS.includes(value as UserRoleFilter);
+
+const isValidLastLoginSort = (
+  value: string | null,
+): value is UserLastLoginSortOrder =>
+  value !== null &&
+  VALID_LAST_LOGIN_SORT.includes(value as UserLastLoginSortOrder);
 
 export const AdminUsers = () => {
   const navigate = useNavigate();
@@ -72,6 +82,14 @@ export const AdminUsers = () => {
   )
     ? (searchParams.get(USERS_QUERY_PARAMS.ROLE) as UserRoleFilter)
     : DEFAULT_USER_ROLE_FILTER;
+
+  const lastLoginSortFromParams = isValidLastLoginSort(
+    searchParams.get(USERS_QUERY_PARAMS.LAST_LOGIN_SORT),
+  )
+    ? (searchParams.get(
+        USERS_QUERY_PARAMS.LAST_LOGIN_SORT,
+      ) as UserLastLoginSortOrder)
+    : null;
 
   const [searchValue, setSearchValue] = useState(searchFromParams);
   const debouncedSearch = useDebouncedValue(searchValue.trim(), 500);
@@ -127,6 +145,13 @@ export const AdminUsers = () => {
     });
   };
 
+  const handleLastLoginSortChange = (order: UserLastLoginSortOrder) => {
+    updateSearchParams((next) => {
+      next.set(USERS_QUERY_PARAMS.LAST_LOGIN_SORT, order);
+      next.set(USERS_QUERY_PARAMS.PAGE, '1');
+    });
+  };
+
   const handlePageChange = (page: number) => {
     setPage(page);
   };
@@ -156,6 +181,7 @@ export const AdminUsers = () => {
     search: debouncedSearch,
     statusFilter: statusFromParams,
     roleFilter: roleFromParams,
+    lastLoginSort: lastLoginSortFromParams,
   });
 
   useEffect(() => {
@@ -189,7 +215,11 @@ export const AdminUsers = () => {
           onCreateUser={() => navigate(ROUTES.ADMIN_USER_CREATE)}
         />
 
-        <UsersTable items={usersState.paginatedUsers} />
+        <UsersTable
+          items={usersState.paginatedUsers}
+          lastLoginSort={lastLoginSortFromParams}
+          onLastLoginSortChange={handleLastLoginSortChange}
+        />
 
         <Pagination
           currentPage={currentPage}

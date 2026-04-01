@@ -28,6 +28,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -53,6 +54,7 @@ describe('useAdminUsers', () => {
         search: searchValue,
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -72,6 +74,7 @@ describe('useAdminUsers', () => {
         search: targetUser.email,
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -87,6 +90,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'active',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -103,6 +107,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'blocked',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
@@ -125,6 +130,7 @@ describe('useAdminUsers', () => {
         search: '',
         statusFilter: 'all',
         roleFilter: 'admin',
+        lastLoginSort: null,
       }),
     );
 
@@ -147,6 +153,7 @@ describe('useAdminUsers', () => {
         search: 'admin',
         statusFilter: 'active',
         roleFilter: 'super_admin',
+        lastLoginSort: null,
       }),
     );
 
@@ -177,6 +184,7 @@ describe('useAdminUsers', () => {
         search: 'user-that-does-not-exist',
         statusFilter: 'all',
         roleFilter: 'all',
+        lastLoginSort: null,
       }),
     );
 
