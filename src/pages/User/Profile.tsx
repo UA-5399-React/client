@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,7 @@ import {
   type ProfileFormValues,
   profileSchema,
 } from '@/schemas/profile.schema';
-import { UnauthorizedError, usersService } from '@/services/users.service';
+import { usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 import { clearAuthStorage } from '@/utils/auth-storage';
 
@@ -42,7 +42,7 @@ export function Profile() {
     },
   });
 
-  const handleUnauthorized = () => {
+  const handleUnauthorized = useCallback(() => {
     clearAuthStorage();
     setUser(null);
     setPageError('');
@@ -58,7 +58,7 @@ export function Profile() {
     });
 
     navigate(ROUTES.LOGIN, { replace: true });
-  };
+  }, [navigate, reset]);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -74,7 +74,7 @@ export function Profile() {
           repeatPassword: '',
         });
       } catch (err) {
-        if (err instanceof UnauthorizedError) {
+        if (err instanceof Error && err.message.includes('401')) {
           handleUnauthorized();
           return;
         }
@@ -88,7 +88,7 @@ export function Profile() {
     };
 
     void loadUser();
-  }, [navigate, reset, handleUnauthorized]);
+  }, [reset, handleUnauthorized]);
 
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
@@ -113,7 +113,7 @@ export function Profile() {
       setUser(updatedUser);
       setSuccessMessage('Avatar updated successfully');
     } catch (err) {
-      if (err instanceof UnauthorizedError) {
+      if (err instanceof Error && err.message.includes('401')) {
         handleUnauthorized();
         return;
       }
@@ -185,7 +185,7 @@ export function Profile() {
         setSuccessMessage('Password updated successfully');
       }
     } catch (err) {
-      if (err instanceof UnauthorizedError) {
+      if (err instanceof Error && err.message.includes('401')) {
         handleUnauthorized();
         return;
       }
