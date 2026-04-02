@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Navigate,
   useLocation,
@@ -21,6 +22,7 @@ export function AdminEditOrder() {
   };
   const navigate = useNavigate();
   const { updateUserInfo, isUpdatingUserInfo } = useAdminEditOrderFlow();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
 
@@ -61,18 +63,27 @@ export function AdminEditOrder() {
   };
 
   const handleSubmit = async (formData: OrderFormData) => {
-    await updateUserInfo(id, {
-      customerName: formData.customerName,
-      email: formData.email,
-      phone: formData.phone,
-    });
-
-    navigate(ROUTES.ADMIN_ORDERS);
+    setSubmitError(null);
+    try {
+      await updateUserInfo(id, {
+        customerName: formData.customerName,
+        email: formData.email,
+        phone: formData.phone,
+      });
+      navigate(ROUTES.ADMIN_ORDERS);
+    } catch {
+      setSubmitError('Failed to update order. Please try again.');
+    }
   };
 
   return (
     <div>
-      <div className="mx-auto flex h-screen max-w-4xl items-center justify-center p-6">
+      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center gap-4 p-6">
+        {submitError && (
+          <p className="w-full max-w-4xl text-center text-sm font-medium text-red-500">
+            {submitError}
+          </p>
+        )}
         <AdminOrderForm
           initialData={initialData}
           onSubmit={handleSubmit}
