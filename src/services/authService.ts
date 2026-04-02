@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/constants';
+import { API_BASE_URL, AUTH_ENDPOINTS, AUTH_MESSAGES } from '@/constants';
 
 export interface LoginPayload {
   email: string;
@@ -21,7 +21,6 @@ export interface ConfirmEmailResponse {
 }
 
 const API_URL = API_BASE_URL;
-const GOOGLE_AUTH_PATH = '/auth/google';
 
 const getErrorMessage = async (response: Response, fallbackMessage: string) => {
   try {
@@ -45,7 +44,7 @@ const getErrorMessage = async (response: Response, fallbackMessage: string) => {
 
 export const authService = {
   startGoogleAuth: (redirectTo?: string) => {
-    const authUrl = new URL(GOOGLE_AUTH_PATH, API_URL);
+    const authUrl = new URL(AUTH_ENDPOINTS.GOOGLE, API_URL);
 
     if (typeof redirectTo === 'string' && redirectTo.startsWith('/')) {
       authUrl.searchParams.set('redirect', redirectTo);
@@ -55,7 +54,7 @@ export const authService = {
   },
 
   login: async (data: LoginPayload) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${API_URL}${AUTH_ENDPOINTS.LOGIN}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,14 +64,14 @@ export const authService = {
     });
 
     if (!response.ok) {
-      throw new Error('Invalid email or password');
+      throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
     }
 
     return response.json();
   },
 
   register: async (data: RegisterPayload): Promise<RegisterResponse> => {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}${AUTH_ENDPOINTS.REGISTER}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +82,7 @@ export const authService = {
 
     if (!response.ok) {
       throw new Error(
-        await getErrorMessage(response, 'Failed to create account'),
+        await getErrorMessage(response, AUTH_MESSAGES.CREATE_ACCOUNT_FAILED),
       );
     }
 
@@ -91,7 +90,7 @@ export const authService = {
   },
 
   confirmEmail: async (token: string): Promise<ConfirmEmailResponse> => {
-    const response = await fetch(`${API_URL}/auth/confirm-email`, {
+    const response = await fetch(`${API_URL}${AUTH_ENDPOINTS.CONFIRM_EMAIL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -102,7 +101,7 @@ export const authService = {
 
     if (!response.ok) {
       throw new Error(
-        await getErrorMessage(response, 'Failed to confirm email'),
+        await getErrorMessage(response, AUTH_MESSAGES.CONFIRM_EMAIL_FAILED),
       );
     }
 
@@ -110,26 +109,26 @@ export const authService = {
   },
 
   getMe: async () => {
-    const response = await fetch(`${API_URL}/auth/me`, {
+    const response = await fetch(`${API_URL}${AUTH_ENDPOINTS.ME}`, {
       method: 'GET',
       credentials: 'include',
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user profile');
+      throw new Error(AUTH_MESSAGES.FETCH_PROFILE_FAILED);
     }
 
     return response.json();
   },
 
   logout: async () => {
-    const response = await fetch(`${API_URL}/auth/logout`, {
+    const response = await fetch(`${API_URL}${AUTH_ENDPOINTS.LOGOUT}`, {
       method: 'POST',
       credentials: 'include',
     });
 
     if (!response.ok) {
-      console.error('Failed to logout on server');
+      console.error(AUTH_MESSAGES.LOGOUT_FAILED);
     }
 
     return response.ok;
