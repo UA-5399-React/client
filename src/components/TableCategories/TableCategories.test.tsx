@@ -136,6 +136,7 @@ describe('UI Component: TableCategories', () => {
 
   it('should expand and collapse subcategories on toggle click', async () => {
     const user = userEvent.setup();
+
     render(
       <TableCategories
         items={mockCategories}
@@ -157,8 +158,9 @@ describe('UI Component: TableCategories', () => {
     expect(screen.queryByText('Ultrabooks')).not.toBeInTheDocument();
   });
 
-  it('should render image fallback and action buttons', async () => {
+  it('should render image fallback and action menu actions', async () => {
     const user = userEvent.setup();
+
     render(
       <TableCategories
         items={mockCategories}
@@ -170,26 +172,30 @@ describe('UI Component: TableCategories', () => {
 
     expect(screen.getAllByText('N/A').length).toBeGreaterThan(0);
 
-    const editButton = screen.getByRole('button', { name: 'Edit Accessories' });
-    const deleteButton = screen.getByRole('button', {
-      name: 'Delete Accessories',
-    });
-    const parentDeleteButton = screen.getByRole('button', {
-      name: 'Delete Laptops',
-    });
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
+    );
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 
-    expect(editButton).toBeInTheDocument();
-    expect(deleteButton).toBeInTheDocument();
-    expect(parentDeleteButton).toBeDisabled();
-
-    await user.click(editButton);
-    await user.click(deleteButton);
-
+    await user.click(screen.getByRole('button', { name: /edit/i }));
     expect(mockEdit).toHaveBeenCalledWith(mockCategories[2]);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
+    );
+    await user.click(screen.getByRole('button', { name: /delete/i }));
     expect(mockDelete).toHaveBeenCalledWith(mockCategories[2]);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Laptops' }),
+    );
+    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
   });
 
-  it('should disable delete button for currently deleting category', () => {
+  it('should disable delete button for currently deleting category', async () => {
+    const user = userEvent.setup();
+
     render(
       <TableCategories
         items={mockCategories}
@@ -200,9 +206,11 @@ describe('UI Component: TableCategories', () => {
       />,
     );
 
-    expect(
-      screen.getByRole('button', { name: 'Delete Accessories' }),
-    ).toBeDisabled();
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
+    );
+
+    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
   });
 
   it('should render formatted dates and parent category label', () => {
