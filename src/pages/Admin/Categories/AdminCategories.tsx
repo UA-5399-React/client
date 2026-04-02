@@ -38,12 +38,23 @@ export function AdminCategories() {
   } = usePaginationPageParam();
 
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
+  const isSearchActive = debouncedSearch.length > 0;
 
   const { categories, loading, error, totalPages } = useAdminCategoriesPage({
     page: currentPage,
     limit: ADMIN_PAGE_LIMIT,
     search: debouncedSearch,
   });
+  const autoExpandedIds = isSearchActive
+    ? Array.from(
+        new Set(
+          categories
+            .filter((category) => Boolean(category.parent))
+            .map((category) => category.parent!)
+            .filter(Boolean),
+        ),
+      )
+    : [];
 
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
@@ -99,6 +110,7 @@ export function AdminCategories() {
 
       <div className="flex items-center justify-end border-b border-[#e5e7eb] px-4 py-3">
         <Button
+          className="ml-3 bg-blue-800 text-white hover:bg-transparent hover:text-blue-800"
           variant="primary"
           type="button"
           onClick={() => navigate(ROUTES.ADMIN_CATEGORY_ADD)}
@@ -143,6 +155,7 @@ export function AdminCategories() {
           items={categories}
           loading={loading}
           error={error}
+          autoExpandedIds={autoExpandedIds}
           deletingId={deletingId}
           onDelete={handleDeleteCategory}
           onEdit={handleEditCategory}
