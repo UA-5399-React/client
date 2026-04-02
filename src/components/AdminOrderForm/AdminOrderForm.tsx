@@ -70,7 +70,7 @@ export function AdminOrderForm({
   const isDisabled = isLoading || isSubmitting;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-[rgb(var(--color-bg-sec))] p-4 shadow-sm dark:border-gray-800">
+    <div className="bg-backgroundSec rounded-lg border border-gray-200 p-4 shadow-sm">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Controller
@@ -149,10 +149,7 @@ export function AdminOrderForm({
 
         <div className="flex flex-col gap-4">
           {fields.map((item, index) => (
-            <div
-              key={item.id}
-              className="rounded-lg border border-gray-200 dark:border-gray-700"
-            >
+            <div key={item.id}>
               <div className="grid grid-cols-[8fr_1fr_1fr_0.3fr] items-end gap-3 max-md:grid-cols-1">
                 <Controller
                   control={control}
@@ -262,7 +259,7 @@ export function AdminOrderForm({
               type="button"
               onClick={onCancel}
               disabled={isDisabled}
-              className="cursor-pointer rounded-md border border-gray-300 bg-white px-5 py-1.5 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-white"
+              className="bg-background text-text cursor-pointer rounded-md border border-gray-300! px-5 py-1.5"
             >
               Cancel
             </Button>
