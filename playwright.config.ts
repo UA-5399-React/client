@@ -7,4 +7,9 @@ export default defineConfig({
     headless: true,
     baseURL: 'http://localhost:5173',
   },
+  webServer: {
+    command: 'pnpm run dev',
+    url: 'http://localhost:5173',
+    timeout: 120_000,
+  },
 });
