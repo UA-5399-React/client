@@ -57,7 +57,7 @@ const refreshAuthSession = async (): Promise<boolean> => {
 const handleUnauthorized = () => {
   clearClientAuthState();
   window.location.replace(ROUTES.LOGIN);
-  throw Error('Session expired');
+  throw Error('HTTP error! status: 401');
 };
 
 const REFRESH_EXCLUDED_ENDPOINTS = [
