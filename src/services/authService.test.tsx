@@ -10,6 +10,7 @@ import {
 
 import {
   authService,
+  type ConfirmEmailResponse,
   type LoginPayload,
   type RegisterPayload,
 } from './authService';
@@ -114,6 +115,45 @@ describe('Service: authService', () => {
 
       await expect(authService.register(mockPayload)).rejects.toThrow(
         'Email already in use',
+      );
+    });
+  });
+
+  describe('confirmEmail()', () => {
+    const mockResponseData: ConfirmEmailResponse = {
+      message: 'Email confirmed successfully',
+    };
+
+    it('should send correct POST request and return data on success', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponseData,
+      });
+
+      const result = await authService.confirmEmail('token-123');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}/auth/confirm-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: 'token-123' }),
+          credentials: 'include',
+        },
+      );
+      expect(result).toEqual(mockResponseData);
+    });
+
+    it('should throw backend error message on failed confirmation', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: 'Token expired' }),
+      });
+
+      await expect(authService.confirmEmail('token-123')).rejects.toThrow(
+        'Token expired',
       );
     });
   });

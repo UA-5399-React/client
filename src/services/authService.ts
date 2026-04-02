@@ -16,7 +16,12 @@ export interface RegisterResponse {
   message: string;
 }
 
+export interface ConfirmEmailResponse {
+  message: string;
+}
+
 const API_URL = API_BASE_URL;
+const GOOGLE_AUTH_PATH = '/auth/google';
 
 const getErrorMessage = async (response: Response, fallbackMessage: string) => {
   try {
@@ -39,6 +44,16 @@ const getErrorMessage = async (response: Response, fallbackMessage: string) => {
 };
 
 export const authService = {
+  startGoogleAuth: (redirectTo?: string) => {
+    const authUrl = new URL(GOOGLE_AUTH_PATH, API_URL);
+
+    if (typeof redirectTo === 'string' && redirectTo.startsWith('/')) {
+      authUrl.searchParams.set('redirect', redirectTo);
+    }
+
+    window.location.assign(authUrl.toString());
+  },
+
   login: async (data: LoginPayload) => {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
@@ -69,6 +84,25 @@ export const authService = {
     if (!response.ok) {
       throw new Error(
         await getErrorMessage(response, 'Failed to create account'),
+      );
+    }
+
+    return response.json();
+  },
+
+  confirmEmail: async (token: string): Promise<ConfirmEmailResponse> => {
+    const response = await fetch(`${API_URL}/auth/confirm-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await getErrorMessage(response, 'Failed to confirm email'),
       );
     }
 

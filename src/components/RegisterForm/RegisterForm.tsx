@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { Checkbox, Input } from '@/components';
+import googleIcon from '@/assets/icons/google-icon.webp';
+import { Button, Checkbox, Input } from '@/components';
 import { ROUTES } from '@/constants';
 import { useRegister } from '@/hooks';
+import { authService } from '@/services/authService';
 
 const registerSchema = z
   .object({
@@ -78,6 +80,10 @@ export const RegisterForm: React.FC = () => {
     }
   };
 
+  const handleGoogleAuth = () => {
+    authService.startGoogleAuth();
+  };
+
   return (
     <div className="flex w-full max-w-md flex-col px-4 sm:px-6">
       <div className="mb-8">
@@ -120,6 +126,30 @@ export const RegisterForm: React.FC = () => {
           className="space-y-6"
           noValidate
         >
+          <Button
+            type="button"
+            onClick={handleGoogleAuth}
+            className="bg-primary hover:bg-primary/85 focus:ring-primary/30 box-border inline-flex w-full items-center justify-center rounded-lg border border-transparent px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:outline-none"
+          >
+            <span className="flex items-center gap-3">
+              <img
+                src={googleIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5 rounded-sm bg-white/90 p-0.5"
+              />
+              <span>Continue with Google</span>
+            </span>
+          </Button>
+
+          <div className="flex items-center gap-4">
+            <span className="bg-fieldBorder/80 h-px flex-1" />
+            <span className="text-muted shrink-0 text-xs font-medium tracking-[0.2em] uppercase">
+              or
+            </span>
+            <span className="bg-fieldBorder/80 h-px flex-1" />
+          </div>
+
           <Input
             {...register('email')}
             type="email"
@@ -198,13 +228,13 @@ export const RegisterForm: React.FC = () => {
             </p>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="mt-6 w-full rounded-lg bg-[#1a1c23] px-4 py-3.5 text-center text-sm font-medium text-white transition-colors hover:bg-black focus:ring-4 focus:ring-gray-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+            className="bg-bgSecInverted mt-6 w-full cursor-pointer rounded-lg px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none dark:text-black"
           >
             {isPending ? 'Creating account...' : 'Sign Up'}
-          </button>
+          </Button>
         </form>
       )}
     </div>
