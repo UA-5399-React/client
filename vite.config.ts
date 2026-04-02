@@ -39,6 +39,7 @@ export default defineConfig({
         '.storybook/**',
         '**/*.css',
         'src/utils/test-utils.tsx',
+        'tests/e2e/**',
       ],
     },
   },
