@@ -2,12 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { AlertCircle, Copy, Pencil, Trash } from 'lucide-react';
 
+import { ActionMenu, Checkbox } from '@/components';
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { type Product, PRODUCT_STATUS } from '@/types';
-
-import { Button } from '../Button';
-import { Checkbox } from '../Checkbox';
 
 interface TableProductsProps {
   items: Product[] | [];
@@ -90,31 +88,34 @@ function renderBodyContent(
         <td>{item.price}</td>
         <td>{item.description}</td>
         <td>
-          <Button
-            aria-label={`Delete ${item.title}`}
-            className="bg-transparent text-[#DB162D] hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={!isDraft}
-            onClick={() => onDelete(item.id)}
-            title={
-              isDraft ? 'Delete product' : 'Only draft products can be deleted'
-            }
-          >
-            <Trash className="h-[20px] w-[20px]" />
-          </Button>
-          <Button
-            aria-label={`Edit ${item.title}`}
-            className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-            onClick={() => navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`)}
-          >
-            <Pencil />
-          </Button>
-          <Button
-            aria-label={`Duplicate ${item.title}`}
-            className="bg-transparent text-gray-500 hover:text-black"
-            onClick={() => onDuplicate(item.id)}
-          >
-            <Copy />
-          </Button>
+          <div className="flex justify-end pr-2">
+            <ActionMenu
+              triggerAriaLabel={`Open actions for ${item.title}`}
+              actions={[
+                {
+                  label: 'Edit',
+                  icon: <Pencil className="h-[20px] w-[20px]" />,
+                  onClick: () =>
+                    navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`),
+                },
+                {
+                  label: 'Duplicate',
+                  icon: <Copy className="h-[20px] w-[20px]" />,
+                  onClick: () => onDuplicate(item.id),
+                },
+                {
+                  label: 'Delete',
+                  icon: <Trash className="h-[20px] w-[20px]" />,
+                  onClick: () => onDelete(item.id),
+                  variant: 'danger',
+                  disabled: !isDraft,
+                  title: isDraft
+                    ? 'Delete product'
+                    : 'Only draft products can be deleted',
+                },
+              ]}
+            />
+          </div>
         </td>
       </tr>
     );

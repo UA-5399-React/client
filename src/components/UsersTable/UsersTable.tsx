@@ -1,6 +1,6 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Trash } from 'lucide-react';
 
 import { ActionMenu, Checkbox, Dropdown } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
@@ -201,12 +201,24 @@ export function UsersTable({
                 <td className="relative text-right">
                   <ActionMenu
                     triggerAriaLabel={`Actions for ${getFullName(user)}`}
-                    editAction={() =>
-                      navigate(
-                        generatePath(ROUTES.ADMIN_USER_EDIT, { id: user.id }),
-                      )
-                    }
-                    deleteAction={() => {}}
+                    actions={[
+                      {
+                        label: 'Edit',
+                        icon: <Pencil />,
+                        onClick: () =>
+                          navigate(
+                            generatePath(ROUTES.ADMIN_USER_EDIT, {
+                              id: user.id,
+                            }),
+                          ),
+                      },
+                      {
+                        label: 'Delete',
+                        icon: <Trash />,
+                        onClick: () => {},
+                        variant: 'danger',
+                      },
+                    ]}
                     className={clsx(
                       'right-0 left-auto',
                       shouldOpenUpward ? 'top-auto bottom-10' : 'top-10',
