@@ -16,7 +16,9 @@ type EditOrderLocationState = {
 
 export function AdminEditOrder() {
   const { id } = useParams<{ id: string }>();
-  const { state } = useLocation() as { state: EditOrderLocationState | null };
+  const { state } = useLocation() as {
+    state: EditOrderLocationState | null | undefined;
+  };
   const navigate = useNavigate();
   const { updateUserInfo, isUpdatingUserInfo } = useAdminEditOrderFlow();
 
