@@ -157,6 +157,23 @@ describe('UI Component: TableCategories', () => {
     expect(screen.queryByText('Ultrabooks')).not.toBeInTheDocument();
   });
 
+  it('should auto-expand parent categories passed from search results', () => {
+    render(
+      <TableCategories
+        items={mockCategories}
+        loading={false}
+        autoExpandedIds={['parent-1']}
+        onDelete={mockDelete}
+        onEdit={mockEdit}
+      />,
+    );
+
+    expect(screen.getByText('Ultrabooks')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Collapse Laptops' }),
+    ).toBeInTheDocument();
+  });
+
   it('should render image fallback and action buttons', async () => {
     const user = userEvent.setup();
     render(
