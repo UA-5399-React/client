@@ -2,10 +2,9 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { AlertCircle, Minus, Pencil, Plus, Trash } from 'lucide-react';
 
+import { ActionMenu } from '@/components';
 import { useTheme } from '@/hooks/useTheme';
 import type { Category } from '@/types';
-
-import { Button } from '../Button';
 
 interface TableCategoriesProps {
   items: Category[];
@@ -116,24 +115,28 @@ function CategoryRow({
       <td className="text-center">{formatCategoryDate(category.createdAt)}</td>
       <td className="text-center">{formatCategoryDate(category.updatedAt)}</td>
       <td className="text-center">
-        <Button
-          aria-label={`Delete ${category.title}`}
-          className="bg-transparent text-[#DB162D] hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
-          type="button"
-          disabled={isDeleteDisabled}
-          onClick={() => onDelete(category)}
-          title={deleteButtonTitle}
-        >
-          <Trash className="h-[20px] w-[20px]" />
-        </Button>
-        <Button
-          aria-label={`Edit ${category.title}`}
-          className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-          type="button"
-          onClick={() => onEdit(category)}
-        >
-          <Pencil className="h-[20px] w-[20px]" />
-        </Button>
+        <div className="flex justify-end pr-2">
+          <ActionMenu
+            triggerAriaLabel={`Actions for ${category.title}`}
+            actions={[
+              {
+                id: 'edit',
+                label: 'Edit',
+                icon: <Pencil className="h-[20px] w-[20px]" />,
+                onClick: () => onEdit(category),
+              },
+              {
+                id: 'delete',
+                label: 'Delete',
+                icon: <Trash className="h-[20px] w-[20px]" />,
+                onClick: () => onDelete(category),
+                variant: 'danger',
+                disabled: isDeleteDisabled,
+                title: deleteButtonTitle,
+              },
+            ]}
+          />
+        </div>
       </td>
     </tr>
   );

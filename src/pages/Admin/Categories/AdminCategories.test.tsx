@@ -170,8 +170,9 @@ describe('Page: AdminCategories', () => {
     render(<AdminCategories />);
 
     await user.click(
-      screen.getByRole('button', { name: 'Delete Accessories' }),
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
+    await user.click(screen.getByRole('button', { name: /delete/i }));
 
     expect(openConfirmModalMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -221,12 +222,17 @@ describe('Page: AdminCategories', () => {
 
     render(<AdminCategories />);
 
-    await user.click(screen.getByRole('button', { name: 'Edit Accessories' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
+    );
+    await user.click(screen.getByRole('button', { name: /edit/i }));
 
     expect(window.location.pathname).toBe('/admin/categories/edit/parent-2');
   });
 
   it('should execute delete mutation when modal confirm callback is called', async () => {
+    const user = userEvent.setup();
+
     useAdminCategoriesPageMock.mockReturnValue({
       categories: [
         {
@@ -249,9 +255,10 @@ describe('Page: AdminCategories', () => {
 
     render(<AdminCategories />);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Delete Accessories' }),
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
+    await user.click(screen.getByRole('button', { name: /delete/i }));
 
     const modalConfig = openConfirmModalMock.mock.calls[0]?.[0];
 
@@ -263,6 +270,8 @@ describe('Page: AdminCategories', () => {
   });
 
   it('should show delete error message when mutation rejects with Error', async () => {
+    const user = userEvent.setup();
+
     useAdminCategoriesPageMock.mockReturnValue({
       categories: [
         {
@@ -285,9 +294,10 @@ describe('Page: AdminCategories', () => {
 
     render(<AdminCategories />);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Delete Accessories' }),
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
+    await user.click(screen.getByRole('button', { name: /delete/i }));
 
     const modalConfig = openConfirmModalMock.mock.calls.at(-1)?.[0];
 
@@ -302,6 +312,8 @@ describe('Page: AdminCategories', () => {
   });
 
   it('should show fallback delete error message when mutation rejects with non-Error value', async () => {
+    const user = userEvent.setup();
+
     useAdminCategoriesPageMock.mockReturnValue({
       categories: [
         {
@@ -324,9 +336,10 @@ describe('Page: AdminCategories', () => {
 
     render(<AdminCategories />);
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Delete Accessories' }),
+    await user.click(
+      screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
+    await user.click(screen.getByRole('button', { name: /delete/i }));
 
     const modalConfig = openConfirmModalMock.mock.calls.at(-1)?.[0];
 
