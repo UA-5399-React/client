@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Category } from '@/types';
-import { render, screen, userEvent } from '@/utils/test-utils';
+import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { TableCategories } from './TableCategories';
 
@@ -56,6 +56,10 @@ const mockCategories: Category[] = [
 ];
 
 describe('UI Component: TableCategories', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should render the table and all column headers', () => {
     render(
       <TableCategories
@@ -175,7 +179,7 @@ describe('UI Component: TableCategories', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render image fallback and action buttons', async () => {
+  it('should render image fallback and action menu actions', async () => {
     const user = userEvent.setup();
 
     render(
@@ -192,22 +196,34 @@ describe('UI Component: TableCategories', () => {
     await user.click(
       screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
-    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /edit/i }));
-    expect(mockEdit).toHaveBeenCalledWith(mockCategories[2]);
+    expect(
+      await screen.findByRole('button', { name: /^edit$/i }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: /^delete$/i }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^edit$/i }));
+
+    await waitFor(() => {
+      expect(mockEdit).toHaveBeenCalledWith(mockCategories[2]);
+    });
 
     await user.click(
       screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
-    await user.click(screen.getByRole('button', { name: /delete/i }));
-    expect(mockDelete).toHaveBeenCalledWith(mockCategories[2]);
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
+
+    await waitFor(() => {
+      expect(mockDelete).toHaveBeenCalledWith(mockCategories[2]);
+    });
 
     await user.click(
       screen.getByRole('button', { name: 'Actions for Laptops' }),
     );
-    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+
+    expect(screen.getByRole('button', { name: /^delete$/i })).toBeDisabled();
   });
 
   it('should disable delete button for currently deleting category', async () => {
@@ -227,7 +243,7 @@ describe('UI Component: TableCategories', () => {
       screen.getByRole('button', { name: 'Actions for Accessories' }),
     );
 
-    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /^delete$/i })).toBeDisabled();
   });
 
   it('should render formatted dates and parent category label', () => {
