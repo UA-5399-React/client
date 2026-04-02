@@ -83,16 +83,28 @@ export const LoginForm: React.FC = () => {
 
       try {
         const store = useCartStore.getState();
-        const guestItems = store.items.map((item) => ({
-          productId: String(item.product.id || item.product._id),
-          quantity: item.quantity,
-        }));
+        const guestItems = store.items;
 
-        const syncedCart = await cartService.syncCart(guestItems);
-        const newCartItems = syncedCart.items.map((i) => ({
-          product: i.product,
-          quantity: i.quantity,
-        }));
+        let newCartItems;
+
+        if (guestItems.length > 0) {
+          const payload = guestItems.map((item) => ({
+            productId: String(item.product.id || item.product._id),
+            quantity: item.quantity,
+          }));
+
+          const syncedCart = await cartService.syncCart(payload);
+          newCartItems = syncedCart.items.map((i) => ({
+            product: i.product,
+            quantity: i.quantity,
+          }));
+        } else {
+          const dbCart = await cartService.getCart();
+          newCartItems = dbCart.items.map((i) => ({
+            product: i.product,
+            quantity: i.quantity,
+          }));
+        }
         store.setCart(newCartItems);
       } catch (err) {
         console.error('Failed to sync cart:', err);
