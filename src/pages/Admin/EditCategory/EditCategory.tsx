@@ -6,13 +6,22 @@ import { ROUTES } from '@/constants';
 import { useAdminCategories } from '@/hooks/useAdminCategories';
 import { useGetAdminCategory } from '@/hooks/useGetAdminCategory';
 import { useTheme } from '@/hooks/useTheme';
+import type { Category } from '@/types/category.types';
+import type { Product } from '@/types/product.types';
+
+type CategoryWithProducts = Category & {
+  products?: Product[];
+};
 
 export const EditCategory = () => {
   const { id } = useParams<{ id: string }>();
   const { isDark } = useTheme();
 
-  const { category, loading: isCategoryLoading } = useGetAdminCategory(id);
-
+  const {
+    category,
+    loading: isCategoryLoading,
+    error,
+  } = useGetAdminCategory(id);
   const { categories, loading: isListLoading } = useAdminCategories();
 
   if (!id) return <Navigate to={ROUTES.ADMIN_CATEGORIES} replace />;
@@ -37,11 +46,22 @@ export const EditCategory = () => {
     );
   }
 
-  if (!category) return null;
+  if (error || !category) return null;
+
+  const categoryWithData = category as CategoryWithProducts;
+
+  const safeInitialData = {
+    ...categoryWithData,
+    products: Array.isArray(categoryWithData.products)
+      ? categoryWithData.products
+      : [],
+  };
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <CategoryForm mode="edit" initialData={category} items={categories} />
-    </div>
+    <CategoryForm
+      mode="edit"
+      initialData={safeInitialData}
+      items={categories || []}
+    />
   );
 };

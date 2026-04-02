@@ -44,6 +44,8 @@ export const CategoryForm = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -404,32 +406,38 @@ export const CategoryForm = ({
               <label className={labelStyles}>Products Review</label>
               {products.length > 0 ? (
                 <div className="scrollbar-hide mt-2 flex gap-3 overflow-x-auto pb-2">
-                  {products.slice(0, 3).map((product: Product) => (
-                    <div
-                      key={product.id}
-                      className="flex min-w-[180px] items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-2"
+                  {(isExpanded ? products : products.slice(0, 3)).map(
+                    (product: Product) => (
+                      <div
+                        key={product.id}
+                        className="flex min-w-[180px] items-center gap-3 rounded-xl border border-[#e5e7eb] bg-white p-2"
+                      >
+                        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                          {product.imageUrl && (
+                            <img
+                              src={product.imageUrl}
+                              className="h-full w-full object-cover"
+                              alt=""
+                            />
+                          )}
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="truncate text-[10px] font-bold uppercase">
+                            {product.title || 'Product Name'}
+                          </span>
+                          <span className="text-[9px] text-[#8A92A6]">
+                            ${product.price || '0'}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
+                  {!isExpanded && products.length > 3 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsExpanded(true)}
+                      className="flex min-w-[80px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#e5e7eb] bg-transparent text-[10px] font-bold text-[#8A92A6] transition-colors hover:bg-gray-50"
                     >
-                      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                        {product.imageUrl && (
-                          <img
-                            src={product.imageUrl}
-                            className="h-full w-full object-cover"
-                            alt=""
-                          />
-                        )}
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="truncate text-[10px] font-bold uppercase">
-                          {product.title || 'Product Name'}
-                        </span>
-                        <span className="text-[9px] text-[#8A92A6]">
-                          ${product.price || '0'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {products.length > 3 && (
-                    <button className="flex min-w-[80px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-[#e5e7eb] bg-transparent text-[10px] font-bold text-[#8A92A6] transition-colors hover:bg-gray-50">
                       + {products.length - 3} more
                     </button>
                   )}
