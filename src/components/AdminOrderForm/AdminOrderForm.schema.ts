@@ -3,7 +3,7 @@ import z from 'zod';
 import { ORDER_STATUS } from '@/types/tableOrders.types';
 
 export const orderFormSchema = z.object({
-  customerName: z.string().trim().min(1, 'Customer name is required'),
+  customerName: z.string().trim().min(4, 'Customer name is required'),
   email: z
     .string()
     .trim()
