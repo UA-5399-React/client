@@ -1,4 +1,4 @@
-import { API_BASE_URL, MOCK_AUTH } from '../constants';
+import { API_BASE_URL, MOCK_AUTH, ROUTES } from '@/constants';
 
 interface FetchOptions extends RequestInit {
   params?: Record<
@@ -53,6 +53,11 @@ const refreshAuthSession = async (): Promise<boolean> => {
   }
 
   return refreshPromise;
+};
+const handleUnauthorized = () => {
+  clearClientAuthState();
+  window.location.replace(ROUTES.LOGIN);
+  throw Error('Session expired');
 };
 
 const REFRESH_EXCLUDED_ENDPOINTS = [
@@ -113,7 +118,7 @@ export const apiClient = {
           ...options,
         });
       } else {
-        clearClientAuthState();
+        handleUnauthorized();
       }
     }
 
@@ -143,7 +148,7 @@ export const apiClient = {
           body: JSON.stringify(data),
         });
       } else {
-        clearClientAuthState();
+        handleUnauthorized();
       }
     }
 
@@ -173,7 +178,7 @@ export const apiClient = {
           body: JSON.stringify(data),
         });
       } else {
-        clearClientAuthState();
+        handleUnauthorized();
       }
     }
 
@@ -249,7 +254,7 @@ export const apiClient = {
           credentials: 'include',
         });
       } else {
-        clearClientAuthState();
+        handleUnauthorized();
       }
     }
 
