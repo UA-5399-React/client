@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import styles from './ActionMenu.module.css';
 
 export type ActionMenuItem = {
+  id: string;
   label: string;
   onClick: () => void;
   icon: ReactNode;
@@ -14,7 +15,6 @@ export type ActionMenuItem = {
   disabled?: boolean;
   title?: string;
 };
-
 interface ActionMenuProps {
   actions: ActionMenuItem[];
   className?: string;
@@ -67,7 +67,7 @@ export const ActionMenu = ({
           )}
         >
           {actions.map((action, index) => (
-            <div key={`${action.label}-${index}`}>
+            <div key={action.id}>
               {index > 0 && (
                 <hr className="my-2 w-full border-0 border-t border-gray-300" />
               )}

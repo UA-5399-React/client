@@ -144,6 +144,7 @@ export function TableOrders({
             className="top-0 left-[-135px]"
             actions={[
               {
+                id: 'delete',
                 label: 'Delete',
                 icon: <Trash className="h-[20px] w-[20px]" />,
                 onClick: () => openDeleteModal(item.orderId),

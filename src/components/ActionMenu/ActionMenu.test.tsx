@@ -17,11 +17,14 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 function createAction(overrides: Partial<ActionMenuItem> = {}): ActionMenuItem {
+  const { id = 'edit', ...rest } = overrides;
+
   return {
+    id,
     label: 'Edit',
     onClick: vi.fn(),
     icon: <span data-testid="action-icon" />,
-    ...overrides,
+    ...rest,
   };
 }
 
@@ -43,7 +46,7 @@ describe('ActionMenu', () => {
   });
 
   it('shows only the trigger initially; actions are not visible', () => {
-    renderActionMenu([createAction({ label: 'Edit' })]);
+    renderActionMenu([createAction({ id: 'edit', label: 'Edit' })]);
 
     expect(screen.getAllByRole('button')).toHaveLength(1);
     expect(
@@ -54,7 +57,7 @@ describe('ActionMenu', () => {
   it('opens the panel on trigger click and shows actions', async () => {
     const user = userEvent.setup();
 
-    renderActionMenu([createAction({ label: 'Edit' })]);
+    renderActionMenu([createAction({ id: 'edit', label: 'Edit' })]);
 
     await user.click(getTriggerButton());
 
@@ -67,6 +70,7 @@ describe('ActionMenu', () => {
 
     renderActionMenu([
       createAction({
+        id: 'edit',
         label: 'Edit',
         onClick: editAction,
       }),
@@ -85,8 +89,9 @@ describe('ActionMenu', () => {
     const user = userEvent.setup();
 
     renderActionMenu([
-      createAction({ label: 'Edit' }),
+      createAction({ id: 'edit', label: 'Edit' }),
       createAction({
+        id: 'delete',
         label: 'Delete',
         icon: <span data-testid="delete-icon" />,
         onClick: vi.fn(),
@@ -106,6 +111,7 @@ describe('ActionMenu', () => {
 
     renderActionMenu([
       createAction({
+        id: 'delete',
         label: 'Delete',
         icon: <span data-testid="delete-icon" />,
         onClick: deleteAction,
@@ -123,13 +129,15 @@ describe('ActionMenu', () => {
     const user = userEvent.setup();
 
     renderActionMenu([
-      createAction({ label: 'Edit' }),
+      createAction({ id: 'edit', label: 'Edit' }),
       createAction({
+        id: 'duplicate',
         label: 'Duplicate',
         icon: <span data-testid="duplicate-icon" />,
         onClick: vi.fn(),
       }),
       createAction({
+        id: 'delete',
         label: 'Delete',
         icon: <span data-testid="delete-icon" />,
         onClick: vi.fn(),
@@ -146,8 +154,9 @@ describe('ActionMenu', () => {
     const user = userEvent.setup();
 
     renderActionMenu([
-      createAction({ label: 'Edit' }),
+      createAction({ id: 'edit', label: 'Edit' }),
       createAction({
+        id: 'delete',
         label: 'Delete',
         icon: <span data-testid="delete-icon" />,
         onClick: vi.fn(),

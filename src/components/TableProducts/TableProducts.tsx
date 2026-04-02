@@ -93,17 +93,20 @@ function renderBodyContent(
               triggerAriaLabel={`Open actions for ${item.title}`}
               actions={[
                 {
+                  id: 'edit',
                   label: 'Edit',
                   icon: <Pencil className="h-[20px] w-[20px]" />,
                   onClick: () =>
                     navigate(`${ROUTES.ADMIN_PRODUCTS}/${item.id}`),
                 },
                 {
+                  id: 'duplicate',
                   label: 'Duplicate',
                   icon: <Copy className="h-[20px] w-[20px]" />,
                   onClick: () => onDuplicate(item.id),
                 },
                 {
+                  id: 'delete',
                   label: 'Delete',
                   icon: <Trash className="h-[20px] w-[20px]" />,
                   onClick: () => onDelete(item.id),

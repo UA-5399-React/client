@@ -203,8 +203,9 @@ export function UsersTable({
                     triggerAriaLabel={`Actions for ${getFullName(user)}`}
                     actions={[
                       {
+                        id: 'edit',
                         label: 'Edit',
-                        icon: <Pencil />,
+                        icon: <Pencil className="h-[20px] w-[20px]" />,
                         onClick: () =>
                           navigate(
                             generatePath(ROUTES.ADMIN_USER_EDIT, {
@@ -213,8 +214,9 @@ export function UsersTable({
                           ),
                       },
                       {
+                        id: 'delete',
                         label: 'Delete',
-                        icon: <Trash />,
+                        icon: <Trash className="h-[20px] w-[20px]" />,
                         onClick: () => {},
                         variant: 'danger',
                       },

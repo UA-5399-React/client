@@ -120,11 +120,13 @@ function CategoryRow({
             triggerAriaLabel={`Actions for ${category.title}`}
             actions={[
               {
+                id: 'edit',
                 label: 'Edit',
                 icon: <Pencil className="h-[20px] w-[20px]" />,
                 onClick: () => onEdit(category),
               },
               {
+                id: 'delete',
                 label: 'Delete',
                 icon: <Trash className="h-[20px] w-[20px]" />,
                 onClick: () => onDelete(category),
