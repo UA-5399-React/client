@@ -90,6 +90,28 @@ export function Profile() {
     void loadUser();
   }, [reset, handleUnauthorized]);
 
+  // Autoclear success messages
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timer = setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
+  // Autoclear error messages
+  useEffect(() => {
+    if (!submitError) return;
+
+    const timer = setTimeout(() => {
+      setSubmitError('');
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [submitError]);
+
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
 
