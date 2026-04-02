@@ -41,6 +41,12 @@ export const GET_CATEGORY = gql`
   query GetCategory($id: ID!) {
     category(id: $id) {
       ...CategoryFields
+      products {
+        id
+        title
+        price
+        imageUrl
+      }
     }
   }
   ${CATEGORY_FIELDS}
