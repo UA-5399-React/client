@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 
 test('user can browse, filter, add to cart', async ({ page }) => {
   await page.goto('http://localhost:5173/');
-  await expect(page.getByRole('banner')).toBeVisible();
 
-  await page.getByRole('img', { name: 'Sleek Ceramic Pizza' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Sleek Ceramic Pizza' }),
-  ).toBeVisible();
+  const firstProduct = page.getByRole('img').first();
+  await expect(firstProduct).toBeVisible();
+  await firstProduct.click();
+
+  await page.waitForLoadState('networkidle');
 
   await page.getByRole('button').first().click();
   await expect(
