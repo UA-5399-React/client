@@ -190,8 +190,9 @@ describe('UI Component: TableProducts', () => {
     expect(screen.getByText('First product')).toBeInTheDocument();
   });
 
-  it('should navigate to the product edit page when the edit button is clicked', async () => {
+  it('should navigate to the product edit page when the edit action is clicked', async () => {
     const user = userEvent.setup();
+
     render(
       <TableProducts
         items={[mockProducts[0]]}
@@ -201,17 +202,21 @@ describe('UI Component: TableProducts', () => {
       />,
     );
 
-    const editButton = screen.getByRole('button', {
-      name: `Edit ${mockProducts[0].title}`,
+    const triggerButton = screen.getByRole('button', {
+      name: `Open actions for ${mockProducts[0].title}`,
     });
-    await user.click(editButton);
+
+    await user.click(triggerButton);
+    await user.click(screen.getByRole('button', { name: /edit/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith(
       expect.stringContaining(mockProducts[0].id),
     );
   });
 
-  it('should disable delete button for non-draft products', () => {
+  it('should disable delete action for non-draft products', async () => {
+    const user = userEvent.setup();
+
     render(
       <TableProducts
         items={[mockProducts[0]]}
@@ -221,8 +226,12 @@ describe('UI Component: TableProducts', () => {
       />,
     );
 
-    expect(
-      screen.getByRole('button', { name: `Delete ${mockProducts[0].title}` }),
-    ).toBeDisabled();
+    await user.click(
+      screen.getByRole('button', {
+        name: `Open actions for ${mockProducts[0].title}`,
+      }),
+    );
+
+    expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
   });
 });

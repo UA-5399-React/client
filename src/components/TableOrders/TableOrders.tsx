@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import clsx from 'clsx';
+import { Pencil, Trash } from 'lucide-react';
 
 import { ActionMenu, ConfirmModal, Dropdown, MainTable } from '@/components';
 import { useDeleteAdminOrder } from '@/hooks/useDeleteAdminOrder';
@@ -141,9 +142,23 @@ export function TableOrders({
 
         <td>
           <ActionMenu
+            triggerAriaLabel={`Actions for order ${item.orderId}`}
             className="top-0 left-[-135px]"
-            deleteAction={() => openDeleteModal(item.orderId)}
-            editAction={() => onEdit(item)}
+            actions={[
+              {
+                id: 'edit',
+                label: 'Edit',
+                icon: <Pencil className="h-[20px] w-[20px]" />,
+                onClick: () => onEdit(item),
+              },
+              {
+                id: 'delete',
+                label: 'Delete',
+                icon: <Trash className="h-[20px] w-[20px]" />,
+                onClick: () => openDeleteModal(item.orderId),
+                variant: 'danger',
+              },
+            ]}
           />
         </td>
       </>
