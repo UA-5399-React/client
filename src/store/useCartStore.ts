@@ -15,6 +15,7 @@ interface CartState {
   setCart: (items: CartItem[]) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+  validateCart: (serverProducts: Product[]) => boolean;
 }
 
 export const useCartStore = create<CartState>()(
@@ -90,7 +91,26 @@ export const useCartStore = create<CartState>()(
           0,
         );
       },
+
+      validateCart: (serverProducts: Product[]) => {
+        const currentItems = get().items;
+
+        const serverIds = new Set(serverProducts.map((p) => p.id || p._id));
+
+        const validItems = currentItems.filter((item) => {
+          const id = item.product.id || item.product._id;
+          return serverIds.has(id);
+        });
+
+        if (validItems.length !== currentItems.length) {
+          set({ items: validItems });
+          return true;
+        }
+
+        return false;
+      },
     }),
+
     {
       name: 'cart-storage',
       partialize: (state) => ({ items: state.items }),
