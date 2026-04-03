@@ -33,11 +33,7 @@ const getSelectedCategories = (searchParams: URLSearchParams) => {
 
 export function ShopFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const {
-    data: categories = [],
-    isLoading,
-    isError,
-  } = useShopCategories();
+  const { data: categories = [], isLoading, isError } = useShopCategories();
 
   const categoryOptions = categories.map((c) => ({
     label: c.title,

@@ -103,7 +103,9 @@ describe('EditUser page', () => {
 
     render(<EditUser />);
 
-    expect(screen.getByText(`Navigate:${ROUTES.ADMIN_USERS}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Navigate:${ROUTES.ADMIN_USERS}`),
+    ).toBeInTheDocument();
   });
 
   it('renders a loading state while fetching the user', () => {

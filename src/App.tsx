@@ -10,6 +10,8 @@ import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
 import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
+import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
+import { AdminEditOrder } from './pages/Admin/AdminEditOrder/AdminEditOrder';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { CreateUser } from './pages/Admin/CreateUser/CreateUser';
@@ -46,6 +48,8 @@ function App() {
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
+    ADMIN_ORDER_CREATE,
+    ADMIN_ORDER_EDIT,
     LOGIN,
     REGISTER,
     EMAIL_CONFIRMATION,
@@ -97,6 +101,8 @@ function App() {
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
+            <Route path={ADMIN_ORDER_CREATE} element={<AdminCreateOrder />} />
+            <Route path={ADMIN_ORDER_EDIT} element={<AdminEditOrder />} />
             <Route
               element={
                 <ProtectedRoute

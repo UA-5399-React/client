@@ -70,7 +70,7 @@ export const EditUser = () => {
     return (
       <section className="bg-background min-h-screen px-6 py-10">
         <div className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-white p-6 shadow-[0px_4px_8px_0px_rgba(16,24,40,0.05),0px_2px_4px_0px_rgba(16,24,40,0.05)]">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-red-600">
+          <p className="text-sm font-semibold tracking-[0.08em] text-red-600 uppercase">
             Unable to load user
           </p>
           <p className="mt-2 text-sm text-[#667085]">
