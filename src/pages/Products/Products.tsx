@@ -57,7 +57,7 @@ export const Products = () => {
     normalizeInvalidPageParam();
   }, [normalizeInvalidPageParam]);
 
-  const { data, isLoading, isError } = useProducts(
+  const { data, isLoading, isFetching, isError } = useProducts(
     currentPage,
     limit,
     sort,
@@ -90,9 +90,6 @@ export const Products = () => {
       params.set('page', '1');
     });
   };
-
-  if (isLoading)
-    return <div className="p-8 text-center text-gray-500">Loading...</div>;
 
   if (isError)
     return (
@@ -127,17 +124,23 @@ export const Products = () => {
         </div>
       </div>
 
-      {!data?.items?.length ? (
-        <div className="p-8 text-center text-gray-500">No products found.</div>
-      ) : (
+      {isLoading || isFetching || data?.items?.length ? (
         <>
-          <ProductsGrid products={data.items} viewType={viewType} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={data.totalPages || 1}
-            onPageChange={handlePageChange}
+          <ProductsGrid
+            products={data?.items ?? []}
+            viewType={viewType}
+            isLoading={isLoading || isFetching}
           />
+          {data && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={data.totalPages || 1}
+              onPageChange={handlePageChange}
+            />
+          )}
         </>
+      ) : (
+        <div className="p-8 text-center text-gray-500">No products found.</div>
       )}
     </div>
   );
