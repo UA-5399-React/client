@@ -79,7 +79,7 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
 
   return (
     <div
-      className={`grid gap-4 pb-12 transition-opacity duration-300 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
+      className={`grid gap-4 pb-12 transition-opacity duration-500 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
     >
       {products.map((product) => {
         const key = product._id || product.id;
