@@ -23,7 +23,7 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
     list: 'grid-cols-2',
   }[viewType];
 
-  if (isLoading) {
+  if (isLoading && (!products || products.length === 0)) {
     return (
       <div className="w-full">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
@@ -78,7 +78,9 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <div className={`grid gap-4 pb-12 sm:gap-5 lg:gap-6 ${gridClass}`}>
+    <div
+      className={`grid gap-4 pb-12 transition-opacity duration-300 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
+    >
       {products.map((product) => {
         const key = product._id || product.id;
         return viewType === 'list' ? (
