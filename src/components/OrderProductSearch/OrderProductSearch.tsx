@@ -35,7 +35,6 @@ export function OrderProductSearch({
   const productName = useWatch({
     control,
     name: `items.${index}.productName`,
-    defaultValue: '',
   });
   const [draft, setDraft] = useState<string | null>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
