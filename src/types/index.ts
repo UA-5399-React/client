@@ -4,4 +4,5 @@ export * from './category.types';
 export * from './checkout.types';
 export * from './product.types';
 export * from './table.types';
+export * from './tableOrders.types';
 export * from './user.types';

@@ -32,6 +32,7 @@ export const GET_ORDERS = gql`
           imageUrl
           unitPrice
           amount
+          product
         }
         user {
           email
@@ -72,6 +73,23 @@ export const UPDATE_ORDER_STATUS = gql`
       id
       orderId
       status
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_ORDER_USER_INFO = gql`
+  mutation UpdateOrderUserInfo($input: UpdateOrderUserInput!) {
+    updateOrderUserInfo(input: $input) {
+      id
+      orderId
+      status
+      user {
+        firstName
+        lastName
+        email
+        phone
+      }
       updatedAt
     }
   }

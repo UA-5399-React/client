@@ -76,7 +76,7 @@ export const CreateUser = () => {
       <section className="bg-background min-h-screen px-6 py-10">
         <div className="mx-auto max-w-3xl rounded-lg border border-[#d0d5dd] bg-white p-8 shadow-[0px_4px_8px_0px_rgba(16,24,40,0.05),0px_2px_4px_0px_rgba(16,24,40,0.05)]">
           <div className="mb-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#38cb89]">
+            <p className="text-sm font-semibold tracking-[0.08em] text-[#38cb89] uppercase">
               User created
             </p>
             <h1 className="mt-2 text-3xl font-bold text-[#141718]">
@@ -87,7 +87,7 @@ export const CreateUser = () => {
 
           <div className="space-y-4 rounded-lg border border-[#d0d5dd] bg-[#f9fafb] p-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#667085]">
+              <p className="text-xs font-semibold tracking-[0.08em] text-[#667085] uppercase">
                 Email
               </p>
               <p className="mt-1 text-base font-medium text-[#141718]">
@@ -97,10 +97,10 @@ export const CreateUser = () => {
 
             {createdUser.result.tempPassword && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#667085]">
+                <p className="text-xs font-semibold tracking-[0.08em] text-[#667085] uppercase">
                   Temporary password
                 </p>
-                <p className="mt-1 break-all rounded-md border border-[#d0d5dd] bg-white px-3 py-2 font-mono text-base text-[#141718]">
+                <p className="mt-1 rounded-md border border-[#d0d5dd] bg-white px-3 py-2 font-mono text-base break-all text-[#141718]">
                   {createdUser.result.tempPassword}
                 </p>
               </div>
@@ -110,7 +110,11 @@ export const CreateUser = () => {
           <div className="mt-6 flex justify-end">
             <Button
               type="button"
-              onClick={() => navigate(ROUTES.ADMIN_USERS, { state: { successMessage: 'User created successfully.' } })}
+              onClick={() =>
+                navigate(ROUTES.ADMIN_USERS, {
+                  state: { successMessage: 'User created successfully.' },
+                })
+              }
               className="h-10 rounded-lg bg-[#38cb89] px-4 text-sm font-medium text-white hover:!bg-[#2fb377]"
             >
               Back to Users

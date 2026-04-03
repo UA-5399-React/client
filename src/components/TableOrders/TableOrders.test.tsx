@@ -42,6 +42,7 @@ const orderItem: OrderItem = {
 };
 
 const onStatusChange = vi.fn(async () => {});
+const onEdit = vi.fn();
 
 describe('UI Component: TableOrders', () => {
   beforeEach(() => {
@@ -55,6 +56,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
     expect(screen.getByRole('table')).toBeInTheDocument();
@@ -67,6 +69,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -103,6 +106,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -116,6 +120,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -137,6 +142,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -154,6 +160,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -178,6 +185,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -199,6 +207,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 
@@ -223,6 +232,7 @@ describe('UI Component: TableOrders', () => {
         loading={false}
         error={null}
         onStatusChange={onStatusChange}
+        onEdit={onEdit}
       />,
     );
 

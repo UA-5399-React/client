@@ -30,6 +30,8 @@ export const ROUTES = {
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
   ADMIN_ORDERS: '/admin/orders',
+  ADMIN_ORDER_CREATE: '/admin/orders/create',
+  ADMIN_ORDER_EDIT: '/admin/orders/:id',
   PROFILE: '/profile',
   MYORDERS: '/profile/myOrders',
 } as const;
