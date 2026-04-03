@@ -1,5 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('@/hooks/useAdminProduct', () => ({
+  useAdminProducts: vi.fn(() => ({
+    items: [],
+    loading: false,
+    error: undefined,
+    totalPages: 1,
+    total: 0,
+    page: 1,
+  })),
+}));
+
 import { ORDER_STATUS } from '@/types/tableOrders.types';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
@@ -177,12 +188,12 @@ describe('Component: AdminOrderForm', () => {
       screen.getAllByRole('textbox', { name: 'Search product' }),
     ).toHaveLength(2);
 
-    const removeButton = screen
-      .getAllByRole('button')
-      .find((button) => button.textContent?.trim() === '');
-    expect(removeButton).toBeDefined();
+    const removeButtons = screen.getAllByRole('button', {
+      name: 'Remove product row',
+    });
+    expect(removeButtons.length).toBeGreaterThanOrEqual(1);
 
-    await user.click(removeButton!);
+    await user.click(removeButtons[0]!);
     expect(
       screen.getAllByRole('textbox', { name: 'Search product' }),
     ).toHaveLength(1);

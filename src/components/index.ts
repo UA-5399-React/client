@@ -21,6 +21,7 @@ export { NewArrivals } from './NewArrivals/NewArrivals';
 export { Newsletter } from './Newsletter';
 export { OrderCard } from './OrderCard';
 export { MOCK_ORDERS } from './OrderCard/OrderCard.mock';
+export { OrderProductSearch } from './OrderProductSearch/OrderProductSearch';
 export { OrdersTopWidgets } from './OrdersTopWidgets/OrdersTopWidgets';
 export { OrderTabs } from './OrderTabs/OrderTabs';
 export { Pagination } from './Pagination';
