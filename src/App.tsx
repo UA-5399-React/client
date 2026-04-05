@@ -23,6 +23,7 @@ import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { MyOrders } from './pages/User/MyOrders';
+import { OrderDetails } from './pages/User/OrderDetails';
 import { Profile } from './pages/User/Profile';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
     CART,
     CHECKOUT,
     ORDER_CONFIRMATION,
+    ORDER_DETAIL,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_CATEGORY_ADD,
@@ -67,6 +69,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
             <Route path={MYORDERS} element={<MyOrders />} />
+            <Route path={ORDER_DETAIL} element={<OrderDetails />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
           </Route>
