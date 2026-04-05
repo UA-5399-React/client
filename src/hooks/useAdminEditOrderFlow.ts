@@ -5,22 +5,7 @@ import {
   GET_ORDERS,
   UPDATE_ORDER,
 } from '@/services/graphql/ordersAdminService';
-import type { OrderStatus } from '@/types/tableOrders.types';
-
-export type UpdateOrderLinePayload = {
-  productId: string;
-  amount: number;
-  remove?: boolean;
-};
-
-type UpdateOrderPayload = {
-  status: OrderStatus;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  items: UpdateOrderLinePayload[];
-};
+import type { UpdateOrderPayload } from '@/types/tableOrders.types';
 
 export const useAdminEditOrderFlow = () => {
   const [updateOrderInfo, { loading }] = useMutation(UPDATE_ORDER);
