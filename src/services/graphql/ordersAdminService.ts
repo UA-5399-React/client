@@ -78,23 +78,6 @@ export const UPDATE_ORDER_STATUS = gql`
   }
 `;
 
-export const UPDATE_ORDER_USER_INFO = gql`
-  mutation UpdateOrderUserInfo($input: UpdateOrderUserInput!) {
-    updateOrderUserInfo(input: $input) {
-      id
-      orderId
-      status
-      user {
-        firstName
-        lastName
-        email
-        phone
-      }
-      updatedAt
-    }
-  }
-`;
-
 export const UPDATE_ORDER = gql`
   mutation UpdateOrder($input: UpdateOrderInput!) {
     updateOrder(input: $input) {
