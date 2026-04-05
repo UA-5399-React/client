@@ -9,7 +9,11 @@ import {
 import { AdminOrderForm, Button } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminEditOrderFlow } from '@/hooks';
-import type { OrderFormData, OrderItem } from '@/types/tableOrders.types';
+import {
+  type OrderFormData,
+  type OrderItem,
+  type OrderStatus,
+} from '@/types/tableOrders.types';
 
 type EditOrderLocationState = {
   order?: OrderItem;
@@ -92,7 +96,7 @@ export function AdminEditOrder() {
     customerName: `${order.user.firstName} ${order.user.lastName}`.trim(),
     email: order.user.email || '',
     phone: order.user.phone || '',
-    status: order.status,
+    status: order.status.toLowerCase() as OrderStatus,
     items:
       order.items.length > 0
         ? order.items.map((item) => ({
