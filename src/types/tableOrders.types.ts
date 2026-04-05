@@ -34,6 +34,7 @@ export interface OrderedProduct {
   imageUrl: string;
   unitPrice: number;
   amount: number;
+  product?: string;
 }
 
 export interface OrderUser {
@@ -49,6 +50,7 @@ export interface OrderFormData {
   phone: string;
   status: OrderStatus;
   items: {
+    productId: string;
     productName: string;
     price: string;
     quantity: string;

@@ -32,10 +32,12 @@ vi.mock('@/hooks/useDebouncedValue', () => ({
 }));
 
 function FormWatchSummary({ control }: { control: Control<OrderFormData> }) {
+  const productId = useWatch({ control, name: 'items.0.productId' });
   const productName = useWatch({ control, name: 'items.0.productName' });
   const price = useWatch({ control, name: 'items.0.price' });
   return (
     <>
+      <span data-testid="form-product-id">{productId}</span>
       <span data-testid="form-product-name">{productName}</span>
       <span data-testid="form-price">{price}</span>
     </>
@@ -88,7 +90,14 @@ describe('Component: OrderProductSearch', () => {
   it('renders label and shows product name from form default values', () => {
     render(
       <TestHarness
-        items={[{ productName: 'Widget Pro', price: '19.99', quantity: '1' }]}
+        items={[
+          {
+            productId: 'p-pro',
+            productName: 'Widget Pro',
+            price: '19.99',
+            quantity: '1',
+          },
+        ]}
       />,
     );
 
@@ -100,7 +109,9 @@ describe('Component: OrderProductSearch', () => {
 
   it('shows empty input when product name is not set', () => {
     render(
-      <TestHarness items={[{ productName: '', price: '', quantity: '1' }]} />,
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+      />,
     );
 
     expect(screen.getByRole('textbox', { name: 'Search product' })).toHaveValue(
@@ -111,7 +122,7 @@ describe('Component: OrderProductSearch', () => {
   it('renders error message when error prop is passed', () => {
     render(
       <TestHarness
-        items={[{ productName: '', price: '', quantity: '1' }]}
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
         error="Pick a product"
       />,
     );
@@ -126,7 +137,9 @@ describe('Component: OrderProductSearch', () => {
     const user = userEvent.setup();
 
     render(
-      <TestHarness items={[{ productName: '', price: '', quantity: '1' }]} />,
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+      />,
     );
 
     await user.click(screen.getByRole('textbox', { name: 'Search product' }));
@@ -149,7 +162,9 @@ describe('Component: OrderProductSearch', () => {
 
     const user = userEvent.setup();
     render(
-      <TestHarness items={[{ productName: '', price: '', quantity: '1' }]} />,
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+      />,
     );
 
     await user.click(screen.getByRole('textbox', { name: 'Search product' }));
@@ -169,12 +184,15 @@ describe('Component: OrderProductSearch', () => {
 
     const user = userEvent.setup();
     render(
-      <TestHarness items={[{ productName: '', price: '', quantity: '1' }]} />,
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+      />,
     );
 
     await user.click(screen.getByRole('textbox', { name: 'Search product' }));
     await user.click(screen.getByRole('option', { name: /Ceramic Mug/i }));
 
+    expect(screen.getByTestId('form-product-id')).toHaveTextContent('p1');
     expect(screen.getByTestId('form-product-name')).toHaveTextContent(
       'Ceramic Mug',
     );
@@ -191,7 +209,14 @@ describe('Component: OrderProductSearch', () => {
     const user = userEvent.setup();
     render(
       <TestHarness
-        items={[{ productName: 'Widget', price: '10', quantity: '1' }]}
+        items={[
+          {
+            productId: 'w1',
+            productName: 'Widget',
+            price: '10',
+            quantity: '1',
+          },
+        ]}
       />,
     );
 
@@ -200,6 +225,7 @@ describe('Component: OrderProductSearch', () => {
     await user.type(input, 'x');
 
     await waitFor(() => {
+      expect(screen.getByTestId('form-product-id')).toHaveTextContent('');
       expect(screen.getByTestId('form-product-name')).toHaveTextContent('');
       expect(screen.getByTestId('form-price')).toHaveTextContent('');
     });
@@ -208,7 +234,9 @@ describe('Component: OrderProductSearch', () => {
   it('passes trimmed search text to useAdminProducts', async () => {
     const user = userEvent.setup();
     render(
-      <TestHarness items={[{ productName: '', price: '', quantity: '1' }]} />,
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+      />,
     );
 
     await user.type(
@@ -226,7 +254,9 @@ describe('Component: OrderProductSearch', () => {
   it('disables the search input when disabled is true', () => {
     render(
       <TestHarness
-        items={[{ productName: 'A', price: '1', quantity: '1' }]}
+        items={[
+          { productId: 'a1', productName: 'A', price: '1', quantity: '1' },
+        ]}
         disabled
       />,
     );

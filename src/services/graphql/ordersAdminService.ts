@@ -95,6 +95,33 @@ export const UPDATE_ORDER_USER_INFO = gql`
   }
 `;
 
+export const UPDATE_ORDER = gql`
+  mutation UpdateOrder($input: UpdateOrderInput!) {
+    updateOrder(input: $input) {
+      id
+      orderId
+      status
+      totalPrice
+      updatedAt
+      user {
+        email
+        firstName
+        lastName
+        phone
+      }
+      shippingAddress {
+        city
+        carrier
+        branchNumber
+      }
+      items {
+        product
+        amount
+      }
+    }
+  }
+`;
+
 export const DELETE_ORDER = gql`
   mutation DeleteOrder($orderId: String!) {
     deleteOrder(orderId: $orderId)

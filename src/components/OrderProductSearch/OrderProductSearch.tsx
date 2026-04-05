@@ -54,12 +54,21 @@ export function OrderProductSearch({
     }
     const name = getValues(`items.${index}.productName`);
     if (name && value.trim() !== name.trim()) {
+      setValue(`items.${index}.productId`, '', { shouldValidate: true });
       setValue(`items.${index}.productName`, '', { shouldValidate: true });
       setValue(`items.${index}.price`, '', { shouldValidate: true });
     }
   };
 
-  const handleSelectProduct = (title: string, price: number) => {
+  const handleSelectProduct = (
+    productId: string,
+    title: string,
+    price: number,
+  ) => {
+    setValue(`items.${index}.productId`, productId, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
     setValue(`items.${index}.productName`, title, {
       shouldValidate: true,
       shouldDirty: true,
@@ -122,7 +131,11 @@ export function OrderProductSearch({
                   role="option"
                   disabled={disabled}
                   onClick={() =>
-                    handleSelectProduct(product.title, product.price)
+                    handleSelectProduct(
+                      product.id,
+                      product.title,
+                      product.price,
+                    )
                   }
                   className="flex w-full flex-col items-start gap-0.5 border-b border-gray-100 px-3 py-2.5 text-left text-sm last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                 >

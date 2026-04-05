@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
   Navigate,
   useLocation,
@@ -15,18 +15,59 @@ type EditOrderLocationState = {
   order?: OrderItem;
 };
 
+const splitCustomerName = (fullName: string) => {
+  const normalized = fullName.trim().replace(/\s+/g, ' ');
+  const [firstName = '', ...lastNameParts] = normalized.split(' ');
+
+  return {
+    firstName,
+    lastName: lastNameParts.join(' ').trim(),
+  };
+};
+
+const buildRemovedLineItems = (
+  initialLines: { productId: string; amount: number }[],
+  currentLines: { productId: string; amount: number }[],
+): { productId: string; amount: number; remove: true }[] => {
+  const pool = [...currentLines];
+  const removals: { productId: string; amount: number; remove: true }[] = [];
+
+  for (const line of initialLines) {
+    if (!line.productId) continue;
+    const idx = pool.findIndex((c) => c.productId === line.productId);
+    if (idx >= 0) {
+      pool.splice(idx, 1);
+    } else {
+      removals.push({
+        productId: line.productId,
+        amount: line.amount,
+        remove: true,
+      });
+    }
+  }
+
+  return removals;
+};
+
 export function AdminEditOrder() {
   const { id } = useParams<{ id: string }>();
-  const { state } = useLocation() as {
-    state: EditOrderLocationState | null | undefined;
-  };
+  const { state } = useLocation() as { state: EditOrderLocationState | null };
   const navigate = useNavigate();
-  const { updateUserInfo, isUpdatingUserInfo } = useAdminEditOrderFlow();
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
+  const { updateOrder, isUpdateOrderInfo } = useAdminEditOrderFlow();
 
   const order = state?.order;
+
+  const initialOrderLines = useMemo(() => {
+    if (!order?.items?.length) return [];
+    return order.items
+      .map((item) => ({
+        productId: item.product as string,
+        amount: item.amount,
+      }))
+      .filter((line) => line.productId.length > 0);
+  }, [order]);
+
+  if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
 
   if (!order) {
     return (
@@ -55,40 +96,56 @@ export function AdminEditOrder() {
     items:
       order.items.length > 0
         ? order.items.map((item) => ({
+            productId: (item.product as string) || '',
             productName: item.title,
             price: String(item.unitPrice),
             quantity: String(item.amount),
           }))
-        : [{ productName: '', price: '', quantity: '1' }],
+        : [{ productId: '', productName: '', price: '', quantity: '1' }],
   };
 
   const handleSubmit = async (formData: OrderFormData) => {
-    setSubmitError(null);
+    const { firstName, lastName } = splitCustomerName(formData.customerName);
+
+    const currentLines = formData.items
+      .filter((item) => item.productId.trim().length > 0)
+      .map((item) => ({
+        productId: item.productId,
+        amount: Number(item.quantity),
+      }));
+
+    const lineUpdates = formData.items.map((item) => ({
+      productId: item.productId,
+      amount: Number(item.quantity),
+    }));
+
+    const removedLines = buildRemovedLineItems(initialOrderLines, currentLines);
+
     try {
-      await updateUserInfo(id, {
-        customerName: formData.customerName,
+      await updateOrder(id, {
+        status: formData.status,
+        firstName,
+        lastName,
         email: formData.email,
         phone: formData.phone,
+        items: [...lineUpdates, ...removedLines],
       });
+
       navigate(ROUTES.ADMIN_ORDERS);
-    } catch {
-      setSubmitError('Failed to update order. Please try again.');
+    } catch (error) {
+      console.error('Failed to update order:', error);
+      throw error;
     }
   };
 
   return (
     <div>
-      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center gap-4 p-6">
-        {submitError && (
-          <p className="w-full max-w-4xl text-center text-sm font-medium text-red-500">
-            {submitError}
-          </p>
-        )}
+      <div className="mx-auto flex h-screen max-w-4xl items-center justify-center p-6">
         <AdminOrderForm
           initialData={initialData}
           onSubmit={handleSubmit}
           onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
-          isLoading={isUpdatingUserInfo}
+          isLoading={isUpdateOrderInfo}
           isEditMode={true}
           updatedAt={order.updatedAt}
         />

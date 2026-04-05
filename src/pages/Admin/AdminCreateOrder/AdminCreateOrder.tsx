@@ -15,6 +15,7 @@ export function AdminCreateOrder() {
       phone: formData.phone,
       status: formData.status,
       items: formData.items.map((item) => ({
+        productId: item.productId,
         productName: item.productName,
         price: Number(item.price),
         quantity: Number(item.quantity),

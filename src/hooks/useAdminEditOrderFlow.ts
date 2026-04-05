@@ -3,47 +3,50 @@ import { useMutation } from '@apollo/client/react';
 import { ORDERS_QUERY } from '@/constants/adminOrder';
 import {
   GET_ORDERS,
-  UPDATE_ORDER_USER_INFO,
+  UPDATE_ORDER,
 } from '@/services/graphql/ordersAdminService';
+import type { OrderStatus } from '@/types/tableOrders.types';
 
-type UpdateOrderUserPayload = {
-  customerName: string;
-  email: string;
-  phone: string;
+export type UpdateOrderLinePayload = {
+  productId: string;
+  amount: number;
+  remove?: boolean;
 };
 
-const splitCustomerName = (fullName: string) => {
-  const normalized = fullName.trim().replace(/\s+/g, ' ');
-  const [firstName = '', ...lastNameParts] = normalized.split(' ');
-
-  return {
-    firstName,
-    lastName: lastNameParts.join(' ').trim(),
-  };
+type UpdateOrderPayload = {
+  status: OrderStatus;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  items: UpdateOrderLinePayload[];
 };
 
 export const useAdminEditOrderFlow = () => {
-  const [updateOrderUserInfo, { loading }] = useMutation(
-    UPDATE_ORDER_USER_INFO,
-  );
+  const [updateOrderInfo, { loading }] = useMutation(UPDATE_ORDER);
 
-  const updateUserInfo = async (
-    orderId: string,
-    payload: UpdateOrderUserPayload,
-  ) => {
-    const { firstName, lastName } = splitCustomerName(payload.customerName);
-
+  const updateOrder = async (orderId: string, payload: UpdateOrderPayload) => {
     try {
-      await updateOrderUserInfo({
+      await updateOrderInfo({
         variables: {
           input: {
             orderId,
+            status: payload.status.toUpperCase(),
             user: {
-              firstName,
-              lastName,
+              firstName: payload.firstName,
+              lastName: payload.lastName,
               email: payload.email,
               phone: payload.phone,
             },
+            items: payload.items.map((item) =>
+              item.remove
+                ? {
+                    productId: item.productId,
+                    amount: item.amount,
+                    remove: true,
+                  }
+                : { productId: item.productId, amount: item.amount },
+            ),
           },
         },
         refetchQueries: [
@@ -55,13 +58,13 @@ export const useAdminEditOrderFlow = () => {
         awaitRefetchQueries: true,
       });
     } catch (error) {
-      console.error('Failed to update order user info:', error);
+      console.error('Failed to update order:', error);
       throw error;
     }
   };
 
   return {
-    updateUserInfo,
-    isUpdatingUserInfo: loading,
+    updateOrder,
+    isUpdateOrderInfo: loading,
   };
 };

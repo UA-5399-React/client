@@ -52,7 +52,7 @@ export function AdminOrderForm({
       items:
         initialData?.items && initialData.items.length > 0
           ? initialData.items
-          : [{ productName: '', price: '', quantity: '1' }],
+          : [{ productId: '', productName: '', price: '', quantity: '1' }],
     },
   });
 
@@ -161,7 +161,6 @@ export function AdminOrderForm({
                   disabled={isDisabled}
                   error={errors.items?.[index]?.productName?.message}
                 />
-
                 <Controller
                   control={control}
                   name={`items.${index}.price`}
@@ -221,7 +220,12 @@ export function AdminOrderForm({
             <Button
               type="button"
               onClick={() =>
-                append({ productName: '', price: '', quantity: '1' })
+                append({
+                  productId: '',
+                  productName: '',
+                  price: '',
+                  quantity: '1',
+                })
               }
               disabled={isDisabled}
               className="text-neutral-0 w-full rounded-md border border-gray-300 bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"

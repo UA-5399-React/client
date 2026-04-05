@@ -22,7 +22,14 @@ describe('Component: AdminOrderForm', () => {
     email: 'john@example.com',
     phone: '+380991112233',
     status: ORDER_STATUS.NEW,
-    items: [{ productName: 'Widget', price: '10', quantity: '2' }],
+    items: [
+      {
+        productId: 'prod-widget',
+        productName: 'Widget',
+        price: '10',
+        quantity: '2',
+      },
+    ],
   };
 
   it('renders required fields and default controls', () => {
@@ -84,7 +91,9 @@ describe('Component: AdminOrderForm', () => {
       phone: '+380991112233',
       status: ORDER_STATUS.NEW,
       // Disabled price input is excluded from submit payload by react-hook-form.
-      items: [{ productName: 'Widget', quantity: '2' }],
+      items: [
+        { productId: 'prod-widget', productName: 'Widget', quantity: '2' },
+      ],
     });
   });
 
