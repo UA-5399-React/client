@@ -5,11 +5,11 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   use: {
     headless: true,
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:4173',
   },
   webServer: {
-    command: 'pnpm run dev',
-    url: 'http://localhost:5173',
+    command: 'pnpm run build && pnpm run preview -- --host 0.0.0.0 --port 5173',
+    url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
