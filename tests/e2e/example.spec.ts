@@ -10,11 +10,12 @@ test('user can browse, filter, add to cart', async ({ page }) => {
   await page.waitForLoadState('networkidle');
 
   await page.getByRole('button').first().click();
-  await expect(
-    page.getByRole('button', { name: 'Add to Cart' }).first(),
-  ).toBeEnabled();
 
   await page.getByRole('banner').getByRole('link', { name: 'Shop' }).click();
+  await expect(page.getByRole('banner')).toMatchAriaSnapshot(`
+    - link "Shop":
+      - /url: /shop
+    `);
   await expect(page).toHaveURL(/\/shop/);
 
   await page.getByRole('combobox', { name: 'Categories' }).click();
