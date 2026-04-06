@@ -100,7 +100,8 @@ jobs:
       - name: Run Playwright tests
         run: 
           VITE_API_URL=https://server-woad-seven-83.vercel.app
-          pnpm run test:e2e
+          pnpm run build
+          npx playwright test --reporter=list
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

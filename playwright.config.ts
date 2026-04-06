@@ -5,12 +5,14 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   use: {
     headless: true,
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4173', // frontend preview
+    actionTimeout: 20_000,
+    navigationTimeout: 30_000,
   },
   webServer: {
-    command: 'pnpm run build && pnpm run preview -- --host 0.0.0.0 --port 5173',
+    command: 'pnpm run preview --port 4173',
     url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
