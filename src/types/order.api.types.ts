@@ -6,7 +6,7 @@ export type ApiOrderStatus =
   | 'cancelled';
 
 export interface ApiOrderItem {
-  product: object;
+  product: string;
   title: string;
   imageUrl: string;
   unitPrice: number;
@@ -41,6 +41,8 @@ export interface ApiMyOrder {
   shippingAddress: ApiShippingAddress;
   status: ApiOrderStatus;
   user: ApiOrderUser;
+  updatedAt?: string;
+  completedAt?: string;
   payment: ApiOrderPayment;
   message?: string;
   createdAt?: string;
