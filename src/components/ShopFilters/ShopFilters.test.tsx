@@ -25,7 +25,9 @@ vi.mock('@/components/Dropdown', () => ({
     <div>
       <div data-testid="category-placeholder">{placeholder}</div>
       <div data-testid="category-disabled">{String(Boolean(disabled))}</div>
-      <div data-testid="category-selected">{selectedValues?.join(',') ?? ''}</div>
+      <div data-testid="category-selected">
+        {selectedValues?.join(',') ?? ''}
+      </div>
       <button type="button" onClick={() => onChange(options.slice(0, 2))}>
         Select categories
       </button>

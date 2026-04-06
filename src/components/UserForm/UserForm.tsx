@@ -51,7 +51,9 @@ const buttonBaseClasses =
   '!inline-flex !h-9 !items-center !justify-center !rounded-lg !px-[14px] !py-2 !text-sm !font-medium !leading-5 !shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)]';
 
 const getDefaultValues = (initialData?: AdminUserDetails): UserFormData => ({
-  name: [initialData?.firstName, initialData?.lastName].filter(Boolean).join(' '),
+  name: [initialData?.firstName, initialData?.lastName]
+    .filter(Boolean)
+    .join(' '),
   email: initialData?.email ?? '',
   password: '',
   role:
@@ -169,7 +171,7 @@ export const UserForm = ({
             type="button"
             disabled={isDisabled}
             onClick={() => fileInputRef.current?.click()}
-            className="!inline-flex !h-9 !items-center !justify-center !rounded-[5px] !border !border-[#38cb89] !bg-transparent !px-5 !py-2.5 !text-base !font-medium !leading-[22px] !text-[#38cb89] hover:!border-[#2fb377] hover:!bg-[#ecfdf3] disabled:cursor-not-allowed disabled:opacity-50"
+            className="!inline-flex !h-9 !items-center !justify-center !rounded-[5px] !border !border-[#38cb89] !bg-transparent !px-5 !py-2.5 !text-base !leading-[22px] !font-medium !text-[#38cb89] hover:!border-[#2fb377] hover:!bg-[#ecfdf3] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Choose File
           </Button>

@@ -1,3 +1,4 @@
+import type React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -5,6 +6,26 @@ import { describe, expect, it, vi } from 'vitest';
 import { ROUTES } from '@/constants';
 
 import { AccountSidebar } from './AccountSidebar';
+
+vi.mock('@/components/Dropdown', () => ({
+  Dropdown: ({
+    selectedValues,
+    onChange,
+  }: {
+    selectedValues?: string[];
+    onChange: (selected: Array<{ label: string; value: string }>) => void;
+  }) => (
+    <div>
+      <div data-testid="dropdown-value">{selectedValues?.[0] ?? ''}</div>
+      <button
+        type="button"
+        onClick={() => onChange([{ label: 'Orders', value: ROUTES.MYORDERS }])}
+      >
+        Mock dropdown change
+      </button>
+    </div>
+  ),
+}));
 
 const mockUser = {
   id: '1',
@@ -115,18 +136,18 @@ describe('AccountSidebar', () => {
     renderComponent({ isAvatarUploading: true });
 
     const buttons = screen.getAllByRole('button');
-    const uploadButton = buttons.find(
-      (button) => button !== screen.getByText('Log Out'),
-    );
+    const uploadButton = buttons[0];
 
     expect(uploadButton).toBeDisabled();
   });
 
-  it('calls onLogout when logout button is clicked', () => {
+  it('calls onLogout when any logout button is clicked', () => {
     const onLogout = vi.fn();
     renderComponent({ onLogout });
 
-    fireEvent.click(screen.getByRole('button', { name: /log out/i }));
+    const logoutButtons = screen.getAllByRole('button', { name: /log out/i });
+
+    fireEvent.click(logoutButtons[0]);
 
     expect(onLogout).toHaveBeenCalledTimes(1);
   });
@@ -159,7 +180,7 @@ describe('AccountSidebar', () => {
     expect(ordersLink.className).toContain('text-muted');
   });
 
-  it('marks orders link as active on /my-orders route', () => {
+  it('marks orders link as active on orders route', () => {
     renderComponent(undefined, [ROUTES.MYORDERS]);
 
     const accountLink = screen.getByRole('link', { name: 'Account' });
@@ -170,5 +191,13 @@ describe('AccountSidebar', () => {
 
     expect(accountLink.className).toContain('border-transparent');
     expect(accountLink.className).toContain('text-muted');
+  });
+
+  it('passes current route to mobile dropdown', () => {
+    renderComponent(undefined, [ROUTES.MYORDERS]);
+
+    expect(screen.getByTestId('dropdown-value')).toHaveTextContent(
+      ROUTES.MYORDERS,
+    );
   });
 });

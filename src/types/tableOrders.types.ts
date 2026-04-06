@@ -26,6 +26,7 @@ export interface OrderItem {
   totalPrice: number;
   status: OrderStatus;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface OrderedProduct {
@@ -42,6 +43,17 @@ export interface OrderUser {
   phone: string;
 }
 
+export interface OrderFormData {
+  customerName: string;
+  email: string;
+  phone: string;
+  status: OrderStatus;
+  items: {
+    productName: string;
+    price: string;
+    quantity: string;
+  }[];
+}
 export interface OrdersPage {
   total: number;
   totalPages: number;

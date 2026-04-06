@@ -2,15 +2,15 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { AlertCircle, Minus, Pencil, Plus, Trash } from 'lucide-react';
 
+import { ActionMenu } from '@/components';
 import { useTheme } from '@/hooks/useTheme';
 import type { Category } from '@/types';
-
-import { Button } from '../Button';
 
 interface TableCategoriesProps {
   items: Category[];
   loading: boolean;
   error?: Error | null;
+  autoExpandedIds?: string[];
   deletingId?: string | null;
   onDelete: (category: Category) => void;
   onEdit: (category: Category) => void;
@@ -115,24 +115,28 @@ function CategoryRow({
       <td className="text-center">{formatCategoryDate(category.createdAt)}</td>
       <td className="text-center">{formatCategoryDate(category.updatedAt)}</td>
       <td className="text-center">
-        <Button
-          aria-label={`Delete ${category.title}`}
-          className="bg-transparent text-[#DB162D] hover:bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
-          type="button"
-          disabled={isDeleteDisabled}
-          onClick={() => onDelete(category)}
-          title={deleteButtonTitle}
-        >
-          <Trash className="h-[20px] w-[20px]" />
-        </Button>
-        <Button
-          aria-label={`Edit ${category.title}`}
-          className="bg-transparent text-gray-500 hover:bg-transparent hover:text-black"
-          type="button"
-          onClick={() => onEdit(category)}
-        >
-          <Pencil className="h-[20px] w-[20px]" />
-        </Button>
+        <div className="flex justify-end pr-2">
+          <ActionMenu
+            triggerAriaLabel={`Actions for ${category.title}`}
+            actions={[
+              {
+                id: 'edit',
+                label: 'Edit',
+                icon: <Pencil className="h-[20px] w-[20px]" />,
+                onClick: () => onEdit(category),
+              },
+              {
+                id: 'delete',
+                label: 'Delete',
+                icon: <Trash className="h-[20px] w-[20px]" />,
+                onClick: () => onDelete(category),
+                variant: 'danger',
+                disabled: isDeleteDisabled,
+                title: deleteButtonTitle,
+              },
+            ]}
+          />
+        </div>
       </td>
     </tr>
   );
@@ -143,6 +147,7 @@ function TableCategoriesContent({
   loading,
   error,
   isDark,
+  autoExpandedIds,
   deletingId,
   onDelete,
   onEdit,
@@ -151,11 +156,15 @@ function TableCategoriesContent({
   loading: boolean;
   error: Error | null;
   isDark: boolean;
+  autoExpandedIds?: string[];
   deletingId?: string | null;
   onDelete: (category: Category) => void;
   onEdit: (category: Category) => void;
 }) {
-  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const resolvedAutoExpandedIds = autoExpandedIds ?? [];
+  const [expandedIds, setExpandedIds] = useState<string[]>(
+    resolvedAutoExpandedIds,
+  );
 
   if (loading) {
     return (
@@ -273,11 +282,13 @@ export function TableCategories({
   items,
   loading,
   error,
+  autoExpandedIds,
   deletingId,
   onDelete,
   onEdit,
 }: TableCategoriesProps) {
   const { isDark } = useTheme();
+  const autoExpandedIdsSignature = (autoExpandedIds ?? []).join('|');
 
   return (
     <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
@@ -297,10 +308,12 @@ export function TableCategories({
 
         <tbody>
           <TableCategoriesContent
+            key={autoExpandedIdsSignature}
             items={items}
             loading={loading}
             error={error ?? null}
             isDark={isDark}
+            autoExpandedIds={autoExpandedIds}
             deletingId={deletingId}
             onDelete={onDelete}
             onEdit={onEdit}

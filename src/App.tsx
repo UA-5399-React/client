@@ -8,8 +8,11 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
+import { useRestoreAuthSession } from './hooks/useRestoreAuthSession';
 import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
+import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
+import { AdminEditOrder } from './pages/Admin/AdminEditOrder/AdminEditOrder';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { CreateUser } from './pages/Admin/CreateUser/CreateUser';
@@ -26,6 +29,7 @@ import { MyOrders } from './pages/User/MyOrders';
 import { Profile } from './pages/User/Profile';
 
 function App() {
+  const isAuthReady = useRestoreAuthSession();
   useCartSync();
   const {
     HOME,
@@ -46,6 +50,8 @@ function App() {
     ADMIN_SETTING,
     ADMIN_PRODUCT_CREATE,
     ADMIN_PRODUCT_EDIT,
+    ADMIN_ORDER_CREATE,
+    ADMIN_ORDER_EDIT,
     LOGIN,
     REGISTER,
     EMAIL_CONFIRMATION,
@@ -53,6 +59,10 @@ function App() {
     PROFILE,
     MYORDERS,
   } = ROUTES;
+
+  if (!isAuthReady) {
+    return null;
+  }
 
   return (
     <BrowserRouter>
@@ -97,6 +107,8 @@ function App() {
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
+            <Route path={ADMIN_ORDER_CREATE} element={<AdminCreateOrder />} />
+            <Route path={ADMIN_ORDER_EDIT} element={<AdminEditOrder />} />
             <Route
               element={
                 <ProtectedRoute

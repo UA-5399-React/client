@@ -18,54 +18,62 @@ export function AccountDetailsForm({
   errors,
 }: AccountDetailsFormProps) {
   return (
-    <section>
+    <section className="px-7 lg:px-0">
       <h2 className="text-text mt-0 mb-6 text-[20px] font-semibold">
         Account Details
       </h2>
 
       <div className="space-y-6">
-        <Controller
-          name="firstName"
-          control={control}
-          render={({ field }) => (
-            <AccountInput
-              label="First name"
-              placeholder="First name"
-              value={field.value ?? ''}
-              onChange={field.onChange}
-            />
-          )}
-        />
+        <div className="w-[280px] lg:w-[675px]">
+          <Controller
+            name="firstName"
+            control={control}
+            render={({ field }) => (
+              <AccountInput
+                label="First name"
+                placeholder="First name"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+
         {errors.firstName?.message ? (
           <p className="text-sm text-red-600">
             {String(errors.firstName.message)}
           </p>
         ) : null}
 
-        <Controller
-          name="lastName"
-          control={control}
-          render={({ field }) => (
-            <AccountInput
-              label="Last name"
-              placeholder="Last name"
-              value={field.value ?? ''}
-              onChange={field.onChange}
-            />
-          )}
-        />
+        <div className="w-[280px] lg:w-[675px]">
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field }) => (
+              <AccountInput
+                label="Last name"
+                placeholder="Last name"
+                value={field.value ?? ''}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+
         {errors.lastName?.message ? (
           <p className="text-sm text-red-600">
             {String(errors.lastName.message)}
           </p>
         ) : null}
 
-        <AccountInput
-          label="Email"
-          type="email"
-          value={user.email ?? ''}
-          disabled
-        />
+        <div className="w-[280px] lg:w-[675px]">
+          <AccountInput
+            label="Email"
+            type="email"
+            value={user.email ?? ''}
+            disabled
+          />
+        </div>
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronLeft } from 'lucide-react';
 
 import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
@@ -10,9 +11,10 @@ import {
   type ProfileFormValues,
   profileSchema,
 } from '@/schemas/profile.schema';
-import { UnauthorizedError, usersService } from '@/services/users.service';
+import { usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 import { clearAuthStorage } from '@/utils/auth-storage';
+import { EMPTY_FORM_VALUES, getFormValuesFromUser } from '@/utils/profile-form';
 
 export function Profile() {
   const navigate = useNavigate();
@@ -33,52 +35,30 @@ export function Profile() {
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      oldPassword: '',
-      newPassword: '',
-      repeatPassword: '',
-    },
+    defaultValues: EMPTY_FORM_VALUES,
   });
 
-  const handleUnauthorized = () => {
+  const handleUnauthorized = useCallback(() => {
     clearAuthStorage();
     setUser(null);
     setPageError('');
     setSubmitError('');
     setSuccessMessage('');
-
-    reset({
-      firstName: '',
-      lastName: '',
-      oldPassword: '',
-      newPassword: '',
-      repeatPassword: '',
-    });
-
+    reset(EMPTY_FORM_VALUES);
     navigate(ROUTES.LOGIN, { replace: true });
-  };
+  }, [navigate, reset]);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await usersService.getMe();
         setUser(currentUser);
-
-        reset({
-          firstName: currentUser.firstName ?? '',
-          lastName: currentUser.lastName ?? '',
-          oldPassword: '',
-          newPassword: '',
-          repeatPassword: '',
-        });
+        reset(getFormValuesFromUser(currentUser));
       } catch (err) {
-        if (err instanceof UnauthorizedError) {
+        if (err instanceof Error && err.message.includes('401')) {
           handleUnauthorized();
           return;
         }
-
         setPageError(
           err instanceof Error ? err.message : 'Failed to load profile',
         );
@@ -88,11 +68,28 @@ export function Profile() {
     };
 
     void loadUser();
-  }, [navigate, reset, handleUnauthorized]);
+  }, [reset, handleUnauthorized]);
+
+  // Autoclear success messages
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
+  // Autoclear error messages
+  useEffect(() => {
+    if (!submitError) return;
+    const timer = setTimeout(() => {
+      setSubmitError('');
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [submitError]);
 
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
-
     try {
       setIsAvatarUploading(true);
       setSubmitError('');
@@ -113,7 +110,7 @@ export function Profile() {
       setUser(updatedUser);
       setSuccessMessage('Avatar updated successfully');
     } catch (err) {
-      if (err instanceof UnauthorizedError) {
+      if (err instanceof Error && err.message.includes('401')) {
         handleUnauthorized();
         return;
       }
@@ -169,13 +166,7 @@ export function Profile() {
         });
       }
 
-      reset({
-        firstName: updatedUser.firstName ?? normalizedFirstName,
-        lastName: updatedUser.lastName ?? normalizedLastName,
-        oldPassword: '',
-        newPassword: '',
-        repeatPassword: '',
-      });
+      reset(getFormValuesFromUser(updatedUser));
 
       if (profileChanged && hasAnyPasswordValue) {
         setSuccessMessage('Profile and password updated successfully');
@@ -185,7 +176,7 @@ export function Profile() {
         setSuccessMessage('Password updated successfully');
       }
     } catch (err) {
-      if (err instanceof UnauthorizedError) {
+      if (err instanceof Error && err.message.includes('401')) {
         handleUnauthorized();
         return;
       }
@@ -203,6 +194,10 @@ export function Profile() {
     navigate(ROUTES.HOME, { replace: true });
   };
 
+  const handleCancel = () => {
+    reset(); // react-hook-form
+  };
+
   if (isLoading) {
     return <div className="bg-background text-text p-10">Loading...</div>;
   }
@@ -216,13 +211,22 @@ export function Profile() {
   }
 
   return (
-    <section className="bg-background text-text min-h-screen px-4 md:px-8 lg:px-40">
-      <h1 className="text-text mt-10 mb-16 text-center text-[54px] leading-none font-semibold">
+    <section className="bg-background text-text min-h-screen px-8 lg:px-40">
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="text-muted mt-4 mb-6 flex items-center gap-2 border-none bg-transparent text-[16px] font-medium transition md:hidden"
+      >
+        <ChevronLeft size={20} />
+        back
+      </button>
+
+      <h1 className="text-text mt-10 mb-16 text-center text-[40px] leading-none font-semibold md:text-[54px]">
         My Account
       </h1>
 
       <div className="mx-auto max-w-[1180px]">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
+        <div className="grid grid-cols-1 justify-items-center gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:items-start md:justify-items-stretch">
           <AccountSidebar
             user={user}
             onAvatarClick={handleAvatarUpload}
@@ -230,7 +234,7 @@ export function Profile() {
             isAvatarUploading={isAvatarUploading}
           />
 
-          <div className="max-w-[760px] px-[72px]">
+          <div className="w-full max-w-[760px] px-5 md:px-8 lg:px-[72px]">
             <form onSubmit={handleSubmit(onSubmit)}>
               <AccountDetailsForm
                 user={user}
@@ -240,13 +244,23 @@ export function Profile() {
 
               <PasswordForm control={control} errors={errors} />
 
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="bg-text text-background mt-6 h-[44px] min-w-[90px] cursor-pointer rounded-md px-6 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
-              >
-                {isSaving ? 'Saving...' : 'Save changes'}
-              </button>
+              <div className="mt-6 flex flex-col gap-6 px-5 md:flex-row md:items-center lg:px-0">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="bg-text text-background h-[44px] w-[183px] cursor-pointer rounded-md px-6 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Save changes'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-text border-text hover:bg-backgroundSec h-[44px] w-[131px] rounded-md border-2 bg-transparent text-sm font-medium transition md:hidden"
+                >
+                  Cancel
+                </button>
+              </div>
 
               {submitError && (
                 <p className="mt-3 text-sm text-red-600">{submitError}</p>
