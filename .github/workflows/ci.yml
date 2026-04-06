@@ -64,6 +64,9 @@ jobs:
       VITE_API_BASE_URL: https://server-woad-seven-83.vercel.app
 
     steps:
+      - name: Debug env
+        run: echo "API URL is $VITE_API_URL"
+
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
