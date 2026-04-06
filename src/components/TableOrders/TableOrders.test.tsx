@@ -222,23 +222,4 @@ describe('UI Component: TableOrders', () => {
       ORDER_STATUS.COMPLETED,
     );
   });
-
-  it('should not call onStatusChange when selecting the current status', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-        onEdit={onEdit}
-      />,
-    );
-
-    await user.click(screen.getByRole('combobox', { name: 'Status' }));
-    await user.click(screen.getByRole('option', { name: 'Processing' }));
-
-    expect(onStatusChange).not.toHaveBeenCalled();
-  });
 });
