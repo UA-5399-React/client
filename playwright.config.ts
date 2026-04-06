@@ -10,7 +10,7 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
   webServer: {
-    command: 'pnpm run preview --port 5173',
+    command: 'pnpm run dev --port 5173',
     url: 'http://localhost:5173',
     reuseExistingServer: false,
     timeout: 120_000,
