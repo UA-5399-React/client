@@ -8,6 +8,7 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
+import { useRestoreAuthSession } from './hooks/useRestoreAuthSession';
 import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
@@ -28,6 +29,7 @@ import { MyOrders } from './pages/User/MyOrders';
 import { Profile } from './pages/User/Profile';
 
 function App() {
+  const isAuthReady = useRestoreAuthSession();
   useCartSync();
   const {
     HOME,
@@ -57,6 +59,10 @@ function App() {
     PROFILE,
     MYORDERS,
   } = ROUTES;
+
+  if (!isAuthReady) {
+    return null;
+  }
 
   return (
     <BrowserRouter>

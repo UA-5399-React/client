@@ -54,6 +54,23 @@ export const MOCK_AUTH = {
   MOCK_TOKEN: 'mock-jwt-token',
 };
 
+export const AUTH_ENDPOINTS = {
+  GOOGLE: '/auth/google',
+  LOGIN: '/auth/login',
+  REGISTER: '/auth/register',
+  CONFIRM_EMAIL: '/auth/confirm-email',
+  ME: '/auth/me',
+  LOGOUT: '/auth/logout',
+} as const;
+
+export const AUTH_MESSAGES = {
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  CREATE_ACCOUNT_FAILED: 'Failed to create account',
+  CONFIRM_EMAIL_FAILED: 'Failed to confirm email',
+  FETCH_PROFILE_FAILED: 'Failed to fetch user profile',
+  LOGOUT_FAILED: 'Failed to logout on server',
+} as const;
+
 export const AUTH_ROLES = {
   CUSTOMER: 'customer',
   SUPER_ADMIN: 'super_admin',

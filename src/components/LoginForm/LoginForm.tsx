@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import googleIcon from '@/assets/icons/google-icon.webp';
 import { Button, Checkbox } from '@/components';
 import { Input } from '@/components';
 import { MOCK_AUTH, ROUTES } from '@/constants';
@@ -11,6 +12,7 @@ import { useLogin } from '@/hooks/useLogin';
 import { authService } from '@/services/authService';
 import { cartService } from '@/services/cartService';
 import { useCartStore } from '@/store/useCartStore';
+import { clearAuthStorage, persistAuthStorage } from '@/utils/auth-storage';
 import { canAccessAdminPanel, isAuthRole } from '@/utils/permissions';
 
 const loginSchema = z.object({
@@ -20,12 +22,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const clearAuthData = () => {
-  localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
-  localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
-  localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
-};
 
 const getExpirationTime = (rememberMe?: boolean) => {
   return (Date.now() + (rememberMe ? 7 * 24 : 1) * 60 * 60 * 1000).toString();
@@ -72,7 +68,7 @@ export const LoginForm: React.FC = () => {
         navigate(ROUTES.SHOP);
       }
     } else {
-      clearAuthData();
+      clearAuthStorage();
     }
   }, [navigate, redirectTo]);
 
@@ -111,9 +107,14 @@ export const LoginForm: React.FC = () => {
       }
 
       const expirationTime = getExpirationTime(data.rememberMe);
-      localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
-      localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-      localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
+      if (!isAuthRole(user.role)) {
+        throw new Error('Unsupported user role');
+      }
+
+      persistAuthStorage({
+        role: user.role,
+        expiresAt: Number(expirationTime),
+      });
 
       if (redirectTo) {
         navigate(redirectTo, { replace: true });
@@ -132,6 +133,10 @@ export const LoginForm: React.FC = () => {
         message: 'Invalid email or password. Please try again.',
       });
     }
+  };
+
+  const handleGoogleAuth = () => {
+    authService.startGoogleAuth(redirectTo ?? undefined);
   };
 
   return (
@@ -153,6 +158,30 @@ export const LoginForm: React.FC = () => {
         onChange={() => clearErrors('root')}
         className="space-y-6"
       >
+        <Button
+          type="button"
+          onClick={handleGoogleAuth}
+          className="bg-primary hover:bg-primary/85 focus:ring-primary/30 box-border inline-flex w-full items-center justify-center rounded-lg border border-transparent px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:outline-none"
+        >
+          <span className="flex items-center gap-3">
+            <img
+              src={googleIcon}
+              alt=""
+              aria-hidden="true"
+              className="h-5 w-5 rounded-sm bg-white/90 p-0.5"
+            />
+            <span>Continue with Google</span>
+          </span>
+        </Button>
+
+        <div className="flex items-center gap-4">
+          <span className="bg-fieldBorder/80 h-px flex-1" />
+          <span className="text-muted shrink-0 text-xs font-medium tracking-[0.2em] uppercase">
+            or
+          </span>
+          <span className="bg-fieldBorder/80 h-px flex-1" />
+        </div>
+
         <Input
           {...register('email')}
           variant="underlined"
@@ -205,7 +234,7 @@ export const LoginForm: React.FC = () => {
         <Button
           type="submit"
           disabled={isPending}
-          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] bg-[rgb(var(--color-bg-sec-inverted))] px-4 py-3.5 text-center text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-colors hover:bg-black hover:text-[rgb(var(--color-text))] focus:ring-4 focus:ring-gray-300 focus:outline-none"
+          className="bg-bgSecInverted mt-6 w-full cursor-pointer rounded-lg px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none dark:text-black"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
         </Button>

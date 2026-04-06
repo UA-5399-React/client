@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { useRegister } from '@/hooks';
+import { authService } from '@/services/authService';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { RegisterForm } from './RegisterForm';
@@ -12,6 +13,12 @@ vi.mock('@/hooks', async () => {
     useRegister: vi.fn(),
   };
 });
+
+vi.mock('@/services/authService', () => ({
+  authService: {
+    startGoogleAuth: vi.fn(),
+  },
+}));
 
 describe('Feature: RegisterForm', () => {
   const mockMutateAsync = vi.fn();
@@ -36,6 +43,9 @@ describe('Feature: RegisterForm', () => {
       screen.getByPlaceholderText(/Confirm password/i),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    ).toBeInTheDocument();
   });
 
   it('should show validation errors when submitted empty', async () => {
@@ -126,5 +136,17 @@ describe('Feature: RegisterForm', () => {
         screen.queryByText('Email already in use'),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('should start google auth when Google button is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(<RegisterForm />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(authService.startGoogleAuth).toHaveBeenCalledWith();
   });
 });
