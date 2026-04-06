@@ -97,6 +97,12 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Start dev server         
+        run: pnpm run dev &
+        
+      - name: Wait for server         
+        run: npx wait-on http://localhost:5173 --timeout 30000
+
       - name: Run Playwright tests
         run: pnpm run test:e2e
 
