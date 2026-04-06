@@ -1,19 +1,55 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@apollo/client/react';
 import clsx from 'clsx';
-import { Minus, Plus, Ticket, X } from 'lucide-react';
+import { AlertCircle, Minus, Plus, Ticket, X } from 'lucide-react';
 
 import { Button, Input } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { GET_PRODUCTS_PAGE } from '@/services/graphql/productAdminService';
 import { useCartStore } from '@/store/useCartStore';
+import type { Product } from '@/types/product.types';
+
+interface ProductsPageData {
+  productsPage: {
+    items: Product[];
+    total: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+  };
+}
 
 export const Cart = () => {
-  const { items, updateQuantity, removeItem, getCartTotal } = useCartStore();
+  const { items, updateQuantity, removeItem, getCartTotal, validateCart } =
+    useCartStore();
   const { isAuth } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+
+  const [showWarning, setShowWarning] = useState(false);
+
+  const { data } = useQuery<ProductsPageData>(GET_PRODUCTS_PAGE, {
+    variables: {
+      limit: 100,
+      page: 1,
+    },
+    skip: items.length === 0,
+  });
+
+  useEffect(() => {
+    if (data?.productsPage?.items && items.length > 0) {
+      const wasCleaned = validateCart(data.productsPage.items);
+
+      if (wasCleaned) {
+        setTimeout(() => {
+          setShowWarning(true);
+        }, 0);
+      }
+    }
+  }, [data, validateCart]);
 
   const [shippingOption, setShippingOption] = useState<
     'free' | 'express' | 'pickup'
@@ -147,6 +183,34 @@ export const Cart = () => {
         </div>
       </div>
 
+      {showWarning && (
+        <div
+          className={clsx(
+            'animate-in fade-in slide-in-from-top-2 mb-8 flex items-center justify-between rounded-xl border p-4 text-sm transition-all',
+            isDark
+              ? 'border-neutral-800 bg-neutral-900 text-red-600'
+              : 'bg-backgroundSec border-fieldBorder text-red-600',
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <p className="font-medium text-red-600">
+              Some items were no longer available and have been removed from
+              your cart.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowWarning(false)}
+            className={clsx(
+              'rounded-full border-none bg-transparent p-2 shadow-none transition-colors outline-none',
+              isDark ? 'hover:bg-neutral-800' : 'hover:bg-gray-200',
+            )}
+          >
+            <X className="h-4 w-4 text-gray-600" />
+          </button>
+        </div>
+      )}
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="lg:col-span-8">
           <div
