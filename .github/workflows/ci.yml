@@ -99,7 +99,7 @@ jobs:
 
       - name: Run Playwright tests
         run: 
-          VITE_API_URL=https://https://server-woad-seven-83.vercel.app
+          VITE_API_URL=https://server-woad-seven-83.vercel.app
           pnpm run test:e2e
 
       - uses: actions/upload-artifact@v4
