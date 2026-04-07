@@ -19,7 +19,7 @@ export const CheckoutSection = ({
 }) => (
   <section
     className={clsx(
-      'rounded-[4px] border px-[15px] pt-[23px] pb-6',
+      'overflow-visible rounded-[4px] border px-[15px] pt-[23px] pb-6',
       isDark ? 'border-gray-700 bg-black' : 'border-[#6C7275] bg-white',
       className,
     )}
