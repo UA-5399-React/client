@@ -58,3 +58,9 @@ export const GET_USERS_LIST = gql`
   }
   ${USER_ADMIN_FIELDS}
 `;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
