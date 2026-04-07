@@ -11,6 +11,7 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',
   CHECKOUT: '/checkout',
   ORDER_CONFIRMATION: '/order-confirmation',
   ORDER_DETAIL: '/order/:orderId',
