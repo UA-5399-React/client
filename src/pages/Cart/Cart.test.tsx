@@ -7,6 +7,14 @@ import { useCartStore } from '@/store/useCartStore';
 
 import { Cart } from './Cart';
 
+vi.mock('@apollo/client/react', () => ({
+  useQuery: vi.fn(() => ({
+    data: null,
+    loading: false,
+    error: null,
+  })),
+}));
+
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -33,6 +41,7 @@ vi.mock('@/hooks/useTheme', () => ({
 const mockUpdateQuantity = vi.fn();
 const mockRemoveItem = vi.fn();
 const mockGetCartTotal = vi.fn(() => 100);
+const mockValidateCart = vi.fn(() => false);
 
 vi.mock('@/store/useCartStore', () => ({
   useCartStore: vi.fn(),
@@ -48,6 +57,7 @@ describe('Cart Page', () => {
       updateQuantity: mockUpdateQuantity,
       removeItem: mockRemoveItem,
       getCartTotal: mockGetCartTotal,
+      validateCart: mockValidateCart,
     });
   });
 
@@ -69,6 +79,7 @@ describe('Cart Page', () => {
       updateQuantity: mockUpdateQuantity,
       removeItem: mockRemoveItem,
       getCartTotal: mockGetCartTotal,
+      validateCart: mockValidateCart,
     });
   };
 
@@ -165,6 +176,7 @@ describe('Cart Page', () => {
       updateQuantity: mockUpdateQuantity,
       removeItem: mockRemoveItem,
       getCartTotal: mockGetCartTotal,
+      validateCart: mockValidateCart,
     });
 
     render(
