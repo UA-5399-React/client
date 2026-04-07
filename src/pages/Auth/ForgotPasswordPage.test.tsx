@@ -90,4 +90,64 @@ describe('Feature: ForgotPasswordPage', () => {
 
     expect(await screen.findByText('User not found')).toBeInTheDocument();
   });
+
+  it('shows fallback error message when non-Error is thrown', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authService.requestPasswordReset).mockRejectedValueOnce('oops');
+
+    render(<ForgotPasswordPage />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'test@example.com',
+    );
+    await user.click(screen.getByRole('button', { name: /Send reset link/i }));
+
+    expect(
+      await screen.findByText('Something went wrong.'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows loading state while submitting', async () => {
+    const user = userEvent.setup();
+    let resolve: (v: { message: string }) => void;
+    vi.mocked(authService.requestPasswordReset).mockReturnValueOnce(
+      new Promise((r) => {
+        resolve = r;
+      }),
+    );
+
+    render(<ForgotPasswordPage />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'test@example.com',
+    );
+    await user.click(screen.getByRole('button', { name: /Send reset link/i }));
+
+    expect(
+      await screen.findByRole('button', { name: /Sending/i }),
+    ).toBeDisabled();
+    resolve!({ message: 'done' });
+  });
+
+  it('shows fallback message in success state when server returns no message', async () => {
+    const user = userEvent.setup();
+    vi.mocked(authService.requestPasswordReset).mockResolvedValueOnce(
+      {} as { message: string },
+    );
+
+    render(<ForgotPasswordPage />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'test@example.com',
+    );
+    await user.click(screen.getByRole('button', { name: /Send reset link/i }));
+
+    expect(await screen.findByText('Check your email')).toBeInTheDocument();
+    expect(
+      screen.getByText(/If this email is registered/i),
+    ).toBeInTheDocument();
+  });
 });
