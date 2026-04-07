@@ -20,6 +20,14 @@ export interface ConfirmEmailResponse {
   message: string;
 }
 
+export interface RequestPasswordResetResponse {
+  message: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 const API_URL = API_BASE_URL;
 
 const getErrorMessage = async (response: Response, fallbackMessage: string) => {
@@ -132,5 +140,52 @@ export const authService = {
     }
 
     return response.ok;
+  },
+
+  requestPasswordReset: async (
+    email: string,
+  ): Promise<RequestPasswordResetResponse> => {
+    const response = await fetch(
+      `${API_URL}${AUTH_ENDPOINTS.RESET_PASSWORD_REQUEST}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        await getErrorMessage(
+          response,
+          AUTH_MESSAGES.RESET_PASSWORD_REQUEST_FAILED,
+        ),
+      );
+    }
+
+    return response.json();
+  },
+
+  resetPassword: async (
+    token: string,
+    password: string,
+    passwordConfirmation: string,
+  ): Promise<ResetPasswordResponse> => {
+    const url = new URL(`${API_URL}${AUTH_ENDPOINTS.RESET_PASSWORD_CONFIRM}`);
+    url.searchParams.set('token', token);
+
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, passwordConfirmation }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await getErrorMessage(response, AUTH_MESSAGES.RESET_PASSWORD_FAILED),
+      );
+    }
+
+    return response.json();
   },
 };
