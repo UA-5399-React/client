@@ -1,9 +1,10 @@
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { authService } from '@/services/authService';
-import { render, screen, userEvent } from '@/utils/test-utils';
+import { screen, userEvent } from '@/utils/test-utils';
 
 import { ResetPasswordPage } from './ResetPasswordPage';
 
