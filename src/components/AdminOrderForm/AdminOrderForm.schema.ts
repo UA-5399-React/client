@@ -20,6 +20,7 @@ export const orderFormSchema = z.object({
   items: z
     .array(
       z.object({
+        productId: z.string().trim().min(1, 'Product is required'),
         productName: z.string().trim().min(1, 'Product is required'),
         price: z.string(),
         quantity: z

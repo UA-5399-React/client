@@ -2,7 +2,7 @@ import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CircleX } from 'lucide-react';
 
-import { Button, Dropdown, Input } from '@/components';
+import { Button, Dropdown, Input, OrderProductSearch } from '@/components';
 import { ORDER_STATUS, type OrderFormData } from '@/types/tableOrders.types';
 import { formatDateToShort } from '@/utils/date.utils';
 
@@ -37,6 +37,8 @@ export function AdminOrderForm({
   const {
     control,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<OrderFormData>({
     resolver: zodResolver(orderFormSchema),
@@ -50,7 +52,7 @@ export function AdminOrderForm({
       items:
         initialData?.items && initialData.items.length > 0
           ? initialData.items
-          : [{ productName: '', price: '', quantity: '1' }],
+          : [{ productId: '', productName: '', price: '', quantity: '1' }],
     },
   });
 
@@ -72,7 +74,7 @@ export function AdminOrderForm({
   return (
     <div className="bg-backgroundSec rounded-lg border border-gray-200 p-4 shadow-sm">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 align-top md:grid-cols-2">
           <Controller
             control={control}
             name="customerName"
@@ -150,25 +152,15 @@ export function AdminOrderForm({
         <div className="flex flex-col gap-4">
           {fields.map((item, index) => (
             <div key={item.id}>
-              <div className="grid grid-cols-[8fr_1fr_1fr_0.3fr] items-end gap-3 max-md:grid-cols-1">
-                <Controller
+              <div className="grid grid-cols-[8fr_1fr_1fr_0.3fr] items-start gap-3 max-md:grid-cols-1">
+                <OrderProductSearch
+                  index={index}
                   control={control}
-                  name={`items.${index}.productName`}
-                  render={({ field }) => (
-                    <Input
-                      label="Search product"
-                      placeholder="Search product"
-                      inputClassName="bg-white text-black"
-                      {...field}
-                      value={field.value ?? ''}
-                      state={
-                        errors.items?.[index]?.productName ? 'error' : 'default'
-                      }
-                      helperText={errors.items?.[index]?.productName?.message}
-                    />
-                  )}
+                  setValue={setValue}
+                  getValues={getValues}
+                  disabled={isDisabled}
+                  error={errors.items?.[index]?.productName?.message}
                 />
-
                 <Controller
                   control={control}
                   name={`items.${index}.price`}
@@ -178,7 +170,7 @@ export function AdminOrderForm({
                       label="Price: $"
                       type="number"
                       placeholder="0"
-                      inputClassName="bg-white text-black"
+                      inputClassName="bg-white text-black h-[26px]"
                       {...field}
                       value={field.value ?? ''}
                       state={errors.items?.[index]?.price ? 'error' : 'default'}
@@ -195,7 +187,7 @@ export function AdminOrderForm({
                       label="Quantity"
                       type="number"
                       placeholder="0"
-                      inputClassName="bg-white text-black"
+                      inputClassName="bg-white text-black h-[26px]"
                       {...field}
                       value={field.value ?? ''}
                       state={
@@ -206,16 +198,20 @@ export function AdminOrderForm({
                   )}
                 />
 
-                {fields.length > 1 && (
-                  <Button
-                    type="button"
-                    onClick={() => remove(index)}
-                    disabled={isDisabled}
-                    className="rounded-md bg-transparent p-0! text-xs text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <CircleX className="h-6 w-6" />
-                  </Button>
-                )}
+                <div className="flex h-[70px] flex-col items-center gap-1.5">
+                  <div className="h-[20px]"></div>
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      aria-label="Remove product row"
+                      onClick={() => remove(index)}
+                      disabled={isDisabled}
+                      className="mt-2 rounded-md bg-transparent p-0! text-xs text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <CircleX className="h-6 w-6" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -224,7 +220,12 @@ export function AdminOrderForm({
             <Button
               type="button"
               onClick={() =>
-                append({ productName: '', price: '', quantity: '1' })
+                append({
+                  productId: '',
+                  productName: '',
+                  price: '',
+                  quantity: '1',
+                })
               }
               disabled={isDisabled}
               className="text-neutral-0 w-full rounded-md border border-gray-300 bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
