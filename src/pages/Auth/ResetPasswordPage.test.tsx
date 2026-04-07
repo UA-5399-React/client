@@ -26,7 +26,6 @@ const renderWithToken = (token?: string) => {
         <ResetPasswordPage />
       </MemoryRouter>
     </QueryClientProvider>,
-    { wrapper: undefined },
   );
 };
 
