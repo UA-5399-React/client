@@ -5,6 +5,7 @@ import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 import { LoginForm, MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
+import { Message } from './components/Message.tsx/Message';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
@@ -68,6 +69,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Message />
       <Routes>
         <Route path={HOME} element={<MainLayout />}>
           <Route index element={<Home />} />

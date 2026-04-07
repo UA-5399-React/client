@@ -17,6 +17,7 @@ import {
 import { useAdminUsers } from '@/hooks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
+import { useErrorStore } from '@/store/errorStore';
 import type {
   UserLastLoginSortOrder,
   UserRoleFilter,
@@ -57,7 +58,8 @@ const isValidLastLoginSort = (
 export const AdminUsers = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  //const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const showMessage = useErrorStore((s) => s.show);
   const {
     searchParams,
     currentPage,
@@ -166,7 +168,7 @@ export const AdminUsers = () => {
       return;
     }
 
-    setSuccessMessage(locationState.successMessage);
+    showMessage('success', 'Success!', locationState.successMessage);
     navigate(
       {
         pathname: location.pathname,
@@ -174,7 +176,13 @@ export const AdminUsers = () => {
       },
       { replace: true, state: null },
     );
-  }, [location.pathname, location.search, location.state, navigate]);
+  }, [
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+    showMessage,
+  ]);
 
   const usersState = useAdminUsers({
     currentPage,
@@ -191,12 +199,6 @@ export const AdminUsers = () => {
   return (
     <section className="bg-background text-text min-h-screen px-6 py-8 transition-colors duration-300">
       <div className="mx-auto">
-        {successMessage && (
-          <div className="mb-4 rounded-lg border border-[#b7ebcf] bg-[#ecfdf3] px-4 py-3 text-sm text-[#027a48]">
-            {successMessage}
-          </div>
-        )}
-
         <UsersTopWidgets
           totalUsers={usersState.totalUsers}
           activeAdmins={usersState.activeAdmins}
