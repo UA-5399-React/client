@@ -14,19 +14,10 @@ import {
   type OrderItem,
   type OrderStatus,
 } from '@/types/tableOrders.types';
+import { splitCustomerName } from '@/utils';
 
 type EditOrderLocationState = {
   order?: OrderItem;
-};
-
-const splitCustomerName = (fullName: string) => {
-  const normalized = fullName.trim().replace(/\s+/g, ' ');
-  const [firstName = '', ...lastNameParts] = normalized.split(' ');
-
-  return {
-    firstName,
-    lastName: lastNameParts.join(' ').trim(),
-  };
 };
 
 const buildRemovedLineItems = (

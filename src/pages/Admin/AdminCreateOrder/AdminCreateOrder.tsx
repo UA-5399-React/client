@@ -9,16 +9,7 @@ import {
   SHIPPING_CARRIERS,
 } from '@/types';
 import type { OrderFormData } from '@/types/tableOrders.types';
-
-const splitCustomerName = (fullName: string) => {
-  const normalized = fullName.trim().replace(/\s+/g, ' ');
-  const [firstName = '', ...lastNameParts] = normalized.split(' ');
-
-  return {
-    firstName,
-    lastName: lastNameParts.join(' ').trim(),
-  };
-};
+import { splitCustomerName } from '@/utils';
 
 export function AdminCreateOrder() {
   const navigate = useNavigate();
