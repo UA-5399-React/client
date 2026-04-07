@@ -13,3 +13,20 @@ export interface Order {
   status: OrderStatus;
   totalPrice: number;
 }
+export interface OrderDetailsItem {
+  productId: string;
+  title: string;
+  imageUrl: string;
+  unitPrice: number;
+  amount: number;
+  totalPrice: number;
+}
+
+export interface OrderDetails {
+  orderNumber: string;
+  createdAt?: string;
+  completedAt?: string;
+  totalPrice: number;
+  items: OrderDetailsItem[];
+  message?: string;
+}

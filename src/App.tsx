@@ -8,6 +8,7 @@ import { AuthLayout } from './components/AuthLayout';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
+import { useRestoreAuthSession } from './hooks/useRestoreAuthSession';
 import { Cart, Checkout, Home, OrderConfirmation } from './pages';
 import { AddCategory } from './pages/Admin/AddCategory/AddCategory';
 import { AdminCreateOrder } from './pages/Admin/AdminCreateOrder/AdminCreateOrder';
@@ -25,9 +26,11 @@ import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { MyOrders } from './pages/User/MyOrders';
+import { OrderDetails } from './pages/User/OrderDetails';
 import { Profile } from './pages/User/Profile';
 
 function App() {
+  const isAuthReady = useRestoreAuthSession();
   useCartSync();
   const {
     HOME,
@@ -37,6 +40,7 @@ function App() {
     CART,
     CHECKOUT,
     ORDER_CONFIRMATION,
+    ORDER_DETAIL,
     ADMIN,
     ADMIN_CATEGORIES,
     ADMIN_CATEGORY_ADD,
@@ -58,6 +62,10 @@ function App() {
     MYORDERS,
   } = ROUTES;
 
+  if (!isAuthReady) {
+    return null;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -71,6 +79,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
             <Route path={MYORDERS} element={<MyOrders />} />
+            <Route path={ORDER_DETAIL} element={<OrderDetails />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
           </Route>

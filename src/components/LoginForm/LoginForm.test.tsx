@@ -30,12 +30,14 @@ vi.mock('@/hooks/useLogin', () => ({
 vi.mock('@/services/authService', () => ({
   authService: {
     getMe: vi.fn(),
+    startGoogleAuth: vi.fn(),
   },
 }));
 
 vi.mock('@/services/cartService', () => ({
   cartService: {
     syncCart: vi.fn(),
+    getCart: vi.fn(),
   },
 }));
 
@@ -73,6 +75,9 @@ describe('Feature: LoginForm', () => {
     ).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    ).toBeInTheDocument();
   });
 
   // 2. Validation (Zod & React Hook Form)
@@ -104,6 +109,11 @@ describe('Feature: LoginForm', () => {
 
     // Default cartService.syncCart mock
     vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
       items: [],
       total: 0,
       userId: 'user123',
@@ -148,6 +158,11 @@ describe('Feature: LoginForm', () => {
       total: 0,
       userId: 'user123',
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -177,6 +192,11 @@ describe('Feature: LoginForm', () => {
       total: 0,
       userId: 'user123',
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -202,6 +222,11 @@ describe('Feature: LoginForm', () => {
     (authService.getMe as Mock).mockResolvedValueOnce({
       role: AUTH_ROLES.CUSTOMER,
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -217,6 +242,31 @@ describe('Feature: LoginForm', () => {
         replace: true,
       });
     });
+  });
+
+  it('should start google auth with redirect path when from state exists', async () => {
+    const user = userEvent.setup();
+    mockLocationState = { from: ROUTES.CHECKOUT };
+
+    render(<LoginForm />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(authService.startGoogleAuth).toHaveBeenCalledWith(ROUTES.CHECKOUT);
+  });
+
+  it('should start google auth without redirect path when from state does not exist', async () => {
+    const user = userEvent.setup();
+
+    render(<LoginForm />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(authService.startGoogleAuth).toHaveBeenCalledWith(undefined);
   });
 
   // 4. Error Handling and Server Feedback

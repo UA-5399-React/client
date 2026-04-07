@@ -20,7 +20,7 @@ export const Footer = () => {
 
   return (
     <footer
-      className={`px-4 py-10 transition-colors duration-300 lg:px-16 lg:py-12 ${
+      className={`mt-20 px-4 py-10 transition-colors duration-300 lg:mt-0 lg:px-16 lg:py-12 ${
         isDark ? 'bg-white text-black' : 'bg-[#141718] text-white'
       }`}
     >

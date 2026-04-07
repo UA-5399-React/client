@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { productService } from '../services/productService';
 
@@ -32,5 +32,6 @@ export const useProducts = (
         minPrice,
         maxPrice,
       ),
+    placeholderData: keepPreviousData,
   });
 };
