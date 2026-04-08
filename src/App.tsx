@@ -19,6 +19,7 @@ import { CreateUser } from './pages/Admin/CreateUser/CreateUser';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { EditUser } from './pages/Admin/EditUser/EditUser';
+import { FeaturedProducts } from './pages/Admin/FeaturedProducts/FeaturedProducts';
 import { AdminOrders } from './pages/Admin/Orders/AdminOrders';
 import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
@@ -60,6 +61,7 @@ function App() {
     REGISTER,
     EMAIL_CONFIRMATION,
     ADMIN_ORDERS,
+    ADMIN_FEATURED,
     PROFILE,
     MYORDERS,
     FORGOT_PASSWORD,
@@ -118,6 +120,7 @@ function App() {
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
             <Route path={ADMIN_ORDER_CREATE} element={<AdminCreateOrder />} />
             <Route path={ADMIN_ORDER_EDIT} element={<AdminEditOrder />} />
+            <Route path={ADMIN_FEATURED} element={<FeaturedProducts />} />
             <Route
               element={
                 <ProtectedRoute
