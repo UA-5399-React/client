@@ -36,7 +36,7 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
                 'flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300',
                 isDone
                   ? 'border-violet-600 bg-violet-600'
-                  : 'border-gray300 bg-white',
+                  : 'border-gray300 bg-background',
                 isActive ? 'ring-4 ring-violet-600/15' : '',
               ].join(' ')}
             >
