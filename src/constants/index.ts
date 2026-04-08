@@ -56,6 +56,8 @@ export const MOCK_AUTH = {
 
 export const AUTH_ENDPOINTS = {
   GOOGLE: '/auth/google',
+  GOOGLE_CONNECT: '/auth/google/connect',
+  GOOGLE_DISCONNECT: '/auth/google/disconnect',
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   CONFIRM_EMAIL: '/auth/confirm-email',
@@ -68,6 +70,7 @@ export const AUTH_MESSAGES = {
   CREATE_ACCOUNT_FAILED: 'Failed to create account',
   CONFIRM_EMAIL_FAILED: 'Failed to confirm email',
   FETCH_PROFILE_FAILED: 'Failed to fetch user profile',
+  GOOGLE_DISCONNECT_FAILED: 'Failed to disconnect Google account',
   LOGOUT_FAILED: 'Failed to logout on server',
 } as const;
 

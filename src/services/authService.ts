@@ -22,6 +22,16 @@ export interface ConfirmEmailResponse {
 
 const API_URL = API_BASE_URL;
 
+const redirectToAuthEndpoint = (endpoint: string, redirectTo?: string) => {
+  const authUrl = new URL(endpoint, API_URL);
+
+  if (typeof redirectTo === 'string' && redirectTo.startsWith('/')) {
+    authUrl.searchParams.set('redirect', redirectTo);
+  }
+
+  window.location.assign(authUrl.toString());
+};
+
 const getErrorMessage = async (response: Response, fallbackMessage: string) => {
   try {
     const errorData = (await response.json()) as {
@@ -44,13 +54,11 @@ const getErrorMessage = async (response: Response, fallbackMessage: string) => {
 
 export const authService = {
   startGoogleAuth: (redirectTo?: string) => {
-    const authUrl = new URL(AUTH_ENDPOINTS.GOOGLE, API_URL);
+    redirectToAuthEndpoint(AUTH_ENDPOINTS.GOOGLE, redirectTo);
+  },
 
-    if (typeof redirectTo === 'string' && redirectTo.startsWith('/')) {
-      authUrl.searchParams.set('redirect', redirectTo);
-    }
-
-    window.location.assign(authUrl.toString());
+  startGoogleConnect: () => {
+    redirectToAuthEndpoint(AUTH_ENDPOINTS.GOOGLE_CONNECT);
   },
 
   login: async (data: LoginPayload) => {
@@ -116,6 +124,24 @@ export const authService = {
 
     if (!response.ok) {
       throw new Error(AUTH_MESSAGES.FETCH_PROFILE_FAILED);
+    }
+
+    return response.json();
+  },
+
+  disconnectGoogle: async (): Promise<{ success: true }> => {
+    const response = await fetch(
+      `${API_URL}${AUTH_ENDPOINTS.GOOGLE_DISCONNECT}`,
+      {
+        method: 'POST',
+        credentials: 'include',
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        await getErrorMessage(response, AUTH_MESSAGES.GOOGLE_DISCONNECT_FAILED),
+      );
     }
 
     return response.json();
