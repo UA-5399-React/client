@@ -80,7 +80,15 @@ function renderBodyContent(
         <td>
           <div className="flex items-center gap-2">
             <Checkbox className="h-[20px] w-[20px]" />
-            <span>Image</span>
+            {item.imageUrl ? (
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="h-10 w-10 rounded object-cover"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded bg-gray-100" />
+            )}
           </div>
         </td>
         <td>{item.title}</td>
