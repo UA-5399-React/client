@@ -26,7 +26,7 @@ const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
   { to: ROUTES.ADMIN_ORDERS, label: 'Orders', icon: <ShoppingCartIcon /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
-  { to: ROUTES.ADMIN_FEATURED, label: 'Featured', icon: <Sparkles /> },
+  { to: ROUTES.ADMIN_FEATURED, label: 'Featured Products', icon: <Sparkles /> },
 ];
 
 export const Sidebar = () => {

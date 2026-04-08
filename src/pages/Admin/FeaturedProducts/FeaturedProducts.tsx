@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Loader2, PackageSearch, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Loader2, PackageSearch, Plus, Trash2 } from 'lucide-react';
 
 import { AdminPageHeader, Button, SearchInput } from '@/components';
+import { NEW_ARRIVALS_LIMIT } from '@/constants';
 import { apiClient } from '@/services/api';
-
-const FeaturedProductType = {
-  NEW_ARRIVAL: 'new_arrival',
-} as const;
-
-type FeaturedProductType =
-  (typeof FeaturedProductType)[keyof typeof FeaturedProductType];
 
 interface Product {
   _id: string;
@@ -31,18 +25,20 @@ export function FeaturedProducts() {
   const [loading, setLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const MAX_ITEMS = 10;
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const [productsRes, featuredRes] = await Promise.all([
-          apiClient.get<Product[]>('/products?status=active'),
+          apiClient.get<{ items: Product[] }>('/products?status=active'),
           apiClient.get<FeaturedResponse[]>('/featured-products/new-arrivals'),
         ]);
 
-        setAllProducts(productsRes || []);
+        if (productsRes && 'items' in productsRes) {
+          setAllProducts(productsRes.items);
+        } else {
+          setAllProducts(Array.isArray(productsRes) ? productsRes : []);
+        }
 
         const extractedProducts = (featuredRes || [])
           .map((item) =>
@@ -61,13 +57,12 @@ export function FeaturedProducts() {
   }, []);
 
   const handleAddProduct = async (product: Product) => {
-    if (featured.length >= MAX_ITEMS) return;
+    if (featured.length >= NEW_ARRIVALS_LIMIT) return;
     try {
       setIsActionLoading(true);
-
       await apiClient.post('/featured-products', {
         productId: product._id,
-        type: FeaturedProductType.NEW_ARRIVAL,
+        type: 'new_arrival',
         position: featured.length,
       });
 
@@ -83,9 +78,8 @@ export function FeaturedProducts() {
   const handleRemoveProduct = async (productId: string) => {
     try {
       setIsActionLoading(true);
-
       await apiClient.delete(
-        `/featured-products/${productId}?type=${FeaturedProductType.NEW_ARRIVAL}`,
+        `/featured-products/${productId}?type=new_arrival`,
       );
 
       setFeatured((prev) => prev.filter((p) => p._id !== productId));
@@ -96,7 +90,7 @@ export function FeaturedProducts() {
     }
   };
 
-  const dropdownResults = allProducts
+  const dropdownResults = (Array.isArray(allProducts) ? allProducts : [])
     .filter(
       (p) =>
         p.title.toLowerCase().includes(search.toLowerCase()) &&
@@ -119,16 +113,16 @@ export function FeaturedProducts() {
       <div className="px-4 pt-6 md:px-8">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-            <Sparkles className="text-blue-800" /> Manage New Arrivals
+            Manage New Arrivals
           </h2>
           <div
             className={`rounded-full px-3 py-1 text-sm font-bold ${
-              featured.length >= MAX_ITEMS
+              featured.length >= NEW_ARRIVALS_LIMIT
                 ? 'bg-red-100 text-red-600'
                 : 'bg-blue-100 text-blue-800'
             }`}
           >
-            {featured.length} / {MAX_ITEMS} Items
+            {featured.length} / {NEW_ARRIVALS_LIMIT} Items
           </div>
         </div>
 
@@ -144,16 +138,16 @@ export function FeaturedProducts() {
             <SearchInput
               value={search}
               onChange={setSearch}
-              className={
-                featured.length >= MAX_ITEMS
+              className={`[&_button]:right-3 [&_button]:!border-none [&_button]:!bg-transparent [&_button]:!shadow-none [&_button]:hover:!bg-gray-100 ${
+                featured.length >= NEW_ARRIVALS_LIMIT
                   ? 'cursor-not-allowed opacity-50'
                   : ''
-              }
-              disabled={featured.length >= MAX_ITEMS}
+              }`}
+              disabled={featured.length >= NEW_ARRIVALS_LIMIT}
             />
           </div>
 
-          {search && featured.length < MAX_ITEMS && (
+          {search && featured.length < NEW_ARRIVALS_LIMIT && (
             <div className="absolute right-6 left-6 z-50 mt-2 max-w-md overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
               {dropdownResults.length > 0 ? (
                 dropdownResults.map((product) => (
