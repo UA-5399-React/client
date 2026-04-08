@@ -44,7 +44,6 @@ describe('Component: Newsletter', () => {
 
   it('should render a form element', () => {
     const { container } = render(<Newsletter />);
-
     expect(container.querySelector('form')).toBeInTheDocument();
   });
 
@@ -66,14 +65,16 @@ describe('Component: Newsletter', () => {
     });
 
     expect(
-      screen.getByText('You have successfully subscribed'),
+      screen.getByText('You have successfully subscribed.'),
     ).toBeInTheDocument();
   });
 
-  it('should show error message when subscription fails', async () => {
+  it('should show backend error message when subscription fails', async () => {
     const user = userEvent.setup();
 
-    vi.mocked(subscribeToNewsletter).mockRejectedValue(new Error('Failed'));
+    vi.mocked(subscribeToNewsletter).mockRejectedValue(
+      new Error('Email already subscribed'),
+    );
 
     render(<Newsletter />);
 
@@ -83,24 +84,52 @@ describe('Component: Newsletter', () => {
     await user.type(input, 'test@example.com');
     await user.click(button);
 
-    await waitFor(() => {
-      expect(subscribeToNewsletter).toHaveBeenCalledWith('test@example.com');
-    });
+    expect(
+      await screen.findByText('Email already subscribed'),
+    ).toBeInTheDocument();
+  });
+
+  it('should show fallback error message when non-error is thrown', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(subscribeToNewsletter).mockRejectedValue('unexpected');
+
+    render(<Newsletter />);
+
+    const input = screen.getByPlaceholderText('Email address');
+    const button = screen.getByRole('button', { name: 'Signup' });
+
+    await user.type(input, 'test@example.com');
+    await user.click(button);
 
     expect(
-      screen.getByText('Something went wrong. Try again.'),
+      await screen.findByText('Something went wrong. Try again.'),
     ).toBeInTheDocument();
+  });
+
+  it('should show validation error if email is empty', async () => {
+    const user = userEvent.setup();
+
+    render(<Newsletter />);
+
+    const button = screen.getByRole('button', { name: 'Signup' });
+
+    await user.click(button);
+
+    expect(screen.getByText('Email is required.')).toBeInTheDocument();
+
+    expect(subscribeToNewsletter).not.toHaveBeenCalled();
   });
 
   it('should show loading state while submitting', async () => {
     const user = userEvent.setup();
 
-    let resolvePromise: () => void = () => {};
+    let resolvePromise: (value: { message: string }) => void = () => {};
 
     vi.mocked(subscribeToNewsletter).mockImplementation(
       () =>
         new Promise((resolve) => {
-          resolvePromise = () => resolve({ message: 'success' });
+          resolvePromise = resolve;
         }),
     );
 
@@ -114,13 +143,11 @@ describe('Component: Newsletter', () => {
 
     expect(screen.getByRole('button', { name: 'Loading' })).toBeInTheDocument();
 
-    resolvePromise();
+    resolvePromise({ message: 'success' });
 
-    await waitFor(() => {
-      expect(
-        screen.getByText('You have successfully subscribed'),
-      ).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByText('You have successfully subscribed.'),
+    ).toBeInTheDocument();
   });
 
   it('should clear success message after 8 seconds', async () => {
@@ -140,7 +167,7 @@ describe('Component: Newsletter', () => {
     });
 
     expect(
-      screen.getByText('You have successfully subscribed'),
+      screen.getByText('You have successfully subscribed.'),
     ).toBeInTheDocument();
 
     act(() => {
@@ -148,7 +175,7 @@ describe('Component: Newsletter', () => {
     });
 
     expect(
-      screen.queryByText('You have successfully subscribed'),
+      screen.queryByText('You have successfully subscribed.'),
     ).not.toBeInTheDocument();
   });
 });

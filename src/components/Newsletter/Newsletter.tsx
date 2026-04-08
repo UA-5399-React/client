@@ -74,6 +74,7 @@ export const Newsletter: React.FC = () => {
           Sign up for deals, new products and promotions
         </p>
         <form
+          noValidate
           onSubmit={handleSubmit}
           className="mt-8 flex w-full max-w-[488px] items-center border-b border-[rgb(var(--color-text))]/20 pb-3"
         >
