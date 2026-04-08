@@ -27,20 +27,31 @@ export const Newsletter: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) return;
+    const normalizedEmail = email.trim();
+
+    setMessage(null);
+    setErrorMessage(null);
+
+    if (!normalizedEmail) {
+      setErrorMessage('Email is required.');
+      return;
+    }
 
     try {
       setIsLoading(true);
-      setMessage(null);
-      setErrorMessage(null);
 
-      await subscribeToNewsletter(email);
+      await subscribeToNewsletter(normalizedEmail);
 
-      setMessage('You have successfully subscribed');
+      setMessage('You have successfully subscribed.');
       setEmail('');
     } catch (error) {
       console.error(error);
-      setErrorMessage('Something went wrong. Try again.');
+
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Try again.',
+      );
     } finally {
       setIsLoading(false);
     }

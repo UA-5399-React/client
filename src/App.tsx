@@ -5,7 +5,7 @@ import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 import { LoginForm, MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
-import { NewsletterUnsubscribePage } from './components/NewsletterUnsubscribePaga/NewsletterUnsubscribePage';
+import { NewsletterUnsubscribePage } from './components/NewsletterUnsubscribePage/NewsletterUnsubscribePage';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
