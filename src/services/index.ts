@@ -16,5 +16,6 @@ export {
 export { orderService } from './orderService';
 export { paymentService } from './paymentService';
 export { productService } from './productService';
+export { shippingService } from './shippingService';
 export { uploadService } from './uploadService';
 export { userService } from './userService';

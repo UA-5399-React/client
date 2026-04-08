@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feat/325-e2e-test-ci
   pull_request:
     branches:
       - develop
@@ -12,86 +13,107 @@ jobs:
   lint-and-format:
     name: Lint & Format Check
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm run lint
 
-      - name: Typecheck
-        run: pnpm exec tsc --noEmit
-
-      - name: Run eslint
-        run: pnpm run lint
-
-  test:
+  unit-test:
     name: Unit Tests & Coverage
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:coverage
 
-      - name: Run tests with coverage
-        run: pnpm test:coverage
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
           path: coverage/
           retention-days: 7
 
-  build:
-    name: Build
+  e2e-test:
+    name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [lint-and-format, test]
+    timeout-minutes: 10
+    env:
+      VITE_API_URL: https://server-woad-seven-83.vercel.app 
+      VITE_GRAPHQL_URL: https://server-woad-seven-83.vercel.app/graphql
+      VITE_API_BASE_URL: https://server-woad-seven-83.vercel.app
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Debug env
+        run: echo "API URL is $VITE_API_URL"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps
 
-      - name: Build app
-        run: pnpm build
+      - name: Run Playwright tests          
+        run: pnpm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()                        # always upload, even on failure
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, unit-test, e2e-test]
+    env:
+      VITE_API_URL: https://server-woad-seven-83.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7

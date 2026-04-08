@@ -1,9 +1,12 @@
+import type { FocusEventHandler } from 'react';
 import clsx from 'clsx';
 import { Search, X } from 'lucide-react';
 
 type SearchInputProps = {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
   disabled?: boolean;
   error?: boolean;
@@ -11,8 +14,10 @@ type SearchInputProps = {
 };
 
 export function SearchInput({
+  id,
   value,
   onChange,
+  onFocus,
   placeholder = 'Search',
   disabled = false,
   error = false,
@@ -59,8 +64,10 @@ export function SearchInput({
       />
 
       <input
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
         placeholder={placeholder}
         disabled={disabled}
         aria-invalid={error || undefined}

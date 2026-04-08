@@ -7,6 +7,8 @@ import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useMe } from '@/hooks/useMe';
 import { useTheme } from '@/hooks/useTheme';
 import { orderService, paymentService } from '@/services';
 import { useCartStore } from '@/store/useCartStore';
@@ -52,14 +54,20 @@ const submitButtonLabels: Record<
 export const Checkout = () => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
-  const { items, clearCart, removeItem, updateQuantity, getCartTotal } =
-    useCartStore();
+  const { isAuth } = useAuth();
+  const { data: me } = useMe(isAuth);
+  const { items, clearCart, removeItem, updateQuantity } = useCartStore();
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState('');
 
-  const subtotal = getCartTotal();
+  const subtotal = useMemo(() => {
+    return items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0,
+    );
+  }, [items]);
   const total = subtotal;
 
   const {
@@ -89,6 +97,8 @@ export const Checkout = () => {
     control,
     name: 'paymentMethod',
   });
+
+  const carrier = useWatch({ control, name: 'carrier' });
 
   useEffect(() => {
     const syncRestoredValues = () => {
@@ -135,6 +145,13 @@ export const Checkout = () => {
     };
   }, [clearErrors, getValues, setValue]);
 
+  useEffect(() => {
+    if (!me) return;
+    if (me.firstName) setValue('firstName', me.firstName);
+    if (me.lastName) setValue('lastName', me.lastName);
+    if (me.email) setValue('email', me.email);
+    if (me.phone) setValue('phone', me.phone);
+  }, [me, setValue]);
   const checkoutItems = useMemo(
     () =>
       items.map((item) => ({
@@ -304,6 +321,7 @@ export const Checkout = () => {
               isDark={isDark}
               errors={errors}
               register={register}
+              control={control}
             />
 
             <PaymentMethodSection
@@ -325,6 +343,7 @@ export const Checkout = () => {
                 items={items}
                 removeItem={removeItem}
                 updateQuantity={updateQuantity}
+                carrier={carrier}
               />
             </div>
 
@@ -356,6 +375,7 @@ export const Checkout = () => {
               items={items}
               removeItem={removeItem}
               updateQuantity={updateQuantity}
+              carrier={carrier}
             />
           </div>
         </div>

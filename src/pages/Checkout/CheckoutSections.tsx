@@ -1,9 +1,17 @@
-import { type FieldErrors, type UseFormRegister } from 'react-hook-form';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  type Control,
+  type FieldErrors,
+  useController,
+  type UseFormRegister,
+} from 'react-hook-form';
 import clsx from 'clsx';
 import { ChevronDown, CreditCard } from 'lucide-react';
 
 import { TextArea } from '@/components';
+import { shippingService } from '@/services';
 import { PAYMENT_METHODS } from '@/types';
+import type { CityOption, WarehouseOption } from '@/types/shipping.types';
 
 import {
   carrierOptions,
@@ -16,6 +24,7 @@ import {
   PaymentOption,
   StripeInfoPanel,
 } from './CheckoutUI';
+import { SearchableSelect } from './SearchableSelect';
 
 interface CheckoutSectionProps {
   isDark: boolean;
@@ -92,69 +101,140 @@ export const ContactInformationSection = ({
   </CheckoutSection>
 );
 
+interface ShippingAddressSectionProps extends CheckoutSectionProps {
+  control: Control<CheckoutFormValues>;
+}
+
 export const ShippingAddressSection = ({
   isDark,
   errors,
   register,
-}: CheckoutSectionProps) => (
-  <CheckoutSection
-    title="Shipping Address"
-    isDark={isDark}
-    className="md:px-[23px] md:pt-[39px] md:pb-10"
-  >
-    <Field label="Delivery *" error={errors.carrier?.message} isDark={isDark}>
-      <div className="relative">
-        <select
-          {...register('carrier')}
-          name="carrier"
-          autoComplete="shipping country"
-          className={clsx(
-            getFieldClassName(isDark, Boolean(errors.carrier)),
-            'appearance-none pr-10',
-          )}
-        >
-          {carrierOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          className={clsx(
-            'pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2',
-            isDark ? 'text-gray-500' : 'text-[#6C7275]',
-          )}
-        />
-      </div>
-    </Field>
+  control,
+}: ShippingAddressSectionProps) => {
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [warehousesLoading, setWarehousesLoading] = useState(false);
 
-    <Field label="Town / City *" error={errors.city?.message} isDark={isDark}>
-      <input
-        {...register('city')}
-        type="text"
-        name="city"
-        autoComplete="address-level2"
-        placeholder="Town / City"
-        className={getFieldClassName(isDark, Boolean(errors.city))}
-      />
-    </Field>
+  const { field: cityField } = useController({ name: 'city', control });
+  const { field: branchField } = useController({
+    name: 'branchNumber',
+    control,
+  });
 
-    <Field
-      label="Department Code*"
-      error={errors.branchNumber?.message}
+  const fetchCities = useCallback(async (search?: string) => {
+    setCitiesLoading(true);
+    try {
+      const data = await shippingService.getCities(search);
+      setCities(data);
+    } catch {
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  }, []);
+
+  const fetchWarehouses = useCallback(async (city: string, search?: string) => {
+    if (!city) return;
+    setWarehousesLoading(true);
+    try {
+      const data = await shippingService.getWarehouses(city, search);
+      setWarehouses(data);
+    } catch {
+      setWarehouses([]);
+    } finally {
+      setWarehousesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCities();
+  }, [fetchCities]);
+
+  const handleCityChange = (value: string) => {
+    cityField.onChange(value);
+    branchField.onChange('');
+    setWarehouses([]);
+    fetchWarehouses(value);
+  };
+
+  const cityOptions = cities.map((c) => ({
+    value: c.name,
+    label: `${c.name} (${c.area})`,
+  }));
+
+  const warehouseOptions = warehouses.map((w) => ({
+    value: w.number,
+    label: w.label,
+  }));
+
+  return (
+    <CheckoutSection
+      title="Shipping Address"
       isDark={isDark}
+      className="md:px-[23px] md:pt-[39px] md:pb-10"
     >
-      <input
-        {...register('branchNumber')}
-        type="text"
-        name="branchNumber"
-        autoComplete="address-line2"
-        placeholder="Department code"
-        className={getFieldClassName(isDark, Boolean(errors.branchNumber))}
-      />
-    </Field>
-  </CheckoutSection>
-);
+      <Field label="Delivery *" error={errors.carrier?.message} isDark={isDark}>
+        <div className="relative">
+          <select
+            {...register('carrier')}
+            name="carrier"
+            autoComplete="shipping country"
+            className={clsx(
+              getFieldClassName(isDark, Boolean(errors.carrier)),
+              'appearance-none pr-10',
+            )}
+          >
+            {carrierOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className={clsx(
+              'pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2',
+              isDark ? 'text-gray-500' : 'text-[#6C7275]',
+            )}
+          />
+        </div>
+      </Field>
+
+      <Field label="Town / City *" error={errors.city?.message} isDark={isDark}>
+        <SearchableSelect
+          isDark={isDark}
+          hasError={Boolean(errors.city)}
+          value={cityField.value}
+          onChange={handleCityChange}
+          placeholder="Choose city"
+          options={cityOptions}
+          isLoading={citiesLoading}
+          onSearchChange={(s) => fetchCities(s)}
+        />
+      </Field>
+
+      <Field
+        label="Department Code *"
+        error={errors.branchNumber?.message}
+        isDark={isDark}
+      >
+        <SearchableSelect
+          isDark={isDark}
+          hasError={Boolean(errors.branchNumber)}
+          value={branchField.value}
+          onChange={branchField.onChange}
+          placeholder={
+            cityField.value ? 'Choose warehouse' : 'First, select a city'
+          }
+          options={warehouseOptions}
+          isLoading={warehousesLoading}
+          disabled={!cityField.value}
+          onSearchChange={(s) => fetchWarehouses(cityField.value, s)}
+        />
+      </Field>
+    </CheckoutSection>
+  );
+};
 
 interface PaymentMethodSectionProps extends CheckoutSectionProps {
   paymentMethod: CheckoutFormValues['paymentMethod'];
