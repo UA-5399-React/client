@@ -5,6 +5,7 @@ import { ListFilter } from 'lucide-react';
 import {
   AdminPageHeader,
   Button,
+  ImportProductsModal,
   Pagination,
   ProductFiltersBar,
   SearchInput,
@@ -39,6 +40,7 @@ export function AdminProducts() {
   } = usePaginationPageParam();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
@@ -101,6 +103,10 @@ export function AdminProducts() {
 
   return (
     <div>
+      {showImportModal && (
+        <ImportProductsModal onClose={() => setShowImportModal(false)} />
+      )}
+
       <AdminPageHeader />
 
       <div className="flex items-center justify-between px-4 pt-6">
@@ -120,6 +126,13 @@ export function AdminProducts() {
             onClick={handleCreateProduct}
           >
             + Add Product
+          </Button>
+
+          <Button
+            className="ml-3 border border-gray-300 bg-transparent text-[rgb(var(--color-text))] hover:border-blue-500 hover:text-blue-500"
+            onClick={() => setShowImportModal(true)}
+          >
+            Import
           </Button>
         </div>
 

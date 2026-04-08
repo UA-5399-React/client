@@ -11,6 +11,7 @@ export { Dropdown } from './Dropdown';
 export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { Header } from './Header';
+export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
 export { LogoutButton } from './LogoutButton/LogoutButton';
