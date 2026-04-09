@@ -1,24 +1,53 @@
-import { useNavigate } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Button, OrdersTopWidgets, OrderTabs, TableOrders } from '@/components';
 import { ROUTES } from '@/constants';
 import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
-import { useAdminOrders } from '@/hooks/useAdminOrders';
+import {
+  type OrdersSortField,
+  type SortOrder,
+  useAdminOrders,
+} from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
 import type { OrderItem } from '@/types/tableOrders.types';
 
+type DisplayOrdersSortField = OrdersSortField | null;
+
+const DEFAULT_SORT_BY: OrdersSortField = 'createdAt';
+const DEFAULT_ORDER: SortOrder = 'desc';
+
 export function AdminOrders() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const currentStatus =
     searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
 
-  const { orders, loading, error, handleOrderStatusChange } =
-    useAdminOrders(currentStatus);
-  const { counts, loading: countsLoading } = useAdminOrdersCounts();
+  const sortParam = searchParams.get('sortBy');
+  const orderParam = searchParams.get('order');
 
-  const navigate = useNavigate();
+  const currentSort: OrdersSortField =
+    sortParam === 'createdAt' || sortParam === 'totalPrice'
+      ? sortParam
+      : DEFAULT_SORT_BY;
+
+  const currentOrder: SortOrder =
+    orderParam === 'asc' || orderParam === 'desc' ? orderParam : DEFAULT_ORDER;
+
+  const hasExplicitSortInUrl =
+    searchParams.has('sortBy') && searchParams.has('order');
+
+  const displaySort: DisplayOrdersSortField = hasExplicitSortInUrl
+    ? currentSort
+    : null;
+
+  const { orders, loading, error, handleOrderStatusChange } = useAdminOrders(
+    currentStatus,
+    currentSort,
+    currentOrder,
+  );
+
+  const { counts, loading: countsLoading } = useAdminOrdersCounts();
 
   const handleCreateOrder = () => {
     navigate(ROUTES.ADMIN_ORDER_CREATE);
@@ -28,6 +57,17 @@ export function AdminOrders() {
     navigate(ROUTES.ADMIN_ORDER_EDIT.replace(':id', order.orderId), {
       state: { order },
     });
+  };
+
+  const handleSortChange = (field: OrdersSortField) => {
+    const nextOrder: SortOrder =
+      currentSort === field && currentOrder === 'asc' ? 'desc' : 'asc';
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('sortBy', field);
+    nextParams.set('order', nextOrder);
+
+    setSearchParams(nextParams);
   };
 
   return (
@@ -54,6 +94,9 @@ export function AdminOrders() {
         items={orders}
         loading={loading}
         error={error}
+        sort={displaySort}
+        order={currentOrder}
+        onSortChange={handleSortChange}
         onEdit={handleEditOrder}
         onStatusChange={handleOrderStatusChange}
       />

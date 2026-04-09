@@ -9,6 +9,8 @@ import {
   USER_ROLE_EDIT_OPTIONS,
   USER_STATUS_EDIT_OPTIONS,
 } from '@/constants/adminUsers';
+import { useConfirmModal } from '@/hooks/useConfirmModal';
+import { useDeleteAdminUser } from '@/hooks/useDeleteAdminUser';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
 import type {
   AdminUser,
@@ -52,6 +54,8 @@ export function UsersTable({
 }: UsersTableProps) {
   const navigate = useNavigate();
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
+  const { deleteUser, loading: isDeleting } = useDeleteAdminUser();
+  const { openConfirmModal } = useConfirmModal();
 
   const handleStatusChange = async (
     userId: string,
@@ -71,6 +75,16 @@ export function UsersTable({
     if (newValue && newValue !== 'all') {
       await handleUpdate(userId, { role: newValue as UserRoleValue });
     }
+  };
+
+  const handleDeleteUser = (id: string) => {
+    openConfirmModal({
+      title: 'Delete User',
+      description: 'Are you sure you want to delete this user?',
+      isCritical: true,
+      confirmText: 'Delete',
+      onConfirm: () => deleteUser(id),
+    });
   };
 
   if (!items.length) {
@@ -120,7 +134,7 @@ export function UsersTable({
         <tbody
           className={clsx(
             'bg-neutral-0 dark:bg-backgroundSec [&_td]:px-4 [&_td]:py-5 [&_td]:text-left',
-            isUpdating && 'pointer-events-none opacity-50',
+            (isUpdating || isDeleting) && 'pointer-events-none opacity-50',
           )}
         >
           {items.map((user, index) => {
@@ -217,7 +231,7 @@ export function UsersTable({
                         id: 'delete',
                         label: 'Delete',
                         icon: <Trash className="h-[20px] w-[20px]" />,
-                        onClick: () => {},
+                        onClick: () => handleDeleteUser(user.id),
                         variant: 'danger',
                       },
                     ]}

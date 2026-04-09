@@ -413,7 +413,7 @@ describe('UI Component: Header', () => {
   // ── Search ───────────────────────────────────────────────────────────────────
   it('should not show search input by default', () => {
     render(<Header />);
-    expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search')).toBeDisabled();
   });
 
   it('should show search input after clicking Search button', async () => {
@@ -428,7 +428,7 @@ describe('UI Component: Header', () => {
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Search' }));
     await user.click(screen.getByRole('button', { name: 'Search' }));
-    expect(screen.queryByPlaceholderText('Search')).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search')).toBeDisabled();
   });
 
   it('should clear search value when closing search', async () => {

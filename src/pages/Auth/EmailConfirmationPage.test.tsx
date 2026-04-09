@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { authService } from '@/services/authService';
@@ -24,7 +25,11 @@ describe('Page: EmailConfirmationPage', () => {
 
     window.history.pushState({}, '', '/email-confirmation?token=valid-token');
 
-    render(<EmailConfirmationPage />);
+    render(
+      <StrictMode>
+        <EmailConfirmationPage />
+      </StrictMode>,
+    );
 
     expect(await screen.findByText('Email confirmed')).toBeInTheDocument();
     expect(
@@ -35,6 +40,7 @@ describe('Page: EmailConfirmationPage', () => {
     ).toBeInTheDocument();
 
     expect(authService.confirmEmail).toHaveBeenCalledWith('valid-token');
+    expect(authService.confirmEmail).toHaveBeenCalledTimes(1);
   });
 
   it('should render error state when confirmation fails', async () => {

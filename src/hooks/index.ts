@@ -9,6 +9,7 @@ export * from './useCheckout';
 export * from './useCreateAdminCategory';
 export * from './useCreateAdminUser';
 export * from './useDeleteAdminCategory';
+export * from './useDeleteAdminUser';
 export * from './useGetAdminCategory';
 export * from './useGetAdminUser';
 export * from './useLocalStorage';

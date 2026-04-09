@@ -30,6 +30,7 @@ export const GET_PRODUCTS_PAGE = gql`
         categories
         createdAt
         updatedAt
+        purchaseCount
       }
     }
   }
