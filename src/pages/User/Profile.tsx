@@ -281,7 +281,7 @@ export function Profile() {
   }
 
   return (
-    <section className="bg-background text-text min-h-screen px-8 lg:px-40">
+    <section className="bg-background text-text min-h-screen px-8 lg:px-40 lg:pb-20">
       <button
         type="button"
         onClick={() => navigate(-1)}
