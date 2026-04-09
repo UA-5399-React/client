@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,7 @@ import { Button, Checkbox } from '@/components';
 import { Input } from '@/components';
 import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
-import { authService } from '@/services/authService';
+import { AuthApiError, authService } from '@/services/authService';
 import { cartService } from '@/services/cartService';
 import { useCartStore } from '@/store/useCartStore';
 import { clearAuthStorage, persistAuthStorage } from '@/utils/auth-storage';
@@ -31,6 +31,12 @@ export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mutateAsync: loginMutation, isPending } = useLogin();
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
+  const [resendFeedback, setResendFeedback] = useState<{
+    message: string;
+    status: 'success' | 'error';
+  } | null>(null);
   const redirectTo =
     typeof location.state?.from === 'string' ? location.state.from : null;
 
@@ -38,6 +44,7 @@ export const LoginForm: React.FC = () => {
     register,
     handleSubmit,
     control,
+    getValues,
     formState: { errors },
     setError,
     clearErrors,
@@ -74,6 +81,8 @@ export const LoginForm: React.FC = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
+      setUnconfirmedEmail(null);
+      setResendFeedback(null);
       await loginMutation({ email: data.email, password: data.password });
       const user = await authService.getMe();
 
@@ -126,12 +135,47 @@ export const LoginForm: React.FC = () => {
       } else {
         navigate(ROUTES.SHOP);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      const isEmailNotConfirmed =
+        error instanceof AuthApiError && error.code === 'EMAIL_NOT_CONFIRMED';
+
+      setUnconfirmedEmail(isEmailNotConfirmed ? data.email : null);
+      setResendFeedback(null);
       setError('root', {
         type: 'server',
-        message: 'Invalid email or password. Please try again.',
+        message: isEmailNotConfirmed
+          ? 'Please confirm your email before signing in.'
+          : 'Invalid email or password. Please try again.',
       });
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    const email = unconfirmedEmail ?? getValues('email');
+
+    if (!email) {
+      return;
+    }
+
+    setIsResendingConfirmation(true);
+    setResendFeedback(null);
+
+    try {
+      const response = await authService.resendConfirmation(email);
+      setResendFeedback({
+        message: response.message,
+        status: 'success',
+      });
+    } catch (error) {
+      setResendFeedback({
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to resend confirmation email.',
+        status: 'error',
+      });
+    } finally {
+      setIsResendingConfirmation(false);
     }
   };
 
@@ -155,7 +199,11 @@ export const LoginForm: React.FC = () => {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        onChange={() => clearErrors('root')}
+        onChange={() => {
+          clearErrors('root');
+          setUnconfirmedEmail(null);
+          setResendFeedback(null);
+        }}
         className="space-y-6"
       >
         <Button
@@ -227,10 +275,37 @@ export const LoginForm: React.FC = () => {
         </div>
 
         {errors.root && (
-          <p className="text-center text-sm font-medium text-red-500">
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-300">
             {errors.root.message}
           </p>
         )}
+
+        {unconfirmedEmail && (
+          <div>
+            <Button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={isResendingConfirmation}
+              className="box-border inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-3.5 text-center text-sm font-medium text-gray-900 transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isResendingConfirmation
+                ? 'Sending confirmation email...'
+                : 'Resend confirmation email'}
+            </Button>
+            {resendFeedback && (
+              <div
+                className={
+                  resendFeedback.status === 'success'
+                    ? 'mt-6 rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-300'
+                    : 'mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-300'
+                }
+              >
+                {resendFeedback.message}
+              </div>
+            )}
+          </div>
+        )}
+
         <Button
           type="submit"
           disabled={isPending}
