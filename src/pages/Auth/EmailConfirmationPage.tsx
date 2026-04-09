@@ -7,52 +7,81 @@ import { authService } from '@/services/authService';
 const DEFAULT_ERROR_MESSAGE =
   'We could not confirm your email. Please try the link again or request a new confirmation email later.';
 
+type ConfirmationState = {
+  message: string | null;
+  status: 'loading' | 'success' | 'error';
+  token: string | null;
+};
+
 export const EmailConfirmationPage = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const hasStartedRef = useRef(false);
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
-    'loading',
-  );
-  const [message, setMessage] = useState<string | null>(null);
+  const mountedRef = useRef(false);
+  const startedTokenRef = useRef<string | null>(null);
+  const activeTokenRef = useRef<string | null>(null);
+  const [confirmation, setConfirmation] = useState<ConfirmationState>({
+    message: null,
+    status: 'loading',
+    token: null,
+  });
   const isTokenMissing = !token;
-  const resolvedStatus = isTokenMissing ? 'error' : status;
+  const resolvedStatus = isTokenMissing
+    ? 'error'
+    : confirmation.token === token
+      ? confirmation.status
+      : 'loading';
   const resolvedMessage = isTokenMissing
     ? 'Confirmation token is missing.'
-    : message;
+    : confirmation.token === token
+      ? confirmation.message
+      : null;
 
   useEffect(() => {
-    if (isTokenMissing || hasStartedRef.current) {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isTokenMissing) {
+      activeTokenRef.current = null;
       return;
     }
 
-    hasStartedRef.current = true;
-    let isActive = true;
+    if (startedTokenRef.current === token) {
+      return;
+    }
+
+    startedTokenRef.current = token;
+    activeTokenRef.current = token;
 
     authService
       .confirmEmail(token)
       .then((response) => {
-        if (!isActive) {
+        if (!mountedRef.current || activeTokenRef.current !== token) {
           return;
         }
 
-        setStatus('success');
-        setMessage(response.message);
+        setConfirmation({
+          message: response.message,
+          status: 'success',
+          token,
+        });
       })
       .catch((error: unknown) => {
-        if (!isActive) {
+        if (!mountedRef.current || activeTokenRef.current !== token) {
           return;
         }
 
-        setStatus('error');
-        setMessage(
-          error instanceof Error ? error.message : DEFAULT_ERROR_MESSAGE,
-        );
+        setConfirmation({
+          message:
+            error instanceof Error ? error.message : DEFAULT_ERROR_MESSAGE,
+          status: 'error',
+          token,
+        });
       });
-
-    return () => {
-      isActive = false;
-    };
   }, [isTokenMissing, token]);
 
   const isLoading = resolvedStatus === 'loading';

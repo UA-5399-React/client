@@ -12,6 +12,11 @@ import { authService } from '@/services/authService';
 
 const registerSchema = z
   .object({
+    firstName: z
+      .string()
+      .trim()
+      .min(1, 'First name is required')
+      .max(50, 'First name must be at most 50 characters'),
     email: z.string().min(1, 'Email is required').email('Invalid email format'),
     password: z
       .string()
@@ -53,6 +58,7 @@ export const RegisterForm: React.FC = () => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      firstName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -63,6 +69,7 @@ export const RegisterForm: React.FC = () => {
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       await registerMutation({
+        firstName: data.firstName,
         email: data.email,
         password: data.password,
         passwordConfirmation: data.confirmPassword,
@@ -149,6 +156,17 @@ export const RegisterForm: React.FC = () => {
             </span>
             <span className="bg-fieldBorder/80 h-px flex-1" />
           </div>
+
+          <Input
+            {...register('firstName')}
+            type="text"
+            variant="underlined"
+            placeholder="First name"
+            autoComplete="given-name"
+            state={errors.firstName ? 'error' : 'default'}
+            helperText={errors.firstName?.message}
+            className="pb-2"
+          />
 
           <Input
             {...register('email')}
