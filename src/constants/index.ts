@@ -37,6 +37,7 @@ export const ROUTES = {
   MYORDERS: '/profile/myOrders',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
+  ADMIN_FEATURED: '/admin/featured',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
