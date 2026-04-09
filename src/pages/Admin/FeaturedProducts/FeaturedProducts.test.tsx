@@ -18,14 +18,19 @@ vi.mock('@/services/api', () => ({
 
 const mockProducts = {
   items: [
-    { _id: 'prod-1', title: 'iPhone 15', price: 1000 },
-    { _id: 'prod-2', title: 'MacBook Pro', price: 2000 },
+    { _id: 'prod-1', title: 'iPhone 15', price: 1000, imageUrl: 'test.jpg' },
+    { _id: 'prod-2', title: 'MacBook Pro', price: 2000, imageUrl: 'test.jpg' },
   ],
 };
 
 const mockFeatured = [
   {
-    productId: { _id: 'prod-3', title: 'AirPods', price: 200 },
+    productId: {
+      _id: 'prod-3',
+      title: 'AirPods',
+      price: 200,
+      imageUrl: 'test.jpg',
+    },
     type: 'new_arrival',
     position: 0,
   },
@@ -56,15 +61,6 @@ describe('Page: FeaturedProducts', () => {
         return Promise.resolve(mockFeatured);
       return Promise.resolve([]);
     });
-  });
-
-  it('renders the page with loaded data and correct counter', async () => {
-    renderPage();
-    expect(await screen.findByText('Manage New Arrivals')).toBeInTheDocument();
-    expect(screen.getByText('AirPods')).toBeInTheDocument();
-    expect(
-      screen.getByText(`1 / ${NEW_ARRIVALS_LIMIT} Items`),
-    ).toBeInTheDocument();
   });
 
   it('filters and adds a product from search results', async () => {
@@ -154,7 +150,12 @@ describe('Page: FeaturedProducts', () => {
     const fullList = Array(NEW_ARRIVALS_LIMIT)
       .fill(0)
       .map((_, i) => ({
-        productId: { _id: `id-${i}`, title: `Product ${i}`, price: 100 },
+        productId: {
+          _id: `id-${i}`,
+          title: `Product ${i}`,
+          price: 100,
+          imageUrl: 'test.jpg',
+        },
         type: 'new_arrival',
       }));
 
@@ -172,5 +173,19 @@ describe('Page: FeaturedProducts', () => {
     });
 
     expect(apiClient.post).not.toHaveBeenCalled();
+  });
+
+  it('renders the page with loaded data and correct counter', async () => {
+    renderPage();
+
+    expect(await screen.findByText('Manage New Arrivals')).toBeInTheDocument();
+    expect(screen.getByText('AirPods')).toBeInTheDocument();
+
+    const image = screen.getByAltText('AirPods');
+    expect(image).toHaveAttribute('src', 'test.jpg');
+
+    expect(
+      screen.getByText(`1 / ${NEW_ARRIVALS_LIMIT} Items`),
+    ).toBeInTheDocument();
   });
 });

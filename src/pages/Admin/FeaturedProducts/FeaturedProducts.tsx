@@ -4,23 +4,20 @@ import { Loader2, PackageSearch, Plus, Trash2 } from 'lucide-react';
 import { AdminPageHeader, Button, SearchInput } from '@/components';
 import { NEW_ARRIVALS_LIMIT } from '@/constants';
 import { apiClient } from '@/services/api';
+import type { Product } from '@/types/product.types';
 
-interface Product {
+type FeaturedProductItem = Pick<Product, 'title' | 'price' | 'imageUrl'> & {
   _id: string;
-  title: string;
-  price: number;
-  imageUrl?: string;
-}
+};
 
 interface FeaturedResponse {
-  productId: Product | string;
+  productId: FeaturedProductItem | string;
   type: string;
   position: number;
 }
-
 export function FeaturedProducts() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [featured, setFeatured] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<FeaturedProductItem[]>([]);
+  const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -30,7 +27,9 @@ export function FeaturedProducts() {
       try {
         setLoading(true);
         const [productsRes, featuredRes] = await Promise.all([
-          apiClient.get<{ items: Product[] }>('/products?status=active'),
+          apiClient.get<{ items: FeaturedProductItem[] }>(
+            '/products?status=active',
+          ),
           apiClient.get<FeaturedResponse[]>('/featured-products/new-arrivals'),
         ]);
 
@@ -44,7 +43,7 @@ export function FeaturedProducts() {
           .map((item) =>
             typeof item.productId === 'object' ? item.productId : null,
           )
-          .filter((p): p is Product => p !== null);
+          .filter((p): p is FeaturedProductItem => p !== null);
 
         setFeatured(extractedProducts);
       } catch (error) {
@@ -56,7 +55,7 @@ export function FeaturedProducts() {
     fetchData();
   }, []);
 
-  const handleAddProduct = async (product: Product) => {
+  const handleAddProduct = async (product: FeaturedProductItem) => {
     if (featured.length >= NEW_ARRIVALS_LIMIT) return;
     try {
       setIsActionLoading(true);
