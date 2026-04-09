@@ -8,4 +8,5 @@ export type User = {
   avatarUrl?: string;
   isActive: boolean;
   isEmailConfirmed: boolean;
+  isGoogleConnected?: boolean;
 };

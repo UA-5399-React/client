@@ -34,6 +34,7 @@ export interface OrderedProduct {
   imageUrl: string;
   unitPrice: number;
   amount: number;
+  product?: string;
 }
 
 export interface OrderUser {
@@ -49,6 +50,7 @@ export interface OrderFormData {
   phone: string;
   status: OrderStatus;
   items: {
+    productId: string;
     productName: string;
     price: string;
     quantity: string;
@@ -64,4 +66,19 @@ export interface OrdersPage {
 
 export interface GetOrdersData {
   orders: OrdersPage;
+}
+
+export interface UpdateOrderLinePayload {
+  productId: string;
+  amount: number;
+  remove?: boolean;
+}
+
+export interface UpdateOrderPayload {
+  status: OrderStatus;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  items: UpdateOrderLinePayload[];
 }

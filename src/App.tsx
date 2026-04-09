@@ -6,6 +6,7 @@ import { LoginForm, MainLayout, ProtectedRoute } from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { Message } from './components/Message.tsx/Message';
+import { NewsletterUnsubscribePage } from './components/NewsletterUnsubscribePage/NewsletterUnsubscribePage';
 import { RegisterForm } from './components/RegisterForm';
 import { AUTH_ROLES, ROUTES } from './constants';
 import { useCartSync } from './hooks/useCartSync';
@@ -25,6 +26,8 @@ import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
+import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
@@ -39,6 +42,7 @@ function App() {
     PRODUCT,
     CONTACT_US,
     CART,
+    NEWSLETTER_UNSUBSCRIBE,
     CHECKOUT,
     ORDER_CONFIRMATION,
     ORDER_DETAIL,
@@ -61,6 +65,8 @@ function App() {
     ADMIN_ORDERS,
     PROFILE,
     MYORDERS,
+    FORGOT_PASSWORD,
+    RESET_PASSWORD,
   } = ROUTES;
 
   if (!isAuthReady) {
@@ -77,6 +83,10 @@ function App() {
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
+          <Route
+            path={NEWSLETTER_UNSUBSCRIBE}
+            element={<NewsletterUnsubscribePage />}
+          />
           <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>
             <Route path={PROFILE} element={<Profile />} />
@@ -94,6 +104,8 @@ function App() {
             path={EMAIL_CONFIRMATION}
             element={<EmailConfirmationPage />}
           />
+          <Route path={FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+          <Route path={RESET_PASSWORD} element={<ResetPasswordPage />} />
         </Route>
 
         <Route
