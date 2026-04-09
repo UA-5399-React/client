@@ -4,7 +4,6 @@ import type {
   SortValue,
 } from '@/types/productsSort';
 
-// Builds a string sort value from sort field and order
 export function buildSortValue(
   sort: ProductSortField,
   order: SortOrder,
@@ -15,10 +14,13 @@ export function buildSortValue(
   if (sort === 'price' && order === 'asc') return 'price-asc';
   if (sort === 'price' && order === 'desc') return 'price-desc';
   if (sort === 'title' && order === 'asc') return 'title-asc';
-  return 'title-desc';
+  if (sort === 'title' && order === 'desc') return 'title-desc';
+  if (sort === 'purchaseCount' && order === 'asc') return 'purchaseCount-asc';
+  if (sort === 'purchaseCount' && order === 'desc') return 'purchaseCount-desc';
+
+  return 'updated-desc';
 }
 
-// Parses sort value string into structured sorting parameters
 export function parseSortValue(value: SortValue): {
   sort: ProductSortField;
   order: SortOrder;
@@ -38,5 +40,9 @@ export function parseSortValue(value: SortValue): {
       return { sort: 'title', order: 'asc' };
     case 'title-desc':
       return { sort: 'title', order: 'desc' };
+    case 'purchaseCount-asc':
+      return { sort: 'purchaseCount', order: 'asc' };
+    case 'purchaseCount-desc':
+      return { sort: 'purchaseCount', order: 'desc' };
   }
 }

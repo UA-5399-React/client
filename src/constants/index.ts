@@ -11,6 +11,7 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',
   CHECKOUT: '/checkout',
   ORDER_CONFIRMATION: '/order-confirmation',
   ORDER_DETAIL: '/order/:orderId',
@@ -34,6 +35,9 @@ export const ROUTES = {
   ADMIN_ORDER_EDIT: '/admin/orders/:id',
   PROFILE: '/profile',
   MYORDERS: '/profile/myOrders',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  ADMIN_FEATURED: '/admin/featured',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
@@ -63,6 +67,8 @@ export const AUTH_ENDPOINTS = {
   CONFIRM_EMAIL: '/auth/confirm-email',
   ME: '/auth/me',
   LOGOUT: '/auth/logout',
+  RESET_PASSWORD_REQUEST: '/auth/reset-password/request',
+  RESET_PASSWORD_CONFIRM: '/auth/reset-password/confirm',
 } as const;
 
 export const AUTH_MESSAGES = {
@@ -72,6 +78,8 @@ export const AUTH_MESSAGES = {
   FETCH_PROFILE_FAILED: 'Failed to fetch user profile',
   GOOGLE_DISCONNECT_FAILED: 'Failed to disconnect Google account',
   LOGOUT_FAILED: 'Failed to logout on server',
+  RESET_PASSWORD_REQUEST_FAILED: 'Failed to send password reset email',
+  RESET_PASSWORD_FAILED: 'Failed to reset password',
 } as const;
 
 export const AUTH_ROLES = {
