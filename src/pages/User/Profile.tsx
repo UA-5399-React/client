@@ -100,7 +100,7 @@ export function Profile() {
     setSearchParams(nextSearchParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  // Autoclear messages
+  // Autoclear success and error messages
   useEffect(() => {
     if (!successMessage) return;
     const timer = setTimeout(() => {
