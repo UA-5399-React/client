@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client/react';
 
-import { ORDER, PAGE, PAGE_LIMIT, SORT } from '@/constants/general';
+import { PAGE, PAGE_LIMIT } from '@/constants/general';
 import {
   GET_ORDERS,
   UPDATE_ORDER_STATUS,
@@ -11,15 +11,22 @@ import {
   type OrderStatus,
 } from '@/types/tableOrders.types';
 
-export function useAdminOrders(status?: string) {
+export type OrdersSortField = 'createdAt' | 'totalPrice';
+export type SortOrder = 'asc' | 'desc';
+
+export function useAdminOrders(
+  status?: string,
+  sort: OrdersSortField = 'createdAt',
+  order: SortOrder = 'desc',
+) {
   const filter =
     status && status !== ALL_STATUS ? { status: status.toUpperCase() } : {};
 
   const queryVariables = {
     page: PAGE,
     limit: PAGE_LIMIT,
-    sort: SORT,
-    order: ORDER,
+    sort,
+    order,
     filter,
   };
 
