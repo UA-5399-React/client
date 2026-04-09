@@ -11,6 +11,19 @@ vi.mock('@/hooks/useAdminProduct', () => ({
   })),
 }));
 
+const { getCities, getWarehouses } = vi.hoisted(() => ({
+  getCities: vi.fn(async () => []),
+  getWarehouses: vi.fn(async () => []),
+}));
+
+vi.mock('@/services', () => ({
+  shippingService: {
+    getCities,
+    getWarehouses,
+  },
+}));
+
+import { SHIPPING_CARRIERS } from '@/types';
 import { ORDER_STATUS } from '@/types/tableOrders.types';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
@@ -21,6 +34,9 @@ describe('Component: AdminOrderForm', () => {
     customerName: 'John Doe',
     email: 'john@example.com',
     phone: '+380991112233',
+    carrier: SHIPPING_CARRIERS.NOVA_POST,
+    city: 'Kyiv',
+    branchNumber: '141',
     status: ORDER_STATUS.NEW,
     items: [
       {
@@ -40,6 +56,9 @@ describe('Component: AdminOrderForm', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Email' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Phone' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'Carrier' }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('combobox', { name: 'Status' }),
     ).toBeInTheDocument();
@@ -63,6 +82,7 @@ describe('Component: AdminOrderForm', () => {
     ).toBeInTheDocument();
     expect(await screen.findByText('Email is required')).toBeInTheDocument();
     expect(await screen.findByText('Phone is required')).toBeInTheDocument();
+    expect(await screen.findByText('City is required')).toBeInTheDocument();
     expect(await screen.findByText('Product is required')).toBeInTheDocument();
   });
 
@@ -89,6 +109,9 @@ describe('Component: AdminOrderForm', () => {
       customerName: 'John Doe',
       email: 'john@example.com',
       phone: '+380991112233',
+      carrier: SHIPPING_CARRIERS.NOVA_POST,
+      city: 'Kyiv',
+      branchNumber: '141',
       status: ORDER_STATUS.NEW,
       // Disabled price input is excluded from submit payload by react-hook-form.
       items: [
