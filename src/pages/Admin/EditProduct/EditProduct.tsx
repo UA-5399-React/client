@@ -1,13 +1,14 @@
-import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { AdminPageHeader } from '@/components';
 import { Button } from '@/components/Button';
 import { ProductForm } from '@/components/ProductForm';
 import { ROUTES } from '@/constants';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useGetAdminProduct } from '@/hooks/useGetAdminProduct';
 import { useUpdateAdminProduct } from '@/hooks/useUpdateAdminProduct';
 import { useUploadProductImage } from '@/hooks/useUploadProductImage';
+import { useErrorStore } from '@/store/errorStore';
 import type { ProductFormData, ProductStatus } from '@/types';
 
 const ERROR_TEXTS = {
@@ -16,10 +17,11 @@ const ERROR_TEXTS = {
 };
 
 export const EditProduct = () => {
+  useErrorMessage();
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const showMessage = useErrorStore((s) => s.show);
 
   const {
     product,
@@ -72,7 +74,6 @@ export const EditProduct = () => {
 
   const handleSubmit = async (formData: ProductFormData) => {
     try {
-      setUploadError(null);
       let uploadedImage;
 
       if (formData.imageFile) {
@@ -91,33 +92,36 @@ export const EditProduct = () => {
         }),
       });
 
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-      navigate(ROUTES.ADMIN_PRODUCTS);
+      navigate(ROUTES.ADMIN_PRODUCTS, {
+        state: {
+          successMessage: 'Product updated successfully',
+        },
+      });
     } catch (e) {
-      setUploadError(e instanceof Error ? e.message : 'Failed to upload image');
-      console.error(e);
+      showMessage(
+        'error',
+        'Update failed',
+        e instanceof Error ? e.message : 'Something went wrong',
+      );
     }
+  };
+
+  const handleCancel = () => {
+    navigate(ROUTES.ADMIN_PRODUCTS, {
+      state: {
+        errorMessage: 'Creation cancelled',
+      },
+    });
   };
 
   return (
     <div>
       <AdminPageHeader />
       <div className="mx-auto max-w-3xl p-6">
-        {showSuccess && (
-          <div className="mb-4 rounded bg-green-100 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-            Product updated successfully!
-          </div>
-        )}
-        {uploadError && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-700 dark:bg-red-900/20 dark:text-red-400">
-            {uploadError}
-          </div>
-        )}
         <ProductForm
           initialData={initialData}
           onSubmit={handleSubmit}
-          onCancel={() => navigate(ROUTES.ADMIN_PRODUCTS)}
+          onCancel={handleCancel}
           isLoading={isUpdating || isUploading}
           isEditMode={true}
           updatedAt={product?.updatedAt}
