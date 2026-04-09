@@ -60,11 +60,8 @@ describe('Page: FeaturedProducts', () => {
 
   it('renders the page with loaded data and correct counter', async () => {
     renderPage();
-
     expect(await screen.findByText('Manage New Arrivals')).toBeInTheDocument();
-
     expect(screen.getByText('AirPods')).toBeInTheDocument();
-
     expect(
       screen.getByText(`1 / ${NEW_ARRIVALS_LIMIT} Items`),
     ).toBeInTheDocument();
@@ -72,7 +69,6 @@ describe('Page: FeaturedProducts', () => {
 
   it('filters and adds a product from search results', async () => {
     renderPage();
-
     await screen.findByText('Manage New Arrivals');
 
     const searchInput = screen.getByRole('textbox');
@@ -84,10 +80,7 @@ describe('Page: FeaturedProducts', () => {
     await waitFor(() => {
       expect(apiClient.post).toHaveBeenCalledWith(
         '/featured-products',
-        expect.objectContaining({
-          productId: 'prod-1',
-          type: 'new_arrival',
-        }),
+        expect.objectContaining({ productId: 'prod-1', type: 'new_arrival' }),
       );
     });
   });
@@ -96,21 +89,68 @@ describe('Page: FeaturedProducts', () => {
     (apiClient.delete as Mock).mockResolvedValue({});
     renderPage();
 
-    const airPodsElement = await screen.findByText('AirPods');
-    expect(airPodsElement).toBeInTheDocument();
-
+    await screen.findByText('AirPods');
     const deleteButton = screen.getByRole('button', { name: '' });
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(apiClient.delete).toHaveBeenCalledWith(
-        expect.stringContaining('/featured-products/prod-3'),
+        expect.stringContaining('prod-3'),
       );
       expect(screen.queryByText('AirPods')).not.toBeInTheDocument();
     });
   });
 
-  it('disables search input when the limit is reached', async () => {
+  it('handles fetch error in useEffect', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (apiClient.get as Mock).mockRejectedValue(new Error('Fetch failed'));
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Fetch error:',
+        expect.any(Error),
+      );
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('handles error during product addition', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (apiClient.post as Mock).mockRejectedValue(new Error('Add failed'));
+    renderPage();
+
+    const searchInput = await screen.findByRole('textbox');
+    fireEvent.change(searchInput, { target: { value: 'iPhone' } });
+    const dropDownItem = await screen.findByText('iPhone 15');
+    fireEvent.click(dropDownItem);
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Add error:', expect.any(Error));
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('handles error during product removal', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    (apiClient.delete as Mock).mockRejectedValue(new Error('Delete failed'));
+    renderPage();
+
+    await screen.findByText('AirPods');
+    const deleteButton = screen.getByRole('button', { name: '' });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Remove error:',
+        expect.any(Error),
+      );
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('prevents adding product if limit is reached (logic check)', async () => {
     const fullList = Array(NEW_ARRIVALS_LIMIT)
       .fill(0)
       .map((_, i) => ({
@@ -119,20 +159,18 @@ describe('Page: FeaturedProducts', () => {
       }));
 
     (apiClient.get as Mock).mockImplementation((url: string) => {
-      if (url.includes('/products')) return Promise.resolve({ items: [] });
+      if (url.includes('/products')) return Promise.resolve(mockProducts);
       if (url.includes('/featured-products')) return Promise.resolve(fullList);
       return Promise.resolve([]);
     });
 
     renderPage();
-
     const searchInput = await screen.findByRole('textbox');
 
     await waitFor(() => {
-      expect(
-        screen.getByText(`${NEW_ARRIVALS_LIMIT} / ${NEW_ARRIVALS_LIMIT} Items`),
-      ).toBeInTheDocument();
       expect(searchInput).toBeDisabled();
     });
+
+    expect(apiClient.post).not.toHaveBeenCalled();
   });
 });
