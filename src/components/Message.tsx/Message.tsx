@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
-import { BanIcon, CheckCheck, X } from 'lucide-react';
+import { Button } from '@base-ui/react/button';
+import { X } from 'lucide-react';
 
 import { useErrorStore } from '@/store/errorStore';
+
+import { typeStyles } from './messageTypesStyle';
 
 export function Message() {
   const { visible, type, title, message, hide } = useErrorStore();
@@ -14,20 +17,17 @@ export function Message() {
 
   if (!visible) return null;
 
-  const isSuccess = type === 'success';
+  const current = typeStyles[type];
+  const Icon = current.icon;
 
   return (
     <div
-      className={`fixed top-6 right-6 z-50 flex max-w-[420px] min-w-[320px] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3.5 shadow-sm ${isSuccess ? 'border-green-600' : 'border-red-600'} `}
+      className={`fixed top-6 right-6 z-50 flex max-w-[420px] min-w-[320px] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3.5 shadow-sm ${current.border} `}
     >
       <div
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${isSuccess ? 'bg-green-600' : 'bg-red-600'} `}
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${current.bg} `}
       >
-        {isSuccess ? (
-          <CheckCheck size={20} className="text-white" />
-        ) : (
-          <BanIcon size={20} className="text-white" />
-        )}
+        <Icon size={20} className="text-white" />
       </div>
 
       <div className="flex-1">
@@ -35,12 +35,12 @@ export function Message() {
         <p className="text-sm text-gray-500">{message}</p>
       </div>
 
-      <button
+      <Button
         onClick={hide}
         className="flex h-8 w-8 items-center justify-center rounded-md border-none bg-white text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
       >
         <X size={18} strokeWidth={2} />
-      </button>
+      </Button>
     </div>
   );
 }

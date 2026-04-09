@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ErrorType = 'success' | 'error';
+type ErrorType = 'success' | 'error' | 'info';
 
 interface ErrorState {
   visible: boolean;
