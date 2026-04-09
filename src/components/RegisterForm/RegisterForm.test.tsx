@@ -35,6 +35,7 @@ describe('Feature: RegisterForm', () => {
   it('should display all required form fields and submit button', () => {
     render(<RegisterForm />);
 
+    expect(screen.getByPlaceholderText(/First name/i)).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText(/Your email address/i),
     ).toBeInTheDocument();
@@ -55,6 +56,9 @@ describe('Feature: RegisterForm', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sign Up' }));
 
+    expect(
+      await screen.findByText('First name is required'),
+    ).toBeInTheDocument();
     expect(await screen.findByText('Email is required')).toBeInTheDocument();
     expect(
       await screen.findByText(
@@ -81,6 +85,7 @@ describe('Feature: RegisterForm', () => {
 
     render(<RegisterForm />);
 
+    await user.type(screen.getByPlaceholderText(/First name/i), 'John');
     await user.type(
       screen.getByPlaceholderText(/Your email address/i),
       'newuser@test.com',
@@ -95,6 +100,7 @@ describe('Feature: RegisterForm', () => {
 
     await waitFor(() => {
       expect(mockMutateAsync).toHaveBeenCalledWith({
+        firstName: 'John',
         email: 'newuser@test.com',
         password: 'Password1!',
         passwordConfirmation: 'Password1!',
@@ -118,6 +124,7 @@ describe('Feature: RegisterForm', () => {
 
     const emailInput = screen.getByPlaceholderText(/Your email address/i);
 
+    await user.type(screen.getByPlaceholderText(/First name/i), 'John');
     await user.type(emailInput, 'newuser@test.com');
     await user.type(screen.getByPlaceholderText(/^Password$/i), 'Password1!');
     await user.type(

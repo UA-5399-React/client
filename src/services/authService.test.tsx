@@ -83,6 +83,7 @@ describe('Service: authService', () => {
 
   describe('register()', () => {
     const mockPayload: RegisterPayload = {
+      firstName: 'John',
       email: 'newuser@test.com',
       password: 'Password1!',
       passwordConfirmation: 'Password1!',

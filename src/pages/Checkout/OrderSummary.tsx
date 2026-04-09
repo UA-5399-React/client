@@ -18,6 +18,7 @@ interface OrderSummaryProps {
   items: CartItem[];
   removeItem: ReturnType<typeof useCartStore.getState>['removeItem'];
   updateQuantity: ReturnType<typeof useCartStore.getState>['updateQuantity'];
+  carrier?: string;
 }
 
 const SummaryRow = ({
@@ -136,16 +137,17 @@ const OrderSummaryItem = ({
             >
               {item.product.title}
             </p>
-            {item.product.categories?.[0] && (
-              <p
-                className={clsx(
-                  'mt-2 text-xs leading-5',
-                  isDark ? 'text-gray-400' : 'text-[#6C7275]',
-                )}
-              >
-                {item.product.categories[0]}
-              </p>
-            )}
+            {item.product.categories?.[0] &&
+              !item.product.categories[0].match(/^[a-f\d]{24}$/i) && (
+                <p
+                  className={clsx(
+                    'mt-2 text-xs leading-5',
+                    isDark ? 'text-gray-400' : 'text-[#6C7275]',
+                  )}
+                >
+                  {item.product.categories[0]}
+                </p>
+              )}
 
             <QuantityControl
               isDark={isDark}
@@ -192,6 +194,7 @@ export function OrderSummary({
   items,
   removeItem,
   updateQuantity,
+  carrier,
 }: OrderSummaryProps) {
   return (
     <aside
@@ -279,7 +282,7 @@ export function OrderSummary({
                   isDark ? 'text-gray-400' : 'text-[#6C7275]',
                 )}
               >
-                Carrier tariffs | Free
+                {carrier ?? 'Carrier tariffs'} | Free
               </span>
             }
           />
