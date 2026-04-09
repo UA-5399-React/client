@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ListFilter } from 'lucide-react';
 
 import {
   AdminPageHeader,
   Button,
+  ImportProductsModal,
   Pagination,
   ProductFiltersBar,
   SearchInput,
@@ -20,11 +21,26 @@ import { useDuplicate } from '@/hooks/useDuplicate';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
-import type { SortValue } from '@/types/productsSort';
+import type {
+  ProductSortField,
+  SortOrder,
+  SortValue,
+} from '@/types/productsSort';
 import { buildSortValue, parseSortValue } from '@/utils/sorting';
+
+const VALID_SORT_FIELDS: ProductSortField[] = [
+  'updatedAt',
+  'createdAt',
+  'price',
+  'title',
+  'purchaseCount',
+];
+
+const VALID_SORT_ORDERS: SortOrder[] = ['asc', 'desc'];
 
 export function AdminProducts() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { openConfirmModal } = useConfirmModal();
 
   const { filters, search, sort, order, setFilters, setSearch, setSort } =
@@ -39,6 +55,7 @@ export function AdminProducts() {
   } = usePaginationPageParam();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
@@ -65,6 +82,40 @@ export function AdminProducts() {
     normalizeOutOfRangePage(totalPages);
   }, [loading, normalizeOutOfRangePage, totalPages]);
 
+  useEffect(() => {
+    const sortBy = searchParams.get('sortBy');
+    const orderParam = searchParams.get('order');
+
+    if (
+      sortBy &&
+      orderParam &&
+      VALID_SORT_FIELDS.includes(sortBy as ProductSortField) &&
+      VALID_SORT_ORDERS.includes(orderParam as SortOrder)
+    ) {
+      if (sort !== sortBy || order !== orderParam) {
+        setSort(sortBy as ProductSortField, orderParam as SortOrder);
+      }
+      return;
+    }
+
+    if (sort !== 'updatedAt' || order !== 'desc') {
+      setSort('updatedAt', 'desc');
+    }
+  }, [searchParams, sort, order, setSort]);
+
+  const updateSortParams = (
+    nextSort: ProductSortField,
+    nextOrder: SortOrder,
+  ) => {
+    const params = new URLSearchParams();
+
+    params.set('page', '1');
+    params.set('sortBy', nextSort);
+    params.set('order', nextOrder);
+
+    setSearchParams(params);
+  };
+
   const handleFiltersChange = (newFilters: ProductsFilters) => {
     setFilters(newFilters);
     resetPage();
@@ -77,8 +128,15 @@ export function AdminProducts() {
 
   const handleSortChange = (value: SortValue) => {
     const nextSort = parseSortValue(value);
-    setSort(nextSort.sort, nextSort.order);
-    resetPage();
+
+    updateSortParams(nextSort.sort, nextSort.order);
+  };
+
+  const handleTableSortChange = (field: ProductSortField) => {
+    const nextOrder: SortOrder =
+      sort === field && order === 'asc' ? 'desc' : 'asc';
+
+    updateSortParams(field, nextOrder);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -101,6 +159,10 @@ export function AdminProducts() {
 
   return (
     <div>
+      {showImportModal && (
+        <ImportProductsModal onClose={() => setShowImportModal(false)} />
+      )}
+
       <AdminPageHeader />
 
       <div className="flex items-center justify-between px-4 pt-6">
@@ -120,6 +182,13 @@ export function AdminProducts() {
             onClick={handleCreateProduct}
           >
             + Add Product
+          </Button>
+
+          <Button
+            className="ml-3 border border-gray-300 bg-transparent text-[rgb(var(--color-text))] hover:border-blue-500 hover:text-blue-500"
+            onClick={() => setShowImportModal(true)}
+          >
+            Import
           </Button>
         </div>
 
@@ -144,6 +213,9 @@ export function AdminProducts() {
           items={items}
           loading={loading}
           error={error}
+          sort={sort}
+          order={order}
+          onSortChange={handleTableSortChange}
           onDelete={handleDeleteProduct}
           onDuplicate={duplicateProduct}
         />

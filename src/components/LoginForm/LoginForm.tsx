@@ -218,12 +218,12 @@ export const LoginForm: React.FC = () => {
             )}
           />
 
-          <a
-            href="#"
-            className="text-sm font-semibold text-gray-900 hover:underline"
+          <Link
+            to={ROUTES.FORGOT_PASSWORD}
+            className="text-sm font-semibold text-gray-900 hover:underline dark:text-gray-300"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         {errors.root && (
