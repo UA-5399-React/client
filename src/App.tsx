@@ -25,6 +25,8 @@ import { AdminProducts } from './pages/Admin/Products/AdminProducts';
 import { AdminSettings } from './pages/Admin/Settings/AdminSettings';
 import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
+import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
 import { ContactUs, NotFound, Shop } from './pages/Mocks';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
@@ -62,6 +64,8 @@ function App() {
     ADMIN_ORDERS,
     PROFILE,
     MYORDERS,
+    FORGOT_PASSWORD,
+    RESET_PASSWORD,
   } = ROUTES;
 
   if (!isAuthReady) {
@@ -98,6 +102,8 @@ function App() {
             path={EMAIL_CONFIRMATION}
             element={<EmailConfirmationPage />}
           />
+          <Route path={FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+          <Route path={RESET_PASSWORD} element={<ResetPasswordPage />} />
         </Route>
 
         <Route
