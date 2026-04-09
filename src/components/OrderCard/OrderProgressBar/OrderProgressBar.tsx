@@ -61,13 +61,13 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
 
             <Icon
               className={`h-8 w-8 transition-colors duration-300 ${
-                isDone ? 'text-black' : 'text-gray-300'
+                isDone ? 'text-text' : 'text-gray-300'
               }`}
             />
 
             <span
               className={`text-xs font-medium transition-colors duration-300 ${
-                isDone ? 'text-black' : 'text-gray-500'
+                isDone ? 'text-text' : 'text-gray-500'
               }`}
             >
               {label}
