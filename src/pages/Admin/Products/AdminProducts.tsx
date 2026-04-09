@@ -5,6 +5,7 @@ import { ListFilter } from 'lucide-react';
 import {
   AdminPageHeader,
   Button,
+  ExportButton,
   ImportProductsModal,
   Pagination,
   ProductFiltersBar,
@@ -190,6 +191,8 @@ export function AdminProducts() {
           >
             Import
           </Button>
+
+          <ExportButton type="products" />
         </div>
 
         <div className="flex items-center justify-end gap-4 p-4">

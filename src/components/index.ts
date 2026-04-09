@@ -8,6 +8,7 @@ export { Checkbox } from './Checkbox';
 export { ConfirmModal } from './ConfirmModal/ConfirmModal';
 export { CategoryDropdown } from './Dropdown';
 export { Dropdown } from './Dropdown';
+export { ExportButton } from './ExportButton/ExportButton';
 export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { Header } from './Header';
