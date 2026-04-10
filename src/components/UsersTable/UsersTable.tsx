@@ -95,7 +95,7 @@ export function UsersTable({
     );
   }
   return (
-    <div className="border-fieldBorder mt-5 rounded-lg border shadow-md">
+    <div className="border-fieldBorder mt-5 overflow-x-auto rounded-lg border shadow-md">
       <table className="[&_td]:border-fieldBorder [&_thead_th]:border-fieldBorder w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b [&_thead_th]:px-4">
         <thead className="text-muted h-[56px] bg-gray-50">
           <tr>

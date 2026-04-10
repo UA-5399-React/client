@@ -71,7 +71,7 @@ export function AdminOrders() {
   };
 
   return (
-    <div className="flex flex-col p-8">
+    <div className="flex flex-col p-4 sm:p-6 lg:p-8">
       <div className="flex items-center">
         <h1 className="text-2xl font-bold text-[#2C2C2C]">Orders</h1>
       </div>
