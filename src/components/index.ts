@@ -31,6 +31,7 @@ export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { SaleBanner } from './SaleBanner';
+export { ScrollToTop } from './ScrollToTop';
 export { SearchInput } from './SearchInput/SearchInput';
 export { Sidebar } from './Sidebar/Sidebar';
 export { SortOrderButton } from './SortProducts/SortOrderButton/SortOrderButton';
