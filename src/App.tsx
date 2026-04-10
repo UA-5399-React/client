@@ -23,6 +23,7 @@ import { AdminEditOrder } from './pages/Admin/AdminEditOrder/AdminEditOrder';
 import { AdminCategories } from './pages/Admin/Categories/AdminCategories';
 import { CreateProduct } from './pages/Admin/CreateProduct/CreateProduct';
 import { CreateUser } from './pages/Admin/CreateUser/CreateUser';
+import { Dashboard } from './pages/Admin/Dashboard/Dashboard';
 import { EditCategory } from './pages/Admin/EditCategory/EditCategory';
 import { EditProduct } from './pages/Admin/EditProduct/EditProduct';
 import { EditUser } from './pages/Admin/EditUser/EditUser';
@@ -65,6 +66,7 @@ function App() {
     ADMIN_PRODUCT_EDIT,
     ADMIN_ORDER_CREATE,
     ADMIN_ORDER_EDIT,
+    ADMIN_DASHBOARD,
     LOGIN,
     REGISTER,
     EMAIL_CONFIRMATION,
@@ -124,11 +126,12 @@ function App() {
           }
         >
           <Route path={ADMIN} element={<AdminLayout />}>
-            <Route index element={<Navigate to={ADMIN_PRODUCTS} replace />} />
+            <Route index element={<Navigate to={ADMIN_DASHBOARD} replace />} />
             <Route path={ADMIN_CATEGORIES} element={<AdminCategories />} />
             <Route path={ADMIN_CATEGORY_ADD} element={<AddCategory />} />
             <Route path={ADMIN_CATEGORY_EDIT} element={<EditCategory />} />
             <Route path={ADMIN_PRODUCTS} element={<AdminProducts />} />
+            <Route path={ADMIN_DASHBOARD} element={<Dashboard />} />
             <Route path={ADMIN_PRODUCT_CREATE} element={<CreateProduct />} />
             <Route path={ADMIN_PRODUCT_EDIT} element={<EditProduct />} />
             <Route path={ADMIN_ORDERS} element={<AdminOrders />} />
