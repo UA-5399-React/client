@@ -354,7 +354,9 @@ describe('Component: AdminOrderForm', () => {
     const cityTrigger = screen.getByRole('button', { name: 'Choose city' });
     await user.click(cityTrigger);
     await user.type(screen.getByPlaceholderText('Searching...'), 'Ky');
-    expect(getCities).toHaveBeenLastCalledWith('Ky');
+    await waitFor(() => {
+      expect(getCities).toHaveBeenCalledWith('Ky');
+    });
 
     await user.click(screen.getByText('Kyiv (Kyivska)'));
     await waitFor(() => {

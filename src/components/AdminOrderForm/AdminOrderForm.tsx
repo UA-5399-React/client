@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CircleX } from 'lucide-react';
 
 import { Button, Dropdown, Input, OrderProductSearch } from '@/components';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { SearchableSelect } from '@/pages/Checkout/SearchableSelect';
 import { shippingService } from '@/services';
 import { SHIPPING_CARRIERS } from '@/types';
@@ -84,6 +85,8 @@ export function AdminOrderForm({
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
   const [citiesLoading, setCitiesLoading] = useState(false);
   const [warehousesLoading, setWarehousesLoading] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const [warehouseSearch, setWarehouseSearch] = useState('');
 
   const items = useWatch({ control, name: 'items' });
   const carrier = useWatch({ control, name: 'carrier' });
@@ -99,6 +102,8 @@ export function AdminOrderForm({
       0,
     ) || 0;
   const isNovaPostCarrier = carrier === SHIPPING_CARRIERS.NOVA_POST;
+  const debouncedCitySearch = useDebouncedValue(citySearch, 300);
+  const debouncedWarehouseSearch = useDebouncedValue(warehouseSearch, 300);
 
   const isDisabled = isLoading || isSubmitting;
 
@@ -131,11 +136,13 @@ export function AdminOrderForm({
     if (!isNovaPostCarrier) {
       setCities([]);
       setWarehouses([]);
+      setCitySearch('');
+      setWarehouseSearch('');
       return;
     }
 
-    fetchCities();
-  }, [fetchCities, isNovaPostCarrier]);
+    fetchCities(debouncedCitySearch);
+  }, [debouncedCitySearch, fetchCities, isNovaPostCarrier]);
 
   useEffect(() => {
     if (!isNovaPostCarrier) return;
@@ -144,8 +151,13 @@ export function AdminOrderForm({
       return;
     }
 
-    fetchWarehouses(cityField.value);
-  }, [cityField.value, fetchWarehouses, isNovaPostCarrier]);
+    fetchWarehouses(cityField.value, debouncedWarehouseSearch);
+  }, [
+    cityField.value,
+    debouncedWarehouseSearch,
+    fetchWarehouses,
+    isNovaPostCarrier,
+  ]);
 
   const cityOptions = cities.map((c) => ({
     value: c.name,
@@ -290,12 +302,13 @@ export function AdminOrderForm({
                         field.onChange(value);
                         branchField.onChange('');
                         setWarehouses([]);
+                        setWarehouseSearch('');
                         fetchWarehouses(value);
                       }}
                       placeholder="Choose city"
                       options={cityOptions}
                       isLoading={citiesLoading}
-                      onSearchChange={(s) => fetchCities(s)}
+                      onSearchChange={(s) => setCitySearch(s)}
                     />
                     {errors.city?.message && (
                       <span className="mt-1 block text-xs text-red-500">
@@ -341,9 +354,7 @@ export function AdminOrderForm({
                       options={warehouseOptions}
                       isLoading={warehousesLoading}
                       disabled={!cityField.value}
-                      onSearchChange={(s) =>
-                        fetchWarehouses(cityField.value, s)
-                      }
+                      onSearchChange={(s) => setWarehouseSearch(s)}
                     />
                     {errors.branchNumber?.message && (
                       <span className="mt-1 block text-xs text-red-500">

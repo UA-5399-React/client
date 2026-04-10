@@ -17,7 +17,7 @@ export const orderFormSchema = z.object({
     SHIPPING_CARRIERS.MEEST,
   ]),
   city: z.string().trim().min(3, 'City is required'),
-  branchNumber: z.string().trim().min(2, 'Branch is required'),
+  branchNumber: z.string().trim().min(1, 'Branch is required'),
   status: z.enum([
     ORDER_STATUS.NEW,
     ORDER_STATUS.PROCESSING,
