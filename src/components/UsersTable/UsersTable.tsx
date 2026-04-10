@@ -1,8 +1,8 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Trash } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 
-import { ActionMenu, Checkbox, Dropdown } from '@/components';
+import { ActionMenu, Checkbox, Dropdown, TableSortControl } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
 import { ROUTES } from '@/constants';
 import {
@@ -109,23 +109,17 @@ export function UsersTable({
             <th className="hidden text-left sm:table-cell">Email</th>
             <th className="hidden text-left sm:table-cell">Role</th>
             <th className="text-left">
-              <button
-                className="flex cursor-pointer items-center gap-1 font-semibold"
-                onClick={() =>
+              <TableSortControl
+                label="Activity"
+                field="lastLoginAt"
+                currentSort={lastLoginSort ? 'lastLoginAt' : ''}
+                currentOrder={lastLoginSort ?? 'asc'}
+                onSortChange={() =>
                   onLastLoginSortChange(
                     lastLoginSort === 'asc' ? 'desc' : 'asc',
                   )
                 }
-              >
-                Activity
-                {lastLoginSort === 'asc' ? (
-                  <ArrowUp size={14} />
-                ) : lastLoginSort === 'desc' ? (
-                  <ArrowDown size={14} />
-                ) : (
-                  <ArrowUpDown size={14} className="text-muted" />
-                )}
-              </button>
+              />
             </th>
             <th className="w-[80px]"></th>
           </tr>
