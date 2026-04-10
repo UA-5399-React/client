@@ -219,7 +219,7 @@ export const CategoryForm = ({
                   />
                   <button
                     onClick={handleRemoveImage}
-                    className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#F25F5F] shadow-md transition-colors hover:bg-red-50"
+                    className="absolute -top-3 -right-3 flex items-center justify-center bg-transparent p-0 text-gray-400 transition-colors hover:text-red-500 focus:outline-none dark:text-gray-500 dark:hover:text-red-400"
                   >
                     <X size={16} strokeWidth={3} />
                   </button>
