@@ -172,7 +172,7 @@ export const CategoryForm = ({
     } catch (e) {
       showMessage(
         'error',
-        'Product creation failed',
+        'category action failed',
         e instanceof Error ? e.message : 'Something went wrong',
       );
     }
