@@ -18,13 +18,15 @@ export function useAdminOrders(
   status?: string,
   sort: OrdersSortField = 'createdAt',
   order: SortOrder = 'desc',
+  page: number = PAGE,
+  limit: number = PAGE_LIMIT,
 ) {
   const filter =
     status && status !== ALL_STATUS ? { status: status.toUpperCase() } : {};
 
   const queryVariables = {
-    page: PAGE,
-    limit: PAGE_LIMIT,
+    page,
+    limit,
     sort,
     order,
     filter,
@@ -64,6 +66,7 @@ export function useAdminOrders(
 
   return {
     orders: data?.orders.items ?? [],
+    totalPages: data?.orders.totalPages ?? 1,
     loading,
     error,
     handleOrderStatusChange,
