@@ -207,6 +207,9 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={[mockProducts[0]]}
         loading={false}
+        sort="updatedAt"
+        order="desc"
+        onSortChange={vi.fn()}
         onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,
@@ -224,6 +227,9 @@ describe('UI Component: TableProducts', () => {
       <TableProducts
         items={[productWithoutImage]}
         loading={false}
+        sort="updatedAt"
+        order="desc"
+        onSortChange={vi.fn()}
         onDelete={mockDelete}
         onDuplicate={mockDuplicate}
       />,

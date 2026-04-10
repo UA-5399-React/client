@@ -3,7 +3,12 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
 
-import { LoginForm, MainLayout, ProtectedRoute } from './components';
+import {
+  LoginForm,
+  MainLayout,
+  ProtectedRoute,
+  ScrollToTop,
+} from './components';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { Message } from './components/Message.tsx/Message';
@@ -79,6 +84,7 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" reverseOrder={false} />
+      <ScrollToTop />
       <Message />
       <Routes>
         <Route path={HOME} element={<MainLayout />}>

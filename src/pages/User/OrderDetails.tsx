@@ -105,7 +105,7 @@ export function OrderDetails() {
       </h1>
 
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-[max-content_minmax(0,1fr)] md:items-start">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
           <AccountSidebar user={user} onLogout={handleLogout} />
 
           <div className="min-w-0 md:pl-6 lg:pl-8">
