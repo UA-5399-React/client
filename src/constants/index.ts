@@ -98,3 +98,15 @@ export const NEW_ARRIVALS_LIMIT = 10;
 export const ITEMS_PER_PAGE = 10;
 
 export * from './theme';
+
+export const EXPORT_TYPES = {
+  PRODUCTS: 'products',
+  ORDERS: 'orders',
+} as const;
+
+export type ExportType = (typeof EXPORT_TYPES)[keyof typeof EXPORT_TYPES];
+
+export const API_ENDPOINTS = {
+  EXPORT_PRODUCTS: '/export/products',
+  EXPORT_ORDERS: '/export/orders',
+} as const;

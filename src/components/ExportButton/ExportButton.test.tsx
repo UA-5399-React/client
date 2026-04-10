@@ -2,10 +2,12 @@ import { toast } from 'react-hot-toast';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { exportService } from '../../services/exportService';
+import { EXPORT_TYPES } from '@/constants';
+import { exportService } from '@/services/exportService';
+
 import { ExportButton } from './ExportButton';
 
-vi.mock('../../services/exportService', () => ({
+vi.mock('@/services/exportService', () => ({
   exportService: {
     exportProducts: vi.fn(),
     exportOrders: vi.fn(),
@@ -28,12 +30,12 @@ describe('ExportButton', () => {
   });
 
   it('renders correctly with products type', () => {
-    render(<ExportButton type="products" />);
+    render(<ExportButton type={EXPORT_TYPES.PRODUCTS} />);
     expect(screen.getByText('Export Products')).toBeInTheDocument();
   });
 
   it('renders correctly with orders type', () => {
-    render(<ExportButton type="orders" />);
+    render(<ExportButton type={EXPORT_TYPES.ORDERS} />);
     expect(screen.getByText('Export Orders')).toBeInTheDocument();
   });
 
@@ -44,7 +46,7 @@ describe('ExportButton', () => {
 
     vi.mocked(exportService.exportProducts).mockResolvedValue(mockBlob);
 
-    render(<ExportButton type="products" />);
+    render(<ExportButton type={EXPORT_TYPES.PRODUCTS} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
@@ -67,7 +69,7 @@ describe('ExportButton', () => {
       new Error('Network Error'),
     );
 
-    render(<ExportButton type="orders" />);
+    render(<ExportButton type={EXPORT_TYPES.ORDERS} />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);

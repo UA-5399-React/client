@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Download } from 'lucide-react';
 
-import { exportService } from '../../services/exportService';
-import { Button } from '../Button/Button';
+import { Button } from '@/components';
+import { EXPORT_TYPES, type ExportType } from '@/constants';
+import { exportService } from '@/services/exportService';
 
 interface ExportButtonProps {
-  type: 'products' | 'orders';
+  type: ExportType;
 }
 
 export function ExportButton({ type }: ExportButtonProps) {
@@ -15,12 +16,11 @@ export function ExportButton({ type }: ExportButtonProps) {
   const handleExport = async () => {
     setIsLoading(true);
     try {
-      const fileName =
-        type === 'products' ? 'products_export' : 'orders_export';
-      const onExport =
-        type === 'products'
-          ? exportService.exportProducts
-          : exportService.exportOrders;
+      const isProducts = type === EXPORT_TYPES.PRODUCTS;
+      const fileName = isProducts ? 'products_export' : 'orders_export';
+      const onExport = isProducts
+        ? exportService.exportProducts
+        : exportService.exportOrders;
 
       const blob = await onExport();
 
@@ -55,7 +55,7 @@ export function ExportButton({ type }: ExportButtonProps) {
       )}
       {isLoading
         ? 'Exporting...'
-        : `Export ${type === 'products' ? 'Products' : 'Orders'}`}
+        : `Export ${type === EXPORT_TYPES.PRODUCTS ? 'Products' : 'Orders'}`}
     </Button>
   );
 }

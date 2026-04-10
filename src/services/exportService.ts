@@ -1,11 +1,14 @@
-import { API_BASE_URL } from '@/constants';
+import { API_BASE_URL, API_ENDPOINTS } from '@/constants';
 
 export const exportService = {
   exportProducts: async (): Promise<Blob> => {
-    const response = await fetch(`${API_BASE_URL}/export/products`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.EXPORT_PRODUCTS}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
+    );
 
     if (!response.ok) {
       throw new Error('Failed to export products');
@@ -23,10 +26,13 @@ export const exportService = {
   },
 
   exportOrders: async (): Promise<Blob> => {
-    const response = await fetch(`${API_BASE_URL}/export/orders`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.EXPORT_ORDERS}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
+    );
 
     if (!response.ok) {
       throw new Error('Failed to export orders');
