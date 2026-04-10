@@ -1,4 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import type { ReactElement } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { CityOption, WarehouseOption } from '@/types/shipping.types';
 
 vi.mock('@/hooks/useAdminProduct', () => ({
   useAdminProducts: vi.fn(() => ({
@@ -12,8 +15,10 @@ vi.mock('@/hooks/useAdminProduct', () => ({
 }));
 
 const { getCities, getWarehouses } = vi.hoisted(() => ({
-  getCities: vi.fn(async () => []),
-  getWarehouses: vi.fn(async () => []),
+  getCities: vi.fn<(search?: string) => Promise<CityOption[]>>(async () => []),
+  getWarehouses: vi.fn<
+    (city: string, search?: string) => Promise<WarehouseOption[]>
+  >(async () => []),
 }));
 
 vi.mock('@/services', () => ({
@@ -28,6 +33,17 @@ import { ORDER_STATUS } from '@/types/tableOrders.types';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { AdminOrderForm } from './AdminOrderForm';
+
+async function renderAdminOrderForm(
+  ui: ReactElement,
+  options?: { skipShippingFlush?: boolean },
+) {
+  const view = render(ui);
+  if (!options?.skipShippingFlush) {
+    await waitFor(() => expect(getCities).toHaveBeenCalled());
+  }
+  return view;
+}
 
 describe('Component: AdminOrderForm', () => {
   const baseInitialData = {
@@ -48,8 +64,17 @@ describe('Component: AdminOrderForm', () => {
     ],
   };
 
-  it('renders required fields and default controls', () => {
-    render(<AdminOrderForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
+  beforeEach(() => {
+    getCities.mockReset();
+    getWarehouses.mockReset();
+    getCities.mockResolvedValue([]);
+    getWarehouses.mockResolvedValue([]);
+  });
+
+  it('renders required fields and default controls', async () => {
+    await renderAdminOrderForm(
+      <AdminOrderForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
 
     expect(
       screen.getByRole('textbox', { name: 'Customer Name' }),
@@ -73,7 +98,9 @@ describe('Component: AdminOrderForm', () => {
   it('shows validation errors for empty form submit', async () => {
     const user = userEvent.setup();
 
-    render(<AdminOrderForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
+    await renderAdminOrderForm(
+      <AdminOrderForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -90,7 +117,7 @@ describe('Component: AdminOrderForm', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
+    await renderAdminOrderForm(
       <AdminOrderForm
         initialData={baseInitialData}
         onSubmit={onSubmit}
@@ -104,7 +131,7 @@ describe('Component: AdminOrderForm', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
-    const submittedData = onSubmit.mock.calls[0][0];
+    const submittedData = onSubmit.mock.calls[0]![0];
     expect(submittedData).toEqual({
       customerName: 'John Doe',
       email: 'john@example.com',
@@ -124,7 +151,7 @@ describe('Component: AdminOrderForm', () => {
     const user = userEvent.setup();
     const onCancel = vi.fn();
 
-    render(
+    await renderAdminOrderForm(
       <AdminOrderForm
         initialData={baseInitialData}
         onSubmit={vi.fn()}
@@ -140,7 +167,7 @@ describe('Component: AdminOrderForm', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
-    render(
+    await renderAdminOrderForm(
       <AdminOrderForm
         initialData={baseInitialData}
         onSubmit={onSubmit}
@@ -156,12 +183,12 @@ describe('Component: AdminOrderForm', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
-    const submittedData = onSubmit.mock.calls[0][0];
+    const submittedData = onSubmit.mock.calls[0]![0];
     expect(submittedData.status).toBe(ORDER_STATUS.PROCESSING);
   });
 
-  it('disables actions and shows saving label when loading', () => {
-    render(
+  it('disables actions and shows saving label when loading', async () => {
+    await renderAdminOrderForm(
       <AdminOrderForm
         isLoading={true}
         initialData={baseInitialData}
@@ -175,8 +202,8 @@ describe('Component: AdminOrderForm', () => {
     expect(screen.getByRole('button', { name: 'Add product' })).toBeDisabled();
   });
 
-  it('renders last update only in edit mode with updatedAt', () => {
-    const { rerender } = render(
+  it('renders last update only in edit mode with updatedAt', async () => {
+    const { rerender } = await renderAdminOrderForm(
       <AdminOrderForm
         initialData={baseInitialData}
         updatedAt="2025-10-10T12:00:00Z"
@@ -200,10 +227,169 @@ describe('Component: AdminOrderForm', () => {
     expect(screen.getByText(/Last Update:/i)).toBeInTheDocument();
   });
 
+  it('shows line items total from price and quantity', async () => {
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={baseInitialData}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Total: $20.00')).toBeInTheDocument();
+  });
+
+  it('shows email validation error for invalid address', async () => {
+    const user = userEvent.setup();
+
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={baseInitialData}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const email = screen.getByRole('textbox', { name: 'Email' });
+    await user.clear(email);
+    await user.type(email, 'not-email');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Enter a valid email')).toBeInTheDocument();
+  });
+
+  it('shows branch validation when city set but branch empty', async () => {
+    const user = userEvent.setup();
+
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={{ ...baseInitialData, branchNumber: '' }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Branch is required')).toBeInTheDocument();
+  });
+
+  it('submits when carrier is Ukrposhta with text city and branch fields', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    const ukrData = {
+      ...baseInitialData,
+      carrier: SHIPPING_CARRIERS.UKRPOSHTA,
+    };
+
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={ukrData}
+        onSubmit={onSubmit}
+        onCancel={vi.fn()}
+      />,
+      { skipShippingFlush: true },
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    expect(onSubmit.mock.calls[0]![0].carrier).toBe(
+      SHIPPING_CARRIERS.UKRPOSHTA,
+    );
+  });
+
+  it('switches to non-nova carrier and clears searchable shipping mode', async () => {
+    const user = userEvent.setup();
+
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={baseInitialData}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Carrier' }));
+    await user.click(screen.getByText('Meest'));
+
+    expect(screen.getByRole('textbox', { name: 'City' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'Branch Number' }),
+    ).toBeInTheDocument();
+  });
+
+  it('searches cities and loads warehouses after selecting city', async () => {
+    const user = userEvent.setup();
+
+    getCities.mockResolvedValue([
+      { ref: 'city-1', name: 'Kyiv', area: 'Kyivska' },
+      { ref: 'city-2', name: 'Lviv', area: 'Lvivska' },
+    ] as CityOption[]);
+    getWarehouses.mockResolvedValue([
+      {
+        ref: 'wh-25',
+        number: '25',
+        label: 'Branch 25',
+        fullAddress: 'Kyiv, Branch 25',
+        isPostMachine: false,
+      },
+      {
+        ref: 'wh-141',
+        number: '141',
+        label: 'Branch 141',
+        fullAddress: 'Kyiv, Branch 141',
+        isPostMachine: false,
+      },
+    ] as WarehouseOption[]);
+
+    await renderAdminOrderForm(
+      <AdminOrderForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
+
+    const cityTrigger = screen.getByRole('button', { name: 'Choose city' });
+    await user.click(cityTrigger);
+    await user.type(screen.getByPlaceholderText('Searching...'), 'Ky');
+    expect(getCities).toHaveBeenLastCalledWith('Ky');
+
+    await user.click(screen.getByText('Kyiv (Kyivska)'));
+    await waitFor(() => {
+      expect(getWarehouses).toHaveBeenCalledWith('Kyiv', undefined);
+    });
+  });
+
+  it('searches warehouses with selected city context', async () => {
+    const user = userEvent.setup();
+
+    getCities.mockResolvedValue([
+      { ref: 'city-1', name: 'Kyiv', area: 'Kyivska' },
+    ] as CityOption[]);
+
+    await renderAdminOrderForm(
+      <AdminOrderForm
+        initialData={{ ...baseInitialData, city: 'Kyiv' }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const branchTrigger = screen.getByRole('button', { name: '141' });
+    await user.click(branchTrigger);
+    await user.type(screen.getByPlaceholderText('Searching...'), '14');
+
+    await waitFor(() => {
+      expect(getWarehouses).toHaveBeenCalledWith('Kyiv', '14');
+    });
+  });
+
   it('adds and removes product row', async () => {
     const user = userEvent.setup();
 
-    render(
+    await renderAdminOrderForm(
       <AdminOrderForm
         initialData={baseInitialData}
         onSubmit={vi.fn()}
