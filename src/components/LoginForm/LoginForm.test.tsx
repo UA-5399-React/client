@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
-import { authService } from '@/services/authService';
+import { AuthApiError, authService } from '@/services/authService';
 import { cartService } from '@/services/cartService';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
@@ -28,8 +28,17 @@ vi.mock('@/hooks/useLogin', () => ({
 }));
 
 vi.mock('@/services/authService', () => ({
+  AuthApiError: class extends Error {
+    code?: string;
+
+    constructor(message: string, code?: string) {
+      super(message);
+      this.code = code;
+    }
+  },
   authService: {
     getMe: vi.fn(),
+    resendConfirmation: vi.fn(),
     startGoogleAuth: vi.fn(),
   },
 }));
@@ -300,6 +309,49 @@ describe('Feature: LoginForm', () => {
         screen.queryByText('Invalid email or password. Please try again.'),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('should show resend confirmation action when email is not confirmed', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockRejectedValueOnce(
+      new AuthApiError(
+        'Please confirm your email first',
+        'EMAIL_NOT_CONFIRMED',
+      ),
+    );
+    vi.mocked(authService.resendConfirmation).mockResolvedValueOnce({
+      message: 'Confirmation email sent.',
+    });
+
+    render(<LoginForm />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'pending@test.com',
+    );
+    await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    expect(
+      await screen.findByText('Please confirm your email before signing in.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Resend confirmation email' }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Resend confirmation email' }),
+    );
+
+    await waitFor(() => {
+      expect(authService.resendConfirmation).toHaveBeenCalledWith(
+        'pending@test.com',
+      );
+    });
+
+    expect(
+      await screen.findByText('Confirmation email sent.'),
+    ).toBeInTheDocument();
   });
 
   // 5. Session Management (useEffect auto-redirect)

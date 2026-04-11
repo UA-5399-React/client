@@ -33,6 +33,7 @@ export const ROUTES = {
   ADMIN_ORDERS: '/admin/orders',
   ADMIN_ORDER_CREATE: '/admin/orders/create',
   ADMIN_ORDER_EDIT: '/admin/orders/:id',
+  ADMIN_DASHBOARD: '/admin/dashboard',
   PROFILE: '/profile',
   MYORDERS: '/profile/myOrders',
   FORGOT_PASSWORD: '/forgot-password',
@@ -65,6 +66,7 @@ export const AUTH_ENDPOINTS = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   CONFIRM_EMAIL: '/auth/confirm-email',
+  RESEND_CONFIRMATION: '/auth/resend-confirmation',
   ME: '/auth/me',
   LOGOUT: '/auth/logout',
   RESET_PASSWORD_REQUEST: '/auth/reset-password/request',
@@ -75,6 +77,7 @@ export const AUTH_MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid email or password',
   CREATE_ACCOUNT_FAILED: 'Failed to create account',
   CONFIRM_EMAIL_FAILED: 'Failed to confirm email',
+  RESEND_CONFIRMATION_FAILED: 'Failed to resend confirmation email',
   FETCH_PROFILE_FAILED: 'Failed to fetch user profile',
   GOOGLE_DISCONNECT_FAILED: 'Failed to disconnect Google account',
   LOGOUT_FAILED: 'Failed to logout on server',
@@ -96,3 +99,15 @@ export const NEW_ARRIVALS_LIMIT = 10;
 export const ITEMS_PER_PAGE = 10;
 
 export * from './theme';
+
+export const EXPORT_TYPES = {
+  PRODUCTS: 'products',
+  ORDERS: 'orders',
+} as const;
+
+export type ExportType = (typeof EXPORT_TYPES)[keyof typeof EXPORT_TYPES];
+
+export const API_ENDPOINTS = {
+  EXPORT_PRODUCTS: '/export/products',
+  EXPORT_ORDERS: '/export/orders',
+} as const;

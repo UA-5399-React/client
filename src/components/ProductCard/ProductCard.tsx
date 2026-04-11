@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 
 import { useCartStore } from '@/store/useCartStore';
@@ -12,23 +11,20 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { _id, title, price, imageUrl } = product;
-  const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
 
-  const handleCardClick = () => {
-    navigate(`/product/${_id}`);
-  };
-
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     addItem(product);
   };
 
   return (
     <div className="group relative flex flex-col">
-      <div
-        className="relative mb-3 cursor-pointer overflow-hidden rounded-md"
-        onClick={handleCardClick}
+      <a
+        href={`/product/${_id}`}
+        className="relative mb-3 block overflow-hidden rounded-md"
+        aria-label={title}
       >
         {imageUrl ? (
           <img
@@ -55,7 +51,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         >
           <Heart className="h-4 w-4" />
         </button>
-      </div>
+      </a>
       <div className="flex flex-col">
         <h3 className="text-sm font-medium text-[rgb(var(--color-text))]">
           {title}
