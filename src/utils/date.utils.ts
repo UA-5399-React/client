@@ -17,3 +17,12 @@ export const formatDateToShort = (date: Date): string => {
     year: '2-digit',
   });
 };
+
+export function formatCurrentMonthRange() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  const last = new Date(y, m + 1, 0).getDate();
+  const monthName = d.toLocaleString('en-GB', { month: 'long' });
+  return `1 - ${last} ${monthName} ${y}`;
+}

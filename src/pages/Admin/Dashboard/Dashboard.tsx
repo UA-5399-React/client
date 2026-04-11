@@ -1,3 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+
+import { ROUTES } from '@/constants';
+
+import { UsersChart } from '../UsersChart/UsersChart';
 type DashboardCardProps = {
   title: string;
   slotName: string;
@@ -21,6 +26,10 @@ function DashboardCard({ title, className = '' }: DashboardCardProps) {
 }
 
 export function Dashboard() {
+  const navigate = useNavigate();
+  const handleShowAll = () => {
+    navigate(ROUTES.ADMIN_USERS);
+  };
   return (
     <div>
       <section className="bg-background text-text min-h-screen px-4 py-6 transition-colors duration-300 md:px-6">
@@ -30,11 +39,7 @@ export function Dashboard() {
               title="Status Orders"
               slotName="<OrderStatusChart />"
             />
-
-            <DashboardCard
-              title="Number of Clients"
-              slotName="<RegistrationsChart />"
-            />
+            <UsersChart onShowAll={handleShowAll} />
           </div>
 
           <DashboardCard
