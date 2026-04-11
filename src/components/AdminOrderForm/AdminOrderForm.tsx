@@ -30,8 +30,8 @@ const STATUS_OPTIONS: DropdownOption[] = [
 ];
 
 const CARRIER_OPTIONS: DropdownOption[] = [
-  { label: 'Нова Пошта', value: SHIPPING_CARRIERS.NOVA_POST },
-  { label: 'Укрпошта', value: SHIPPING_CARRIERS.UKRPOSHTA },
+  { label: 'Nova Poshta', value: SHIPPING_CARRIERS.NOVA_POST },
+  { label: 'Ukrposhta', value: SHIPPING_CARRIERS.UKRPOSHTA },
   { label: 'Meest', value: SHIPPING_CARRIERS.MEEST },
 ];
 
