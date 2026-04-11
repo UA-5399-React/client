@@ -1,7 +1,13 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { Button, OrdersTopWidgets, OrderTabs, TableOrders } from '@/components';
-import { ROUTES } from '@/constants';
+import {
+  Button,
+  ExportButton,
+  OrdersTopWidgets,
+  OrderTabs,
+  TableOrders,
+} from '@/components';
+import { EXPORT_TYPES, ROUTES } from '@/constants';
 import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
 import {
   type OrdersSortField,
@@ -86,6 +92,8 @@ export function AdminOrders() {
         >
           + Create Order
         </Button>
+
+        <ExportButton type={EXPORT_TYPES.ORDERS} />
       </div>
 
       <OrderTabs />
