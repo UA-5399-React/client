@@ -1,13 +1,15 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Button,
   ExportButton,
   OrdersTopWidgets,
   OrderTabs,
+  Pagination,
   TableOrders,
 } from '@/components';
-import { EXPORT_TYPES, ROUTES } from '@/constants';
+import { ADMIN_PAGE_LIMIT, EXPORT_TYPES, ROUTES } from '@/constants';
 import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
 import {
   type OrdersSortField,
@@ -15,6 +17,7 @@ import {
   useAdminOrders,
 } from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type { OrderItem } from '@/types/tableOrders.types';
 
 type DisplayOrdersSortField = OrdersSortField | null;
@@ -23,8 +26,15 @@ const DEFAULT_SORT_BY: OrdersSortField = 'createdAt';
 const DEFAULT_ORDER: SortOrder = 'desc';
 
 export function AdminOrders() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const {
+    searchParams,
+    currentPage,
+    setPage,
+    updateSearchParams,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
 
   const currentStatus =
     searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
@@ -47,11 +57,14 @@ export function AdminOrders() {
     ? currentSort
     : null;
 
-  const { orders, loading, error, handleOrderStatusChange } = useAdminOrders(
-    currentStatus,
-    currentSort,
-    currentOrder,
-  );
+  const { orders, totalPages, loading, error, handleOrderStatusChange } =
+    useAdminOrders(
+      currentStatus,
+      currentSort,
+      currentOrder,
+      currentPage,
+      ADMIN_PAGE_LIMIT,
+    );
 
   const { counts, loading: countsLoading } = useAdminOrdersCounts();
 
@@ -69,12 +82,25 @@ export function AdminOrders() {
     const nextOrder: SortOrder =
       currentSort === field && currentOrder === 'asc' ? 'desc' : 'asc';
 
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('sortBy', field);
-    nextParams.set('order', nextOrder);
-
-    setSearchParams(nextParams);
+    updateSearchParams((nextParams) => {
+      nextParams.set('page', '1');
+      nextParams.set('sortBy', field);
+      nextParams.set('order', nextOrder);
+    });
   };
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+  };
+
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (loading) return;
+    normalizeOutOfRangePage(totalPages);
+  }, [loading, normalizeOutOfRangePage, totalPages]);
 
   return (
     <div className="flex flex-col p-8">
@@ -108,6 +134,14 @@ export function AdminOrders() {
         onEdit={handleEditOrder}
         onStatusChange={handleOrderStatusChange}
       />
+
+      <div className="rounded-b-lg border border-gray-100 pb-4 shadow-md">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }
