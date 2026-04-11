@@ -40,6 +40,11 @@ export const GET_ORDERS = gql`
           lastName
           phone
         }
+        shippingAddress {
+          city
+          carrier
+          branchNumber
+        }
       }
     }
   }

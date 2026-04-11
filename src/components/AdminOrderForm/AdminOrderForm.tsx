@@ -1,8 +1,20 @@
-import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Controller,
+  useController,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CircleX } from 'lucide-react';
 
 import { Button, Dropdown, Input, OrderProductSearch } from '@/components';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { SearchableSelect } from '@/pages/Checkout/SearchableSelect';
+import { shippingService } from '@/services';
+import { SHIPPING_CARRIERS } from '@/types';
+import type { CityOption, WarehouseOption } from '@/types/shipping.types';
 import { ORDER_STATUS, type OrderFormData } from '@/types/tableOrders.types';
 import { formatDateToShort } from '@/utils/date.utils';
 
@@ -15,6 +27,12 @@ const STATUS_OPTIONS: DropdownOption[] = [
   { label: 'Completed', value: ORDER_STATUS.COMPLETED },
   { label: 'Cancelled', value: ORDER_STATUS.CANCELLED },
   { label: 'Shipped', value: ORDER_STATUS.SHIPPING },
+];
+
+const CARRIER_OPTIONS: DropdownOption[] = [
+  { label: 'Nova Poshta', value: SHIPPING_CARRIERS.NOVA_POST },
+  { label: 'Ukrposhta', value: SHIPPING_CARRIERS.UKRPOSHTA },
+  { label: 'Meest', value: SHIPPING_CARRIERS.MEEST },
 ];
 
 interface OrderFormProps {
@@ -48,6 +66,9 @@ export function AdminOrderForm({
       customerName: initialData?.customerName || '',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
+      carrier: initialData?.carrier || SHIPPING_CARRIERS.NOVA_POST,
+      city: initialData?.city || '',
+      branchNumber: initialData?.branchNumber || '',
       status: initialData?.status || ORDER_STATUS.NEW,
       items:
         initialData?.items && initialData.items.length > 0
@@ -60,16 +81,93 @@ export function AdminOrderForm({
     control,
     name: 'items',
   });
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [warehousesLoading, setWarehousesLoading] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const [warehouseSearch, setWarehouseSearch] = useState('');
 
   const items = useWatch({ control, name: 'items' });
+  const carrier = useWatch({ control, name: 'carrier' });
+  const { field: cityField } = useController({ control, name: 'city' });
+  const { field: branchField } = useController({
+    control,
+    name: 'branchNumber',
+  });
   const total =
     items?.reduce(
       (sum, item) =>
         sum + (Number(item?.price) || 0) * (Number(item?.quantity) || 0),
       0,
     ) || 0;
+  const isNovaPostCarrier = carrier === SHIPPING_CARRIERS.NOVA_POST;
+  const debouncedCitySearch = useDebouncedValue(citySearch, 300);
+  const debouncedWarehouseSearch = useDebouncedValue(warehouseSearch, 300);
 
   const isDisabled = isLoading || isSubmitting;
+
+  const fetchCities = useCallback(async (search?: string) => {
+    setCitiesLoading(true);
+    try {
+      const data = await shippingService.getCities(search);
+      setCities(data);
+    } catch {
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  }, []);
+
+  const fetchWarehouses = useCallback(async (city: string, search?: string) => {
+    if (!city) return;
+    setWarehousesLoading(true);
+    try {
+      const data = await shippingService.getWarehouses(city, search);
+      setWarehouses(data);
+    } catch {
+      setWarehouses([]);
+    } finally {
+      setWarehousesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isNovaPostCarrier) {
+      setCities([]);
+      setWarehouses([]);
+      setCitySearch('');
+      setWarehouseSearch('');
+      return;
+    }
+
+    fetchCities(debouncedCitySearch);
+  }, [debouncedCitySearch, fetchCities, isNovaPostCarrier]);
+
+  useEffect(() => {
+    if (!isNovaPostCarrier) return;
+    if (!cityField.value) {
+      setWarehouses([]);
+      return;
+    }
+
+    fetchWarehouses(cityField.value, debouncedWarehouseSearch);
+  }, [
+    cityField.value,
+    debouncedWarehouseSearch,
+    fetchWarehouses,
+    isNovaPostCarrier,
+  ]);
+
+  const cityOptions = cities.map((c) => ({
+    value: c.name,
+    label: `${c.name} (${c.area})`,
+  }));
+
+  const warehouseOptions = warehouses.map((w) => ({
+    value: w.number,
+    label: w.label,
+  }));
 
   return (
     <div className="bg-backgroundSec rounded-lg border border-gray-200 p-4 shadow-sm">
@@ -144,6 +242,137 @@ export function AdminOrderForm({
                   placeholder="Select status"
                   multiple={false}
                 />
+              </div>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="carrier"
+            render={({ field }) => (
+              <div className="w-full *:flex! *:flex-col! *:items-start!">
+                <Dropdown
+                  label="Carrier"
+                  labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
+                  selectClassName="w-full border-color-red-300! border-1! rounded-md !bg-white"
+                  options={CARRIER_OPTIONS}
+                  selectedValues={field.value ? [field.value] : []}
+                  onChange={(values) => {
+                    const newValue = values?.[0];
+                    if (newValue) {
+                      const selectedCarrier = newValue.value || newValue;
+                      field.onChange(selectedCarrier);
+                      cityField.onChange('');
+                      branchField.onChange('');
+                      setWarehouses([]);
+                      if (selectedCarrier === SHIPPING_CARRIERS.NOVA_POST) {
+                        fetchCities();
+                      } else {
+                        setCities([]);
+                      }
+                    }
+                  }}
+                  placeholder="Select carrier"
+                  multiple={false}
+                />
+                {errors.carrier?.message && (
+                  <span className="mt-1 text-xs text-red-500">
+                    {errors.carrier.message}
+                  </span>
+                )}
+              </div>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="city"
+            render={({ field }) => (
+              <div className="w-full">
+                {isNovaPostCarrier ? (
+                  <>
+                    <span className="mb-1 block text-sm font-medium text-[#141718]">
+                      City
+                    </span>
+                    <SearchableSelect
+                      isDark={false}
+                      hasError={Boolean(errors.city)}
+                      value={field.value ?? ''}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        branchField.onChange('');
+                        setWarehouses([]);
+                        setWarehouseSearch('');
+                        fetchWarehouses(value);
+                      }}
+                      placeholder="Choose city"
+                      options={cityOptions}
+                      isLoading={citiesLoading}
+                      onSearchChange={(s) => setCitySearch(s)}
+                    />
+                    {errors.city?.message && (
+                      <span className="mt-1 block text-xs text-red-500">
+                        {errors.city.message}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <Input
+                    label="City"
+                    placeholder="City"
+                    inputClassName="bg-white text-black"
+                    {...field}
+                    value={field.value ?? ''}
+                    state={errors.city ? 'error' : 'default'}
+                    helperText={errors.city?.message}
+                  />
+                )}
+              </div>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="branchNumber"
+            render={({ field }) => (
+              <div className="w-full">
+                {isNovaPostCarrier ? (
+                  <>
+                    <span className="mb-1 block text-sm font-medium text-[#141718]">
+                      Branch Number
+                    </span>
+                    <SearchableSelect
+                      isDark={false}
+                      hasError={Boolean(errors.branchNumber)}
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      placeholder={
+                        cityField.value
+                          ? 'Choose warehouse'
+                          : 'First, select a city'
+                      }
+                      options={warehouseOptions}
+                      isLoading={warehousesLoading}
+                      disabled={!cityField.value}
+                      onSearchChange={(s) => setWarehouseSearch(s)}
+                    />
+                    {errors.branchNumber?.message && (
+                      <span className="mt-1 block text-xs text-red-500">
+                        {errors.branchNumber.message}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <Input
+                    label="Branch Number"
+                    placeholder="Branch number"
+                    inputClassName="bg-white text-black"
+                    {...field}
+                    value={field.value ?? ''}
+                    state={errors.branchNumber ? 'error' : 'default'}
+                    helperText={errors.branchNumber?.message}
+                  />
+                )}
               </div>
             )}
           />
