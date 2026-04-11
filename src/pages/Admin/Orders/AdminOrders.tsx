@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Button,
+  ExportButton,
   OrdersTopWidgets,
   OrderTabs,
   Pagination,
   TableOrders,
 } from '@/components';
-import { ADMIN_PAGE_LIMIT, ROUTES } from '@/constants';
+import { ADMIN_PAGE_LIMIT, EXPORT_TYPES, ROUTES } from '@/constants';
 import { DEFAULT_ORDER_STATUS_FILTER } from '@/constants/orders';
 import {
   type OrdersSortField,
@@ -117,6 +118,8 @@ export function AdminOrders() {
         >
           + Create Order
         </Button>
+
+        <ExportButton type={EXPORT_TYPES.ORDERS} />
       </div>
 
       <OrderTabs />

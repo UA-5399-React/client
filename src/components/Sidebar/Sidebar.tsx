@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ChartBarStacked,
+  LayoutDashboard,
   LogOut,
   PackageIcon,
   SettingsIcon,
@@ -17,6 +18,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { canAccessAdminRoute } from '@/utils/permissions';
 
 const SIDEBAR_LINKS = [
+  { to: ROUTES.ADMIN_DASHBOARD, label: 'Dashboard', icon: <LayoutDashboard /> },
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products', icon: <PackageIcon /> },
   {
     to: ROUTES.ADMIN_CATEGORIES,
