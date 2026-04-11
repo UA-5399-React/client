@@ -11,7 +11,11 @@ import {
   type OrderStatus,
 } from '@/types/tableOrders.types';
 
-export type OrdersSortField = 'createdAt' | 'totalPrice';
+export type OrdersSortField =
+  | 'createdAt'
+  | 'totalPrice'
+  | 'customerName'
+  | 'orderId';
 export type SortOrder = 'asc' | 'desc';
 
 export function useAdminOrders(

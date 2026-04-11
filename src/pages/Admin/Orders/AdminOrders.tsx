@@ -43,7 +43,10 @@ export function AdminOrders() {
   const orderParam = searchParams.get('order');
 
   const currentSort: OrdersSortField =
-    sortParam === 'createdAt' || sortParam === 'totalPrice'
+    sortParam === 'createdAt' ||
+    sortParam === 'totalPrice' ||
+    sortParam === 'orderId' ||
+    sortParam === 'customerName'
       ? sortParam
       : DEFAULT_SORT_BY;
 
