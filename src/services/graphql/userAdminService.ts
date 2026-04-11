@@ -64,3 +64,16 @@ export const DELETE_USER = gql`
     deleteUser(id: $id)
   }
 `;
+
+export const GET_USER_STATS = gql`
+  query UserStats($year: Int, $month: Int) {
+    userStats(year: $year, month: $month) {
+      registrationsMonth
+      registrationsByDay {
+        day
+        date
+        count
+      }
+    }
+  }
+`;

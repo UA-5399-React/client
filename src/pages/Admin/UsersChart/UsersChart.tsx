@@ -11,11 +11,9 @@ import {
 } from 'chart.js';
 
 import { Button } from '@/components';
-import { formatCurrentMonthRange } from '@/utils';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-const HIGHLIGHT_INDEX = 4;
 const CHART_BLUE = 'rgb(55, 125, 255)';
 const BAR_GREY = 'rgb(242, 244, 246)';
 const DASH_GREY = 'rgb(177, 181, 195)';
@@ -61,17 +59,25 @@ function zeroBaselineDashPlugin(): Plugin<'bar'> {
 }
 
 interface RegisteredUsersChartProps {
-  totalRegistered?: number;
-  dailyCounts?: number[];
+  registrationsThisMonth: number;
+  dailyCounts: number[];
+  dateLabel: string;
+  highlightBarIndex?: number;
+  loading?: boolean;
+  error?: Error | null;
   onShowAll?: () => void;
 }
 
 export function UsersChart({
-  totalRegistered = 5148,
+  registrationsThisMonth,
   dailyCounts,
+  dateLabel,
+  highlightBarIndex,
+  loading = false,
+  error = null,
   onShowAll,
 }: RegisteredUsersChartProps) {
-  const counts = dailyCounts ?? [14, 22, 28, 24, 56, 0, 0, 0, 0, 0, 0, 0];
+  const counts = dailyCounts;
 
   const plugin = useMemo(() => zeroBaselineDashPlugin(), []);
 
@@ -83,7 +89,9 @@ export function UsersChart({
           data: counts,
           backgroundColor: counts.map((v, i) => {
             if (v === 0) return 'transparent';
-            return i === HIGHLIGHT_INDEX ? CHART_BLUE : BAR_GREY;
+            if (highlightBarIndex !== undefined && i === highlightBarIndex)
+              return CHART_BLUE;
+            return BAR_GREY;
           }),
           borderWidth: 0,
           borderRadius: {
@@ -98,7 +106,7 @@ export function UsersChart({
         },
       ],
     }),
-    [counts],
+    [counts, highlightBarIndex],
   );
 
   const options = useMemo<ChartOptions<'bar'>>(
@@ -132,8 +140,6 @@ export function UsersChart({
     [],
   );
 
-  const dateLabel = useMemo(() => formatCurrentMonthRange(), []);
-
   return (
     <section className="bg-background rounded-2xl border border-gray-300 p-4 shadow-md">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -143,12 +149,23 @@ export function UsersChart({
       </div>
 
       <div className="flex flex-col items-center gap-4 px-2 py-2">
-        <p
-          className="text-5xl font-bold text-blue-500 tabular-nums"
-          aria-label={`Total registered users: ${totalRegistered}`}
-        >
-          {totalRegistered.toLocaleString('en-GB')}
-        </p>
+        {error ? (
+          <p className="text-center text-sm text-red-600" role="alert">
+            {error.message}
+          </p>
+        ) : null}
+
+        <div className="flex flex-col items-center text-center">
+          <p className="text-muted mb-1 text-xs font-semibold tracking-[0.06em] uppercase">
+            Registrations this month
+          </p>
+          <p
+            className={`text-5xl font-bold text-blue-500 tabular-nums ${loading ? 'opacity-50' : ''}`}
+            aria-label={`Registrations this month: ${registrationsThisMonth}`}
+          >
+            {loading ? '…' : registrationsThisMonth.toLocaleString('en-GB')}
+          </p>
+        </div>
 
         <div className="border-muted/40 relative h-36 w-full max-w-md border-b">
           <Bar data={data} options={options} plugins={[plugin]} />

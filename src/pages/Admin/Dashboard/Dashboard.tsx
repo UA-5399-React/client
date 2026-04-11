@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { ROUTES } from '@/constants';
+import { useUserStats } from '@/hooks/useUserStats';
 
 import { UsersChart } from '../UsersChart/UsersChart';
 type DashboardCardProps = {
@@ -30,6 +31,16 @@ export function Dashboard() {
   const handleShowAll = () => {
     navigate(ROUTES.ADMIN_USERS);
   };
+
+  const {
+    dailyCounts,
+    registrationsThisMonth,
+    highlightBarIndex,
+    dateLabel,
+    loading,
+    error,
+  } = useUserStats();
+
   return (
     <div>
       <section className="bg-background text-text min-h-screen px-4 py-6 transition-colors duration-300 md:px-6">
@@ -39,7 +50,15 @@ export function Dashboard() {
               title="Status Orders"
               slotName="<OrderStatusChart />"
             />
-            <UsersChart onShowAll={handleShowAll} />
+            <UsersChart
+              registrationsThisMonth={registrationsThisMonth}
+              dailyCounts={dailyCounts}
+              dateLabel={dateLabel}
+              highlightBarIndex={highlightBarIndex}
+              loading={loading}
+              error={error}
+              onShowAll={handleShowAll}
+            />
           </div>
 
           <DashboardCard
