@@ -9,6 +9,8 @@ import {
 import { AdminOrderForm, Button } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminEditOrderFlow } from '@/hooks';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
+import { useErrorStore } from '@/store/errorStore';
 import { type ShippingCarrier } from '@/types';
 import {
   type OrderFormData,
@@ -50,6 +52,9 @@ export function AdminEditOrder() {
   const { state } = useLocation() as { state: EditOrderLocationState | null };
   const navigate = useNavigate();
   const { updateOrder, isUpdateOrderInfo } = useAdminEditOrderFlow();
+
+  useErrorMessage();
+  const showMessage = useErrorStore((s) => s.show);
 
   const order = state?.order;
 
@@ -135,8 +140,17 @@ export function AdminEditOrder() {
         items: [...lineUpdates, ...removedLines],
       });
 
-      navigate(ROUTES.ADMIN_ORDERS);
+      navigate(ROUTES.ADMIN_ORDERS, {
+        state: {
+          successMessage: 'Order edited successfully',
+        },
+      });
     } catch (error) {
+      showMessage(
+        'error',
+        'category action failed',
+        error instanceof Error ? error.message : 'Something went wrong',
+      );
       console.error('Failed to update order:', error);
       throw error;
     }
