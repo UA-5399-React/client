@@ -48,6 +48,7 @@ describe('UI Component: Sidebar', () => {
     vi.mocked(useAuth).mockReturnValue(defaultAuthMock);
     renderWithProviders(<Sidebar />);
 
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Categories')).toBeInTheDocument();
     expect(screen.getByText('Products')).toBeInTheDocument();
     expect(screen.queryByText('Users')).not.toBeInTheDocument();
@@ -67,6 +68,7 @@ describe('UI Component: Sidebar', () => {
 
     expect(screen.getByText('Users')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
   it('should call logout when the user confirms in the modal', async () => {

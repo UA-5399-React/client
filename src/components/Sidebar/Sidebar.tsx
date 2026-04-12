@@ -1,10 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ChartBarStacked,
+  LayoutDashboard,
   LogOut,
   PackageIcon,
   SettingsIcon,
   ShoppingCartIcon,
+  Sparkles,
   UsersIcon,
 } from 'lucide-react';
 
@@ -16,6 +18,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { canAccessAdminRoute } from '@/utils/permissions';
 
 const SIDEBAR_LINKS = [
+  { to: ROUTES.ADMIN_DASHBOARD, label: 'Dashboard', icon: <LayoutDashboard /> },
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products', icon: <PackageIcon /> },
   {
     to: ROUTES.ADMIN_CATEGORIES,
@@ -25,6 +28,7 @@ const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
   { to: ROUTES.ADMIN_ORDERS, label: 'Orders', icon: <ShoppingCartIcon /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
+  { to: ROUTES.ADMIN_FEATURED, label: 'Featured Products', icon: <Sparkles /> },
 ];
 
 export const Sidebar = () => {

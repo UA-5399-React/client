@@ -84,8 +84,8 @@ export function MainTable<T extends TableItem>({
   emptyMessage = 'No data found',
 }: MainTableProps<T>) {
   return (
-    <div className="rounded-l-lg rounded-r-lg border border-gray-100 shadow-md">
-      <table className="w-full border-separate border-spacing-0 rounded-t-lg rounded-b-lg [&_tbody_tr:last-child_td:first-child]:rounded-bl-lg [&_tbody_tr:last-child_td:last-child]:rounded-br-lg [&_td]:border-b [&_td]:border-gray-100 [&_thead_th]:border-b [&_thead_th]:border-gray-100">
+    <div className="rounded-t-lg border border-gray-100">
+      <table className="w-full border-separate border-spacing-0 rounded-t-lg rounded-b-lg [&_td]:border-b [&_td]:border-gray-100 [&_thead_th]:border-b [&_thead_th]:border-gray-100">
         <thead className="bg-backgroundSec h-[50px] rounded-tl-lg rounded-tr-lg px-[12px] text-center text-gray-600 [&_th]:px-2">
           <tr>
             {columns.map((column, index) => (

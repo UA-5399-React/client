@@ -11,6 +11,7 @@ import { ROUTES } from '@/constants';
 import { useAdminEditOrderFlow } from '@/hooks';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useErrorStore } from '@/store/errorStore';
+import { type ShippingCarrier } from '@/types';
 import {
   type OrderFormData,
   type OrderItem,
@@ -92,6 +93,9 @@ export function AdminEditOrder() {
     customerName: `${order.user.firstName} ${order.user.lastName}`.trim(),
     email: order.user.email || '',
     phone: order.user.phone || '',
+    carrier: order.shippingAddress?.carrier.toLowerCase() as ShippingCarrier,
+    city: order.shippingAddress?.city || '',
+    branchNumber: String(order.shippingAddress?.branchNumber ?? ''),
     status: order.status.toLowerCase() as OrderStatus,
     items:
       order.items.length > 0
@@ -128,6 +132,11 @@ export function AdminEditOrder() {
         lastName,
         email: formData.email,
         phone: formData.phone,
+        shippingAddress: {
+          carrier: formData.carrier,
+          city: formData.city,
+          branchNumber: Number(formData.branchNumber),
+        },
         items: [...lineUpdates, ...removedLines],
       });
 

@@ -82,8 +82,8 @@ export function MyOrders() {
   }
 
   return (
-    <section className="min-h-screen bg-white px-4 md:px-8 lg:px-40">
-      <h1 className="mt-10 mb-16 text-center text-[54px] leading-none font-semibold text-black">
+    <section className="bg-background min-h-screen px-4 md:px-8 lg:px-40">
+      <h1 className="text-text mt-10 mb-16 text-center text-[54px] leading-none font-semibold">
         My Account
       </h1>
 
@@ -92,7 +92,7 @@ export function MyOrders() {
           <AccountSidebar user={user} onLogout={handleLogout} />
 
           <div className="-full min-w-0 px-[72px]">
-            <h2 className="mb-6 text-xl font-semibold text-black">
+            <h2 className="text-text mb-6 text-xl font-semibold">
               Orders History
             </h2>
             <div className="mb-3 hidden border-b border-gray-200 pb-3 text-sm text-gray-400 md:grid md:grid-cols-[150px_180px_140px_1fr_140px]">

@@ -202,6 +202,41 @@ describe('UI Component: TableProducts', () => {
     );
   });
 
+  it('should render product thumbnail image when imageUrl is provided', () => {
+    render(
+      <TableProducts
+        items={[mockProducts[0]]}
+        loading={false}
+        sort="updatedAt"
+        order="desc"
+        onSortChange={vi.fn()}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
+    );
+    const img = screen.getByRole('img', { name: mockProducts[0].title });
+    expect(img).toHaveAttribute('src', mockProducts[0].imageUrl);
+  });
+
+  it('should render a placeholder div when imageUrl is not provided', () => {
+    const productWithoutImage: Product = {
+      ...mockProducts[0],
+      imageUrl: undefined,
+    };
+    render(
+      <TableProducts
+        items={[productWithoutImage]}
+        loading={false}
+        sort="updatedAt"
+        order="desc"
+        onSortChange={vi.fn()}
+        onDelete={mockDelete}
+        onDuplicate={mockDuplicate}
+      />,
+    );
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
   it('should disable delete action for non-draft products', async () => {
     const user = userEvent.setup();
 

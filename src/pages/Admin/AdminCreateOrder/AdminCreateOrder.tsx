@@ -10,6 +10,7 @@ import {
   PAYMENT_METHODS,
   SHIPPING_CARRIERS,
 } from '@/types';
+import { type CreateOrderPayload, PAYMENT_METHODS } from '@/types';
 import type { OrderFormData } from '@/types/tableOrders.types';
 import { splitCustomerName } from '@/utils';
 
@@ -36,9 +37,9 @@ export function AdminCreateOrder() {
       },
       paymentMethod: PAYMENT_METHODS.CASH_ON_DELIVERY,
       shippingAddress: {
-        carrier: SHIPPING_CARRIERS.NOVA_POST,
-        city: 'N/A',
-        branchNumber: 'N/A',
+        carrier: formData.carrier,
+        city: formData.city,
+        branchNumber: formData.branchNumber,
       },
     };
 

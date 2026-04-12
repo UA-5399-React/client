@@ -5,13 +5,15 @@ import { ListFilter } from 'lucide-react';
 import {
   AdminPageHeader,
   Button,
+  ExportButton,
+  ImportProductsModal,
   Pagination,
   ProductFiltersBar,
   SearchInput,
   SortProductsDropdown,
   TableProducts,
 } from '@/components';
-import { ADMIN_PAGE_LIMIT, ROUTES } from '@/constants';
+import { ADMIN_PAGE_LIMIT, EXPORT_TYPES, ROUTES } from '@/constants';
 import { useAdminProducts } from '@/hooks/useAdminProduct';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -57,6 +59,7 @@ export function AdminProducts() {
   } = usePaginationPageParam();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
   const { duplicateProduct } = useDuplicate();
@@ -167,6 +170,10 @@ export function AdminProducts() {
 
   return (
     <div>
+      {showImportModal && (
+        <ImportProductsModal onClose={() => setShowImportModal(false)} />
+      )}
+
       <AdminPageHeader />
 
       <div className="flex items-center justify-between px-4 pt-6">
@@ -179,7 +186,6 @@ export function AdminProducts() {
             <ListFilter className="h-5 w-5" />
             Filters
           </Button>
-
           <Button
             className="ml-3 bg-blue-800 text-white hover:bg-transparent hover:text-blue-800"
             variant="primary"
@@ -187,6 +193,13 @@ export function AdminProducts() {
           >
             + Add Product
           </Button>
+          <Button
+            className="ml-3 border border-gray-300 bg-transparent text-[rgb(var(--color-text))] hover:border-blue-500 hover:text-blue-500"
+            onClick={() => setShowImportModal(true)}
+          >
+            Import
+          </Button>
+          <ExportButton type={EXPORT_TYPES.PRODUCTS} />{' '}
         </div>
 
         <div className="flex items-center justify-end gap-4 p-4">

@@ -170,16 +170,20 @@ export const Header = () => {
           </nav>
 
           <div className="relative flex items-center gap-6">
-            <div className="relative flex items-center">
-              {searchOpen && (
-                <div className="absolute top-1/2 right-8 -translate-y-1/2">
-                  <SearchInput
-                    value={searchValue}
-                    onChange={setSearchValue}
-                    className="w-72"
-                  />
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  searchOpen ? 'ml-6 w-72 opacity-100' : 'ml-0 w-0 opacity-0'
+                }`}
+                aria-hidden={!searchOpen}
+              >
+                <SearchInput
+                  value={searchValue}
+                  onChange={setSearchValue}
+                  className="w-full min-w-[18rem]"
+                  disabled={!searchOpen}
+                />
+              </div>
               <button
                 aria-label="Search"
                 onClick={() => {

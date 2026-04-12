@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import { SHIPPING_CARRIERS } from '@/types';
 import { ORDER_STATUS } from '@/types/tableOrders.types';
 
 export const orderFormSchema = z.object({
@@ -10,6 +11,13 @@ export const orderFormSchema = z.object({
     .min(1, 'Email is required')
     .email('Enter a valid email'),
   phone: z.string().trim().min(1, 'Phone is required'),
+  carrier: z.enum([
+    SHIPPING_CARRIERS.NOVA_POST,
+    SHIPPING_CARRIERS.UKRPOSHTA,
+    SHIPPING_CARRIERS.MEEST,
+  ]),
+  city: z.string().trim().min(3, 'City is required'),
+  branchNumber: z.string().trim().min(1, 'Branch is required'),
   status: z.enum([
     ORDER_STATUS.NEW,
     ORDER_STATUS.PROCESSING,
