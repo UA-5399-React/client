@@ -81,6 +81,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: npx playwright install --with-deps
 
+      - run: pnpm build
+
       - name: Run Playwright tests          
         run: pnpm run test:e2e
 
