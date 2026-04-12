@@ -5,11 +5,6 @@ import { ROUTES } from '@/constants';
 import { useAdminCreateOrderFlow } from '@/hooks';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useErrorStore } from '@/store/errorStore';
-import {
-  type CreateOrderPayload,
-  PAYMENT_METHODS,
-  SHIPPING_CARRIERS,
-} from '@/types';
 import { type CreateOrderPayload, PAYMENT_METHODS } from '@/types';
 import type { OrderFormData } from '@/types/tableOrders.types';
 import { splitCustomerName } from '@/utils';
