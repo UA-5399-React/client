@@ -110,4 +110,5 @@ export type ExportType = (typeof EXPORT_TYPES)[keyof typeof EXPORT_TYPES];
 export const API_ENDPOINTS = {
   EXPORT_PRODUCTS: '/export/products',
   EXPORT_ORDERS: '/export/orders',
+  EXPORT_ORDER_PDF: (id: string) => `/orders/${id}/export?format=pdf`,
 } as const;
