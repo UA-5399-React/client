@@ -80,10 +80,10 @@ describe('UI Component: TableOrders', () => {
       screen.getByRole('columnheader', { name: 'Product Name' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: 'Customer name' }),
+      screen.getByRole('button', { name: /customer name/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: 'Order ID' }),
+      screen.getByRole('button', { name: /order id/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /total price/i }),
@@ -120,6 +120,32 @@ describe('UI Component: TableOrders', () => {
     expect(
       screen.getByText(formatDate(new Date(orderItem.createdAt))),
     ).toBeInTheDocument();
+  });
+
+  it('should call onSortChange when customer name header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /customer name/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('customerName');
+  });
+
+  it('should call onSortChange when order id header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /order id/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('orderId');
   });
 
   it('should call onSortChange when total price header is clicked', async () => {

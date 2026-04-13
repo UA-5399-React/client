@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
-import clsx from 'clsx';
-import { AlertCircle } from 'lucide-react';
 
 import {
   AdminPageHeader,
@@ -15,16 +13,18 @@ import { useDeleteAdminCategory } from '@/hooks';
 import { useAdminCategoriesPage } from '@/hooks/useAdminCategoriesPage';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
-import { useTheme } from '@/hooks/useTheme';
+import { useErrorStore } from '@/store/errorStore';
 import type { Category } from '@/types';
 
 export function AdminCategories() {
-  const { isDark } = useTheme();
+  useErrorMessage();
   const { openConfirmModal } = useConfirmModal();
   const { deleteCategory } = useDeleteAdminCategory();
   const [search, setSearch] = useState('');
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  //const [deleteError, setDeleteError] = useState<string | null>(null);
+  const showMessage = useErrorStore((s) => s.show);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -76,8 +76,6 @@ export function AdminCategories() {
   }, [loading, normalizeOutOfRangePage, totalPages]);
 
   const handleDeleteCategory = (category: Category) => {
-    setDeleteError(null);
-
     openConfirmModal({
       title: 'Delete Category',
       description: `Delete category "${category.title}"? Products will remain without this category.`,
@@ -87,11 +85,16 @@ export function AdminCategories() {
         try {
           setDeletingId(category.id);
           await deleteCategory(category.id);
-        } catch (error) {
-          setDeleteError(
-            error instanceof Error
-              ? error.message
-              : 'Failed to delete category',
+          navigate('.', {
+            state: {
+              successMessage: 'Category deleted successfully!',
+            },
+          });
+        } catch (e) {
+          showMessage(
+            'error',
+            'Category deletion failed',
+            e instanceof Error ? e.message : 'Something went wrong',
           );
         } finally {
           setDeletingId(null);
@@ -101,7 +104,11 @@ export function AdminCategories() {
   };
 
   const handleEditCategory = (category: Category) => {
-    navigate(generatePath(ROUTES.ADMIN_CATEGORY_EDIT, { id: category.id }));
+    navigate(
+      generatePath(ROUTES.ADMIN_CATEGORY_EDIT, {
+        id: category.id,
+      }),
+    );
   };
 
   return (
@@ -129,27 +136,6 @@ export function AdminCategories() {
             />
           </div>
         </div>
-
-        {deleteError ? (
-          <div className="px-5 pt-5">
-            <div
-              className={clsx(
-                'mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4',
-                {
-                  'border-red-900/50 bg-red-950/30 text-red-300': isDark,
-                  'border-red-200 bg-red-50 text-red-800': !isDark,
-                },
-              )}
-              role="alert"
-            >
-              <AlertCircle className="h-6 w-6 shrink-0" />
-              <div className="text-left">
-                <p className="font-medium">Failed to delete category</p>
-                <p className="text-sm">{deleteError}</p>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         <TableCategories
           items={categories}

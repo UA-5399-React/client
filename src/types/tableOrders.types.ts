@@ -22,6 +22,11 @@ export interface OrderItem {
   orderId: string;
   items: OrderedProduct[];
   user: OrderUser;
+  shippingAddress?: {
+    carrier: string;
+    city: string;
+    branchNumber: number | string;
+  };
   amount: number;
   totalPrice: number;
   status: OrderStatus;
@@ -48,6 +53,9 @@ export interface OrderFormData {
   customerName: string;
   email: string;
   phone: string;
+  carrier: 'nova_post' | 'ukrposhta' | 'meest';
+  city: string;
+  branchNumber: string;
   status: OrderStatus;
   items: {
     productId: string;
@@ -80,5 +88,10 @@ export interface UpdateOrderPayload {
   lastName: string;
   email: string;
   phone: string;
+  shippingAddress: {
+    carrier: 'nova_post' | 'ukrposhta' | 'meest';
+    city: string;
+    branchNumber: number;
+  };
   items: UpdateOrderLinePayload[];
 }

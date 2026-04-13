@@ -19,6 +19,7 @@ import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useDeleteAdminProduct } from '@/hooks/useDeleteAdminProduct';
 import { useDuplicate } from '@/hooks/useDuplicate';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useAdminProductsStore } from '@/store/useAdminProductsStore';
 import { type ProductsFilters } from '@/types/filters';
@@ -43,6 +44,8 @@ export function AdminProducts() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { openConfirmModal } = useConfirmModal();
+
+  useErrorMessage();
 
   const { filters, search, sort, order, setFilters, setSearch, setSort } =
     useAdminProductsStore();
@@ -154,7 +157,14 @@ export function AdminProducts() {
       description: 'Are you sure you want to delete this product?',
       isCritical: true,
       confirmText: 'Delete',
-      onConfirm: () => deleteProduct(id),
+      onConfirm: async () => {
+        await deleteProduct(id);
+        navigate('.', {
+          state: {
+            successMessage: 'Product deleted successfully!',
+          },
+        });
+      },
     });
   };
 
