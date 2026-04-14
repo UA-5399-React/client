@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ROUTES } from '@/constants';
 import { useUserStats } from '@/hooks/useUserStats';
+import { getCurrentMonthPeriod } from '@/utils';
 
 import { UsersChart } from '../UsersChart/UsersChart';
 type DashboardCardProps = {
@@ -28,6 +30,8 @@ function DashboardCard({ title, className = '' }: DashboardCardProps) {
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
+
   const handleShowAll = () => {
     navigate(ROUTES.ADMIN_USERS);
   };
@@ -37,9 +41,9 @@ export function Dashboard() {
     registrationsThisMonth,
     highlightBarIndex,
     dateLabel,
-    loading,
-    error,
-  } = useUserStats();
+    loading: periodLoading,
+    error: periodError,
+  } = useUserStats(selectedPeriod);
 
   return (
     <div>
@@ -55,8 +59,10 @@ export function Dashboard() {
               dailyCounts={dailyCounts}
               dateLabel={dateLabel}
               highlightBarIndex={highlightBarIndex}
-              loading={loading}
-              error={error}
+              selectedPeriod={selectedPeriod}
+              onPeriodChange={setSelectedPeriod}
+              loading={periodLoading}
+              error={periodError}
               onShowAll={handleShowAll}
             />
           </div>

@@ -42,3 +42,30 @@ export function buildDailyCountsFromRegistrations(
   }
   return out;
 }
+
+export function getCurrentMonthPeriod() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function resolvePeriod(period?: string) {
+  const today = new Date();
+  if (!period) {
+    return { year: today.getFullYear(), month: today.getMonth() + 1 };
+  }
+
+  const [yearRaw, monthRaw] = period.split('-');
+  const parsedYear = Number(yearRaw);
+  const parsedMonth = Number(monthRaw);
+
+  const year =
+    Number.isFinite(parsedYear) && parsedYear > 0
+      ? parsedYear
+      : today.getFullYear();
+  const month =
+    Number.isFinite(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12
+      ? parsedMonth
+      : today.getMonth() + 1;
+
+  return { year, month };
+}

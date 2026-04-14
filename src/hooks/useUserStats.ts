@@ -2,17 +2,15 @@ import { useQuery } from '@apollo/client/react';
 
 import { GET_USER_STATS } from '@/services/graphql/userAdminService';
 import type { UserStatsQueryData } from '@/types/statistic.types';
-import { buildDailyCountsFromRegistrations, formatMonthRange } from '@/utils';
+import {
+  buildDailyCountsFromRegistrations,
+  formatMonthRange,
+  resolvePeriod,
+} from '@/utils';
 
-export type UserStatsPeriod = {
-  year: number;
-  month: number;
-};
-
-export function useUserStats(period?: UserStatsPeriod) {
+export function useUserStats(period?: string) {
   const today = new Date();
-  const year = period?.year ?? today.getFullYear();
-  const month = period?.month ?? today.getMonth() + 1;
+  const { year, month } = resolvePeriod(period);
 
   const { data, loading, error, refetch } = useQuery<UserStatsQueryData>(
     GET_USER_STATS,
@@ -26,7 +24,9 @@ export function useUserStats(period?: UserStatsPeriod) {
     ? Array.from({ length: new Date(year, month, 0).getDate() }, () => 0)
     : buildDailyCountsFromRegistrations(year, month, rows);
 
-  const registrationsThisMonth = data?.userStats?.registrationsMonth ?? 0;
+  const registrationsThisMonth = rows?.length
+    ? rows.reduce((sum, row) => sum + row.count, 0)
+    : (data?.userStats?.registrationsMonth ?? 0);
 
   const highlightBarIndex =
     today.getFullYear() === year && today.getMonth() + 1 === month

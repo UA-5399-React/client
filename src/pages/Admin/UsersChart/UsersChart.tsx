@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from 'chart.js';
 
-import { Button } from '@/components';
+import { Button, Input } from '@/components';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
@@ -63,6 +63,8 @@ interface RegisteredUsersChartProps {
   dailyCounts: number[];
   dateLabel: string;
   highlightBarIndex?: number;
+  selectedPeriod: string;
+  onPeriodChange: (period: string) => void;
   loading?: boolean;
   error?: Error | null;
   onShowAll?: () => void;
@@ -73,6 +75,8 @@ export function UsersChart({
   dailyCounts,
   dateLabel,
   highlightBarIndex,
+  selectedPeriod,
+  onPeriodChange,
   loading = false,
   error = null,
   onShowAll,
@@ -146,6 +150,16 @@ export function UsersChart({
         <h2 className="text-text text-base font-bold tracking-[0.08em] uppercase">
           Number of clients
         </h2>
+        <div className="flex items-center gap-2">
+          <Input
+            id="users-chart-period"
+            type="month"
+            label="Period"
+            value={selectedPeriod}
+            onChange={(event) => onPeriodChange(event.target.value)}
+            inputClassName="w-56 text-gray-700"
+          />
+        </div>
       </div>
 
       <div className="flex flex-col items-center gap-4 px-2 py-2">
