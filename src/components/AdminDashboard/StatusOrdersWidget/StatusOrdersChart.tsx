@@ -53,6 +53,7 @@ const hoverPercentagePlugin: Plugin<'doughnut'> = {
     if (!pluginOptions) return;
 
     const { statuses, opacityRef, activeIndexRef } = pluginOptions;
+    if (!opacityRef || !activeIndexRef) return;
     const index = activeIndexRef.current;
     if (index === null || opacityRef.current <= 0) return;
 
@@ -137,7 +138,11 @@ export const StatusOrdersChart = ({ data }: Props) => {
 
   return (
     <div style={{ position: 'relative', width: 280, height: 280 }}>
-      <Doughnut data={chartData} options={options} />
+      <Doughnut
+        data={chartData}
+        options={options}
+        plugins={[hoverPercentagePlugin]}
+      />
 
       <div
         style={{
