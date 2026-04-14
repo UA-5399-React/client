@@ -5,13 +5,6 @@ import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { ProductCard } from './ProductCard';
 
-// ─── Navigation ───────────────────────────────────────────────────────────────
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
-});
-
 // ─── Cart store ────────────────────────────────────────────────────────────────
 const mockAddItem = vi.fn();
 vi.mock('@/store/useCartStore', () => ({
@@ -68,25 +61,38 @@ describe('UI Component: ProductCard', () => {
   it('should render the placeholder icon when imageUrl is absent', () => {
     render(<ProductCard product={productWithoutImage} />);
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    // The placeholder container is identifiable by the SVG inside it
     const placeholder = document.querySelector('.bg-gray-100');
     expect(placeholder).toBeInTheDocument();
+  });
+
+  // ── Link / navigation ─────────────────────────────────────────────────────────
+  it('should render as an anchor element with the correct href', () => {
+    render(<ProductCard product={mockProduct} />);
+    const link = screen.getByRole('link', { name: 'Test Product' });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/product/mongo1');
+  });
+
+  it('should render href with _id when product has only _id', () => {
+    render(<ProductCard product={productWithMongoId} />);
+    const link = screen.getByRole('link', { name: 'Mongo Product' });
+    expect(link).toHaveAttribute('href', '/product/mongo-only');
   });
 
   // ── Hover interactions ───────────────────────────────────────────────────────
   it('should show Add to Cart button on hover', async () => {
     const user = userEvent.setup();
     render(<ProductCard product={mockProduct} />);
-    const card = screen.getByAltText('Test Product').closest('div');
-    await user.hover(card!);
+    const link = screen.getByRole('link', { name: 'Test Product' });
+    await user.hover(link);
     expect(screen.getByText('Add to Cart')).toBeVisible();
   });
 
   it('should show wishlist button on hover', async () => {
     const user = userEvent.setup();
     render(<ProductCard product={mockProduct} />);
-    const card = screen.getByAltText('Test Product').closest('div');
-    await user.hover(card!);
+    const link = screen.getByRole('link', { name: 'Test Product' });
+    await user.hover(link);
     expect(screen.getByLabelText('Add to wishlist')).toBeVisible();
   });
 
@@ -94,29 +100,6 @@ describe('UI Component: ProductCard', () => {
     render(<ProductCard product={mockProduct} />);
     const button = screen.getByText('Add to Cart');
     expect(button.closest('div')).toHaveClass('opacity-0');
-  });
-
-  // ── Navigation ───────────────────────────────────────────────────────────────
-  it('should navigate to /product/:_id when card image area is clicked', async () => {
-    const user = userEvent.setup();
-    render(<ProductCard product={mockProduct} />);
-    // The clickable wrapper div sits around the image
-    const clickableArea = screen
-      .getByAltText('Test Product')
-      .closest('[class*="cursor-pointer"]');
-    await user.click(clickableArea!);
-    expect(mockNavigate).toHaveBeenCalledWith('/product/mongo1');
-  });
-
-  it('should navigate using _id when product has only _id (no id)', async () => {
-    const user = userEvent.setup();
-    render(<ProductCard product={productWithMongoId} />);
-    // Placeholder div is the clickable area when there is no image
-    const clickableArea = document.querySelector(
-      '.cursor-pointer',
-    ) as HTMLElement;
-    await user.click(clickableArea);
-    expect(mockNavigate).toHaveBeenCalledWith('/product/mongo-only');
   });
 
   // ── Add to Cart ──────────────────────────────────────────────────────────────
@@ -127,11 +110,11 @@ describe('UI Component: ProductCard', () => {
     expect(mockAddItem).toHaveBeenCalledWith(mockProduct);
   });
 
-  it('should not trigger card navigation when Add to Cart is clicked (stopPropagation)', async () => {
+  it('should prevent default link navigation when Add to Cart is clicked', async () => {
     const user = userEvent.setup();
     render(<ProductCard product={mockProduct} />);
     await user.click(screen.getByText('Add to Cart'));
-    // addItem called but navigate must NOT have been called for the card click
-    expect(mockNavigate).not.toHaveBeenCalled();
+    // addItem called; the link href should NOT have been followed (no navigation event)
+    expect(mockAddItem).toHaveBeenCalledTimes(1);
   });
 });

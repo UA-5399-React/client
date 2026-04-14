@@ -1,14 +1,13 @@
 import { NewArrivals } from '@/components';
 import { Features, Newsletter, SaleBanner } from '@/components';
-import { NEW_ARRIVALS_LIMIT } from '@/constants';
-import { useProducts } from '@/hooks/useProducts';
+import { useFeaturedProducts } from '@/hooks/useFeaturedProducts';
 
 export const Home = () => {
   const {
     data: products,
     isLoading,
     isError,
-  } = useProducts(1, NEW_ARRIVALS_LIMIT, 'createdAt');
+  } = useFeaturedProducts('new-arrivals');
 
   return (
     <main className="box-border w-full overflow-x-hidden">

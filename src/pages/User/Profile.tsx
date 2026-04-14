@@ -1,16 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft } from 'lucide-react';
 
-import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
+import googleIcon from '@/assets/icons/google-icon.webp';
+import {
+  AccountDetailsForm,
+  AccountSidebar,
+  BackButton,
+  PasswordForm,
+} from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { GOOGLE_CONNECT_FEEDBACK } from '@/pages/User/googleConnectFeedback';
 import {
   type ProfileFormValues,
   profileSchema,
 } from '@/schemas/profile.schema';
+import { authService } from '@/services/authService';
 import { usersService } from '@/services/users.service';
 import type { User } from '@/types/user';
 import { clearAuthStorage } from '@/utils/auth-storage';
@@ -18,6 +25,7 @@ import { EMPTY_FORM_VALUES, getFormValuesFromUser } from '@/utils/profile-form';
 
 export function Profile() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { logout } = useAuth();
 
   const [user, setUser] = useState<User | null>(null);
@@ -25,6 +33,7 @@ export function Profile() {
   const [pageError, setPageError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [isDisconnectingGoogle, setIsDisconnectingGoogle] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -70,7 +79,32 @@ export function Profile() {
     void loadUser();
   }, [reset, handleUnauthorized]);
 
-  // Autoclear success messages
+  useEffect(() => {
+    const googleStatus = searchParams.get('google');
+
+    if (!googleStatus) {
+      return;
+    }
+
+    const feedback = GOOGLE_CONNECT_FEEDBACK[googleStatus];
+
+    setSubmitError('');
+    setSuccessMessage('');
+
+    if (feedback) {
+      if (feedback.kind === 'success') {
+        setSuccessMessage(feedback.message);
+      } else {
+        setSubmitError(feedback.message);
+      }
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete('google');
+    setSearchParams(nextSearchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  // Autoclear success and error messages
   useEffect(() => {
     if (!successMessage) return;
     const timer = setTimeout(() => {
@@ -79,7 +113,6 @@ export function Profile() {
     return () => clearTimeout(timer);
   }, [successMessage]);
 
-  // Autoclear error messages
   useEffect(() => {
     if (!submitError) return;
     const timer = setTimeout(() => {
@@ -198,6 +231,50 @@ export function Profile() {
     reset(); // react-hook-form
   };
 
+  const handleGoogleConnect = () => {
+    setSubmitError('');
+    setSuccessMessage('');
+    authService.startGoogleConnect();
+  };
+
+  const handleGoogleDisconnect = async () => {
+    if (!user) return;
+
+    try {
+      setIsDisconnectingGoogle(true);
+      setSubmitError('');
+      setSuccessMessage('');
+
+      await authService.disconnectGoogle();
+
+      const updatedUser = await usersService.getMe();
+      setUser(updatedUser);
+      setSuccessMessage('Google account disconnected successfully');
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('401')) {
+        handleUnauthorized();
+        return;
+      }
+
+      let errorMessage = 'Failed to disconnect Google account';
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        if (
+          err.message === 'You must set a password before disconnecting Google'
+        ) {
+          errorMessage =
+            'This account uses Google as the only sign-in method, so Google disconnect is unavailable.';
+        }
+      }
+
+      setSubmitError(errorMessage);
+    } finally {
+      setIsDisconnectingGoogle(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="bg-background text-text p-10">Loading...</div>;
   }
@@ -211,15 +288,8 @@ export function Profile() {
   }
 
   return (
-    <section className="bg-background text-text min-h-screen px-8 lg:px-40">
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="text-muted mt-4 mb-6 flex items-center gap-2 border-none bg-transparent text-[16px] font-medium transition md:hidden"
-      >
-        <ChevronLeft size={20} />
-        back
-      </button>
+    <section className="bg-background text-text min-h-screen px-8 lg:px-40 lg:pb-20">
+      <BackButton />
 
       <h1 className="text-text mt-10 mb-16 text-center text-[40px] leading-none font-semibold md:text-[54px]">
         My Account
@@ -234,7 +304,7 @@ export function Profile() {
             isAvatarUploading={isAvatarUploading}
           />
 
-          <div className="w-full max-w-[760px] px-5 md:px-8 lg:px-[72px]">
+          <div className="w-full max-w-[760px] px-5 pb-7 md:px-8 lg:px-[72px]">
             <form onSubmit={handleSubmit(onSubmit)}>
               <AccountDetailsForm
                 user={user}
@@ -242,9 +312,62 @@ export function Profile() {
                 errors={errors}
               />
 
+              <section className="mt-10 px-7 lg:px-0">
+                <h2 className="text-text mt-0 mb-6 text-[20px] font-semibold">
+                  Google Account
+                </h2>
+
+                <p className="text-muted text-sm leading-6">
+                  {user.isGoogleConnected
+                    ? 'Your Google account is connected and can be used for future sign-ins.'
+                    : 'Connect your Google account to use it for future sign-ins.'}
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  {user.isGoogleConnected ? (
+                    <button
+                      type="button"
+                      onClick={handleGoogleDisconnect}
+                      disabled={isDisconnectingGoogle}
+                      className="hover:bg-background h-[44px] min-w-[183px] cursor-pointer rounded-md border border-red-600 bg-transparent px-6 text-sm font-semibold text-red-600 transition disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="flex items-center gap-3">
+                        <img
+                          src={googleIcon}
+                          alt="google"
+                          aria-hidden="true"
+                          className="h-5 w-5 rounded-sm bg-white/90 p-0.5"
+                        />
+                        <span>
+                          {isDisconnectingGoogle
+                            ? 'Disconnecting...'
+                            : 'Disconnect Google'}
+                        </span>
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleGoogleConnect}
+                      className="bg-primary text-background h-[44px] min-w-[220px] cursor-pointer rounded-md border-0 px-6 text-sm font-semibold transition hover:opacity-90"
+                    >
+                      <span className="flex items-center gap-3">
+                        <img
+                          src={googleIcon}
+                          alt="google"
+                          aria-hidden="true"
+                          className="h-5 w-5 rounded-sm bg-white/90 p-0.5"
+                        />
+                        <span>Connect Google account</span>
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </section>
+
               <PasswordForm control={control} errors={errors} />
 
-              <div className="mt-6 flex flex-col gap-6 px-5 md:flex-row md:items-center lg:px-0">
+              <div className="mt-6 flex flex-col gap-6 px-7 md:flex-row md:items-center lg:px-0">
                 <button
                   type="submit"
                   disabled={isSaving}
@@ -262,12 +385,16 @@ export function Profile() {
                 </button>
               </div>
 
-              {submitError && (
-                <p className="mt-3 text-sm text-red-600">{submitError}</p>
+              {successMessage && (
+                <div className="mt-6 w-[280px] rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 lg:w-[675px] dark:border-green-700 dark:bg-green-900 dark:text-green-300">
+                  {successMessage}
+                </div>
               )}
 
-              {successMessage && (
-                <p className="mt-3 text-sm text-green-600">{successMessage}</p>
+              {submitError && (
+                <div className="mt-6 w-[280px] rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 lg:w-[675px] dark:border-red-700 dark:bg-red-900 dark:text-red-300">
+                  {submitError}
+                </div>
               )}
             </form>
           </div>

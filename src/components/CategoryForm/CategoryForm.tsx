@@ -9,9 +9,11 @@ import { z } from 'zod';
 import { Input } from '@/components/Input';
 import { ROUTES } from '@/constants';
 import { useCreateAdminCategory } from '@/hooks/useCreateAdminCategory';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useTheme } from '@/hooks/useTheme';
 import { useUpdateAdminCategory } from '@/hooks/useUpdateAdminCategory';
 import { useUploadProductImage } from '@/hooks/useUploadProductImage';
+import { useErrorStore } from '@/store/errorStore';
 import type { Category, Product } from '@/types';
 
 const categorySchema = z.object({
@@ -46,7 +48,8 @@ export const CategoryForm = ({
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const [serverError, setServerError] = useState<string | null>(null);
+  useErrorMessage();
+  const showMessage = useErrorStore((s) => s.show);
 
   const {
     register,
@@ -131,8 +134,6 @@ export const CategoryForm = ({
   };
 
   const onSubmit = async (data: CategoryFormData) => {
-    setServerError(null);
-
     const depth: 1 | 2 = data.parent ? 2 : 1;
     let uploadedImageUrl = data.imagePreview || undefined;
 
@@ -152,13 +153,28 @@ export const CategoryForm = ({
     try {
       if (isEdit && initialData?.id) {
         await updateCategory(initialData.id, payload);
+
+        showMessage(
+          'success',
+          'Category updated',
+          'Category updated successfully',
+        );
       } else {
         await createCategory(payload);
+
+        showMessage(
+          'success',
+          'Category created',
+          'Category created successfully',
+        );
       }
       navigate(ROUTES.ADMIN_CATEGORIES);
-    } catch (error) {
-      setServerError('Failed to save category. Please try again later.');
-      console.error('Save error:', error);
+    } catch (e) {
+      showMessage(
+        'error',
+        'category action failed',
+        e instanceof Error ? e.message : 'Something went wrong',
+      );
     }
   };
 
@@ -219,9 +235,9 @@ export const CategoryForm = ({
                   />
                   <button
                     onClick={handleRemoveImage}
-                    className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#F25F5F] shadow-md transition-colors hover:bg-red-50"
+                    className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-red-400 bg-gray-100 text-red-400 shadow-sm transition-colors hover:bg-gray-200 focus:outline-none dark:border-red-400 dark:bg-neutral-700 dark:text-red-400 dark:hover:bg-neutral-600"
                   >
-                    <X size={16} strokeWidth={3} />
+                    <X size={16} strokeWidth={2.5} />
                   </button>
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                     <Pencil className="text-white" size={24} />
@@ -452,11 +468,6 @@ export const CategoryForm = ({
         </div>
 
         <div className="flex items-center justify-end gap-6 rounded-b-2xl border-t border-[#e5e7eb] bg-[#F2F4F6]/50 px-8 py-5">
-          {serverError && (
-            <p className="animate-in fade-in slide-in-from-left-2 mr-auto text-sm font-medium text-red-500">
-              {serverError}
-            </p>
-          )}
           <button
             onClick={() => navigate(-1)}
             disabled={isSaving}

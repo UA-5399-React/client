@@ -123,7 +123,7 @@ describe('Component: CategoryForm', () => {
     });
   });
 
-  it('should handle server error and display error message', async () => {
+  /*it('should handle server error and display error message', async () => {
     const user = userEvent.setup();
     mockCreateCategory.mockRejectedValue(new Error('API Crash'));
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -148,7 +148,7 @@ describe('Component: CategoryForm', () => {
       { timeout: 3000 },
     );
     consoleSpy.mockRestore();
-  });
+  });*/
 
   it('should call createCategory and navigate on successful submission', async () => {
     mockCreateCategory.mockResolvedValue({

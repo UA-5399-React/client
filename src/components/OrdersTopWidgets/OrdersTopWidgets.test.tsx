@@ -52,7 +52,7 @@ describe('OrdersTopWidgets', () => {
       <OrdersTopWidgets counts={mockCounts} loading={false} />,
     );
 
-    const iconContainers = container.querySelectorAll('.h-14.w-14');
+    const iconContainers = container.querySelectorAll('.h-10.w-10');
     expect(iconContainers).toHaveLength(4);
 
     const icons = container.querySelectorAll('svg');

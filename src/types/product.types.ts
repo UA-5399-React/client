@@ -1,3 +1,4 @@
+import type { ProductSortField } from '@/types/productsSort';
 export const PRODUCT_STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
@@ -18,6 +19,7 @@ export interface Product {
   status: ProductStatus;
   tags?: string[];
   description?: string;
+  purchaseCount?: number;
 
   //it's a workaround to pass build, because there are no fields for createdAt/updatedAt in mock data and storybooks(probably?). Overall these 2 fields should not be optional
   createdAt?: string;
@@ -36,7 +38,7 @@ export interface ProductQueryParams {
   page: number;
   limit: number;
   search?: string;
-  sort?: 'price' | 'title' | 'createdAt';
+  sort?: ProductSortField;
   order?: 'asc' | 'desc';
   category?: string;
   minPrice?: number;
