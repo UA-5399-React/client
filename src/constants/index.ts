@@ -11,6 +11,7 @@ export const ROUTES = {
   CONTACT_US: '/contact',
   LOGIN: '/login',
   CART: '/cart',
+  NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',
   CHECKOUT: '/checkout',
   ORDER_CONFIRMATION: '/order-confirmation',
   ORDER_DETAIL: '/order/:orderId',
@@ -23,6 +24,7 @@ export const ROUTES = {
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',
+  ADMIN_MAILER: '/admin/mailer',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',
@@ -30,8 +32,14 @@ export const ROUTES = {
   ADMIN_CATEGORY_ADD: '/admin/categories/add',
   ADMIN_CATEGORY_EDIT: '/admin/categories/edit/:id',
   ADMIN_ORDERS: '/admin/orders',
+  ADMIN_ORDER_CREATE: '/admin/orders/create',
+  ADMIN_ORDER_EDIT: '/admin/orders/:id',
+  ADMIN_DASHBOARD: '/admin/dashboard',
   PROFILE: '/profile',
   MYORDERS: '/profile/myOrders',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  ADMIN_FEATURED: '/admin/featured',
 } as const;
 
 export const DEFAULT_FILTER: ProductsFilters = {
@@ -52,6 +60,32 @@ export const MOCK_AUTH = {
   MOCK_TOKEN: 'mock-jwt-token',
 };
 
+export const AUTH_ENDPOINTS = {
+  GOOGLE: '/auth/google',
+  GOOGLE_CONNECT: '/auth/google/connect',
+  GOOGLE_DISCONNECT: '/auth/google/disconnect',
+  LOGIN: '/auth/login',
+  REGISTER: '/auth/register',
+  CONFIRM_EMAIL: '/auth/confirm-email',
+  RESEND_CONFIRMATION: '/auth/resend-confirmation',
+  ME: '/auth/me',
+  LOGOUT: '/auth/logout',
+  RESET_PASSWORD_REQUEST: '/auth/reset-password/request',
+  RESET_PASSWORD_CONFIRM: '/auth/reset-password/confirm',
+} as const;
+
+export const AUTH_MESSAGES = {
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  CREATE_ACCOUNT_FAILED: 'Failed to create account',
+  CONFIRM_EMAIL_FAILED: 'Failed to confirm email',
+  RESEND_CONFIRMATION_FAILED: 'Failed to resend confirmation email',
+  FETCH_PROFILE_FAILED: 'Failed to fetch user profile',
+  GOOGLE_DISCONNECT_FAILED: 'Failed to disconnect Google account',
+  LOGOUT_FAILED: 'Failed to logout on server',
+  RESET_PASSWORD_REQUEST_FAILED: 'Failed to send password reset email',
+  RESET_PASSWORD_FAILED: 'Failed to reset password',
+} as const;
+
 export const AUTH_ROLES = {
   CUSTOMER: 'customer',
   SUPER_ADMIN: 'super_admin',
@@ -66,3 +100,16 @@ export const NEW_ARRIVALS_LIMIT = 10;
 export const ITEMS_PER_PAGE = 10;
 
 export * from './theme';
+
+export const EXPORT_TYPES = {
+  PRODUCTS: 'products',
+  ORDERS: 'orders',
+} as const;
+
+export type ExportType = (typeof EXPORT_TYPES)[keyof typeof EXPORT_TYPES];
+
+export const API_ENDPOINTS = {
+  EXPORT_PRODUCTS: '/export/products',
+  EXPORT_ORDERS: '/export/orders',
+  EXPORT_ORDER_PDF: (id: string) => `/orders/${id}/export?format=pdf`,
+} as const;

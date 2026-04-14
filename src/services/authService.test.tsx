@@ -8,8 +8,12 @@ import {
   vi,
 } from 'vitest';
 
+import { API_BASE_URL, AUTH_ENDPOINTS, AUTH_MESSAGES } from '@/constants';
+
 import {
+  type AuthApiError,
   authService,
+  type ConfirmEmailResponse,
   type LoginPayload,
   type RegisterPayload,
 } from './authService';
@@ -17,7 +21,7 @@ import {
 global.fetch = vi.fn();
 
 describe('Service: authService', () => {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; // The same default as in service
+  const API_URL = API_BASE_URL;
 
   beforeEach(() => {
     // Clear calls and mocks before each test to avoid interference
@@ -49,14 +53,17 @@ describe('Service: authService', () => {
 
       // Check that fetch was called with the correct arguments
       expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.LOGIN}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(mockCredentials),
+          credentials: 'include', // Critical for cookie functionality!
         },
-        body: JSON.stringify(mockCredentials),
-        credentials: 'include', // Critical for cookie functionality!
-      });
+      );
 
       // Check that the service returned the parsed JSON
       expect(result).toEqual(mockResponseData);
@@ -70,13 +77,29 @@ describe('Service: authService', () => {
 
       // Check that the service threw our custom error
       await expect(authService.login(mockCredentials)).rejects.toThrow(
-        'Invalid email or password',
+        AUTH_MESSAGES.INVALID_CREDENTIALS,
       );
+    });
+
+    it('should preserve backend error code for email confirmation errors', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          message: 'Please confirm your email first',
+          code: 'EMAIL_NOT_CONFIRMED',
+        }),
+      });
+
+      await expect(authService.login(mockCredentials)).rejects.toMatchObject({
+        message: 'Please confirm your email first',
+        code: 'EMAIL_NOT_CONFIRMED',
+      } satisfies Partial<AuthApiError>);
     });
   });
 
   describe('register()', () => {
     const mockPayload: RegisterPayload = {
+      firstName: 'John',
       email: 'newuser@test.com',
       password: 'Password1!',
       passwordConfirmation: 'Password1!',
@@ -95,14 +118,17 @@ describe('Service: authService', () => {
 
       const result = await authService.register(mockPayload);
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.REGISTER}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(mockPayload),
+          credentials: 'include',
         },
-        body: JSON.stringify(mockPayload),
-        credentials: 'include',
-      });
+      );
       expect(result).toEqual(mockResponseData);
     });
 
@@ -118,6 +144,86 @@ describe('Service: authService', () => {
     });
   });
 
+  describe('confirmEmail()', () => {
+    const mockResponseData: ConfirmEmailResponse = {
+      message: 'Email confirmed successfully',
+    };
+
+    it('should send correct POST request and return data on success', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponseData,
+      });
+
+      const result = await authService.confirmEmail('token-123');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.CONFIRM_EMAIL}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: 'token-123' }),
+          credentials: 'include',
+        },
+      );
+      expect(result).toEqual(mockResponseData);
+    });
+
+    it('should throw backend error message on failed confirmation', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: 'Token expired' }),
+      });
+
+      await expect(authService.confirmEmail('token-123')).rejects.toThrow(
+        'Token expired',
+      );
+    });
+  });
+
+  describe('resendConfirmation()', () => {
+    it('should send correct POST request and return data on success', async () => {
+      const mockResponseData = {
+        message: 'Confirmation email sent.',
+      };
+
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponseData,
+      });
+
+      const result = await authService.resendConfirmation('test@example.com');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.RESEND_CONFIRMATION}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: 'test@example.com' }),
+          credentials: 'include',
+        },
+      );
+      expect(result).toEqual(mockResponseData);
+    });
+
+    it('should throw backend error message on failed resend', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          message: 'Please wait before requesting another email',
+        }),
+      });
+
+      await expect(
+        authService.resendConfirmation('test@example.com'),
+      ).rejects.toThrow('Please wait before requesting another email');
+    });
+  });
+
   // --- Block 2: getMe ---
   describe('getMe()', () => {
     it('should send correct GET request and return user profile', async () => {
@@ -130,10 +236,13 @@ describe('Service: authService', () => {
 
       const result = await authService.getMe();
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/me`, {
-        method: 'GET',
-        credentials: 'include',
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.ME}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        },
+      );
       expect(result).toEqual(mockUser);
     });
 
@@ -143,7 +252,7 @@ describe('Service: authService', () => {
       });
 
       await expect(authService.getMe()).rejects.toThrow(
-        'Failed to fetch user profile',
+        AUTH_MESSAGES.FETCH_PROFILE_FAILED,
       );
     });
   });
@@ -157,10 +266,13 @@ describe('Service: authService', () => {
 
       const result = await authService.logout();
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.LOGOUT}`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        },
+      );
       expect(result).toBe(true);
     });
 
@@ -180,7 +292,7 @@ describe('Service: authService', () => {
       expect(result).toBe(false);
 
       // Ensure that the error was logged
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to logout on server');
+      expect(consoleSpy).toHaveBeenCalledWith(AUTH_MESSAGES.LOGOUT_FAILED);
     });
   });
 });

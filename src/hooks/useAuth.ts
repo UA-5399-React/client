@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { MOCK_AUTH } from '@/constants';
 import { authService } from '@/services/authService';
+import { useCartStore } from '@/store/useCartStore';
 import {
   canAccessAdminPanel,
   isAdminRole,
@@ -32,6 +33,8 @@ export const useAuth = () => {
       localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
       localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
       localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
+
+      useCartStore.getState().clearCart();
 
       queryClient.removeQueries({ queryKey: ['me'] });
       setIsAuth(false);

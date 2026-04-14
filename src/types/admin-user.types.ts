@@ -6,6 +6,7 @@ export type UserRoleResponse = UserRole | UserRoleValue;
 
 export type UserStatusFilter = 'all' | 'active' | 'blocked';
 export type UserRoleFilter = 'all' | UserRole;
+export type UserLastLoginSortOrder = 'asc' | 'desc';
 
 export interface AdminUser {
   id: string;

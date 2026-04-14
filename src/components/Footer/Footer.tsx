@@ -9,7 +9,6 @@ import { useTheme } from '@/hooks/useTheme';
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home' },
   { path: ROUTES.SHOP, label: 'Shop' },
-  { path: ROUTES.PRODUCT, label: 'Product' },
   { path: ROUTES.BLOG, label: 'Blog' },
   { path: ROUTES.CONTACT_US, label: 'Contact Us' },
 ];
@@ -20,7 +19,7 @@ export const Footer = () => {
 
   return (
     <footer
-      className={`px-4 py-10 transition-colors duration-300 lg:px-16 lg:py-12 ${
+      className={`mt-20 px-4 py-10 transition-colors duration-300 lg:mt-0 lg:px-16 lg:py-12 ${
         isDark ? 'bg-white text-black' : 'bg-[#141718] text-white'
       }`}
     >

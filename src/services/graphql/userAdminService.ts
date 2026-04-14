@@ -58,3 +58,22 @@ export const GET_USERS_LIST = gql`
   }
   ${USER_ADMIN_FIELDS}
 `;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
+
+export const GET_USER_STATS = gql`
+  query UserStats($year: Int, $month: Int) {
+    userStats(year: $year, month: $month) {
+      registrationsMonth
+      registrationsByDay {
+        day
+        date
+        count
+      }
+    }
+  }
+`;

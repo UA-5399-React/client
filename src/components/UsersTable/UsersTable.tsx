@@ -1,18 +1,27 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import { Pencil, Trash } from 'lucide-react';
 
-import { ActionMenu, Checkbox, Dropdown } from '@/components';
+import { ActionMenu, Checkbox, Dropdown, TableSortControl } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
 import { ROUTES } from '@/constants';
 import {
   USER_ROLE_EDIT_OPTIONS,
   USER_STATUS_EDIT_OPTIONS,
 } from '@/constants/adminUsers';
+import { useConfirmModal } from '@/hooks/useConfirmModal';
+import { useDeleteAdminUser } from '@/hooks/useDeleteAdminUser';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
-import type { AdminUser, UserRoleValue } from '@/types/admin-user.types';
+import type {
+  AdminUser,
+  UserLastLoginSortOrder,
+  UserRoleValue,
+} from '@/types/admin-user.types';
 
 interface UsersTableProps {
   items: AdminUser[];
+  lastLoginSort: UserLastLoginSortOrder | null;
+  onLastLoginSortChange: (order: UserLastLoginSortOrder) => void;
 }
 
 const getFullName = (user: AdminUser) => {
@@ -38,9 +47,15 @@ const getActivityLabel = (dateString: string | undefined) => {
   return `${diffInDays} days ago`;
 };
 
-export function UsersTable({ items }: UsersTableProps) {
+export function UsersTable({
+  items,
+  lastLoginSort,
+  onLastLoginSortChange,
+}: UsersTableProps) {
   const navigate = useNavigate();
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
+  const { deleteUser, loading: isDeleting } = useDeleteAdminUser();
+  const { openConfirmModal } = useConfirmModal();
 
   const handleStatusChange = async (
     userId: string,
@@ -62,6 +77,16 @@ export function UsersTable({ items }: UsersTableProps) {
     }
   };
 
+  const handleDeleteUser = (id: string) => {
+    openConfirmModal({
+      title: 'Delete User',
+      description: 'Are you sure you want to delete this user?',
+      isCritical: true,
+      confirmText: 'Delete',
+      onConfirm: () => deleteUser(id),
+    });
+  };
+
   if (!items.length) {
     return (
       <div className="border-fieldBorder bg-neutral-0 text-muted dark:bg-backgroundSec mt-5 rounded-lg border p-8 text-center shadow-md">
@@ -74,16 +99,28 @@ export function UsersTable({ items }: UsersTableProps) {
       <table className="[&_td]:border-fieldBorder [&_thead_th]:border-fieldBorder w-full border-collapse rounded-t-lg [&_td]:border-b [&_thead_th]:border-b [&_thead_th]:px-4">
         <thead className="text-muted h-[56px] bg-gray-50">
           <tr>
-            <th className="w-[280px] text-left">
+            <th className="text-left">
               <div className="flex items-center gap-2">
                 <Checkbox className="h-[20px] w-[20px]" />
                 <span>User</span>
               </div>
             </th>
             <th className="text-left">Status</th>
-            <th className="text-left">Email</th>
-            <th className="text-left">Role</th>
-            <th className="text-left">Activity</th>
+            <th className="hidden text-left sm:table-cell">Email</th>
+            <th className="hidden text-left sm:table-cell">Role</th>
+            <th className="text-left">
+              <TableSortControl
+                label="Activity"
+                field="lastLoginAt"
+                currentSort={lastLoginSort ? 'lastLoginAt' : ''}
+                currentOrder={lastLoginSort ?? 'asc'}
+                onSortChange={() =>
+                  onLastLoginSortChange(
+                    lastLoginSort === 'asc' ? 'desc' : 'asc',
+                  )
+                }
+              />
+            </th>
             <th className="w-[80px]"></th>
           </tr>
         </thead>
@@ -91,7 +128,7 @@ export function UsersTable({ items }: UsersTableProps) {
         <tbody
           className={clsx(
             'bg-neutral-0 dark:bg-backgroundSec [&_td]:px-4 [&_td]:py-5 [&_td]:text-left',
-            isUpdating && 'pointer-events-none opacity-50',
+            (isUpdating || isDeleting) && 'pointer-events-none opacity-50',
           )}
         >
           {items.map((user, index) => {
@@ -140,9 +177,11 @@ export function UsersTable({ items }: UsersTableProps) {
                   />
                 </td>
 
-                <td className="text-text text-base">{user.email}</td>
+                <td className="text-text hidden text-base sm:table-cell">
+                  {user.email}
+                </td>
 
-                <td>
+                <td className="hidden sm:table-cell">
                   <Dropdown
                     label="Role"
                     labelClassName="hidden"
@@ -172,12 +211,26 @@ export function UsersTable({ items }: UsersTableProps) {
                 <td className="relative text-right">
                   <ActionMenu
                     triggerAriaLabel={`Actions for ${getFullName(user)}`}
-                    editAction={() =>
-                      navigate(
-                        generatePath(ROUTES.ADMIN_USER_EDIT, { id: user.id }),
-                      )
-                    }
-                    deleteAction={() => {}}
+                    actions={[
+                      {
+                        id: 'edit',
+                        label: 'Edit',
+                        icon: <Pencil className="h-[20px] w-[20px]" />,
+                        onClick: () =>
+                          navigate(
+                            generatePath(ROUTES.ADMIN_USER_EDIT, {
+                              id: user.id,
+                            }),
+                          ),
+                      },
+                      {
+                        id: 'delete',
+                        label: 'Delete',
+                        icon: <Trash className="h-[20px] w-[20px]" />,
+                        onClick: () => handleDeleteUser(user.id),
+                        variant: 'danger',
+                      },
+                    ]}
                     className={clsx(
                       'right-0 left-auto',
                       shouldOpenUpward ? 'top-auto bottom-10' : 'top-10',

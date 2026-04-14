@@ -8,7 +8,8 @@ interface OrderProgressBarProps {
 
 export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
   const activeIndex = STEP_INDEX[currentStep];
-  const progress = activeIndex / (STEPS.length - 1);
+  const hasActiveStep = activeIndex >= 0;
+  const progress = hasActiveStep ? activeIndex / (STEPS.length - 1) : 0;
 
   return (
     <div className="relative flex w-full items-start justify-between px-6">
@@ -22,7 +23,7 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
 
       {STEPS.map(({ key, label, Icon }, index) => {
         const isDone = index <= activeIndex;
-        const isActive = index === activeIndex;
+        const isActive = hasActiveStep && index === activeIndex;
 
         return (
           <div
@@ -35,7 +36,7 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
                 'flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300',
                 isDone
                   ? 'border-violet-600 bg-violet-600'
-                  : 'border-gray300 bg-white',
+                  : 'border-gray300 bg-background',
                 isActive ? 'ring-4 ring-violet-600/15' : '',
               ].join(' ')}
             >
@@ -60,13 +61,13 @@ export const OrderProgressBar = ({ currentStep }: OrderProgressBarProps) => {
 
             <Icon
               className={`h-8 w-8 transition-colors duration-300 ${
-                isDone ? 'text-black' : 'text-gray-300'
+                isDone ? 'text-text' : 'text-gray-300'
               }`}
             />
 
             <span
               className={`text-xs font-medium transition-colors duration-300 ${
-                isDone ? 'text-black' : 'text-gray-500'
+                isDone ? 'text-text' : 'text-gray-500'
               }`}
             >
               {label}

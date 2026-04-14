@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar, MOCK_ORDERS, OrderCard } from '@/components';
+import { AccountSidebar, BackButton, OrderCard } from '@/components';
 import { ROUTES } from '@/constants';
 import { authService } from '@/services';
+import { orderService } from '@/services/orderService';
 import { usersService } from '@/services/users.service';
+import type { Order } from '@/types/order.types';
 import type { User } from '@/types/user';
+import { mapApiOrderToOrder } from '@/utils/orderMappers';
 
 export function MyOrders() {
   const navigate = useNavigate();
@@ -13,6 +16,10 @@ export function MyOrders() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -28,7 +35,22 @@ export function MyOrders() {
       }
     };
 
+    const loadOrders = async () => {
+      try {
+        const apiOrders = await orderService.getMyOrders();
+        const mappedOrders = apiOrders.map(mapApiOrderToOrder);
+        setOrders(mappedOrders);
+      } catch (err) {
+        setOrdersError(
+          err instanceof Error ? err.message : 'Failed to load orders',
+        );
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
     void loadUser();
+    void loadOrders();
   }, []);
 
   const handleLogout = async () => {
@@ -60,8 +82,9 @@ export function MyOrders() {
   }
 
   return (
-    <section className="min-h-screen bg-white px-4 md:px-8 lg:px-40">
-      <h1 className="mt-10 mb-16 text-center text-[54px] leading-none font-semibold text-black">
+    <section className="bg-background min-h-screen px-4 md:px-8 lg:px-40">
+      <BackButton />
+      <h1 className="text-text mt-10 mb-16 text-center text-[54px] leading-none font-semibold">
         My Account
       </h1>
 
@@ -70,7 +93,7 @@ export function MyOrders() {
           <AccountSidebar user={user} onLogout={handleLogout} />
 
           <div className="-full min-w-0 px-[72px]">
-            <h2 className="mb-6 text-xl font-semibold text-black">
+            <h2 className="text-text mb-6 text-xl font-semibold">
               Orders History
             </h2>
             <div className="mb-3 hidden border-b border-gray-200 pb-3 text-sm text-gray-400 md:grid md:grid-cols-[150px_180px_140px_1fr_140px]">
@@ -81,9 +104,21 @@ export function MyOrders() {
               <span />
             </div>
             <div className="flex flex-col">
-              {MOCK_ORDERS.map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
+              {ordersLoading ? (
+                <div className="py-6 text-sm text-gray-500">
+                  Loading orders...
+                </div>
+              ) : ordersError ? (
+                <div className="py-6 text-sm text-red-600">{ordersError}</div>
+              ) : orders.length === 0 ? (
+                <div className="py-6 text-sm text-gray-500">
+                  You have no orders yet.
+                </div>
+              ) : (
+                orders.map((order) => (
+                  <OrderCard key={order.id} order={order} />
+                ))
+              )}
             </div>
           </div>
         </div>

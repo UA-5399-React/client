@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import googleIcon from '@/assets/icons/google-icon.webp';
 import { Button, Checkbox } from '@/components';
 import { Input } from '@/components';
 import { MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
-import { authService } from '@/services/authService';
+import { AuthApiError, authService } from '@/services/authService';
 import { cartService } from '@/services/cartService';
 import { useCartStore } from '@/store/useCartStore';
+import { clearAuthStorage, persistAuthStorage } from '@/utils/auth-storage';
 import { canAccessAdminPanel, isAuthRole } from '@/utils/permissions';
 
 const loginSchema = z.object({
@@ -21,12 +23,6 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const clearAuthData = () => {
-  localStorage.removeItem(MOCK_AUTH.TOKEN_KEY);
-  localStorage.removeItem(MOCK_AUTH.EXPIRES_KEY);
-  localStorage.removeItem(MOCK_AUTH.ROLE_KEY);
-};
-
 const getExpirationTime = (rememberMe?: boolean) => {
   return (Date.now() + (rememberMe ? 7 * 24 : 1) * 60 * 60 * 1000).toString();
 };
@@ -35,6 +31,12 @@ export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mutateAsync: loginMutation, isPending } = useLogin();
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
+  const [resendFeedback, setResendFeedback] = useState<{
+    message: string;
+    status: 'success' | 'error';
+  } | null>(null);
   const redirectTo =
     typeof location.state?.from === 'string' ? location.state.from : null;
 
@@ -42,6 +44,7 @@ export const LoginForm: React.FC = () => {
     register,
     handleSubmit,
     control,
+    getValues,
     formState: { errors },
     setError,
     clearErrors,
@@ -72,36 +75,55 @@ export const LoginForm: React.FC = () => {
         navigate(ROUTES.SHOP);
       }
     } else {
-      clearAuthData();
+      clearAuthStorage();
     }
   }, [navigate, redirectTo]);
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
+      setUnconfirmedEmail(null);
+      setResendFeedback(null);
       await loginMutation({ email: data.email, password: data.password });
       const user = await authService.getMe();
 
       try {
         const store = useCartStore.getState();
-        const guestItems = store.items.map((item) => ({
-          productId: String(item.product.id || item.product._id),
-          quantity: item.quantity,
-        }));
+        const guestItems = store.items;
 
-        const syncedCart = await cartService.syncCart(guestItems);
-        const newCartItems = syncedCart.items.map((i) => ({
-          product: i.product,
-          quantity: i.quantity,
-        }));
+        let newCartItems;
+
+        if (guestItems.length > 0) {
+          const payload = guestItems.map((item) => ({
+            productId: String(item.product.id || item.product._id),
+            quantity: item.quantity,
+          }));
+
+          const syncedCart = await cartService.syncCart(payload);
+          newCartItems = syncedCart.items.map((i) => ({
+            product: i.product,
+            quantity: i.quantity,
+          }));
+        } else {
+          const dbCart = await cartService.getCart();
+          newCartItems = dbCart.items.map((i) => ({
+            product: i.product,
+            quantity: i.quantity,
+          }));
+        }
         store.setCart(newCartItems);
       } catch (err) {
         console.error('Failed to sync cart:', err);
       }
 
       const expirationTime = getExpirationTime(data.rememberMe);
-      localStorage.setItem(MOCK_AUTH.TOKEN_KEY, 'cookie-is-set');
-      localStorage.setItem(MOCK_AUTH.EXPIRES_KEY, expirationTime);
-      localStorage.setItem(MOCK_AUTH.ROLE_KEY, user.role);
+      if (!isAuthRole(user.role)) {
+        throw new Error('Unsupported user role');
+      }
+
+      persistAuthStorage({
+        role: user.role,
+        expiresAt: Number(expirationTime),
+      });
 
       if (redirectTo) {
         navigate(redirectTo, { replace: true });
@@ -113,13 +135,52 @@ export const LoginForm: React.FC = () => {
       } else {
         navigate(ROUTES.SHOP);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      const isEmailNotConfirmed =
+        error instanceof AuthApiError && error.code === 'EMAIL_NOT_CONFIRMED';
+
+      setUnconfirmedEmail(isEmailNotConfirmed ? data.email : null);
+      setResendFeedback(null);
       setError('root', {
         type: 'server',
-        message: 'Invalid email or password. Please try again.',
+        message: isEmailNotConfirmed
+          ? 'Please confirm your email before signing in.'
+          : 'Invalid email or password. Please try again.',
       });
     }
+  };
+
+  const handleResendConfirmation = async () => {
+    const email = unconfirmedEmail ?? getValues('email');
+
+    if (!email) {
+      return;
+    }
+
+    setIsResendingConfirmation(true);
+    setResendFeedback(null);
+
+    try {
+      const response = await authService.resendConfirmation(email);
+      setResendFeedback({
+        message: response.message,
+        status: 'success',
+      });
+    } catch (error) {
+      setResendFeedback({
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to resend confirmation email.',
+        status: 'error',
+      });
+    } finally {
+      setIsResendingConfirmation(false);
+    }
+  };
+
+  const handleGoogleAuth = () => {
+    authService.startGoogleAuth(redirectTo ?? undefined);
   };
 
   return (
@@ -138,9 +199,37 @@ export const LoginForm: React.FC = () => {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        onChange={() => clearErrors('root')}
+        onChange={() => {
+          clearErrors('root');
+          setUnconfirmedEmail(null);
+          setResendFeedback(null);
+        }}
         className="space-y-6"
       >
+        <Button
+          type="button"
+          onClick={handleGoogleAuth}
+          className="bg-primary hover:bg-primary/85 focus:ring-primary/30 box-border inline-flex w-full items-center justify-center rounded-lg border border-transparent px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:outline-none"
+        >
+          <span className="flex items-center gap-3">
+            <img
+              src={googleIcon}
+              alt=""
+              aria-hidden="true"
+              className="h-5 w-5 rounded-sm bg-white/90 p-0.5"
+            />
+            <span>Continue with Google</span>
+          </span>
+        </Button>
+
+        <div className="flex items-center gap-4">
+          <span className="bg-fieldBorder/80 h-px flex-1" />
+          <span className="text-muted shrink-0 text-xs font-medium tracking-[0.2em] uppercase">
+            or
+          </span>
+          <span className="bg-fieldBorder/80 h-px flex-1" />
+        </div>
+
         <Input
           {...register('email')}
           variant="underlined"
@@ -177,23 +266,50 @@ export const LoginForm: React.FC = () => {
             )}
           />
 
-          <a
-            href="#"
-            className="text-sm font-semibold text-gray-900 hover:underline"
+          <Link
+            to={ROUTES.FORGOT_PASSWORD}
+            className="text-sm font-semibold text-gray-900 hover:underline dark:text-gray-300"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         {errors.root && (
-          <p className="text-center text-sm font-medium text-red-500">
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-300">
             {errors.root.message}
           </p>
         )}
+
+        {unconfirmedEmail && (
+          <div>
+            <Button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={isResendingConfirmation}
+              className="box-border inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-3.5 text-center text-sm font-medium text-gray-900 transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isResendingConfirmation
+                ? 'Sending confirmation email...'
+                : 'Resend confirmation email'}
+            </Button>
+            {resendFeedback && (
+              <div
+                className={
+                  resendFeedback.status === 'success'
+                    ? 'mt-6 rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-300'
+                    : 'mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-300'
+                }
+              >
+                {resendFeedback.message}
+              </div>
+            )}
+          </div>
+        )}
+
         <Button
           type="submit"
           disabled={isPending}
-          className="mt-6 w-full cursor-pointer rounded-lg bg-[#1a1c23] bg-[rgb(var(--color-bg-sec-inverted))] px-4 py-3.5 text-center text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-colors hover:bg-black hover:text-[rgb(var(--color-text))] focus:ring-4 focus:ring-gray-300 focus:outline-none"
+          className="bg-bgSecInverted mt-6 w-full cursor-pointer rounded-lg px-4 py-3.5 text-center text-sm font-medium text-white transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none dark:text-black"
         >
           {isPending ? 'Signing in...' : 'Sign In'}
         </Button>

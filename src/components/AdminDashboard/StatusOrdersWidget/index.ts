@@ -1,0 +1,1 @@
+export { StatusOrdersWidget } from './StatusOrdersWidget';

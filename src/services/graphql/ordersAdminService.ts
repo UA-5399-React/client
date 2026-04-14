@@ -32,12 +32,18 @@ export const GET_ORDERS = gql`
           imageUrl
           unitPrice
           amount
+          product
         }
         user {
           email
           firstName
           lastName
           phone
+        }
+        shippingAddress {
+          city
+          carrier
+          branchNumber
         }
       }
     }
@@ -73,6 +79,69 @@ export const UPDATE_ORDER_STATUS = gql`
       orderId
       status
       updatedAt
+    }
+  }
+`;
+
+export const UPDATE_ORDER = gql`
+  mutation UpdateOrder($input: UpdateOrderInput!) {
+    updateOrder(input: $input) {
+      id
+      orderId
+      status
+      totalPrice
+      updatedAt
+      user {
+        email
+        firstName
+        lastName
+        phone
+      }
+      shippingAddress {
+        city
+        carrier
+        branchNumber
+      }
+      items {
+        product
+        amount
+      }
+    }
+  }
+`;
+
+export const CREATE_ORDER = gql`
+  mutation CreateOrder($input: CreateOrderInput!) {
+    createOrder(input: $input) {
+      id
+      orderId
+      status
+      totalPrice
+      amount
+      message
+      createdAt
+      user {
+        email
+        firstName
+        lastName
+        phone
+      }
+      shippingAddress {
+        city
+        carrier
+        branchNumber
+      }
+      payment {
+        method
+        status
+      }
+      items {
+        product
+        title
+        amount
+        unitPrice
+        imageUrl
+      }
     }
   }
 `;

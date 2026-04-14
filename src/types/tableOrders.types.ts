@@ -22,10 +22,16 @@ export interface OrderItem {
   orderId: string;
   items: OrderedProduct[];
   user: OrderUser;
+  shippingAddress?: {
+    carrier: string;
+    city: string;
+    branchNumber: number | string;
+  };
   amount: number;
   totalPrice: number;
   status: OrderStatus;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface OrderedProduct {
@@ -33,6 +39,7 @@ export interface OrderedProduct {
   imageUrl: string;
   unitPrice: number;
   amount: number;
+  product?: string;
 }
 
 export interface OrderUser {
@@ -42,6 +49,21 @@ export interface OrderUser {
   phone: string;
 }
 
+export interface OrderFormData {
+  customerName: string;
+  email: string;
+  phone: string;
+  carrier: 'nova_post' | 'ukrposhta' | 'meest';
+  city: string;
+  branchNumber: string;
+  status: OrderStatus;
+  items: {
+    productId: string;
+    productName: string;
+    price: string;
+    quantity: string;
+  }[];
+}
 export interface OrdersPage {
   total: number;
   totalPages: number;
@@ -52,4 +74,24 @@ export interface OrdersPage {
 
 export interface GetOrdersData {
   orders: OrdersPage;
+}
+
+export interface UpdateOrderLinePayload {
+  productId: string;
+  amount: number;
+  remove?: boolean;
+}
+
+export interface UpdateOrderPayload {
+  status: OrderStatus;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  shippingAddress: {
+    carrier: 'nova_post' | 'ukrposhta' | 'meest';
+    city: string;
+    branchNumber: number;
+  };
+  items: UpdateOrderLinePayload[];
 }

@@ -1,4 +1,7 @@
 // TODO: this utility function is just a placeholder, you can replace it with your own implementation
+
+import type { RegistrationByDayRow } from '@/types/statistic.types';
+
 /**
  * Format a date to a readable string
  */
@@ -9,3 +12,60 @@ export const formatDate = (date: Date): string => {
     day: 'numeric',
   }).format(date);
 };
+
+export const formatDateToShort = (date: Date): string => {
+  return new Date(date).toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: '2-digit',
+  });
+};
+
+export function formatMonthRange(year: number, month: number) {
+  const last = new Date(year, month, 0).getDate();
+  const monthName = new Date(year, month - 1, 1).toLocaleString('en-GB', {
+    month: 'long',
+  });
+  return `1 - ${last} ${monthName} ${year}`;
+}
+
+export function buildDailyCountsFromRegistrations(
+  year: number,
+  month: number,
+  rows: RegistrationByDayRow[],
+): number[] {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const out = Array.from({ length: daysInMonth }, () => 0);
+  for (const row of rows) {
+    const d = row.day;
+    if (d >= 1 && d <= daysInMonth) out[d - 1] = row.count;
+  }
+  return out;
+}
+
+export function getCurrentMonthPeriod() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function resolvePeriod(period?: string) {
+  const today = new Date();
+  if (!period) {
+    return { year: today.getFullYear(), month: today.getMonth() + 1 };
+  }
+
+  const [yearRaw, monthRaw] = period.split('-');
+  const parsedYear = Number(yearRaw);
+  const parsedMonth = Number(monthRaw);
+
+  const year =
+    Number.isFinite(parsedYear) && parsedYear > 0
+      ? parsedYear
+      : today.getFullYear();
+  const month =
+    Number.isFinite(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12
+      ? parsedMonth
+      : today.getMonth() + 1;
+
+  return { year, month };
+}

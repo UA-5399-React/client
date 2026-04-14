@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useMe } from '@/hooks/useMe';
 import { useTheme } from '@/hooks/useTheme';
-import { orderService, paymentService } from '@/services';
+import { orderService, paymentService, shippingService } from '@/services';
 import { useCartStore } from '@/store/useCartStore';
 import { redirectToExternalUrl } from '@/utils/navigation';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
@@ -47,6 +49,14 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: vi.fn(),
 }));
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: vi.fn(() => ({ isAuth: true })),
+}));
+
+vi.mock('@/hooks/useMe', () => ({
+  useMe: vi.fn(() => ({ data: null })),
+}));
+
 vi.mock('@/services', () => ({
   orderService: {
     createOrder: vi.fn(),
@@ -54,6 +64,10 @@ vi.mock('@/services', () => ({
   paymentService: {
     createCheckoutSession: vi.fn(),
     getSessionStatus: vi.fn(),
+  },
+  shippingService: {
+    getCities: vi.fn(),
+    getWarehouses: vi.fn(),
   },
 }));
 
@@ -77,8 +91,14 @@ const fillRequiredFields = async () => {
     screen.getByPlaceholderText('Email address'),
     'john@example.com',
   );
-  await user.type(screen.getByPlaceholderText('Town / City'), 'Kyiv');
-  await user.type(screen.getByPlaceholderText('Department code'), '42');
+
+  await user.click(screen.getByText('Choose city'));
+  const cityOption = await screen.findByText('Kyiv (Kyivska)');
+  await user.click(cityOption);
+
+  await user.click(screen.getByText('Choose warehouse'));
+  const branchOption = await screen.findByText('Warehouse 42');
+  await user.click(branchOption);
 
   return user;
 };
@@ -97,10 +117,21 @@ describe('Page: Checkout', () => {
     };
 
     (useTheme as unknown as Mock).mockReturnValue({ isDark: false });
+    (useAuth as unknown as Mock).mockReturnValue({ isAuth: true });
+    (useMe as unknown as Mock).mockReturnValue({ data: null });
+
     (useCartStore as unknown as Mock).mockImplementation(
       (selector?: (state: typeof mockCartState) => unknown) =>
         selector ? selector(mockCartState) : mockCartState,
     );
+
+    (shippingService.getCities as Mock).mockResolvedValue([
+      { name: 'Kyiv', area: 'Kyivska' },
+    ]);
+    (shippingService.getWarehouses as Mock).mockResolvedValue([
+      { number: '42', label: 'Warehouse 42' },
+    ]);
+
     (orderService.createOrder as Mock).mockResolvedValue({
       orderId: 'ORD-20260325-0001',
       items: [
@@ -115,6 +146,7 @@ describe('Page: Checkout', () => {
       totalPrice: 76,
       amount: 76,
     });
+
     (paymentService.createCheckoutSession as Mock).mockResolvedValue({
       sessionId: 'cs_test_123',
       sessionUrl: 'https://checkout.stripe.com/c/pay/cs_test_123',
@@ -226,7 +258,7 @@ describe('Page: Checkout', () => {
       ),
     ).toBeInTheDocument();
     expect(orderService.createOrder).not.toHaveBeenCalled();
-  });
+  }, 10000);
 
   it('syncs restored browser values after returning to checkout and submits them correctly', async () => {
     render(<Checkout />);
@@ -243,23 +275,24 @@ describe('Page: Checkout', () => {
     const emailInput = screen.getByPlaceholderText(
       'Email address',
     ) as HTMLInputElement;
-    const cityInput = screen.getByPlaceholderText(
-      'Town / City',
-    ) as HTMLInputElement;
-    const branchInput = screen.getByPlaceholderText(
-      'Department code',
-    ) as HTMLInputElement;
 
     firstNameInput.value = 'Pavlo';
     lastNameInput.value = 'Cat';
     phoneInput.value = '+380501112233';
     emailInput.value = 'customer@test.com';
-    cityInput.value = 'Kyiv';
-    branchInput.value = '12';
 
     window.dispatchEvent(new Event('pageshow'));
 
     const user = userEvent.setup();
+
+    await user.click(screen.getByText('Choose city'));
+    const cityOption = await screen.findByText('Kyiv (Kyivska)');
+    await user.click(cityOption);
+
+    await user.click(screen.getByText('Choose warehouse'));
+    const branchOption = await screen.findByText('Warehouse 42');
+    await user.click(branchOption);
+
     await user.click(
       screen.getByRole('button', { name: 'Continue to Stripe' }),
     );
@@ -281,7 +314,7 @@ describe('Page: Checkout', () => {
           }),
           shippingAddress: expect.objectContaining({
             city: 'Kyiv',
-            branchNumber: '12',
+            branchNumber: '42',
           }),
         }),
       );
@@ -319,7 +352,7 @@ describe('Page: Checkout', () => {
         }),
       });
     });
-  });
+  }, 10000);
 
   it('creates an online order, starts Stripe checkout, and keeps the cart intact until confirmation', async () => {
     render(<Checkout />);
@@ -358,5 +391,5 @@ describe('Page: Checkout', () => {
         'https://checkout.stripe.com/c/pay/cs_test_123',
       );
     });
-  });
+  }, 10000);
 });

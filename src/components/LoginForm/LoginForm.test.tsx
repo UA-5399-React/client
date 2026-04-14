@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { AUTH_ROLES, MOCK_AUTH, ROUTES } from '@/constants';
 import { useLogin } from '@/hooks/useLogin';
-import { authService } from '@/services/authService';
+import { AuthApiError, authService } from '@/services/authService';
 import { cartService } from '@/services/cartService';
 import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
@@ -28,14 +28,25 @@ vi.mock('@/hooks/useLogin', () => ({
 }));
 
 vi.mock('@/services/authService', () => ({
+  AuthApiError: class extends Error {
+    code?: string;
+
+    constructor(message: string, code?: string) {
+      super(message);
+      this.code = code;
+    }
+  },
   authService: {
     getMe: vi.fn(),
+    resendConfirmation: vi.fn(),
+    startGoogleAuth: vi.fn(),
   },
 }));
 
 vi.mock('@/services/cartService', () => ({
   cartService: {
     syncCart: vi.fn(),
+    getCart: vi.fn(),
   },
 }));
 
@@ -73,6 +84,9 @@ describe('Feature: LoginForm', () => {
     ).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    ).toBeInTheDocument();
   });
 
   // 2. Validation (Zod & React Hook Form)
@@ -104,6 +118,11 @@ describe('Feature: LoginForm', () => {
 
     // Default cartService.syncCart mock
     vi.mocked(cartService.syncCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
       items: [],
       total: 0,
       userId: 'user123',
@@ -148,6 +167,11 @@ describe('Feature: LoginForm', () => {
       total: 0,
       userId: 'user123',
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -177,6 +201,11 @@ describe('Feature: LoginForm', () => {
       total: 0,
       userId: 'user123',
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -202,6 +231,11 @@ describe('Feature: LoginForm', () => {
     (authService.getMe as Mock).mockResolvedValueOnce({
       role: AUTH_ROLES.CUSTOMER,
     });
+    vi.mocked(cartService.getCart).mockResolvedValueOnce({
+      items: [],
+      total: 0,
+      userId: 'user123',
+    });
 
     render(<LoginForm />);
 
@@ -217,6 +251,31 @@ describe('Feature: LoginForm', () => {
         replace: true,
       });
     });
+  });
+
+  it('should start google auth with redirect path when from state exists', async () => {
+    const user = userEvent.setup();
+    mockLocationState = { from: ROUTES.CHECKOUT };
+
+    render(<LoginForm />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(authService.startGoogleAuth).toHaveBeenCalledWith(ROUTES.CHECKOUT);
+  });
+
+  it('should start google auth without redirect path when from state does not exist', async () => {
+    const user = userEvent.setup();
+
+    render(<LoginForm />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'Continue with Google' }),
+    );
+
+    expect(authService.startGoogleAuth).toHaveBeenCalledWith(undefined);
   });
 
   // 4. Error Handling and Server Feedback
@@ -250,6 +309,49 @@ describe('Feature: LoginForm', () => {
         screen.queryByText('Invalid email or password. Please try again.'),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('should show resend confirmation action when email is not confirmed', async () => {
+    const user = userEvent.setup();
+    mockMutateAsync.mockRejectedValueOnce(
+      new AuthApiError(
+        'Please confirm your email first',
+        'EMAIL_NOT_CONFIRMED',
+      ),
+    );
+    vi.mocked(authService.resendConfirmation).mockResolvedValueOnce({
+      message: 'Confirmation email sent.',
+    });
+
+    render(<LoginForm />);
+
+    await user.type(
+      screen.getByPlaceholderText(/Your email address/i),
+      'pending@test.com',
+    );
+    await user.type(screen.getByPlaceholderText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Sign In' }));
+
+    expect(
+      await screen.findByText('Please confirm your email before signing in.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Resend confirmation email' }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Resend confirmation email' }),
+    );
+
+    await waitFor(() => {
+      expect(authService.resendConfirmation).toHaveBeenCalledWith(
+        'pending@test.com',
+      );
+    });
+
+    expect(
+      await screen.findByText('Confirmation email sent.'),
+    ).toBeInTheDocument();
   });
 
   // 5. Session Management (useEffect auto-redirect)

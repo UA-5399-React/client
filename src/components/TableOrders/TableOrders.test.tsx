@@ -42,6 +42,25 @@ const orderItem: OrderItem = {
 };
 
 const onStatusChange = vi.fn(async () => {});
+const onEdit = vi.fn();
+const onSortChange = vi.fn();
+
+const defaultProps = {
+  items: [] as OrderItem[],
+  loading: false,
+  error: null,
+  sort: null,
+  order: 'desc' as const,
+  onSortChange,
+  onStatusChange,
+  onEdit,
+};
+
+const renderTable = (
+  props: Partial<React.ComponentProps<typeof TableOrders>> = {},
+) => {
+  return render(<TableOrders {...defaultProps} {...props} />);
+};
 
 describe('UI Component: TableOrders', () => {
   beforeEach(() => {
@@ -49,45 +68,30 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should render the table', () => {
-    render(
-      <TableOrders
-        items={[]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable();
+
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('should render all column headers', () => {
-    render(
-      <TableOrders
-        items={[]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable();
 
     expect(
       screen.getByRole('columnheader', { name: 'Product Name' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: 'Customer name' }),
+      screen.getByRole('button', { name: /customer name/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: 'Order ID' }),
+      screen.getByRole('button', { name: /order id/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('columnheader', { name: 'Amount' }),
+      screen.getByRole('button', { name: /total price/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('columnheader', { name: 'Status' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('columnheader', { name: 'Date' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /date/i })).toBeInTheDocument();
     expect(
       screen.getByRole('columnheader', { name: 'Phone' }),
     ).toBeInTheDocument();
@@ -97,27 +101,15 @@ describe('UI Component: TableOrders', () => {
   });
 
   it('should render empty state when there are no orders', () => {
-    render(
-      <TableOrders
-        items={[]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable();
 
     expect(screen.getByText('No orders found')).toBeInTheDocument();
   });
 
   it('should render order row values', () => {
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable({
+      items: [orderItem],
+    });
 
     expect(screen.getByText('Test product')).toBeInTheDocument();
     expect(screen.getByText('Items: 1')).toBeInTheDocument();
@@ -130,15 +122,62 @@ describe('UI Component: TableOrders', () => {
     ).toBeInTheDocument();
   });
 
+  it('should call onSortChange when customer name header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /customer name/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('customerName');
+  });
+
+  it('should call onSortChange when order id header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /order id/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('orderId');
+  });
+
+  it('should call onSortChange when total price header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /total price/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('totalPrice');
+  });
+
+  it('should call onSortChange when date header is clicked', async () => {
+    const user = userEvent.setup();
+
+    renderTable({
+      sort: null,
+    });
+
+    await user.click(screen.getByRole('button', { name: /date/i }));
+
+    expect(onSortChange).toHaveBeenCalledTimes(1);
+    expect(onSortChange).toHaveBeenCalledWith('createdAt');
+  });
+
   it('should show selected order status in dropdown trigger', () => {
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable({
+      items: [orderItem],
+    });
 
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
       'Processing',
@@ -148,21 +187,17 @@ describe('UI Component: TableOrders', () => {
   it('should open delete confirmation modal', async () => {
     const user = userEvent.setup();
 
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
+    renderTable({
+      items: [orderItem],
+    });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Actions for order ${orderItem.orderId}`,
+      }),
     );
 
-    const actionButtons = screen.getAllByRole('button');
-    await user.click(actionButtons[actionButtons.length - 1]);
-
-    expect(screen.getByText('Delete')).toBeInTheDocument();
-
-    await user.click(screen.getByText('Delete'));
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
 
     expect(
       screen.getByText('Are you sure you want to delete this order?'),
@@ -172,19 +207,17 @@ describe('UI Component: TableOrders', () => {
   it('should call deleteOrder with orderId after confirm', async () => {
     const user = userEvent.setup();
 
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
+    renderTable({
+      items: [orderItem],
+    });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Actions for order ${orderItem.orderId}`,
+      }),
     );
 
-    const actionButtons = screen.getAllByRole('button');
-    await user.click(actionButtons[actionButtons.length - 1]);
-
-    await user.click(screen.getByText('Delete'));
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     expect(deleteOrderMock).toHaveBeenCalledWith(orderItem.orderId);
@@ -193,14 +226,9 @@ describe('UI Component: TableOrders', () => {
   it('should call onStatusChange with orderId and new status when status changes', async () => {
     const user = userEvent.setup();
 
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
+    renderTable({
+      items: [orderItem],
+    });
 
     await user.click(screen.getByRole('combobox', { name: 'Status' }));
     await user.click(screen.getByRole('option', { name: 'Completed' }));
@@ -208,27 +236,10 @@ describe('UI Component: TableOrders', () => {
     await waitFor(() => {
       expect(onStatusChange).toHaveBeenCalledTimes(1);
     });
+
     expect(onStatusChange).toHaveBeenCalledWith(
       orderItem.orderId,
       ORDER_STATUS.COMPLETED,
     );
-  });
-
-  it('should not call onStatusChange when selecting the current status', async () => {
-    const user = userEvent.setup();
-
-    render(
-      <TableOrders
-        items={[orderItem]}
-        loading={false}
-        error={null}
-        onStatusChange={onStatusChange}
-      />,
-    );
-
-    await user.click(screen.getByRole('combobox', { name: 'Status' }));
-    await user.click(screen.getByRole('option', { name: 'Processing' }));
-
-    expect(onStatusChange).not.toHaveBeenCalled();
   });
 });

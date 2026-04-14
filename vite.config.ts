@@ -19,6 +19,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
+    exclude: ['tests/e2e/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
@@ -39,6 +40,7 @@ export default defineConfig({
         '.storybook/**',
         '**/*.css',
         'src/utils/test-utils.tsx',
+        'tests/e2e/**',
       ],
     },
   },

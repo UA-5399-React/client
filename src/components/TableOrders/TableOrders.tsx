@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import clsx from 'clsx';
+import { Pencil, Trash } from 'lucide-react';
 
-import { ActionMenu, ConfirmModal, Dropdown, MainTable } from '@/components';
+import {
+  ActionMenu,
+  ConfirmModal,
+  Dropdown,
+  MainTable,
+  TableSortControl,
+} from '@/components';
+import type { OrdersSortField, SortOrder } from '@/hooks/useAdminOrders';
 import { useDeleteAdminOrder } from '@/hooks/useDeleteAdminOrder';
 import type { Column } from '@/types';
 import {
@@ -11,28 +19,19 @@ import {
 } from '@/types/tableOrders.types';
 import { capitalizeFirst, formatDate } from '@/utils';
 
-import type { DropdownOption } from '../Dropdown/Dropdown.types';
-
 interface TableOrdersProps {
   items: OrderItem[];
   loading: boolean;
   error: Error | null | undefined;
+  sort: OrdersSortField | null;
+  order: SortOrder;
+  onSortChange: (field: OrdersSortField) => void;
+  onEdit: (item: OrderItem) => void;
   onStatusChange: (
     orderId: string,
     status: OrderItem['status'],
   ) => Promise<void>;
 }
-
-const columns: Column[] = [
-  { key: 'product', label: 'Product Name', className: '!min-w-[55%]' },
-  { key: 'customer', label: 'Customer name', className: 'min-w-[5%]' },
-  { key: 'orderId', label: 'Order ID', className: 'min-w-[6%]' },
-  { key: 'amount', label: 'Amount', className: 'min-w-[10%]' },
-  { key: 'status', label: 'Status', className: 'min-w-[10%]' },
-  { key: 'date', label: 'Date', className: 'min-w-[10%]' },
-  { key: 'phone', label: 'Phone', className: 'min-w-[15%]' },
-  { key: 'actions', label: 'Actions', className: '' },
-];
 
 const statusOptions = Object.values(ORDER_STATUS).map((status) => ({
   label: capitalizeFirst(status),
@@ -43,12 +42,75 @@ export function TableOrders({
   items,
   loading,
   error,
+  sort,
+  order,
+  onSortChange,
   onStatusChange,
+  onEdit,
 }: TableOrdersProps) {
   const { deleteOrder } = useDeleteAdminOrder();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+
+  const columns: Column[] = [
+    { key: 'product', label: 'Product Name', className: '!min-w-[55%]' },
+    {
+      key: 'customer',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Customer name"
+          field="customerName"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[5%]',
+    },
+    {
+      key: 'orderId',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Order ID"
+          field="orderId"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[6%]',
+    },
+    {
+      key: 'totalPrice',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Total Price"
+          field="totalPrice"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[10%]',
+    },
+    { key: 'status', label: 'Status', className: 'min-w-[10%]' },
+    {
+      key: 'date',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Date"
+          field="createdAt"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[10%]',
+    },
+    { key: 'phone', label: 'Phone', className: 'min-w-[15%]' },
+    { key: 'actions', label: 'Actions', className: '' },
+  ];
 
   const openDeleteModal = (orderId: string) => {
     setSelectedOrderId(orderId);
@@ -62,16 +124,17 @@ export function TableOrders({
 
   const confirmDelete = async () => {
     if (!selectedOrderId) return;
+
     try {
       await deleteOrder(selectedOrderId);
       closeDeleteModal();
-    } catch (error) {
-      console.error('Failed to delete order:', error);
+    } catch (deleteError) {
+      console.error('Failed to delete order:', deleteError);
     }
   };
 
   const renderProductRow = (item: OrderItem) => {
-    const handleStatusSelect = (selected: DropdownOption[]) => {
+    const handleStatusSelect = (selected: { value: string }[]) => {
       const nextStatus = selected[0]?.value as OrderStatus;
       const currentStatus = item.status.toLowerCase();
 
@@ -139,8 +202,23 @@ export function TableOrders({
 
         <td>
           <ActionMenu
+            triggerAriaLabel={`Actions for order ${item.orderId}`}
             className="top-0 left-[-135px]"
-            deleteAction={() => openDeleteModal(item.orderId)}
+            actions={[
+              {
+                id: 'edit',
+                label: 'Edit',
+                icon: <Pencil className="h-[20px] w-[20px]" />,
+                onClick: () => onEdit(item),
+              },
+              {
+                id: 'delete',
+                label: 'Delete',
+                icon: <Trash className="h-[20px] w-[20px]" />,
+                onClick: () => openDeleteModal(item.orderId),
+                variant: 'danger',
+              },
+            ]}
           />
         </td>
       </>
