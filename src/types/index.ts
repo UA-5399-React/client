@@ -2,6 +2,7 @@ export * from './admin-user.types';
 export * from './api.types';
 export * from './category.types';
 export * from './checkout.types';
+export * from './dashboard.types';
 export * from './import.types';
 export * from './product.types';
 export * from './shipping.types';
