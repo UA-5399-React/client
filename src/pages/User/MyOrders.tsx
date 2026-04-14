@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar, OrderCard } from '@/components';
+import { AccountSidebar, BackButton, OrderCard } from '@/components';
 import { ROUTES } from '@/constants';
 import { authService } from '@/services';
 import { orderService } from '@/services/orderService';
@@ -83,6 +83,7 @@ export function MyOrders() {
 
   return (
     <section className="bg-background min-h-screen px-4 md:px-8 lg:px-40">
+      <BackButton />
       <h1 className="text-text mt-10 mb-16 text-center text-[54px] leading-none font-semibold">
         My Account
       </h1>

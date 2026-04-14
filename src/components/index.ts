@@ -2,6 +2,7 @@ export { ActionMenu } from './ActionMenu/ActionMenu';
 export { StatusOrdersWidget } from './AdminDashboard/StatusOrdersWidget/StatusOrdersWidget';
 export { AdminOrderForm } from './AdminOrderForm/AdminOrderForm';
 export { AdminPageHeader } from './AdminPageHeader';
+export { BackButton } from './BackButton/BackButton';
 export { Button } from './Button';
 export { CartCounter } from './CartCounter';
 export { CategoryForm } from './CategoryForm/CategoryForm';
