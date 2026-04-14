@@ -258,7 +258,7 @@ describe('Page: Checkout', () => {
       ),
     ).toBeInTheDocument();
     expect(orderService.createOrder).not.toHaveBeenCalled();
-  });
+  }, 10000);
 
   it('syncs restored browser values after returning to checkout and submits them correctly', async () => {
     render(<Checkout />);

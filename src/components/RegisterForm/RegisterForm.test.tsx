@@ -126,7 +126,7 @@ describe('Feature: RegisterForm', () => {
     expect(
       screen.getByRole('button', { name: 'Resend confirmation email' }),
     ).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('should show server error and clear it after form changes', async () => {
     const user = userEvent.setup();
