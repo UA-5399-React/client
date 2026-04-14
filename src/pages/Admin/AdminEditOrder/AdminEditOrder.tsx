@@ -6,7 +6,7 @@ import {
   useParams,
 } from 'react-router-dom';
 
-import { AdminOrderForm, Button } from '@/components';
+import { AdminOrderForm, Button, DownloadOrderButton } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminEditOrderFlow } from '@/hooks';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
@@ -158,15 +158,22 @@ export function AdminEditOrder() {
 
   return (
     <div>
-      <div className="mx-auto flex h-screen max-w-4xl items-center justify-center p-6">
-        <AdminOrderForm
-          initialData={initialData}
-          onSubmit={handleSubmit}
-          onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
-          isLoading={isUpdateOrderInfo}
-          isEditMode={true}
-          updatedAt={order.updatedAt}
-        />
+      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center p-6">
+        <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md">
+          <div className="flex justify-start border-b border-gray-100 bg-gray-50 px-6 py-5">
+            <DownloadOrderButton orderId={order.orderId} />
+          </div>
+          <div className="-mx-[1px] -mt-1 -mb-[1px]">
+            <AdminOrderForm
+              initialData={initialData}
+              onSubmit={handleSubmit}
+              onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
+              isLoading={isUpdateOrderInfo}
+              isEditMode={true}
+              updatedAt={order.updatedAt}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

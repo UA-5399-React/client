@@ -17,6 +17,7 @@ import {
   useAdminOrders,
 } from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type { OrderItem } from '@/types/tableOrders.types';
 
@@ -38,6 +39,7 @@ export function AdminOrders() {
 
   const currentStatus =
     searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
+  useErrorMessage();
 
   const sortParam = searchParams.get('sortBy');
   const orderParam = searchParams.get('order');
@@ -106,7 +108,7 @@ export function AdminOrders() {
   }, [loading, normalizeOutOfRangePage, totalPages]);
 
   return (
-    <div className="flex flex-col p-8">
+    <div className="flex flex-col p-4 sm:p-6 lg:p-8">
       <div className="flex items-center">
         <h1 className="text-2xl font-bold text-[#2C2C2C]">Orders</h1>
       </div>

@@ -7,6 +7,7 @@ export { CartCounter } from './CartCounter';
 export { CategoryForm } from './CategoryForm/CategoryForm';
 export { Checkbox } from './Checkbox';
 export { ConfirmModal } from './ConfirmModal/ConfirmModal';
+export { DownloadOrderButton } from './DownloadOrderButton/DownloadOrderButton';
 export { CategoryDropdown } from './Dropdown';
 export { Dropdown } from './Dropdown';
 export { ExportButton } from './ExportButton/ExportButton';
