@@ -1,8 +1,7 @@
-import { StatusOrdersWidget } from '@/components';
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { StatusOrdersWidget } from '@/components';
 import { ROUTES } from '@/constants';
 import { useUserStats } from '@/hooks/useUserStats';
 import { getCurrentMonthPeriod } from '@/utils';
@@ -59,11 +58,6 @@ export function Dashboard() {
               <StatusOrdersWidget />
             </DashboardCard>
 
-            <DashboardCard title="Number of Clients"></DashboardCard>
-            <DashboardCard
-              title="Status Orders"
-              slotName="<OrderStatusChart />"
-            />
             <UsersChart
               registrationsThisMonth={registrationsThisMonth}
               dailyCounts={dailyCounts}
