@@ -2,10 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft } from 'lucide-react';
 
 import googleIcon from '@/assets/icons/google-icon.webp';
-import { AccountDetailsForm, AccountSidebar, PasswordForm } from '@/components';
+import {
+  AccountDetailsForm,
+  AccountSidebar,
+  BackButton,
+  PasswordForm,
+} from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { GOOGLE_CONNECT_FEEDBACK } from '@/pages/User/googleConnectFeedback';
@@ -223,6 +227,10 @@ export function Profile() {
     navigate(ROUTES.HOME, { replace: true });
   };
 
+  const handleCancel = () => {
+    reset(); // react-hook-form
+  };
+
   const handleGoogleConnect = () => {
     setSubmitError('');
     setSuccessMessage('');
@@ -281,14 +289,7 @@ export function Profile() {
 
   return (
     <section className="bg-background text-text min-h-screen px-8 lg:px-40 lg:pb-20">
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="text-muted mt-4 mb-6 flex items-center gap-2 border-none bg-transparent text-[16px] font-medium transition md:hidden"
-      >
-        <ChevronLeft size={20} />
-        back
-      </button>
+      <BackButton />
 
       <h1 className="text-text mt-10 mb-16 text-center text-[40px] leading-none font-semibold md:text-[54px]">
         My Account
@@ -366,13 +367,21 @@ export function Profile() {
 
               <PasswordForm control={control} errors={errors} />
 
-              <div className="mt-6 flex flex-col gap-6 px-5 md:flex-row md:items-center lg:px-0">
+              <div className="mt-6 flex flex-col gap-6 px-7 md:flex-row md:items-center lg:px-0">
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="bg-text text-background h-[44px] min-w-[183px] cursor-pointer rounded-md border-0 px-6 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
+                  className="bg-text text-background h-[44px] w-[183px] cursor-pointer rounded-md px-6 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save changes'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-text border-text hover:bg-backgroundSec h-[44px] w-[131px] rounded-md border-2 bg-transparent text-sm font-medium transition md:hidden"
+                >
+                  Cancel
                 </button>
               </div>
 
