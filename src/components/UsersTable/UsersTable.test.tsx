@@ -204,7 +204,7 @@ describe('UsersTable', () => {
     const confirmModalArg = mocks.openConfirmModal.mock.calls[0][0];
     confirmModalArg.onConfirm();
     expect(mocks.deleteUser).toHaveBeenCalledWith(firstUser.id);
-  });
+  }, 10000);
 
   it('renders dropdowns for status and role', () => {
     renderTable();

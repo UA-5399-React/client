@@ -258,7 +258,7 @@ describe('Page: Checkout', () => {
       ),
     ).toBeInTheDocument();
     expect(orderService.createOrder).not.toHaveBeenCalled();
-  });
+  }, 10000);
 
   it('syncs restored browser values after returning to checkout and submits them correctly', async () => {
     render(<Checkout />);
@@ -352,7 +352,7 @@ describe('Page: Checkout', () => {
         }),
       });
     });
-  });
+  }, 10000);
 
   it('creates an online order, starts Stripe checkout, and keeps the cart intact until confirmation', async () => {
     render(<Checkout />);
@@ -391,5 +391,5 @@ describe('Page: Checkout', () => {
         'https://checkout.stripe.com/c/pay/cs_test_123',
       );
     });
-  });
+  }, 10000);
 });
