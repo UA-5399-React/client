@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { canAccessAdminRoute } from '@/utils/permissions';
 
 const MOBILE_LINKS = [
+  { to: ROUTES.ADMIN_DASHBOARD, label: 'Dashboard' },
   { to: ROUTES.ADMIN_PRODUCTS, label: 'Products' },
   { to: ROUTES.ADMIN_CATEGORIES, label: 'Categories' },
   { to: ROUTES.ADMIN_USERS, label: 'Users' },

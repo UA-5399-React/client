@@ -23,6 +23,11 @@ export const useAdminEditOrderFlow = () => {
               email: payload.email,
               phone: payload.phone,
             },
+            shippingAddress: {
+              carrier: payload.shippingAddress.carrier.toUpperCase(),
+              city: payload.shippingAddress.city,
+              branchNumber: payload.shippingAddress.branchNumber,
+            },
             items: payload.items.map((item) =>
               item.remove
                 ? {

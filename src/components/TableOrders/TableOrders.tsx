@@ -55,8 +55,32 @@ export function TableOrders({
 
   const columns: Column[] = [
     { key: 'product', label: 'Product Name', className: '!min-w-[55%]' },
-    { key: 'customer', label: 'Customer name', className: 'min-w-[5%]' },
-    { key: 'orderId', label: 'Order ID', className: 'min-w-[6%]' },
+    {
+      key: 'customer',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Customer name"
+          field="customerName"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[5%]',
+    },
+    {
+      key: 'orderId',
+      label: (
+        <TableSortControl<OrdersSortField>
+          label="Order ID"
+          field="orderId"
+          currentSort={sort as OrdersSortField}
+          currentOrder={order}
+          onSortChange={onSortChange}
+        />
+      ),
+      className: 'min-w-[6%]',
+    },
     {
       key: 'totalPrice',
       label: (

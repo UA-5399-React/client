@@ -47,6 +47,11 @@ describe('useAdminEditOrderFlow', () => {
         lastName: 'Doe',
         email: 'john@example.com',
         phone: '+380991112233',
+        shippingAddress: {
+          carrier: 'nova_post',
+          city: 'Kyiv',
+          branchNumber: 141,
+        },
         items: [{ productId: 'p1', amount: 2 }],
       });
     });
@@ -61,6 +66,11 @@ describe('useAdminEditOrderFlow', () => {
             lastName: 'Doe',
             email: 'john@example.com',
             phone: '+380991112233',
+          },
+          shippingAddress: {
+            carrier: 'NOVA_POST',
+            city: 'Kyiv',
+            branchNumber: 141,
           },
           items: [{ productId: 'p1', amount: 2 }],
         },
@@ -92,6 +102,11 @@ describe('useAdminEditOrderFlow', () => {
         lastName: 'B',
         email: 'a@b.c',
         phone: '1',
+        shippingAddress: {
+          carrier: 'ukrposhta',
+          city: 'Lviv',
+          branchNumber: 7,
+        },
         items: [
           { productId: 'p1', amount: 1 },
           { productId: 'p2', amount: 4, remove: true },
@@ -103,6 +118,11 @@ describe('useAdminEditOrderFlow', () => {
       expect.objectContaining({
         variables: {
           input: expect.objectContaining({
+            shippingAddress: {
+              carrier: 'UKRPOSHTA',
+              city: 'Lviv',
+              branchNumber: 7,
+            },
             items: [
               { productId: 'p1', amount: 1 },
               { productId: 'p2', amount: 4, remove: true },
@@ -135,6 +155,11 @@ describe('useAdminEditOrderFlow', () => {
         lastName: 'Roe',
         email: 'jane@example.com',
         phone: '+380000000000',
+        shippingAddress: {
+          carrier: 'meest',
+          city: 'Dnipro',
+          branchNumber: 3,
+        },
         items: [{ productId: 'p2', amount: 1 }],
       }),
     ).rejects.toThrow('Update failed');

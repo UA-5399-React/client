@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Pagination,
@@ -16,8 +16,8 @@ import {
 } from '@/constants/adminUsers';
 import { useAdminUsers } from '@/hooks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
-import { useErrorStore } from '@/store/errorStore';
 import type {
   UserLastLoginSortOrder,
   UserRoleFilter,
@@ -57,9 +57,7 @@ const isValidLastLoginSort = (
 
 export const AdminUsers = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  //const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const showMessage = useErrorStore((s) => s.show);
+  useErrorMessage();
   const {
     searchParams,
     currentPage,
@@ -157,32 +155,6 @@ export const AdminUsers = () => {
   const handlePageChange = (page: number) => {
     setPage(page);
   };
-
-  useEffect(() => {
-    const locationState = location.state as
-      | { successMessage?: string }
-      | null
-      | undefined;
-
-    if (!locationState?.successMessage) {
-      return;
-    }
-
-    showMessage('success', 'Success!', locationState.successMessage);
-    navigate(
-      {
-        pathname: location.pathname,
-        search: location.search,
-      },
-      { replace: true, state: null },
-    );
-  }, [
-    location.pathname,
-    location.search,
-    location.state,
-    navigate,
-    showMessage,
-  ]);
 
   const usersState = useAdminUsers({
     currentPage,
