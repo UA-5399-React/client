@@ -17,6 +17,7 @@ import {
   useAdminOrders,
 } from '@/hooks/useAdminOrders';
 import { useAdminOrdersCounts } from '@/hooks/useAdminOrdersCounts';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type { OrderItem } from '@/types/tableOrders.types';
 
@@ -38,6 +39,7 @@ export function AdminOrders() {
 
   const currentStatus =
     searchParams.get('status') || DEFAULT_ORDER_STATUS_FILTER;
+  useErrorMessage();
 
   const sortParam = searchParams.get('sortBy');
   const orderParam = searchParams.get('order');

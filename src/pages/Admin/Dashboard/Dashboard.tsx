@@ -1,3 +1,11 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { ROUTES } from '@/constants';
+import { useUserStats } from '@/hooks/useUserStats';
+import { getCurrentMonthPeriod } from '@/utils';
+
+import { UsersChart } from '../UsersChart/UsersChart';
 type DashboardCardProps = {
   title: string;
   slotName: string;
@@ -21,6 +29,22 @@ function DashboardCard({ title, className = '' }: DashboardCardProps) {
 }
 
 export function Dashboard() {
+  const navigate = useNavigate();
+  const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
+
+  const handleShowAll = () => {
+    navigate(ROUTES.ADMIN_USERS);
+  };
+
+  const {
+    dailyCounts,
+    registrationsThisMonth,
+    highlightBarIndex,
+    dateLabel,
+    loading: periodLoading,
+    error: periodError,
+  } = useUserStats(selectedPeriod);
+
   return (
     <div>
       <section className="bg-background text-text min-h-screen px-4 py-6 transition-colors duration-300 md:px-6">
@@ -30,10 +54,16 @@ export function Dashboard() {
               title="Status Orders"
               slotName="<OrderStatusChart />"
             />
-
-            <DashboardCard
-              title="Number of Clients"
-              slotName="<RegistrationsChart />"
+            <UsersChart
+              registrationsThisMonth={registrationsThisMonth}
+              dailyCounts={dailyCounts}
+              dateLabel={dateLabel}
+              highlightBarIndex={highlightBarIndex}
+              selectedPeriod={selectedPeriod}
+              onPeriodChange={setSelectedPeriod}
+              loading={periodLoading}
+              error={periodError}
+              onShowAll={handleShowAll}
             />
           </div>
 
