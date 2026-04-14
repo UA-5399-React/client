@@ -235,9 +235,9 @@ export const CategoryForm = ({
                   />
                   <button
                     onClick={handleRemoveImage}
-                    className="absolute -top-3 -right-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#e5e7eb] bg-white text-[#F25F5F] shadow-md transition-colors hover:bg-red-50"
+                    className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-red-400 bg-gray-100 text-red-400 shadow-sm transition-colors hover:bg-gray-200 focus:outline-none dark:border-red-400 dark:bg-neutral-700 dark:text-red-400 dark:hover:bg-neutral-600"
                   >
-                    <X size={16} strokeWidth={3} />
+                    <X size={16} strokeWidth={2.5} />
                   </button>
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                     <Pencil className="text-white" size={24} />
