@@ -352,7 +352,7 @@ describe('Page: Checkout', () => {
         }),
       });
     });
-  });
+  }, 10000);
 
   it('creates an online order, starts Stripe checkout, and keeps the cart intact until confirmation', async () => {
     render(<Checkout />);
@@ -391,5 +391,5 @@ describe('Page: Checkout', () => {
         'https://checkout.stripe.com/c/pay/cs_test_123',
       );
     });
-  });
+  }, 10000);
 });

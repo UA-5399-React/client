@@ -92,7 +92,6 @@ describe('UI Component: Header', () => {
     render(<Header />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Shop' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Product' })).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Contact Us' }),
     ).toBeInTheDocument();

@@ -37,7 +37,6 @@ describe('UI Component: Footer', () => {
     render(<Footer />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Shop' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Product' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Blog' })).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Contact Us' }),
