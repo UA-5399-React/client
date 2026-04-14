@@ -24,6 +24,7 @@ export const ROUTES = {
   ADMIN_SETTING: '/admin/setting',
   ADMIN_PRODUCT_CREATE: '/admin/products/create',
   ADMIN_PRODUCT_EDIT: '/admin/products/:id',
+  ADMIN_MAILER: '/admin/mailer',
   BLOG: '/blog',
   ADMIN_LOGIN: '/admin/login',
   REGISTER: '/register',

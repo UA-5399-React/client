@@ -3,6 +3,7 @@ import {
   ChartBarStacked,
   LayoutDashboard,
   LogOut,
+  Mail,
   PackageIcon,
   SettingsIcon,
   ShoppingCartIcon,
@@ -27,6 +28,7 @@ const SIDEBAR_LINKS = [
   },
   { to: ROUTES.ADMIN_USERS, label: 'Users', icon: <UsersIcon /> },
   { to: ROUTES.ADMIN_ORDERS, label: 'Orders', icon: <ShoppingCartIcon /> },
+  { to: ROUTES.ADMIN_MAILER, label: 'Mailer', icon: <Mail /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
   { to: ROUTES.ADMIN_FEATURED, label: 'Featured Products', icon: <Sparkles /> },
 ];
