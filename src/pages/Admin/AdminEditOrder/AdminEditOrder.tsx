@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
   Navigate,
   useLocation,
@@ -6,27 +6,69 @@ import {
   useParams,
 } from 'react-router-dom';
 
-import { AdminOrderForm, Button } from '@/components';
+import { AdminOrderForm, Button, DownloadOrderButton } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAdminEditOrderFlow } from '@/hooks';
-import type { OrderFormData, OrderItem } from '@/types/tableOrders.types';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
+import { useErrorStore } from '@/store/errorStore';
+import { type ShippingCarrier } from '@/types';
+import {
+  type OrderFormData,
+  type OrderItem,
+  type OrderStatus,
+} from '@/types/tableOrders.types';
+import { splitCustomerName } from '@/utils';
 
 type EditOrderLocationState = {
   order?: OrderItem;
 };
 
+const buildRemovedLineItems = (
+  initialLines: { productId: string; amount: number }[],
+  currentLines: { productId: string; amount: number }[],
+): { productId: string; amount: number; remove: true }[] => {
+  const pool = [...currentLines];
+  const removals: { productId: string; amount: number; remove: true }[] = [];
+
+  for (const line of initialLines) {
+    if (!line.productId) continue;
+    const idx = pool.findIndex((c) => c.productId === line.productId);
+    if (idx >= 0) {
+      pool.splice(idx, 1);
+    } else {
+      removals.push({
+        productId: line.productId,
+        amount: line.amount,
+        remove: true,
+      });
+    }
+  }
+
+  return removals;
+};
+
 export function AdminEditOrder() {
   const { id } = useParams<{ id: string }>();
-  const { state } = useLocation() as {
-    state: EditOrderLocationState | null | undefined;
-  };
+  const { state } = useLocation() as { state: EditOrderLocationState | null };
   const navigate = useNavigate();
-  const { updateUserInfo, isUpdatingUserInfo } = useAdminEditOrderFlow();
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { updateOrder, isUpdateOrderInfo } = useAdminEditOrderFlow();
 
-  if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
+  useErrorMessage();
+  const showMessage = useErrorStore((s) => s.show);
 
   const order = state?.order;
+
+  const initialOrderLines = useMemo(() => {
+    if (!order?.items?.length) return [];
+    return order.items
+      .map((item) => ({
+        productId: item.product as string,
+        amount: item.amount,
+      }))
+      .filter((line) => line.productId.length > 0);
+  }, [order]);
+
+  if (!id) return <Navigate to={ROUTES.ADMIN_ORDERS} replace />;
 
   if (!order) {
     return (
@@ -51,47 +93,87 @@ export function AdminEditOrder() {
     customerName: `${order.user.firstName} ${order.user.lastName}`.trim(),
     email: order.user.email || '',
     phone: order.user.phone || '',
-    status: order.status,
+    carrier: order.shippingAddress?.carrier.toLowerCase() as ShippingCarrier,
+    city: order.shippingAddress?.city || '',
+    branchNumber: String(order.shippingAddress?.branchNumber ?? ''),
+    status: order.status.toLowerCase() as OrderStatus,
     items:
       order.items.length > 0
         ? order.items.map((item) => ({
+            productId: (item.product as string) || '',
             productName: item.title,
             price: String(item.unitPrice),
             quantity: String(item.amount),
           }))
-        : [{ productName: '', price: '', quantity: '1' }],
+        : [{ productId: '', productName: '', price: '', quantity: '1' }],
   };
 
   const handleSubmit = async (formData: OrderFormData) => {
-    setSubmitError(null);
+    const { firstName, lastName } = splitCustomerName(formData.customerName);
+
+    const currentLines = formData.items
+      .filter((item) => item.productId.trim().length > 0)
+      .map((item) => ({
+        productId: item.productId,
+        amount: Number(item.quantity),
+      }));
+
+    const lineUpdates = formData.items.map((item) => ({
+      productId: item.productId,
+      amount: Number(item.quantity),
+    }));
+
+    const removedLines = buildRemovedLineItems(initialOrderLines, currentLines);
+
     try {
-      await updateUserInfo(id, {
-        customerName: formData.customerName,
+      await updateOrder(id, {
+        status: formData.status,
+        firstName,
+        lastName,
         email: formData.email,
         phone: formData.phone,
+        shippingAddress: {
+          carrier: formData.carrier,
+          city: formData.city,
+          branchNumber: Number(formData.branchNumber),
+        },
+        items: [...lineUpdates, ...removedLines],
       });
-      navigate(ROUTES.ADMIN_ORDERS);
-    } catch {
-      setSubmitError('Failed to update order. Please try again.');
+
+      navigate(ROUTES.ADMIN_ORDERS, {
+        state: {
+          successMessage: 'Order edited successfully',
+        },
+      });
+    } catch (error) {
+      showMessage(
+        'error',
+        'category action failed',
+        error instanceof Error ? error.message : 'Something went wrong',
+      );
+      console.error('Failed to update order:', error);
+      throw error;
     }
   };
 
   return (
     <div>
-      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center gap-4 p-6">
-        {submitError && (
-          <p className="w-full max-w-4xl text-center text-sm font-medium text-red-500">
-            {submitError}
-          </p>
-        )}
-        <AdminOrderForm
-          initialData={initialData}
-          onSubmit={handleSubmit}
-          onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
-          isLoading={isUpdatingUserInfo}
-          isEditMode={true}
-          updatedAt={order.updatedAt}
-        />
+      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center p-6">
+        <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md">
+          <div className="flex justify-start border-b border-gray-100 bg-gray-50 px-6 py-5">
+            <DownloadOrderButton orderId={order.orderId} />
+          </div>
+          <div className="-mx-[1px] -mt-1 -mb-[1px]">
+            <AdminOrderForm
+              initialData={initialData}
+              onSubmit={handleSubmit}
+              onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
+              isLoading={isUpdateOrderInfo}
+              isEditMode={true}
+              updatedAt={order.updatedAt}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

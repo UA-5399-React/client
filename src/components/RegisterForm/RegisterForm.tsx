@@ -8,10 +8,15 @@ import googleIcon from '@/assets/icons/google-icon.webp';
 import { Button, Checkbox, Input } from '@/components';
 import { ROUTES } from '@/constants';
 import { useRegister } from '@/hooks';
-import { authService } from '@/services/authService';
+import { AuthApiError, authService } from '@/services/authService';
 
 const registerSchema = z
   .object({
+    firstName: z
+      .string()
+      .trim()
+      .min(1, 'First name is required')
+      .max(50, 'First name must be at most 50 characters'),
     email: z.string().min(1, 'Email is required').email('Invalid email format'),
     password: z
       .string()
@@ -41,6 +46,17 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export const RegisterForm: React.FC = () => {
   const { mutateAsync: registerMutation, isPending } = useRegister();
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [registrationStatus, setRegistrationStatus] = useState<string | null>(
+    null,
+  );
+  const [registrationMessage, setRegistrationMessage] = useState<string | null>(
+    null,
+  );
+  const [isResendingConfirmation, setIsResendingConfirmation] = useState(false);
+  const [resendFeedback, setResendFeedback] = useState<{
+    message: string;
+    status: 'success' | 'error';
+  } | null>(null);
 
   const {
     register,
@@ -53,6 +69,7 @@ export const RegisterForm: React.FC = () => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      firstName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -62,16 +79,33 @@ export const RegisterForm: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      await registerMutation({
+      const response = await registerMutation({
+        firstName: data.firstName,
         email: data.email,
         password: data.password,
         passwordConfirmation: data.confirmPassword,
       });
 
       setRegisteredEmail(data.email);
+      setRegistrationStatus(response.status);
+      setRegistrationMessage(response.message);
+      setResendFeedback(null);
       reset();
       clearErrors('root');
     } catch (error) {
+      if (
+        error instanceof AuthApiError &&
+        error.code === 'EMAIL_NOT_CONFIRMED'
+      ) {
+        setRegisteredEmail(data.email);
+        setRegistrationStatus('pending_verification');
+        setRegistrationMessage(error.message);
+        setResendFeedback(null);
+        reset();
+        clearErrors('root');
+        return;
+      }
+
       setError('root', {
         type: 'server',
         message:
@@ -84,6 +118,41 @@ export const RegisterForm: React.FC = () => {
     authService.startGoogleAuth();
   };
 
+  const handleResendConfirmation = async () => {
+    if (!registeredEmail) {
+      return;
+    }
+
+    setIsResendingConfirmation(true);
+    setResendFeedback(null);
+
+    try {
+      const response = await authService.resendConfirmation(registeredEmail);
+      setResendFeedback({
+        message: response.message,
+        status: 'success',
+      });
+    } catch (error) {
+      setResendFeedback({
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to resend confirmation email.',
+        status: 'error',
+      });
+    } finally {
+      setIsResendingConfirmation(false);
+    }
+  };
+
+  const shouldShowPendingState = registrationStatus === 'pending_verification';
+  const registrationDescription = shouldShowPendingState
+    ? `Your account for ${registeredEmail} is waiting for email verification. Request a new confirmation email below to continue.`
+    : `We sent a confirmation email to ${registeredEmail}. Please check your inbox to finish registration.`;
+  const registrationAlertClassName = shouldShowPendingState
+    ? 'rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900 dark:text-amber-200'
+    : 'rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-300';
+
   return (
     <div className="flex w-full max-w-md flex-col px-4 sm:px-6">
       <div className="mb-8">
@@ -92,9 +161,15 @@ export const RegisterForm: React.FC = () => {
         </h2>
         {registeredEmail ? (
           <p className="text-text mt-2 text-sm">
-            We sent a confirmation email to{' '}
-            <span className="text-text font-bold">{registeredEmail}</span>.
-            Please check your inbox to finish registration.
+            {shouldShowPendingState ? (
+              registrationDescription
+            ) : (
+              <>
+                We sent a confirmation email to{' '}
+                <span className="text-text font-bold">{registeredEmail}</span>.
+                Please check your inbox to finish registration.
+              </>
+            )}
           </p>
         ) : (
           <p className="mt-2 text-sm text-gray-500">
@@ -108,9 +183,32 @@ export const RegisterForm: React.FC = () => {
 
       {registeredEmail ? (
         <div className="space-y-6">
-          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-300">
-            Your account was created successfully. A confirmation email has been
-            sent, so you can test the next step when you're ready.
+          <div className={registrationAlertClassName}>
+            {registrationMessage ??
+              'Your account was created successfully. A confirmation email has been sent, so you can test the next step when you are ready.'}
+          </div>
+          <div className="space-y-3">
+            <Button
+              type="button"
+              onClick={handleResendConfirmation}
+              disabled={isResendingConfirmation}
+              className="box-border inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-3.5 text-center text-sm font-medium text-gray-900 transition-colors focus:ring-4 focus:ring-gray-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isResendingConfirmation
+                ? 'Sending confirmation email...'
+                : 'Resend confirmation email'}
+            </Button>
+            {resendFeedback && (
+              <p
+                className={`text-center text-sm font-medium ${
+                  resendFeedback.status === 'success'
+                    ? 'text-green-600'
+                    : 'text-red-500'
+                }`}
+              >
+                {resendFeedback.message}
+              </p>
+            )}
           </div>
           <Link
             to={ROUTES.LOGIN}
@@ -149,6 +247,17 @@ export const RegisterForm: React.FC = () => {
             </span>
             <span className="bg-fieldBorder/80 h-px flex-1" />
           </div>
+
+          <Input
+            {...register('firstName')}
+            type="text"
+            variant="underlined"
+            placeholder="First name"
+            autoComplete="given-name"
+            state={errors.firstName ? 'error' : 'default'}
+            helperText={errors.firstName?.message}
+            className="pb-2"
+          />
 
           <Input
             {...register('email')}

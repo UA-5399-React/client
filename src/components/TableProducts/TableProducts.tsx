@@ -2,15 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { AlertCircle, Copy, Pencil, Trash } from 'lucide-react';
 
-import { ActionMenu, Checkbox } from '@/components';
+import { ActionMenu, Checkbox, TableSortControl } from '@/components';
 import { ROUTES } from '@/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { type Product, PRODUCT_STATUS } from '@/types';
+import type { ProductSortField, SortOrder } from '@/types/productsSort';
+import { formatDate } from '@/utils';
 
 interface TableProductsProps {
   items: Product[] | [];
   loading: boolean;
   error?: Error | null;
+  sort: ProductSortField;
+  order: SortOrder;
+  onSortChange: (field: ProductSortField) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
 }
@@ -27,14 +32,15 @@ function renderBodyContent(
   if (loading) {
     return (
       <tr>
-        <td colSpan={6}>Loading...</td>
+        <td colSpan={8}>Loading...</td>
       </tr>
     );
   }
+
   if (error) {
     return (
       <tr role="alert">
-        <td colSpan={6} className="py-8">
+        <td colSpan={8} className="py-8">
           <div
             className={clsx(
               'mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4',
@@ -54,11 +60,12 @@ function renderBodyContent(
       </tr>
     );
   }
+
   if (!items?.length) {
     return (
       <tr>
         <td
-          colSpan={6}
+          colSpan={8}
           className={clsx('py-8 text-center', {
             'text-black': isDark,
             'text-[#8A92A6]': !isDark,
@@ -69,6 +76,7 @@ function renderBodyContent(
       </tr>
     );
   }
+
   return items.map((item: Product) => {
     const isDraft = item.status.toUpperCase() === PRODUCT_STATUS.DRAFT;
 
@@ -80,13 +88,25 @@ function renderBodyContent(
         <td>
           <div className="flex items-center gap-2">
             <Checkbox className="h-[20px] w-[20px]" />
-            <span>Image</span>
+            {item.imageUrl ? (
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="h-10 w-10 rounded object-cover"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded bg-gray-100" />
+            )}
           </div>
         </td>
+
         <td>{item.title}</td>
         <td>{item.status}</td>
         <td>{item.price}</td>
-        <td>{item.description}</td>
+        <td>{item.description ?? '—'}</td>
+        <td>{item.createdAt ? formatDate(new Date(item.createdAt)) : '—'}</td>
+        <td>{item.purchaseCount ?? 0}</td>
+
         <td>
           <div className="flex justify-end pr-2">
             <ActionMenu
@@ -129,6 +149,9 @@ export function TableProducts({
   items,
   loading,
   error,
+  sort,
+  order,
+  onSortChange,
   onDelete,
   onDuplicate,
 }: TableProductsProps) {
@@ -146,17 +169,56 @@ export function TableProducts({
                 <span>Image</span>
               </div>
             </th>
-            <th>Name</th>
+
+            <th>
+              <TableSortControl
+                label="Name"
+                field="title"
+                currentSort={sort}
+                currentOrder={order}
+                onSortChange={onSortChange}
+              />
+            </th>
+
             <th>Status</th>
-            <th>Price</th>
+
+            <th>
+              <TableSortControl
+                label="Price"
+                field="price"
+                currentSort={sort}
+                currentOrder={order}
+                onSortChange={onSortChange}
+              />
+            </th>
+
             <th>Description</th>
+
+            <th>
+              <TableSortControl
+                label="Created Date"
+                field="createdAt"
+                currentSort={sort}
+                currentOrder={order}
+                onSortChange={onSortChange}
+              />
+            </th>
+
+            <th>
+              <TableSortControl
+                label="Units Purchased"
+                field="purchaseCount"
+                currentSort={sort}
+                currentOrder={order}
+                onSortChange={onSortChange}
+              />
+            </th>
+
             <th></th>
           </tr>
         </thead>
 
-        <tbody
-          className={`bg-[rgb(var(--color-bg-sec))] [&_td]:px-4 [&_td]:text-center`}
-        >
+        <tbody className="bg-[rgb(var(--color-bg-sec))] [&_td]:px-4 [&_td]:text-center">
           {renderBodyContent(
             loading,
             error ?? null,

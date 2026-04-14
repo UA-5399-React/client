@@ -11,6 +11,7 @@ import {
 import { API_BASE_URL, AUTH_ENDPOINTS, AUTH_MESSAGES } from '@/constants';
 
 import {
+  type AuthApiError,
   authService,
   type ConfirmEmailResponse,
   type LoginPayload,
@@ -79,10 +80,26 @@ describe('Service: authService', () => {
         AUTH_MESSAGES.INVALID_CREDENTIALS,
       );
     });
+
+    it('should preserve backend error code for email confirmation errors', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          message: 'Please confirm your email first',
+          code: 'EMAIL_NOT_CONFIRMED',
+        }),
+      });
+
+      await expect(authService.login(mockCredentials)).rejects.toMatchObject({
+        message: 'Please confirm your email first',
+        code: 'EMAIL_NOT_CONFIRMED',
+      } satisfies Partial<AuthApiError>);
+    });
   });
 
   describe('register()', () => {
     const mockPayload: RegisterPayload = {
+      firstName: 'John',
       email: 'newuser@test.com',
       password: 'Password1!',
       passwordConfirmation: 'Password1!',
@@ -163,6 +180,47 @@ describe('Service: authService', () => {
       await expect(authService.confirmEmail('token-123')).rejects.toThrow(
         'Token expired',
       );
+    });
+  });
+
+  describe('resendConfirmation()', () => {
+    it('should send correct POST request and return data on success', async () => {
+      const mockResponseData = {
+        message: 'Confirmation email sent.',
+      };
+
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponseData,
+      });
+
+      const result = await authService.resendConfirmation('test@example.com');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        `${API_URL}${AUTH_ENDPOINTS.RESEND_CONFIRMATION}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: 'test@example.com' }),
+          credentials: 'include',
+        },
+      );
+      expect(result).toEqual(mockResponseData);
+    });
+
+    it('should throw backend error message on failed resend', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          message: 'Please wait before requesting another email',
+        }),
+      });
+
+      await expect(
+        authService.resendConfirmation('test@example.com'),
+      ).rejects.toThrow('Please wait before requesting another email');
     });
   });
 

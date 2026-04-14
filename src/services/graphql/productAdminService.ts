@@ -28,8 +28,10 @@ export const GET_PRODUCTS_PAGE = gql`
         status
         description
         categories
+        imageUrl
         createdAt
         updatedAt
+        purchaseCount
       }
     }
   }
