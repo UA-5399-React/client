@@ -39,7 +39,6 @@ export { TableCategories } from './TableCategories/TableCategories';
 export { TableOrders } from './TableOrders/TableOrders';
 export { TableProducts } from './TableProducts/TableProducts';
 export { TableSubscribers } from './TableSubscriptions/TableSubscriptions';
-export type { NewsletterSubscriber } from './TableSubscriptions/types/NewsletterSubscriber.type';
 export { TextArea } from './TextArea';
 export { UserAvatar } from './UserAvatar';
 export { UserForm } from './UserForm/UserForm';

@@ -2,9 +2,10 @@ import { useState } from 'react';
 import clsx from 'clsx';
 import { AlertCircle } from 'lucide-react';
 
-import { Checkbox, type NewsletterSubscriber } from '@/components';
+import { Checkbox } from '@/components';
 import { Button } from '@/components/Button';
 import { useTheme } from '@/hooks/useTheme';
+import type { NewsletterSubscriber } from '@/types/newsletterSubscriber.types';
 
 import { ConfirmModal } from '..';
 import { SubscriberTabs } from '../SubscriberTabs/SubscriberTabs';

@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@apollo/client/react';
 
-import type { NewsletterSubscriber } from '@/components';
 import {
   DELETE_SUBSCRIBER,
   GET_SUBSCRIBERS,
   SEND_NEWSLETTER,
 } from '@/services/newsletterSubscribersService';
+import type { NewsletterSubscriber } from '@/types/newsletterSubscriber.types';
 
 interface GetSubscribersData {
   getSubscribers: NewsletterSubscriber[];
