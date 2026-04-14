@@ -71,7 +71,7 @@ export function Dashboard() {
             />
           </div>
 
-          <DashboardCard
+          {/*<DashboardCard
             title="Number of Sales"
             className="min-h-[320px]"
           ></DashboardCard>
@@ -79,7 +79,7 @@ export function Dashboard() {
           <DashboardCard
             title="ABC Analysis"
             className="min-h-[300px]"
-          ></DashboardCard>
+          ></DashboardCard>*/}
         </div>
       </section>
     </div>
