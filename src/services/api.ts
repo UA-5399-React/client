@@ -67,13 +67,6 @@ const REFRESH_EXCLUDED_ENDPOINTS = [
   '/auth/register',
 ];
 
-const REFRESH_EXCLUDED_ENDPOINTS = [
-  '/auth/login',
-  '/auth/logout',
-  '/auth/refresh',
-  '/auth/register',
-];
-
 const shouldAttemptRefresh = (endpoint: string, response: Response) =>
   response.status === 401 && !REFRESH_EXCLUDED_ENDPOINTS.includes(endpoint);
 
