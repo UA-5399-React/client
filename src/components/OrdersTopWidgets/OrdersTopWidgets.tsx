@@ -46,30 +46,33 @@ export function OrdersTopWidgets({ counts, loading }: OrdersTopWidgetsProps) {
   ];
 
   return (
-    <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
       {widgetItems.map((item) => {
         const Icon = item.icon;
 
         return (
           <div
             key={item.id}
-            className="flex items-center justify-between rounded-xl border border-gray-100 bg-[#F8F9FB] p-6 shadow-sm transition-all hover:shadow-md"
+            className="flex items-center justify-between rounded-xl border border-gray-100 bg-[#F8F9FB] p-3 shadow-sm transition-all hover:shadow-md sm:p-6"
           >
-            <div className="relative flex h-14 w-14 items-center justify-center">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-14 sm:w-14">
               <div className="absolute inset-0 rounded-full border-[3px] border-[#E5E7EB]"></div>
 
               <div
                 className={`absolute inset-0 -rotate-45 rounded-full border-[3px] border-t-transparent border-r-transparent ${item.borderColor}`}
               ></div>
 
-              <Icon className={`h-6 w-6 ${item.color}`} strokeWidth={2} />
+              <Icon
+                className={`h-4 w-4 sm:h-6 sm:w-6 ${item.color}`}
+                strokeWidth={2}
+              />
             </div>
 
             <div className="flex flex-col items-end text-right">
-              <p className="mb-1 text-sm font-medium text-[#A0AEC0]">
+              <p className="mb-1 text-xs font-medium text-[#A0AEC0] sm:text-sm">
                 {item.label}
               </p>
-              <p className="text-3xl font-bold text-[#2D3748]">
+              <p className="text-xl font-bold text-[#2D3748] sm:text-3xl">
                 {loading ? '...' : item.value}
               </p>
             </div>
