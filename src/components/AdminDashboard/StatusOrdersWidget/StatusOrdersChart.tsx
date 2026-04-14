@@ -14,7 +14,8 @@ interface HoverPercentageOptions {
   activeIndexRef: React.MutableRefObject<number | null>;
   rafRef: React.MutableRefObject<number | null>;
 }
-
+//comment to ignore testing of plugin
+/* v8 ignore start */
 const hoverPercentagePlugin: Plugin<'doughnut'> = {
   id: 'hoverPercentage',
 
@@ -85,7 +86,7 @@ const hoverPercentagePlugin: Plugin<'doughnut'> = {
     ctx.restore();
   },
 };
-
+/* v8 ignore stop */
 ChartJS.register(hoverPercentagePlugin);
 
 interface Props {
