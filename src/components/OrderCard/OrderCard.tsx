@@ -85,12 +85,14 @@ export const OrderCard = ({ order }: OrderCardProps) => {
           <div className="w-full max-w-[500px]">
             <OrderProgressBar currentStep={status as ProgressStep} />
           </div>
-          {/*<Button
-            onClick={handleDetails}
-            className="flex items-center gap-2 rounded-md bg-[rgb(var(--color-bg-sec-inverted))] px-5 py-2.5 text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-all duration-200 hover:opacity-80 active:scale-95"
-          >
-            Details <ArrowRight className="h-4 w-4" />
-          </Button>*/}
+          {
+            <Button
+              onClick={handleDetails}
+              className="flex items-center gap-2 rounded-md bg-[rgb(var(--color-bg-sec-inverted))] px-5 py-2.5 text-sm font-medium text-[rgb(var(--color-text-inverted))] transition-all duration-200 hover:opacity-80 active:scale-95"
+            >
+              Details <ArrowRight className="h-4 w-4" />
+            </Button>
+          }
         </div>
       )}
     </div>
