@@ -28,7 +28,6 @@ export const NewArrivals = ({
   if (isError) return renderState('Failed to load products.');
   if (!products.length) return renderState('No products yet.');
 
-  const sortedProducts = products;
   return (
     <div className="new-arrivals-root margin-right-16 mx-auto mb-8 px-4 lg:px-16">
       <div className="mb-[48px] flex items-end justify-between">
@@ -49,7 +48,7 @@ export const NewArrivals = ({
 
       <div className="new-arrivals-scroll-out">
         <div className="new-arrivals-scroll-inner flex min-w-0 gap-4 overflow-x-auto scroll-smooth pr-8 pb-4 [scrollbar-width:thin]">
-          {sortedProducts.map((product) => (
+          {products.map((product) => (
             <div
               key={product._id}
               className="new-arrivals-card w-[262px] shrink-0"
