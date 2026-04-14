@@ -9,7 +9,6 @@ import { useTheme } from '@/hooks/useTheme';
 const NAV_LINKS = [
   { path: ROUTES.HOME, label: 'Home' },
   { path: ROUTES.SHOP, label: 'Shop' },
-  { path: ROUTES.PRODUCT, label: 'Product' },
   { path: ROUTES.BLOG, label: 'Blog' },
   { path: ROUTES.CONTACT_US, label: 'Contact Us' },
 ];
