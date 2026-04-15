@@ -25,8 +25,11 @@ const hoverPercentagePlugin: Plugin<'doughnut'> = {
     if (!pluginOptions) return;
 
     const { opacityRef, activeIndexRef, rafRef } = pluginOptions;
+    if (!opacityRef || !activeIndexRef || !rafRef) return;
+
     const activeElements = chart.getActiveElements();
-    const newIndex = activeElements.length ? activeElements[0].index : null;
+    const firstActiveElement = activeElements[0];
+    const newIndex = firstActiveElement ? firstActiveElement.index : null;
 
     if (newIndex !== activeIndexRef.current) {
       activeIndexRef.current = newIndex;
@@ -88,7 +91,6 @@ const hoverPercentagePlugin: Plugin<'doughnut'> = {
   },
 };
 /* v8 ignore stop */
-ChartJS.register(hoverPercentagePlugin);
 
 interface Props {
   data: OrdersStatusStats;
