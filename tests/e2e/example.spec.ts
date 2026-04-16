@@ -15,9 +15,6 @@ test('user can browse, filter, add to cart', async ({ page }) => {
 
   await page.getByRole('combobox', { name: 'Categories' }).click();
   await page.getByText('Laptop', { exact: true }).click();
-  await page
-    .getByRole('combobox', { name: 'Categories' })
-    .click({ force: true });
 
   await page.getByRole('combobox', { name: 'Price' }).click();
   await page.getByText('Under $').click();
