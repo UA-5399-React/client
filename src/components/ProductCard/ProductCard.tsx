@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 
 import { useCartStore } from '@/store/useCartStore';
@@ -12,6 +13,7 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { _id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
+  const [imgError, setImgError] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,10 +28,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         className="relative mb-3 block overflow-hidden rounded-md"
         aria-label={title}
       >
-        {imageUrl ? (
+        {imageUrl && !imgError ? (
           <img
             src={imageUrl}
             alt={title}
+            onError={() => setImgError(true)}
             className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
