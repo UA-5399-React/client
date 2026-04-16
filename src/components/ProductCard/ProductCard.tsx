@@ -53,7 +53,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </button>
       </a>
       <div className="flex flex-col">
-        <h3 className="text-sm font-medium text-[rgb(var(--color-text))]">
+        <h3 className="line-clamp-2 text-sm font-medium text-[rgb(var(--color-text))]">
           {title}
         </h3>
         <span className="text-sm font-semibold text-[rgb(var(--color-text))]">
