@@ -156,14 +156,17 @@ describe('FlyoutCart component', () => {
     expect(screen.getByText('No img')).toBeInTheDocument();
   });
 
-  it('renders product categories when present', () => {
+  it('renders the product title as a link to the product page', () => {
     vi.mocked(useCartStore).mockReturnValue(
       baseStore({
         items: [makeItem({ categories: ['Electronics', 'Gadgets'] })],
       }),
     );
     renderCart();
-    expect(screen.getByText('Electronics, Gadgets')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Test Product' })).toHaveAttribute(
+      'href',
+      ROUTES.PRODUCT.replace(':id', 'p1'),
+    );
   });
 
   it('renders Subtotal and Total when items are present', () => {
@@ -179,9 +182,9 @@ describe('FlyoutCart component', () => {
   it('calls removeItem with the product id when the per-item X button is clicked', () => {
     vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
     renderCart();
-    // Buttons order: [0] header-X, [1] per-item-X, [2] minus, [3] plus, [4] Checkout, [5] View Cart
-    const buttons = screen.getAllByRole('button');
-    const removeBtn = buttons[1];
+    const removeBtn = screen
+      .getAllByRole('button')
+      .filter((button) => button.querySelector('.lucide-x'))[1];
     fireEvent.click(removeBtn);
     expect(mockRemoveItem).toHaveBeenCalledWith('p1');
   });
@@ -191,8 +194,10 @@ describe('FlyoutCart component', () => {
       baseStore({ items: [makeItem({ useMongoId: true })] }),
     );
     renderCart();
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
+    const removeBtn = screen
+      .getAllByRole('button')
+      .filter((button) => button.querySelector('.lucide-x'))[1];
+    fireEvent.click(removeBtn);
     expect(mockRemoveItem).toHaveBeenCalledWith('p1');
   });
 
