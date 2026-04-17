@@ -1,5 +1,6 @@
 import { Heart, Image as ImageIcon } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
 import { useCartStore } from '@/store/useCartStore';
 import type { Product } from '@/types';
 
@@ -22,7 +23,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div className="group relative flex flex-col">
       <a
-        href={`/product/${_id}`}
+        href={ROUTES.PRODUCT.replace(':id', _id)}
         className="relative mb-3 block overflow-hidden rounded-md"
         aria-label={title}
       >

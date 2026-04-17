@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { Minus, Plus, X } from 'lucide-react';
 
@@ -118,36 +118,22 @@ export const FlyoutCart = () => {
 
                   <div className="flex flex-1 flex-col justify-between">
                     <div className="flex justify-between">
-                      <div>
-                        <h3 className="mt-0.5 line-clamp-2 text-sm font-semibold">
-                          {item.product.title}
-                        </h3>
-                        <p
-                          className={clsx(
-                            'mt-1 text-sm',
-                            isDark ? 'text-gray-400' : 'text-gray-500',
+                      <h3 className="mt-0.5 mb-0 line-clamp-2 text-sm font-semibold">
+                        <Link
+                          to={ROUTES.PRODUCT.replace(
+                            ':id',
+                            item.product.id || item.product._id!,
                           )}
+                          onClick={closeCart}
+                          className="hover:underline"
                         >
-                          {item.product?.categories?.join(', ')}
-                        </p>
-                      </div>
+                          {item.product.title}
+                        </Link>
+                      </h3>
                       <div className="flex flex-col items-end gap-1">
                         <span className="pl-2 font-semibold">
                           ${item.product.price.toFixed(2)}
                         </span>
-                        <Button
-                          onClick={() =>
-                            removeItem(item.product.id || item.product._id!)
-                          }
-                          className={clsx(
-                            'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
-                            isDark
-                              ? 'text-gray-400 hover:text-white'
-                              : 'text-gray-500 hover:text-black',
-                          )}
-                        >
-                          <X className="h-5 w-5" />
-                        </Button>
                       </div>
                     </div>
 
@@ -206,6 +192,19 @@ export const FlyoutCart = () => {
                           />
                         </Button>
                       </div>
+                      <Button
+                        onClick={() =>
+                          removeItem(item.product.id || item.product._id!)
+                        }
+                        className={clsx(
+                          'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
+                          isDark
+                            ? 'text-gray-400 hover:text-white'
+                            : 'text-gray-500 hover:text-black',
+                        )}
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
                     </div>
                   </div>
                 </div>
