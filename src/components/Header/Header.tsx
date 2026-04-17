@@ -32,6 +32,7 @@ export const Header = () => {
   const logoSrc = isDark ? logoDark : logoLight;
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
   const { openCart } = useCartStore();
 
@@ -43,9 +44,9 @@ export const Header = () => {
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
 
-  const { isAuth, isCustomer } = useAuth();
+  const { isAuth } = useAuth();
 
-  const { data: me } = useMe(isAuth && isCustomer);
+  const { data: me } = useMe(isAuth);
 
   const userInitials = (() => {
     if (!me) return null;
@@ -54,6 +55,9 @@ export const Header = () => {
     if (first || last) return `${first}${last}`;
     return me.email?.[0]?.toUpperCase() ?? null;
   })();
+
+  const avatarUrl = me?.avatarUrl;
+  const shouldShowAvatar = Boolean(avatarUrl && failedAvatarUrl !== avatarUrl);
 
   const handleUserNavigate = () => {
     navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
@@ -200,7 +204,14 @@ export const Header = () => {
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
-              {userInitials ? (
+              {shouldShowAvatar ? (
+                <img
+                  src={avatarUrl}
+                  alt={userInitials ? `${userInitials} avatar` : 'User avatar'}
+                  className="h-7 w-7 rounded-full object-cover"
+                  onError={() => setFailedAvatarUrl(avatarUrl ?? null)}
+                />
+              ) : userInitials ? (
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
                   {userInitials}
                 </span>
