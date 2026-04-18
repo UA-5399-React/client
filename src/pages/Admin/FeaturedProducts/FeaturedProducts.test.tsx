@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
-import { NEW_ARRIVALS_LIMIT } from '@/constants';
+import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
 
 import { FeaturedProducts } from './FeaturedProducts';
@@ -47,9 +47,16 @@ describe('Page: FeaturedProducts', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/admin/featured']}>
+        <MemoryRouter initialEntries={[ROUTES.ADMIN_FEATURED]}>
           <Routes>
-            <Route path="/admin/featured" element={<FeaturedProducts />} />
+            <Route
+              path={ROUTES.ADMIN_FEATURED}
+              element={<FeaturedProducts />}
+            />
+            <Route
+              path={ROUTES.ADMIN_PRODUCT_EDIT}
+              element={<div>Edit Product Page</div>}
+            />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>,
@@ -98,6 +105,17 @@ describe('Page: FeaturedProducts', () => {
     });
   });
 
+  it('navigates to product edit page from featured item', async () => {
+    renderPage();
+
+    await screen.findByText('AirPods');
+
+    const editButton = screen.getByRole('button', { name: /edit/i });
+    await user.click(editButton);
+
+    expect(await screen.findByText('Edit Product Page')).toBeInTheDocument();
+  });
+
   it('removes a product from the list', async () => {
     (apiClient.delete as Mock).mockResolvedValue({});
     renderPage();
@@ -107,7 +125,9 @@ describe('Page: FeaturedProducts', () => {
     const allButtons = screen.getAllByRole('button');
 
     const deleteBtn = allButtons.find(
-      (btn) => btn.innerHTML.includes('svg') || btn.className.includes('trash'),
+      (btn) =>
+        btn !== screen.queryByRole('button', { name: /edit/i }) &&
+        (btn.innerHTML.includes('svg') || btn.className.includes('trash')),
     );
 
     expect(deleteBtn).toBeTruthy();
@@ -171,8 +191,14 @@ describe('Page: FeaturedProducts', () => {
 
     await screen.findByText('AirPods');
 
-    const deleteButtons = screen.getAllByRole('button');
-    const deleteBtn = deleteButtons.find((btn) => btn.querySelector('svg'));
+    const allButtons = screen.getAllByRole('button');
+    const deleteBtn = allButtons.find(
+      (btn) =>
+        btn !== screen.queryByRole('button', { name: /edit/i }) &&
+        btn.querySelector('svg'),
+    );
+
+    expect(deleteBtn).toBeTruthy();
 
     await user.click(deleteBtn!);
 

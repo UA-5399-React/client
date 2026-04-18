@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { Check, Loader2, PackageSearch, Plus, Trash2 } from 'lucide-react';
 
 import { AdminPageHeader, Button, SearchInput } from '@/components';
-import { NEW_ARRIVALS_LIMIT } from '@/constants';
+import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
 import type { Product } from '@/types/product.types';
 
@@ -16,6 +17,8 @@ interface FeaturedResponse {
   position: number;
 }
 export function FeaturedProducts() {
+  const navigate = useNavigate();
+
   const [allProducts, setAllProducts] = useState<FeaturedProductItem[]>([]);
   const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
@@ -291,6 +294,20 @@ export function FeaturedProducts() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        navigate(
+                          generatePath(ROUTES.ADMIN_PRODUCT_EDIT, {
+                            id: product._id,
+                          }),
+                        );
+                      }}
+                      className="border-fieldBorder text-muted hover:!border-fieldBorder hover:!text-muted bg-transparent px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-all"
+                    >
+                      Edit
+                    </Button>
+
                     {deleteConfirmId === product._id ? (
                       <button
                         type="button"
