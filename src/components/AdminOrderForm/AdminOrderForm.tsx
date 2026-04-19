@@ -172,7 +172,7 @@ export function AdminOrderForm({
   return (
     <div className="bg-backgroundSec rounded-lg border border-gray-200 p-4 shadow-sm">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 align-top md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-2 align-top md:grid-cols-2">
           <Controller
             control={control}
             name="customerName"
@@ -310,11 +310,10 @@ export function AdminOrderForm({
                       isLoading={citiesLoading}
                       onSearchChange={(s) => setCitySearch(s)}
                     />
-                    {errors.city?.message && (
-                      <span className="mt-1 block text-xs text-red-500">
-                        {errors.city.message}
-                      </span>
-                    )}
+
+                    <span className="mt-1 block h-2 text-xs text-red-500">
+                      {errors.city?.message}
+                    </span>
                   </>
                 ) : (
                   <Input
@@ -356,11 +355,10 @@ export function AdminOrderForm({
                       disabled={!cityField.value}
                       onSearchChange={(s) => setWarehouseSearch(s)}
                     />
-                    {errors.branchNumber?.message && (
-                      <span className="mt-1 block text-xs text-red-500">
-                        {errors.branchNumber.message}
-                      </span>
-                    )}
+
+                    <span className="mt-1 block h-2 text-xs text-red-500">
+                      {errors.branchNumber?.message}
+                    </span>
                   </>
                 ) : (
                   <Input
@@ -445,7 +443,7 @@ export function AdminOrderForm({
             </div>
           ))}
 
-          <div className="w-full">
+          <div className="w-full pt-2">
             <Button
               type="button"
               onClick={() =>

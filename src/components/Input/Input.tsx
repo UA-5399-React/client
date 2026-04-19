@@ -12,11 +12,9 @@ const BASE_INPUT_CLASSES =
   'dark:[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))]';
 
 const WRAPPER_CLASSES =
-  'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+  'group flex w-full flex-col  has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
 
 const LABEL_CLASSES = 'text-sm font-medium text-text';
-
-const HELPER_TEXT_CLASSES = 'mt-0 ml-2 text-xs';
 
 const VARIANT_STYLES = {
   outlined: 'border rounded-md px-3 py-2',
@@ -95,7 +93,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </label>
         )}
 
-        <div className="relative flex w-full items-center">
+        <div className="relative flex w-full items-center pt-1.5">
           {leftIcon && (
             <div
               className={clsx(
@@ -152,18 +150,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {helperText && (
-          <span
-            id={`${inputId}-helper`}
-            className={clsx(
-              HELPER_TEXT_CLASSES,
-              state === 'error' ? 'text-red-600' : 'text-green-700',
-              helperTextClassName,
-            )}
-          >
-            {helperText}
-          </span>
-        )}
+        <span
+          id={`${inputId}-helper`}
+          className={clsx(
+            state === 'error' ? 'text-red-600' : 'text-green-700',
+            helperTextClassName,
+            'h-3 pt-1 text-xs',
+          )}
+        >
+          {helperText}
+        </span>
       </div>
     );
   },
