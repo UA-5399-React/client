@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOutIcon, MenuIcon, StoreIcon, XIcon } from 'lucide-react';
+import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
 
 import { Button } from '@/components';
 import { ROUTES } from '@/constants';
@@ -70,7 +70,6 @@ export const MobileSidebar = ({
                         `flex h-[40px] items-center gap-2 ${isActive ? 'text-xl font-bold' : ''}`
                       }
                     >
-                      {to === ROUTES.HOME && <StoreIcon className="h-4 w-4" />}
                       {label}
                     </NavLink>
                   </li>
