@@ -129,10 +129,12 @@ describe('FlyoutCart component', () => {
 
   // Item rendering
   it('renders cart items with title, price and quantity', () => {
-    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    vi.mocked(useCartStore).mockReturnValue(
+      baseStore({ items: [makeItem()], getCartTotal: vi.fn(() => 200) }),
+    );
     renderCart();
     expect(screen.getByText('Test Product')).toBeInTheDocument();
-    expect(screen.getByText('$50.00')).toBeInTheDocument();
+    expect(screen.getByText('$100.00')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
