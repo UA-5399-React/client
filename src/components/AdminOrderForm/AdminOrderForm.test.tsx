@@ -34,6 +34,15 @@ import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { AdminOrderForm } from './AdminOrderForm';
 
+const carrierNameMatcher = /^Carrier(?:\s*\*)?$/i;
+const searchProductNameMatcher = /^Search product(?:\s*\*)?$/i;
+const statusNameMatcher = /^Status(?:\s*\*)?$/i;
+const cityNameMatcher = /^City(?:\s*\*)?$/i;
+const branchNumberNameMatcher = /^Branch Number(?:\s*\*)?$/i;
+const customerNameMatcher = /^Customer Name(?:\s*\*)?$/i;
+const emailNameMatcher = /^Email(?:\s*\*)?$/i;
+const phoneNameMatcher = /^Phone(?:\s*\*)?$/i;
+
 async function renderAdminOrderForm(
   ui: ReactElement,
   options?: { skipShippingFlush?: boolean },
@@ -77,15 +86,19 @@ describe('Component: AdminOrderForm', () => {
     );
 
     expect(
-      screen.getByRole('textbox', { name: 'Customer Name' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Email' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Phone' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('combobox', { name: 'Carrier' }),
+      screen.getByRole('textbox', { name: customerNameMatcher }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('combobox', { name: 'Status' }),
+      screen.getByRole('textbox', { name: emailNameMatcher }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: phoneNameMatcher }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: carrierNameMatcher }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: statusNameMatcher }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Add product' }),
@@ -175,7 +188,7 @@ describe('Component: AdminOrderForm', () => {
       />,
     );
 
-    await user.click(screen.getByRole('combobox', { name: 'Status' }));
+    await user.click(screen.getByRole('combobox', { name: statusNameMatcher }));
     await user.click(screen.getByText('Processing'));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -250,7 +263,7 @@ describe('Component: AdminOrderForm', () => {
       />,
     );
 
-    const email = screen.getByRole('textbox', { name: 'Email' });
+    const email = screen.getByRole('textbox', { name: emailNameMatcher });
     await user.clear(email);
     await user.type(email, 'not-email');
     await user.click(screen.getByRole('button', { name: 'Save' }));
@@ -314,12 +327,16 @@ describe('Component: AdminOrderForm', () => {
       />,
     );
 
-    await user.click(screen.getByRole('combobox', { name: 'Carrier' }));
+    await user.click(
+      screen.getByRole('combobox', { name: carrierNameMatcher }),
+    );
     await user.click(screen.getByText('Meest'));
 
-    expect(screen.getByRole('textbox', { name: 'City' })).toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: 'Branch Number' }),
+      screen.getByRole('textbox', { name: cityNameMatcher }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: branchNumberNameMatcher }),
     ).toBeInTheDocument();
   });
 
@@ -400,12 +417,12 @@ describe('Component: AdminOrderForm', () => {
     );
 
     expect(
-      screen.getAllByRole('textbox', { name: 'Search product' }),
+      screen.getAllByRole('textbox', { name: searchProductNameMatcher }),
     ).toHaveLength(1);
 
     await user.click(screen.getByRole('button', { name: 'Add product' }));
     expect(
-      screen.getAllByRole('textbox', { name: 'Search product' }),
+      screen.getAllByRole('textbox', { name: searchProductNameMatcher }),
     ).toHaveLength(2);
 
     const removeButtons = screen.getAllByRole('button', {
@@ -415,7 +432,7 @@ describe('Component: AdminOrderForm', () => {
 
     await user.click(removeButtons[0]!);
     expect(
-      screen.getAllByRole('textbox', { name: 'Search product' }),
+      screen.getAllByRole('textbox', { name: searchProductNameMatcher }),
     ).toHaveLength(1);
   });
 });
