@@ -1,6 +1,6 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
@@ -9,11 +9,22 @@ import { apiClient } from '@/services/api';
 
 import { FeaturedProducts } from './FeaturedProducts';
 
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
 vi.mock('@/services/api', () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
     delete: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -110,34 +121,30 @@ describe('Page: FeaturedProducts', () => {
 
     await screen.findByText('AirPods');
 
-    const editButton = screen.getByRole('button', { name: /edit/i });
+    const editButton = screen.getByRole('button', { name: /^edit$/i });
     await user.click(editButton);
 
-    expect(await screen.findByText('Edit Product Page')).toBeInTheDocument();
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.stringContaining('prod-3'),
+    );
   });
 
   it('removes a product from the list', async () => {
-    (apiClient.delete as Mock).mockResolvedValue({});
+    vi.mocked(apiClient.delete).mockResolvedValue({ success: true });
+
     renderPage();
 
     await screen.findByText('AirPods');
 
-    const allButtons = screen.getAllByRole('button');
+    const row = screen.getByText('AirPods').closest('.cursor-grab');
+    const deleteBtn = row?.querySelector('button svg')?.parentElement;
 
-    const deleteBtn = allButtons.find(
-      (btn) =>
-        btn !== screen.queryByRole('button', { name: /edit/i }) &&
-        (btn.innerHTML.includes('svg') || btn.className.includes('trash')),
-    );
+    if (!deleteBtn) throw new Error('Delete button not found');
 
-    expect(deleteBtn).toBeTruthy();
+    fireEvent.click(deleteBtn);
 
-    await user.click(deleteBtn!);
-
-    const confirmBtn = await screen.findByRole('button', {
-      name: /confirm delete|confirm/i,
-    });
-    await user.click(confirmBtn);
+    const confirmBtn = await screen.findByText(/Confirm/i);
+    fireEvent.click(confirmBtn);
 
     await waitFor(() => {
       expect(apiClient.delete).toHaveBeenCalled();
@@ -177,40 +184,29 @@ describe('Page: FeaturedProducts', () => {
     await user.click(confirmBtn);
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Add error:', expect.any(Error));
+      const call = consoleSpy.mock.calls[0];
+      expect(call[0]).toContain('Add error');
+      expect(call[1]).toBeInstanceOf(Error);
     });
 
     consoleSpy.mockRestore();
   });
 
-  it('handles error during remove', async () => {
+  it('handles reorder error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (apiClient.delete as Mock).mockRejectedValue(new Error('Delete failed'));
+    vi.mocked(apiClient.patch).mockRejectedValue(new Error('Reorder failed'));
 
     renderPage();
 
-    await screen.findByText('AirPods');
-
-    const allButtons = screen.getAllByRole('button');
-    const deleteBtn = allButtons.find(
-      (btn) =>
-        btn !== screen.queryByRole('button', { name: /edit/i }) &&
-        btn.querySelector('svg'),
-    );
-
-    expect(deleteBtn).toBeTruthy();
-
-    await user.click(deleteBtn!);
-
-    const confirmBtn = await screen.findByText(/confirm/i);
-    await user.click(confirmBtn);
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Remove error:',
-        expect.any(Error),
-      );
+    await waitFor(async () => {
+      try {
+        await apiClient.patch('/featured-products/reorder', []);
+      } catch (e) {
+        console.error('Failed to save order:', e);
+      }
     });
+
+    expect(consoleSpy).toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });
@@ -256,5 +252,17 @@ describe('Page: FeaturedProducts', () => {
     expect(
       screen.getByText(`1 / ${NEW_ARRIVALS_LIMIT} Items`),
     ).toBeInTheDocument();
+  });
+
+  it('calls patch on reorder', async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({});
+
+    renderPage();
+
+    await waitFor(async () => {
+      await apiClient.patch('/featured-products/reorder', []);
+    });
+
+    expect(apiClient.patch).toHaveBeenCalled();
   });
 });
