@@ -27,8 +27,8 @@ export const MobileSidebar = ({
 }: MobileSidebarProps) => {
   const { logout, role } = useAuth();
   const navigate = useNavigate();
-  const visibleLinks = MOBILE_LINKS.filter(
-    ({ to }) => to === ROUTES.HOME || canAccessAdminRoute(role, to),
+  const visibleLinks = MOBILE_LINKS.filter(({ to }) =>
+    canAccessAdminRoute(role, to),
   );
 
   const handleLogout = () => {
@@ -67,7 +67,7 @@ export const MobileSidebar = ({
                       to={to}
                       onClick={() => onSidebarChange(false)}
                       className={({ isActive }) =>
-                        `flex h-[40px] items-center gap-2 ${isActive ? 'text-xl font-bold' : ''}`
+                        `h-[40px] ${isActive ? 'text-xl font-bold' : ''}`
                       }
                     >
                       {label}

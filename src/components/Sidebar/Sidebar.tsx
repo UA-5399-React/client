@@ -40,8 +40,8 @@ export const Sidebar = () => {
   const { logout, role } = useAuth();
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
-  const visibleLinks = SIDEBAR_LINKS.filter(
-    ({ to }) => to === ROUTES.HOME || canAccessAdminRoute(role, to),
+  const visibleLinks = SIDEBAR_LINKS.filter(({ to }) =>
+    canAccessAdminRoute(role, to),
   );
 
   const handleLogout = () => {
