@@ -27,6 +27,36 @@ const NAV_LINKS = [
   { path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
 ];
 
+type UserAvatarProps = {
+  avatarUrl?: string;
+  userInitials: string | null;
+};
+
+const UserAvatar = ({ avatarUrl, userInitials }: UserAvatarProps) => {
+  const [hasImageLoadError, setHasImageLoadError] = useState(false);
+
+  if (avatarUrl && !hasImageLoadError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={userInitials ? `${userInitials} avatar` : 'User avatar'}
+        className="h-7 w-7 rounded-full object-cover"
+        onError={() => setHasImageLoadError(true)}
+      />
+    );
+  }
+
+  if (userInitials) {
+    return (
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+        {userInitials}
+      </span>
+    );
+  }
+
+  return <UserCircle className="h-6 w-6" />;
+};
+
 export const Header = () => {
   const { theme, setTheme, isDark } = useTheme();
   const logoSrc = isDark ? logoDark : logoLight;
@@ -43,9 +73,9 @@ export const Header = () => {
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
 
-  const { isAuth, isCustomer } = useAuth();
+  const { isAuth } = useAuth();
 
-  const { data: me } = useMe(isAuth && isCustomer);
+  const { data: me } = useMe(isAuth);
 
   const userInitials = (() => {
     if (!me) return null;
@@ -200,13 +230,11 @@ export const Header = () => {
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
-              {userInitials ? (
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
-                  {userInitials}
-                </span>
-              ) : (
-                <UserCircle className="h-6 w-6" />
-              )}
+              <UserAvatar
+                key={me?.avatarUrl ?? 'no-avatar'}
+                avatarUrl={me?.avatarUrl}
+                userInitials={userInitials}
+              />
             </button>
 
             <button

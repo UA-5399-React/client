@@ -21,7 +21,12 @@ export const useAuth = () => {
 
     if (!token || !expires) return false;
 
-    return Date.now() < Number(expires);
+    if (Date.now() >= Number(expires)) {
+      useCartStore.getState().clearCart();
+      return false;
+    }
+
+    return true;
   });
 
   const logout = async () => {

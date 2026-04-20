@@ -20,6 +20,18 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => mockUseTheme(),
 }));
 
+// ─── Auth / Me ────────────────────────────────────────────────────────────────
+const mockUseAuth = vi.fn();
+const mockUseMe = vi.fn();
+
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => mockUseAuth(),
+}));
+
+vi.mock('@/hooks/useMe', () => ({
+  useMe: (enabled: boolean) => mockUseMe(enabled),
+}));
+
 // ─── SearchInput stub ─────────────────────────────────────────────────────────
 vi.mock('@/components/ui/SearchInput', () => ({
   SearchInput: ({
@@ -65,6 +77,10 @@ describe('UI Component: Header', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     lightTheme();
+
+    mockUseAuth.mockReturnValue({ isAuth: false });
+    mockUseMe.mockReturnValue({ data: undefined });
+
     useCartStore.setState({ items: [], isOpen: false });
   });
 
@@ -142,12 +158,127 @@ describe('UI Component: Header', () => {
     ).toBeInTheDocument();
   });
 
-  // ── User button navigates to login ──────────────────────────────────────────
+  // ── User button / auth states ───────────────────────────────────────────────
   it('should navigate to login when User button is clicked', async () => {
     const user = userEvent.setup();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'User' }));
     expect(mockNavigate).toHaveBeenCalledWith(ROUTES.LOGIN);
+  });
+
+  it('should navigate to profile when authenticated user clicks User button', async () => {
+    const user = userEvent.setup();
+
+    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseMe.mockReturnValue({
+      data: {
+        id: '1',
+        email: 'superadmin@admin.com',
+        role: 'super_admin',
+        firstName: 'Super',
+        lastName: 'Admin',
+        avatarUrl: undefined,
+        isActive: true,
+        isEmailConfirmed: true,
+      },
+    });
+
+    render(<Header />);
+
+    await user.click(screen.getByRole('button', { name: 'User' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.PROFILE);
+  });
+
+  it('should render user initials when authenticated user has no avatar', () => {
+    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseMe.mockReturnValue({
+      data: {
+        id: '1',
+        email: 'superadmin@admin.com',
+        role: 'super_admin',
+        firstName: 'Super',
+        lastName: 'Admin',
+        avatarUrl: undefined,
+        isActive: true,
+        isEmailConfirmed: true,
+      },
+    });
+
+    render(<Header />);
+
+    expect(screen.getByText('SA')).toBeInTheDocument();
+  });
+
+  it('should render first email letter when authenticated user has no avatar and no names', () => {
+    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseMe.mockReturnValue({
+      data: {
+        id: '1',
+        email: 'superadmin@admin.com',
+        role: 'super_admin',
+        firstName: '',
+        lastName: '',
+        avatarUrl: undefined,
+        isActive: true,
+        isEmailConfirmed: true,
+      },
+    });
+
+    render(<Header />);
+
+    expect(screen.getByText('S')).toBeInTheDocument();
+  });
+
+  it('should render user avatar when authenticated user has avatar', () => {
+    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseMe.mockReturnValue({
+      data: {
+        id: '1',
+        email: 'superadmin@admin.com',
+        role: 'super_admin',
+        firstName: 'Super',
+        lastName: 'Admin',
+        avatarUrl: 'https://example.com/avatar.jpg',
+        isActive: true,
+        isEmailConfirmed: true,
+      },
+    });
+
+    render(<Header />);
+
+    const userButton = screen.getByRole('button', { name: 'User' });
+    const avatar = userButton.querySelector('img');
+
+    expect(avatar).toBeInTheDocument();
+    expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+  });
+
+  it('should fall back to initials when avatar image fails to load', () => {
+    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseMe.mockReturnValue({
+      data: {
+        id: '1',
+        email: 'superadmin@admin.com',
+        role: 'super_admin',
+        firstName: 'Super',
+        lastName: 'Admin',
+        avatarUrl: 'https://example.com/broken-avatar.jpg',
+        isActive: true,
+        isEmailConfirmed: true,
+      },
+    });
+
+    render(<Header />);
+
+    const userButton = screen.getByRole('button', { name: 'User' });
+    const avatar = userButton.querySelector('img');
+
+    expect(avatar).toBeInTheDocument();
+
+    fireEvent.error(avatar as HTMLImageElement);
+
+    expect(screen.getByText('SA')).toBeInTheDocument();
   });
 
   // ── Theme icon ───────────────────────────────────────────────────────────────
@@ -223,7 +354,6 @@ describe('UI Component: Header', () => {
       ],
     });
     render(<Header />);
-    // badge appears in both mobile and desktop bars
     const badges = screen.getAllByText('3');
     expect(badges.length).toBeGreaterThanOrEqual(1);
   });
@@ -361,7 +491,6 @@ describe('UI Component: Header', () => {
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     const drawerCartBtn = screen.getAllByRole('button', { name: /^Cart$/i })[0];
     await user.click(drawerCartBtn);
-    // Clicking Cart calls openCart() → store.isOpen becomes true
     expect(useCartStore.getState().isOpen).toBe(true);
   });
 
@@ -369,9 +498,7 @@ describe('UI Component: Header', () => {
     const user = userEvent.setup();
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    // All four nav links appear inside the drawer
     const navLinks = screen.getAllByRole('link', { name: 'Home' });
-    // At least one of the Home links is inside the drawer (has onClick=closeMenu)
     expect(navLinks.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -443,7 +570,7 @@ describe('UI Component: Header', () => {
   it('should navigate with search query when a term is typed (debounced)', async () => {
     vi.useFakeTimers();
     render(<Header />);
-    // Open search
+
     const searchBtn = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchBtn);
 
@@ -464,14 +591,12 @@ describe('UI Component: Header', () => {
     window.history.pushState({}, '', `${ROUTES.SHOP}?search=url-query`);
     render(<Header />);
 
-    // Open search to see the input
     const searchBtn = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchBtn);
 
     const input = screen.getByPlaceholderText('Search');
     expect(input).toHaveValue('url-query');
 
-    // Cleanup
     window.history.pushState({}, '', '/');
   });
 
@@ -480,7 +605,6 @@ describe('UI Component: Header', () => {
     vi.useFakeTimers();
     render(<Header />);
 
-    // Open search
     const searchBtn = screen.getByRole('button', { name: 'Search' });
     fireEvent.click(searchBtn);
 
@@ -494,7 +618,6 @@ describe('UI Component: Header', () => {
     expect(mockNavigate).toHaveBeenCalledWith(ROUTES.SHOP);
     vi.useRealTimers();
 
-    // Cleanup
     window.history.pushState({}, '', '/');
   });
 });

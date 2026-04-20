@@ -20,8 +20,17 @@ const STATUS_OPTIONS: DropdownOption[] = [
   { label: 'Draft', value: 'DRAFT' },
 ];
 
+const HTML_TAG_REGEX = /<[^>]*>/;
+
 const productFormSchema = z.object({
-  name: z.string().trim().min(1, 'Product name is required'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Product name is required')
+    .refine(
+      (value) => !HTML_TAG_REGEX.test(value),
+      'HTML tags are not allowed',
+    ),
   price: z
     .string()
     .trim()
@@ -41,7 +50,12 @@ const productFormSchema = z.object({
       'Enter at least one category',
     ),
   status: z.enum(['ACTIVE', 'INACTIVE', 'DRAFT']),
-  description: z.string(),
+  description: z
+    .string()
+    .refine(
+      (value) => !HTML_TAG_REGEX.test(value),
+      'HTML tags are not allowed',
+    ),
   imagePreview: z.string().nullable(),
   imageFile: z.instanceof(File).optional(),
 });
