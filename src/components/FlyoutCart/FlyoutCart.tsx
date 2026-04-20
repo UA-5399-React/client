@@ -133,7 +133,7 @@ export const FlyoutCart = () => {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className="pl-2 font-semibold">
-                          ${item.product.price.toFixed(2)}
+                          ${(item.product.price * item.quantity).toFixed(2)}
                         </span>
                         <Button
                           onClick={() =>
