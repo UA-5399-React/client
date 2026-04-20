@@ -1,32 +1,16 @@
 import { Link } from 'react-router-dom';
-import clsx from 'clsx';
 
 import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
-import { useTheme } from '@/hooks/useTheme';
 
 export const NotFound = () => {
-  const { isDark } = useTheme();
-
   return (
-    <div
-      className={clsx(
-        'flex min-h-[60vh] flex-col items-center justify-center px-4 py-20 text-center',
-        isDark ? 'bg-[#141718]' : 'bg-white',
-      )}
-    >
-      <p className="text-8xl font-bold text-[#38cb89]">404</p>
+    <div className="bg-background flex min-h-[60vh] flex-col items-center justify-center px-4 py-20 text-center">
+      <p className="text-primary text-8xl font-bold">404</p>
 
-      <h1
-        className={clsx(
-          'mt-4 text-3xl font-bold',
-          isDark ? 'text-white' : 'text-[#141718]',
-        )}
-      >
-        Page not found
-      </h1>
+      <h1 className="text-text mt-4 text-3xl font-bold">Page not found</h1>
 
-      <p className="mt-3 max-w-md text-base text-[#6C7275]">
+      <p className="text-muted mt-3 max-w-md text-base">
         The page you are looking for doesn't exist or has been moved.
       </p>
 
@@ -40,10 +24,7 @@ export const NotFound = () => {
 
         <Link
           to={ROUTES.SHOP}
-          className={clsx(
-            'text-sm font-medium underline-offset-2 hover:underline',
-            isDark ? 'text-gray-300' : 'text-[#6C7275]',
-          )}
+          className="text-muted text-sm font-medium underline-offset-2 hover:underline"
         >
           Browse Shop
         </Link>
