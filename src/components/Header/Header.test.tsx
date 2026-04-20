@@ -78,7 +78,7 @@ describe('UI Component: Header', () => {
     vi.clearAllMocks();
     lightTheme();
 
-    mockUseAuth.mockReturnValue({ isAuth: false });
+    mockUseAuth.mockReturnValue({ isAuth: false, canAccessAdminPanel: false });
     mockUseMe.mockReturnValue({ data: undefined });
 
     useCartStore.setState({ items: [], isOpen: false });
@@ -140,6 +140,13 @@ describe('UI Component: Header', () => {
     expect(screen.getByRole('button', { name: 'User' })).toBeInTheDocument();
   });
 
+  it('should not render Admin panel button for non-admin users', () => {
+    render(<Header />);
+    expect(
+      screen.queryByRole('button', { name: 'Admin panel' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('should render the Theme toggle button', () => {
     render(<Header />);
     expect(screen.getByRole('button', { name: 'Theme' })).toBeInTheDocument();
@@ -169,7 +176,7 @@ describe('UI Component: Header', () => {
   it('should navigate to profile when authenticated user clicks User button', async () => {
     const user = userEvent.setup();
 
-    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
     mockUseMe.mockReturnValue({
       data: {
         id: '1',
@@ -191,7 +198,7 @@ describe('UI Component: Header', () => {
   });
 
   it('should render user initials when authenticated user has no avatar', () => {
-    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
     mockUseMe.mockReturnValue({
       data: {
         id: '1',
@@ -211,7 +218,7 @@ describe('UI Component: Header', () => {
   });
 
   it('should render first email letter when authenticated user has no avatar and no names', () => {
-    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
     mockUseMe.mockReturnValue({
       data: {
         id: '1',
@@ -231,7 +238,7 @@ describe('UI Component: Header', () => {
   });
 
   it('should render user avatar when authenticated user has avatar', () => {
-    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
     mockUseMe.mockReturnValue({
       data: {
         id: '1',
@@ -255,7 +262,7 @@ describe('UI Component: Header', () => {
   });
 
   it('should fall back to initials when avatar image fails to load', () => {
-    mockUseAuth.mockReturnValue({ isAuth: true });
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
     mockUseMe.mockReturnValue({
       data: {
         id: '1',
@@ -279,6 +286,18 @@ describe('UI Component: Header', () => {
     fireEvent.error(avatar as HTMLImageElement);
 
     expect(screen.getByText('SA')).toBeInTheDocument();
+  });
+
+  it('should render Admin panel button for admin users and navigate to dashboard', async () => {
+    const user = userEvent.setup();
+
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
+
+    render(<Header />);
+
+    await user.click(screen.getByRole('button', { name: 'Admin panel' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.ADMIN_DASHBOARD);
   });
 
   // ── Theme icon ───────────────────────────────────────────────────────────────
@@ -458,6 +477,17 @@ describe('UI Component: Header', () => {
     render(<Header />);
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
     expect(screen.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+  });
+
+  it('should render Admin Panel action in drawer for admin users', async () => {
+    const user = userEvent.setup();
+
+    mockUseAuth.mockReturnValue({ isAuth: true, canAccessAdminPanel: true });
+
+    render(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    expect(screen.getByText('Admin Panel')).toBeInTheDocument();
   });
 
   it('should render Change Theme button in drawer when open', async () => {

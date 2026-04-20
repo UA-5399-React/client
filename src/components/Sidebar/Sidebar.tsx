@@ -8,6 +8,7 @@ import {
   SettingsIcon,
   ShoppingCartIcon,
   Sparkles,
+  Store,
   UsersIcon,
 } from 'lucide-react';
 
@@ -31,6 +32,7 @@ const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_MAILER, label: 'Mailer', icon: <Mail /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
   { to: ROUTES.ADMIN_FEATURED, label: 'Featured Products', icon: <Sparkles /> },
+  { to: ROUTES.HOME, label: 'View Store', icon: <Store /> },
 ];
 
 export const Sidebar = () => {
@@ -38,8 +40,8 @@ export const Sidebar = () => {
   const { logout, role } = useAuth();
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
-  const visibleLinks = SIDEBAR_LINKS.filter(({ to }) =>
-    canAccessAdminRoute(role, to),
+  const visibleLinks = SIDEBAR_LINKS.filter(
+    ({ to }) => to === ROUTES.HOME || canAccessAdminRoute(role, to),
   );
 
   const handleLogout = () => {

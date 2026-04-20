@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOutIcon, MenuIcon, XIcon } from 'lucide-react';
+import { LogOutIcon, MenuIcon, StoreIcon, XIcon } from 'lucide-react';
 
 import { Button } from '@/components';
 import { ROUTES } from '@/constants';
@@ -13,6 +13,7 @@ const MOBILE_LINKS = [
   { to: ROUTES.ADMIN_USERS, label: 'Users' },
   { to: ROUTES.ADMIN_ORDERS, label: 'Orders' },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings' },
+  { to: ROUTES.HOME, label: 'View Store' },
 ];
 
 interface MobileSidebarProps {
@@ -26,8 +27,8 @@ export const MobileSidebar = ({
 }: MobileSidebarProps) => {
   const { logout, role } = useAuth();
   const navigate = useNavigate();
-  const visibleLinks = MOBILE_LINKS.filter(({ to }) =>
-    canAccessAdminRoute(role, to),
+  const visibleLinks = MOBILE_LINKS.filter(
+    ({ to }) => to === ROUTES.HOME || canAccessAdminRoute(role, to),
   );
 
   const handleLogout = () => {
@@ -66,9 +67,10 @@ export const MobileSidebar = ({
                       to={to}
                       onClick={() => onSidebarChange(false)}
                       className={({ isActive }) =>
-                        `h-[40px] ${isActive ? 'text-xl font-bold' : ''}`
+                        `flex h-[40px] items-center gap-2 ${isActive ? 'text-xl font-bold' : ''}`
                       }
                     >
+                      {to === ROUTES.HOME && <StoreIcon className="h-4 w-4" />}
                       {label}
                     </NavLink>
                   </li>
