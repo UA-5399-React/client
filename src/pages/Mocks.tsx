@@ -17,5 +17,3 @@ export const ProductDetails = () => {
 export const ContactUs = () => <div>Contact Us Page</div>;
 
 export const Login = () => <div>Login Page</div>;
-
-export const NotFound = () => <div>Page not found</div>;
