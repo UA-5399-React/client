@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   Sun,
   UserCircle,
+  UserStar,
   X,
 } from 'lucide-react';
 
@@ -73,7 +74,7 @@ export const Header = () => {
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
 
-  const { isAuth } = useAuth();
+  const { isAuth, canAccessAdminPanel } = useAuth();
 
   const { data: me } = useMe(isAuth);
 
@@ -87,6 +88,10 @@ export const Header = () => {
 
   const handleUserNavigate = () => {
     navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
+  };
+
+  const handleAdminNavigate = () => {
+    navigate(ROUTES.ADMIN_DASHBOARD);
   };
 
   if (initialSearch !== prevUrlSearch) {
@@ -225,6 +230,17 @@ export const Header = () => {
               </button>
             </div>
 
+            {canAccessAdminPanel && (
+              <button
+                onClick={handleAdminNavigate}
+                aria-label="Admin panel"
+                title="Admin panel"
+                className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+              >
+                <UserStar className="h-6 w-6" />
+              </button>
+            )}
+
             <button
               onClick={handleUserNavigate}
               aria-label="User"
@@ -304,6 +320,19 @@ export const Header = () => {
             <div
               className={`mt-auto shrink-0 border-t px-6 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
             >
+              {canAccessAdminPanel && (
+                <button
+                  onClick={() => {
+                    closeMenu();
+                    handleAdminNavigate();
+                  }}
+                  className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
+                >
+                  <span>Admin Panel</span>
+                  <UserStar className="h-5 w-5 shrink-0 text-gray-400" />
+                </button>
+              )}
+
               <button
                 onClick={handleToggleTheme}
                 className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
