@@ -35,6 +35,7 @@ export const ROUTES = {
   ADMIN_ORDER_CREATE: '/admin/orders/create',
   ADMIN_ORDER_EDIT: '/admin/orders/:id',
   ADMIN_DASHBOARD: '/admin/dashboard',
+  WISHLIST: '/wishlist',
   PROFILE: '/profile',
   MYORDERS: '/profile/myOrders',
   FORGOT_PASSWORD: '/forgot-password',
