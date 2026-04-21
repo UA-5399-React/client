@@ -9,9 +9,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Loader2, PackageSearch, Plus, Trash2 } from 'lucide-react';
+import { Check, Loader2, PackageSearch, Plus } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 
-import { AdminPageHeader, Button, SearchInput } from '@/components';
+import { AdminPageHeader, SearchInput } from '@/components';
+import { ActionMenu } from '@/components';
 import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
 import type { Product } from '@/types/product.types';
@@ -77,16 +79,6 @@ export function FeaturedProducts() {
   );
 
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setConfirmId(null);
-      setDeleteConfirmId(null);
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
 
   const fetchFeatured = async () => {
     try {
@@ -160,7 +152,6 @@ export function FeaturedProducts() {
       );
 
       await fetchFeatured();
-      setDeleteConfirmId(null);
     } catch (error) {
       console.error('Remove error:', error);
     } finally {
@@ -332,7 +323,7 @@ export function FeaturedProducts() {
           </div>
         </div>
 
-        <div className="border-fieldBorder bg-background overflow-hidden rounded-lg border shadow-md">
+        <div className="border-fieldBorder bg-background rounded-lg border shadow-md">
           <div className="border-fieldBorder bg-backgroundSec border-b px-6 py-4">
             <span className="text-muted text-sm font-bold tracking-wider uppercase">
               Current Homepage List
@@ -383,47 +374,31 @@ export function FeaturedProducts() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          onPointerDown={(e) => e.stopPropagation()}
-                          onClick={() => {
-                            navigate(
-                              generatePath(ROUTES.ADMIN_PRODUCT_EDIT, {
-                                id: product._id,
-                              }),
-                            );
-                          }}
-                          className="border-fieldBorder text-muted hover:!border-fieldBorder hover:!text-muted bg-transparent px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-all"
-                        >
-                          Edit
-                        </Button>
-
-                        {deleteConfirmId === product._id ? (
-                          <button
-                            type="button"
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveProduct(product._id);
-                            }}
-                            className="animate-in zoom-in rounded-full border-none bg-red-600 px-4 py-1.5 text-[11px] font-bold tracking-wider text-white uppercase shadow-md transition-all duration-200 outline-none hover:bg-red-700 focus:ring-0 active:scale-95"
-                          >
-                            Confirm Delete
-                          </button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteConfirmId(product._id);
-                            }}
-                            className="border-fieldBorder text-muted bg-transparent !p-2 transition-all hover:border-red-600 hover:text-red-600 active:scale-90"
-                          >
-                            <Trash2 size={18} />
-                          </Button>
-                        )}
+                      <div onPointerDown={(e) => e.stopPropagation()}>
+                        <ActionMenu
+                          triggerAriaLabel={`Actions for ${product.title}`}
+                          actions={[
+                            {
+                              id: 'edit',
+                              label: 'Edit',
+                              icon: <Pencil className="h-4 w-4" />,
+                              onClick: () => {
+                                navigate(
+                                  generatePath(ROUTES.ADMIN_PRODUCT_EDIT, {
+                                    id: product._id,
+                                  }),
+                                );
+                              },
+                            },
+                            {
+                              id: 'delete',
+                              label: 'Delete',
+                              variant: 'danger',
+                              icon: <Trash className="h-4 w-4" />,
+                              onClick: () => handleRemoveProduct(product._id),
+                            },
+                          ]}
+                        />
                       </div>
                     </SortableItem>
                   ))}

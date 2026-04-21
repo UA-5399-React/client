@@ -1,6 +1,6 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
@@ -121,9 +121,11 @@ describe('Page: FeaturedProducts', () => {
 
     await screen.findByText('AirPods');
 
-    const editButton = screen.getByRole('button', { name: /^edit$/i });
-    await user.click(editButton);
+    const menuTrigger = screen.getByLabelText(/actions for airpods/i);
+    await user.click(menuTrigger);
 
+    const editButton = screen.getByText(/^edit$/i);
+    await user.click(editButton);
     expect(mockNavigate).toHaveBeenCalledWith(
       expect.stringContaining('prod-3'),
     );
@@ -136,18 +138,16 @@ describe('Page: FeaturedProducts', () => {
 
     await screen.findByText('AirPods');
 
-    const row = screen.getByText('AirPods').closest('.cursor-grab');
-    const deleteBtn = row?.querySelector('button svg')?.parentElement;
+    const menuTrigger = screen.getByLabelText(/actions for airpods/i);
+    await user.click(menuTrigger);
 
-    if (!deleteBtn) throw new Error('Delete button not found');
-
-    fireEvent.click(deleteBtn);
-
-    const confirmBtn = await screen.findByText(/Confirm/i);
-    fireEvent.click(confirmBtn);
+    const deleteBtn = screen.getByText(/delete/i);
+    await user.click(deleteBtn);
 
     await waitFor(() => {
-      expect(apiClient.delete).toHaveBeenCalled();
+      expect(apiClient.delete).toHaveBeenCalledWith(
+        expect.stringContaining('prod-3'),
+      );
     });
   });
 
