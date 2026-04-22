@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
 import { useCartStore } from '@/store/useCartStore';
 import type { Product } from '@/types';
 
@@ -11,9 +12,10 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
-  const { _id, title, price, imageUrl } = product;
+  const { _id, id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
   const [imgError, setImgError] = useState(false);
+  const productPath = ROUTES.PRODUCT.replace(':id', _id ?? id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div className="group relative flex flex-col">
       <a
-        href={`/product/${_id}`}
+        href={productPath}
         className="relative mb-3 block overflow-hidden rounded-md"
         aria-label={title}
       >

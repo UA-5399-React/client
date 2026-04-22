@@ -87,6 +87,9 @@ describe('UI Component: MobileSidebar', () => {
 
     expect(screen.getByText('ADMIN')).toBeInTheDocument();
     expect(
+      screen.getByRole('link', { name: 'View Store' }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('link', { name: 'Categories' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument();
@@ -149,10 +152,12 @@ describe('UI Component: MobileSidebar', () => {
   it('should render Products and Categories links with correct hrefs for admin', () => {
     renderWithTheme({ ...defaultProps, isSidebarOpen: true });
 
+    const storefrontLink = screen.getByRole('link', { name: 'View Store' });
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
     const categoriesLink = screen.getByRole('link', { name: 'Categories' });
     const productsLink = screen.getByRole('link', { name: 'Products' });
 
+    expect(storefrontLink).toHaveAttribute('href', ROUTES.HOME);
     expect(dashboardLink).toHaveAttribute('href', ROUTES.ADMIN_DASHBOARD);
     expect(categoriesLink).toHaveAttribute('href', ROUTES.ADMIN_CATEGORIES);
     expect(productsLink).toHaveAttribute('href', ROUTES.ADMIN_PRODUCTS);
