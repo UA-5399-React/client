@@ -150,15 +150,6 @@ export function AccountSidebar({
           ))}
 
           <li>
-            <span
-              aria-disabled="true"
-              className={`${navItemClass} border-transparent text-gray-600`}
-            >
-              Wishlist
-            </span>
-          </li>
-
-          <li>
             <button
               type="button"
               onClick={onLogout}
