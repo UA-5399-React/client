@@ -19,7 +19,6 @@ export function useCreateAdminUser() {
     { input: CreateAdminUserInput }
   >(CREATE_USER, {
     refetchQueries: [{ query: GET_USERS_LIST }],
-    awaitRefetchQueries: true,
   });
 
   const createUser = async (input: CreateAdminUserInput) => {
