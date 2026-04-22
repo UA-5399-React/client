@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { toast } from 'react-hot-toast';
 import { Download } from 'lucide-react';
 
 import { Button } from '@/components';
 import { exportService } from '@/services/exportService';
+import { useErrorStore } from '@/store/errorStore';
 
 interface Props {
   orderId: string;
@@ -11,6 +11,7 @@ interface Props {
 
 export function DownloadOrderButton({ orderId }: Props) {
   const [isLoading, setIsLoading] = useState(false);
+  const showMessage = useErrorStore((s) => s.show);
 
   const handleDownload = async () => {
     setIsLoading(true);
@@ -26,9 +27,17 @@ export function DownloadOrderButton({ orderId }: Props) {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success('PDF downloaded successfully');
+      showMessage(
+        'success',
+        'Export Successful',
+        'PDF downloaded successfully',
+      );
     } catch (error) {
-      toast.error('Failed to download PDF');
+      showMessage(
+        'error',
+        'Export Failed',
+        error instanceof Error ? error.message : 'Failed to download PDF',
+      );
       console.error(error);
     } finally {
       setIsLoading(false);

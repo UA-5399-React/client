@@ -1,9 +1,9 @@
-import { toast } from 'react-hot-toast';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { EXPORT_TYPES } from '@/constants';
 import { exportService } from '@/services/exportService';
+import { useErrorStore } from '@/store/errorStore';
 
 import { ExportButton } from './ExportButton';
 
@@ -14,19 +14,24 @@ vi.mock('@/services/exportService', () => ({
   },
 }));
 
-vi.mock('react-hot-toast', () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(),
 }));
+
+const mockedUseErrorStore = vi.mocked(useErrorStore) as unknown as Mock;
 
 window.URL.createObjectURL = vi.fn(() => 'mock-url');
 window.URL.revokeObjectURL = vi.fn();
 
 describe('ExportButton', () => {
+  const mockShowFn = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockedUseErrorStore.mockReturnValue(mockShowFn);
+
+    HTMLAnchorElement.prototype.click = vi.fn();
   });
 
   it('renders correctly with products type', () => {
@@ -56,8 +61,10 @@ describe('ExportButton', () => {
 
     await waitFor(() => {
       expect(exportService.exportProducts).toHaveBeenCalledTimes(1);
-      expect(toast.success).toHaveBeenCalledWith(
-        'Exported products successfully',
+      expect(mockShowFn).toHaveBeenCalledWith(
+        'success',
+        'Export Successful',
+        'Products exported successfully',
       );
     });
 
@@ -76,7 +83,11 @@ describe('ExportButton', () => {
 
     await waitFor(() => {
       expect(exportService.exportOrders).toHaveBeenCalledTimes(1);
-      expect(toast.error).toHaveBeenCalledWith('Failed to export orders');
+      expect(mockShowFn).toHaveBeenCalledWith(
+        'error',
+        'Export Failed',
+        'Failed to export orders. Please try again.',
+      );
     });
   });
 });
