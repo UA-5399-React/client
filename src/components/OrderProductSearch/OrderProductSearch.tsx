@@ -94,7 +94,7 @@ export function OrderProductSearch({
         htmlFor={inputId}
         className="text-sm font-medium text-[rgb(var(--color-text))]"
       >
-        Search product
+        Search product <span className="font-bold text-red-500">*</span>
       </label>
 
       <div className="relative">
