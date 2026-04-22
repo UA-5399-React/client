@@ -47,6 +47,7 @@ export interface InputProps extends React.ComponentPropsWithoutRef<
   leftIcon?: React.ReactNode;
   rightElement?: React.ReactNode;
   inputClassName?: string;
+  required?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -64,6 +65,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       className = '',
       inputClassName = '',
       id,
+      required = false,
       ...props
     },
     ref,
@@ -89,7 +91,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className={clsx(LABEL_CLASSES, labelClassName)}
           >
-            {label}
+            {label}{' '}
+            {required && <span className="font-bold text-red-500">*</span>}
           </label>
         )}
 

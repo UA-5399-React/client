@@ -8,6 +8,8 @@ import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { OrderProductSearch } from './OrderProductSearch';
 
+const searchProductInputName = /^Search product(?:\s*\*)?$/i;
+
 const { mockUseAdminProducts } = vi.hoisted(() => ({
   mockUseAdminProducts: vi.fn((params?: Record<string, unknown>) => {
     void params;
@@ -102,9 +104,9 @@ describe('Component: OrderProductSearch', () => {
     );
 
     expect(screen.getByText('Search product')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Search product' })).toHaveValue(
-      'Widget Pro',
-    );
+    expect(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    ).toHaveValue('Widget Pro');
   });
 
   it('shows empty input when product name is not set', () => {
@@ -114,9 +116,9 @@ describe('Component: OrderProductSearch', () => {
       />,
     );
 
-    expect(screen.getByRole('textbox', { name: 'Search product' })).toHaveValue(
-      '',
-    );
+    expect(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    ).toHaveValue('');
   });
 
   it('renders error message when error prop is passed', () => {
@@ -129,7 +131,7 @@ describe('Component: OrderProductSearch', () => {
 
     expect(screen.getByText('Pick a product')).toBeInTheDocument();
     expect(
-      screen.getByRole('textbox', { name: 'Search product' }),
+      screen.getByRole('textbox', { name: searchProductInputName }),
     ).toHaveAttribute('aria-invalid', 'true');
   });
 
@@ -142,7 +144,9 @@ describe('Component: OrderProductSearch', () => {
       />,
     );
 
-    await user.click(screen.getByRole('textbox', { name: 'Search product' }));
+    await user.click(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    );
 
     expect(
       screen.getByRole('listbox', { name: 'Product search results' }),
@@ -167,7 +171,9 @@ describe('Component: OrderProductSearch', () => {
       />,
     );
 
-    await user.click(screen.getByRole('textbox', { name: 'Search product' }));
+    await user.click(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -189,7 +195,9 @@ describe('Component: OrderProductSearch', () => {
       />,
     );
 
-    await user.click(screen.getByRole('textbox', { name: 'Search product' }));
+    await user.click(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    );
     await user.click(screen.getByRole('option', { name: /Ceramic Mug/i }));
 
     expect(screen.getByTestId('form-product-id')).toHaveTextContent('p1');
@@ -200,9 +208,9 @@ describe('Component: OrderProductSearch', () => {
     expect(
       screen.queryByRole('listbox', { name: 'Product search results' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'Search product' })).toHaveValue(
-      'Ceramic Mug',
-    );
+    expect(
+      screen.getByRole('textbox', { name: searchProductInputName }),
+    ).toHaveValue('Ceramic Mug');
   });
 
   it('clears linked productName and price when input diverges from committed name', async () => {
@@ -220,7 +228,7 @@ describe('Component: OrderProductSearch', () => {
       />,
     );
 
-    const input = screen.getByRole('textbox', { name: 'Search product' });
+    const input = screen.getByRole('textbox', { name: searchProductInputName });
     await user.clear(input);
     await user.type(input, 'x');
 
@@ -240,7 +248,7 @@ describe('Component: OrderProductSearch', () => {
     );
 
     await user.type(
-      screen.getByRole('textbox', { name: 'Search product' }),
+      screen.getByRole('textbox', { name: searchProductInputName }),
       'coffee',
     );
 
@@ -262,7 +270,7 @@ describe('Component: OrderProductSearch', () => {
     );
 
     expect(
-      screen.getByRole('textbox', { name: 'Search product' }),
+      screen.getByRole('textbox', { name: searchProductInputName }),
     ).toBeDisabled();
   });
 });
