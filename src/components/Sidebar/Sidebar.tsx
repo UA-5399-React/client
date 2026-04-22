@@ -8,6 +8,7 @@ import {
   SettingsIcon,
   ShoppingCartIcon,
   Sparkles,
+  Store,
   UsersIcon,
 } from 'lucide-react';
 
@@ -31,6 +32,7 @@ const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_MAILER, label: 'Mailer', icon: <Mail /> },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings', icon: <SettingsIcon /> },
   { to: ROUTES.ADMIN_FEATURED, label: 'Featured Products', icon: <Sparkles /> },
+  { to: ROUTES.HOME, label: 'View Store', icon: <Store /> },
 ];
 
 export const Sidebar = () => {

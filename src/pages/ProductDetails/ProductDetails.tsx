@@ -1,15 +1,23 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Heart, Image as ImageIcon, Minus, Plus } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
+import { useShopCategories } from '@/hooks/useShopCategories';
 import { productService } from '@/services/productService';
 import { useCartStore } from '@/store/useCartStore';
+
+type ResolvedCategory = {
+  id: string;
+  title: string;
+};
 
 export const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
+  const { data: categories = [] } = useShopCategories();
 
   const {
     data: product,
@@ -29,6 +37,35 @@ export const ProductDetails = () => {
         Error loading product!
       </div>
     );
+
+  const productCategories = product.categories ?? [];
+
+  const resolvedCategories: ResolvedCategory[] = productCategories.reduce(
+    (acc: ResolvedCategory[], value: string) => {
+      const matchedCategory = categories.find(
+        (category) =>
+          String(category.id) === String(value) || category.title === value,
+      );
+
+      if (!matchedCategory) {
+        return acc;
+      }
+
+      const categoryId = String(matchedCategory.id);
+
+      if (acc.some((category) => category.id === categoryId)) {
+        return acc;
+      }
+
+      acc.push({
+        id: categoryId,
+        title: matchedCategory.title,
+      });
+
+      return acc;
+    },
+    [],
+  );
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
@@ -58,6 +95,19 @@ export const ProductDetails = () => {
           <p className="mb-6 text-gray-600">
             {product.description || 'No info available'}
           </p>
+          {resolvedCategories.length > 0 && (
+            <div className="mb-6 flex flex-wrap gap-2">
+              {resolvedCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`${ROUTES.SHOP}?category=${category.id}`}
+                  className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 transition hover:bg-gray-200 hover:text-black"
+                >
+                  {category.title}
+                </Link>
+              ))}
+            </div>
+          )}
           <div className="mb-8 text-2xl font-bold">${product.price}</div>
           <div className="mt-auto flex flex-col gap-4">
             <div className="flex h-[52px] gap-4">

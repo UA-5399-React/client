@@ -43,7 +43,6 @@ describe('useCreateAdminUser', () => {
 
     expect(ApolloClient.useMutation).toHaveBeenCalledWith(expect.anything(), {
       refetchQueries: [{ query: GET_USERS_LIST }],
-      awaitRefetchQueries: true,
     });
 
     await act(async () => {

@@ -262,7 +262,10 @@ export const Cart = () => {
                             )}
                             onClick={() =>
                               navigate(
-                                `/product/${item.product._id || item.product.id}`,
+                                ROUTES.PRODUCT.replace(
+                                  ':id',
+                                  item.product._id || item.product.id,
+                                ),
                               )
                             }
                           >

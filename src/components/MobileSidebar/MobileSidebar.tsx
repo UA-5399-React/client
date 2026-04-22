@@ -13,6 +13,7 @@ const MOBILE_LINKS = [
   { to: ROUTES.ADMIN_USERS, label: 'Users' },
   { to: ROUTES.ADMIN_ORDERS, label: 'Orders' },
   { to: ROUTES.ADMIN_SETTING, label: 'Settings' },
+  { to: ROUTES.HOME, label: 'View Store' },
 ];
 
 interface MobileSidebarProps {

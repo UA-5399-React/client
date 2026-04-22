@@ -6,5 +6,7 @@ export function useShopCategories() {
   return useQuery({
     queryKey: ['shop-categories'],
     queryFn: () => categoryService.getPublicCategories(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
   });
 }
