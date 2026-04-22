@@ -185,6 +185,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.customerName ? 'error' : 'default'}
                 helperText={errors.customerName?.message}
+                required
               />
             )}
           />
@@ -202,6 +203,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.email ? 'error' : 'default'}
                 helperText={errors.email?.message}
+                required
               />
             )}
           />
@@ -218,6 +220,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.phone ? 'error' : 'default'}
                 helperText={errors.phone?.message}
+                required
               />
             )}
           />
@@ -241,6 +244,7 @@ export function AdminOrderForm({
                   }}
                   placeholder="Select status"
                   multiple={false}
+                  required
                 />
               </div>
             )}
@@ -274,6 +278,7 @@ export function AdminOrderForm({
                   }}
                   placeholder="Select carrier"
                   multiple={false}
+                  required
                 />
                 {errors.carrier?.message && (
                   <span className="mt-1 text-xs text-red-500">
@@ -292,7 +297,7 @@ export function AdminOrderForm({
                 {isNovaPostCarrier ? (
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
-                      City
+                      City <span className="font-bold text-red-500">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -324,6 +329,7 @@ export function AdminOrderForm({
                     value={field.value ?? ''}
                     state={errors.city ? 'error' : 'default'}
                     helperText={errors.city?.message}
+                    required
                   />
                 )}
               </div>
@@ -338,7 +344,8 @@ export function AdminOrderForm({
                 {isNovaPostCarrier ? (
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
-                      Branch Number
+                      Branch Number{' '}
+                      <span className="font-bold text-red-500">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -369,6 +376,7 @@ export function AdminOrderForm({
                     value={field.value ?? ''}
                     state={errors.branchNumber ? 'error' : 'default'}
                     helperText={errors.branchNumber?.message}
+                    required
                   />
                 )}
               </div>

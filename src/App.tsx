@@ -1,4 +1,3 @@
-import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
@@ -88,7 +87,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Toaster position="top-right" reverseOrder={false} />
       <ScrollToTop />
       <Message />
       <Routes>

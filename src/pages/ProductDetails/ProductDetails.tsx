@@ -101,7 +101,7 @@ export const ProductDetails = () => {
                 <Link
                   key={category.id}
                   to={`${ROUTES.SHOP}?category=${category.id}`}
-                  className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 transition hover:bg-gray-200 hover:text-black"
+                  className="border-fieldBorder bg-backgroundSec text-text hover:bg-background flex items-center rounded-full border px-3 py-1 text-sm transition-colors"
                 >
                   {category.title}
                 </Link>
@@ -109,6 +109,16 @@ export const ProductDetails = () => {
             </div>
           )}
           <div className="mb-8 text-2xl font-bold">${product.price}</div>
+          <div className="border-fieldBorder mb-6 border-t pt-4">
+            <div className="flex items-center">
+              <span className="text-muted w-24 shrink-0 text-sm font-medium uppercase">
+                SKU
+              </span>
+              <span className="text-text text-sm">
+                {product.productCode ?? '—'}
+              </span>
+            </div>
+          </div>
           <div className="mt-auto flex flex-col gap-4">
             <div className="flex h-[52px] gap-4">
               <div className="flex w-[120px] items-center justify-between rounded-lg bg-[#F3F5F7] px-2">

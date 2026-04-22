@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { toast } from 'react-hot-toast';
 import { Download } from 'lucide-react';
 
 import { Button } from '@/components';
 import { EXPORT_TYPES, type ExportType } from '@/constants';
 import { exportService } from '@/services/exportService';
+import { useErrorStore } from '@/store/errorStore';
 
 interface ExportButtonProps {
   type: ExportType;
@@ -12,6 +12,7 @@ interface ExportButtonProps {
 
 export function ExportButton({ type }: ExportButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const showMessage = useErrorStore((s) => s.show);
 
   const handleExport = async () => {
     setIsLoading(true);
@@ -33,9 +34,17 @@ export function ExportButton({ type }: ExportButtonProps) {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      toast.success(`Exported ${type} successfully`);
+      showMessage(
+        'success',
+        'Export Successful',
+        `${type.charAt(0).toUpperCase() + type.slice(1)} exported successfully`,
+      );
     } catch (error) {
-      toast.error(`Failed to export ${type}`);
+      showMessage(
+        'error',
+        'Export Failed',
+        `Failed to export ${type}. Please try again.`,
+      );
       console.error(error);
     } finally {
       setIsLoading(false);

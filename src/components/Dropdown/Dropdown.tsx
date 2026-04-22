@@ -18,6 +18,7 @@ export const Dropdown = ({
   hasBorder = true,
   multiple = true,
   disabled = false,
+  required = false,
 }: DropdownProps) => {
   const selectedOptions = selectedValues
     ? options.filter((option) => selectedValues.includes(option.value))
@@ -57,7 +58,7 @@ export const Dropdown = ({
         nativeLabel={false}
         render={<div />}
       >
-        {label}
+        {label} {required && <span className="font-bold text-red-500">*</span>}
       </Field.Label>
 
       <Select.Root
