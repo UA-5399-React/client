@@ -94,6 +94,10 @@ describe('UI Component: MobileSidebar', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Products' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mailer' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Featured Products' }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: 'Settings' }),
     ).not.toBeInTheDocument();
@@ -156,11 +160,17 @@ describe('UI Component: MobileSidebar', () => {
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
     const categoriesLink = screen.getByRole('link', { name: 'Categories' });
     const productsLink = screen.getByRole('link', { name: 'Products' });
+    const mailerLink = screen.getByRole('link', { name: 'Mailer' });
+    const featuredLink = screen.getByRole('link', {
+      name: 'Featured Products',
+    });
 
     expect(storefrontLink).toHaveAttribute('href', ROUTES.HOME);
     expect(dashboardLink).toHaveAttribute('href', ROUTES.ADMIN_DASHBOARD);
     expect(categoriesLink).toHaveAttribute('href', ROUTES.ADMIN_CATEGORIES);
     expect(productsLink).toHaveAttribute('href', ROUTES.ADMIN_PRODUCTS);
+    expect(mailerLink).toHaveAttribute('href', ROUTES.ADMIN_MAILER);
+    expect(featuredLink).toHaveAttribute('href', ROUTES.ADMIN_FEATURED);
   });
 
   it('should render super admin links when role is super_admin', () => {
