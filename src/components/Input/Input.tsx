@@ -91,7 +91,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className={clsx(LABEL_CLASSES, labelClassName)}
           >
-            {label}
+            {label}{' '}
             {required && <span className="font-bold text-red-500">*</span>}
           </label>
         )}
