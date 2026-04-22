@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, Image as ImageIcon, Minus, Plus } from 'lucide-react';
+import { Heart, Minus, Plus } from 'lucide-react';
 
+import { ImageSlider } from '@/components';
 import { ROUTES } from '@/constants';
 import { useShopCategories } from '@/hooks/useShopCategories';
 import { productService } from '@/services/productService';
@@ -74,21 +75,13 @@ export const ProductDetails = () => {
     addItem(product, quantity);
   };
 
+  const images = product.imageUrl ? [product.imageUrl] : [];
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <div className="flex h-[500px] items-center justify-center overflow-hidden rounded-lg bg-gray-200">
-            {product.imageUrl ? (
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <ImageIcon className="h-24 w-24 text-gray-400" />
-            )}
-          </div>
+          <ImageSlider images={images} alt={product.title} />
         </div>
         <div className="flex flex-col">
           <h1 className="mb-4 text-4xl font-bold">{product.title}</h1>

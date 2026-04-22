@@ -15,6 +15,7 @@ export { ExportButton } from './ExportButton/ExportButton';
 export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { Header } from './Header';
+export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
