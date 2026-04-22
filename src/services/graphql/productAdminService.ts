@@ -23,6 +23,7 @@ export const GET_PRODUCTS_PAGE = gql`
       limit
       items {
         id
+        productCode
         title
         price
         status
@@ -41,13 +42,13 @@ export const GET_PRODUCT = gql`
   query GetProduct($id: ID!) {
     product(id: $id) {
       id
+      productCode
       title
       price
       updatedAt
       status
       description
       categories
-      productCode
       imageUrl
       imagePublicId
     }
@@ -58,6 +59,7 @@ export const CREATE_PRODUCT = gql`
   mutation CreateProduct($input: CreateProductInput!) {
     createProduct(input: $input) {
       id
+      productCode
       title
       price
       status
@@ -73,6 +75,7 @@ export const UPDATE_PRODUCT = gql`
   mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) {
     updateProduct(id: $id, input: $input) {
       id
+      productCode
       title
       price
       status

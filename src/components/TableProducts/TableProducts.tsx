@@ -100,7 +100,12 @@ function renderBodyContent(
           </div>
         </td>
 
-        <td>{item.title}</td>
+        <td>
+          <div className="flex flex-col">
+            <span>{item.title}</span>
+            <span>SKU: {item.productCode ?? '—'}</span>
+          </div>
+        </td>
         <td>{item.status}</td>
         <td>{item.price}</td>
         <td>{item.description ?? '—'}</td>
