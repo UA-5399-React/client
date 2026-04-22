@@ -1,4 +1,3 @@
-import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { Minus, Plus, X } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useErrorStore } from '@/store/errorStore';
 import { useCartStore } from '@/store/useCartStore';
 
 export const FlyoutCart = () => {
@@ -22,6 +22,7 @@ export const FlyoutCart = () => {
   const { isAuth } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const showMessage = useErrorStore((s) => s.show);
 
   const total = getCartTotal();
 
@@ -43,7 +44,7 @@ export const FlyoutCart = () => {
 
   const handleClearAll = () => {
     clearCart();
-    toast.success('Cart cleared');
+    showMessage('success', 'Success!', 'Cart cleared');
   };
 
   // @TODO: Check and implement dynamic data for the places it needed.

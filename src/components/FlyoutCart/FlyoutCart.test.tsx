@@ -26,9 +26,13 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({ isDark: mockIsDark }),
 }));
 
-// ─── Toast ─────────────────────────────────────────────────────────────────────
-vi.mock('react-hot-toast', () => ({
-  default: { success: vi.fn(), error: vi.fn() },
+// ─── Error store ───────────────────────────────────────────────────────────────
+const mockShowMessage = vi.fn();
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(
+    (selector: (s: { show: typeof mockShowMessage }) => unknown) =>
+      selector({ show: mockShowMessage }),
+  ),
 }));
 
 // ─── Cart store ────────────────────────────────────────────────────────────────
