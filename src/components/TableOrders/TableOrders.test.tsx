@@ -1,7 +1,16 @@
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+
+import { useErrorStore } from '@/store/errorStore';
 
 const deleteOrderMock = vi.fn();
+const showMessageMock = vi.fn();
+
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(),
+}));
+
+const mockedUseErrorStore = vi.mocked(useErrorStore) as unknown as Mock;
 
 vi.mock('@/hooks/useDeleteAdminOrder', () => ({
   useDeleteAdminOrder: () => ({
@@ -65,6 +74,8 @@ const renderTable = (
 describe('UI Component: TableOrders', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockedUseErrorStore.mockReturnValue(showMessageMock);
   });
 
   it('should render the table', () => {
@@ -241,5 +252,54 @@ describe('UI Component: TableOrders', () => {
       orderItem.orderId,
       ORDER_STATUS.COMPLETED,
     );
+  });
+
+  it('should show success message after successful deletion', async () => {
+    const user = userEvent.setup();
+    deleteOrderMock.mockResolvedValueOnce(undefined);
+
+    renderTable({ items: [orderItem] });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Actions for order ${orderItem.orderId}`,
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => {
+      expect(deleteOrderMock).toHaveBeenCalledWith(orderItem.orderId);
+      expect(showMessageMock).toHaveBeenCalledWith(
+        'success',
+        'Order Deleted',
+        expect.stringContaining(orderItem.orderId),
+      );
+    });
+  });
+
+  it('should show error message when deletion fails', async () => {
+    const user = userEvent.setup();
+    const errorMessage = 'API Connection Error';
+    deleteOrderMock.mockRejectedValueOnce(new Error(errorMessage));
+
+    renderTable({ items: [orderItem] });
+
+    await user.click(
+      screen.getByRole('button', {
+        name: `Actions for order ${orderItem.orderId}`,
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => {
+      expect(showMessageMock).toHaveBeenCalledWith(
+        'error',
+        'Delete Failed',
+        errorMessage,
+      );
+    });
   });
 });

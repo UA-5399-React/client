@@ -11,6 +11,7 @@ import {
 } from '@/components';
 import type { OrdersSortField, SortOrder } from '@/hooks/useAdminOrders';
 import { useDeleteAdminOrder } from '@/hooks/useDeleteAdminOrder';
+import { useErrorStore } from '@/store/errorStore';
 import type { Column } from '@/types';
 import {
   ORDER_STATUS,
@@ -49,6 +50,7 @@ export function TableOrders({
   onEdit,
 }: TableOrdersProps) {
   const { deleteOrder } = useDeleteAdminOrder();
+  const showMessage = useErrorStore((s) => s.show);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -127,8 +129,21 @@ export function TableOrders({
 
     try {
       await deleteOrder(selectedOrderId);
+      showMessage(
+        'success',
+        'Order Deleted',
+        `Order #${selectedOrderId} has been successfully removed.`,
+      );
+
       closeDeleteModal();
     } catch (deleteError) {
+      showMessage(
+        'error',
+        'Delete Failed',
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Could not delete order',
+      );
       console.error('Failed to delete order:', deleteError);
     }
   };
