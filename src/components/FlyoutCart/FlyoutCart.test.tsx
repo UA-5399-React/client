@@ -26,10 +26,20 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({ isDark: mockIsDark }),
 }));
 
+// ─── Error store ───────────────────────────────────────────────────────────────
+const mockShowMessage = vi.fn();
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(
+    (selector: (s: { show: typeof mockShowMessage }) => unknown) =>
+      selector({ show: mockShowMessage }),
+  ),
+}));
+
 // ─── Cart store ────────────────────────────────────────────────────────────────
 const mockCloseCart = vi.fn();
 const mockUpdateQuantity = vi.fn();
 const mockRemoveItem = vi.fn();
+const mockClearCart = vi.fn();
 const mockGetCartTotal = vi.fn(() => 100);
 
 vi.mock('@/store/useCartStore', () => ({
@@ -40,6 +50,7 @@ vi.mock('@/store/useCartStore', () => ({
 const baseStore = (overrides = {}) => ({
   items: [],
   isOpen: true,
+  clearCart: mockClearCart,
   closeCart: mockCloseCart,
   updateQuantity: mockUpdateQuantity,
   removeItem: mockRemoveItem,
@@ -304,5 +315,26 @@ describe('FlyoutCart component', () => {
     // The text is a direct child of the div that holds the dark-mode class
     const wrapper = emptyMsg.closest('[class*="text-gray"]');
     expect(wrapper).toHaveClass('text-gray-400');
+  });
+
+  // Clear all button
+  it('does not render the "Clear all" button when cart is empty', () => {
+    renderCart();
+    expect(screen.queryByRole('button', { name: /clear all/i })).toBeNull();
+  });
+
+  it('renders the "Clear all" button when cart has items', () => {
+    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    renderCart();
+    expect(
+      screen.getByRole('button', { name: /clear all/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('calls clearCart when "Clear all" is clicked', () => {
+    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    renderCart();
+    fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
+    expect(mockClearCart).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,14 +6,23 @@ import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useErrorStore } from '@/store/errorStore';
 import { useCartStore } from '@/store/useCartStore';
 
 export const FlyoutCart = () => {
-  const { items, isOpen, closeCart, updateQuantity, removeItem, getCartTotal } =
-    useCartStore();
+  const {
+    items,
+    isOpen,
+    closeCart,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    getCartTotal,
+  } = useCartStore();
   const { isAuth } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const showMessage = useErrorStore((s) => s.show);
 
   const total = getCartTotal();
 
@@ -31,6 +40,11 @@ export const FlyoutCart = () => {
   const handleViewCart = () => {
     closeCart();
     navigate(ROUTES.CART);
+  };
+
+  const handleClearAll = () => {
+    clearCart();
+    showMessage('success', 'Success!', 'Cart cleared');
   };
 
   // @TODO: Check and implement dynamic data for the places it needed.
@@ -63,17 +77,32 @@ export const FlyoutCart = () => {
           >
             Cart
           </h2>
-          <Button
-            onClick={closeCart}
-            className={clsx(
-              'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
-              isDark
-                ? 'text-gray-400 hover:text-white'
-                : 'text-gray-500 hover:text-black',
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <Button
+                onClick={handleClearAll}
+                className={clsx(
+                  'h-fit w-fit rounded border px-3 py-1 text-sm transition-colors hover:border-transparent',
+                  isDark
+                    ? 'border-gray-600 bg-transparent text-gray-300 hover:bg-gray-700 hover:text-white'
+                    : 'border-gray-300 bg-transparent text-gray-600 hover:bg-gray-100 hover:text-black',
+                )}
+              >
+                Clear all
+              </Button>
             )}
-          >
-            <X className="h-6 w-6" />
-          </Button>
+            <Button
+              onClick={closeCart}
+              className={clsx(
+                'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
+                isDark
+                  ? 'text-gray-400 hover:text-white'
+                  : 'text-gray-500 hover:text-black',
+              )}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
