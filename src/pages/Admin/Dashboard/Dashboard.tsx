@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { StatusOrdersWidget } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserStats } from '@/hooks/useUserStats';
 import { getCurrentMonthPeriod } from '@/utils';
 
@@ -34,11 +35,8 @@ function DashboardCard({
 }
 export function Dashboard() {
   const navigate = useNavigate();
+  const { isSuperAdmin } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
-
-  const handleShowAll = () => {
-    navigate(ROUTES.ADMIN_USERS);
-  };
 
   const {
     dailyCounts,
@@ -47,7 +45,7 @@ export function Dashboard() {
     dateLabel,
     loading: periodLoading,
     error: periodError,
-  } = useUserStats(selectedPeriod);
+  } = useUserStats(selectedPeriod, isSuperAdmin);
 
   return (
     <div>
@@ -67,7 +65,9 @@ export function Dashboard() {
               onPeriodChange={setSelectedPeriod}
               loading={periodLoading}
               error={periodError}
-              onShowAll={handleShowAll}
+              onShowAll={
+                isSuperAdmin ? () => navigate(ROUTES.ADMIN_USERS) : undefined
+              }
             />
           </div>
 
