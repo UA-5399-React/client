@@ -89,4 +89,39 @@ describe('ShopFilters', () => {
     expect(search).toContain('category=cat-2');
     expect(search).toContain('page=1');
   });
+
+  it('clears category and price filters and resets page to 1', () => {
+    useShopCategoriesMock.mockReturnValue({
+      data: [
+        { id: 'cat-1', title: 'Phones' },
+        { id: 'cat-2', title: 'Tablets' },
+      ],
+      isLoading: false,
+      isError: false,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/shop?category=cat-1&minPrice=500&maxPrice=1000&page=3&sort=price&search=iphone',
+        ]}
+      >
+        <ShopFilters />
+        <LocationDisplay />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
+
+    const search = screen.getByTestId('location-search').textContent ?? '';
+    const params = new URLSearchParams(search);
+
+    expect(params.get('category')).toBeNull();
+    expect(params.get('minPrice')).toBeNull();
+    expect(params.get('maxPrice')).toBeNull();
+    expect(params.get('page')).toBe('1');
+
+    expect(params.get('sort')).toBe('price');
+    expect(params.get('search')).toBe('iphone');
+  });
 });
