@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
+import { Button } from '@/components/Button';
 import { CategoryDropdown, Dropdown } from '@/components/Dropdown';
 import { useShopCategories } from '@/hooks/useShopCategories';
 
@@ -103,8 +104,21 @@ export function ShopFilters() {
     });
   };
 
+  const handleClearAll = () => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+
+      next.delete('category');
+      next.delete('minPrice');
+      next.delete('maxPrice');
+      next.set('page', '1');
+
+      return next;
+    });
+  };
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
       <CategoryDropdown
         label="Categories"
         options={categoryOptions}
@@ -114,14 +128,23 @@ export function ShopFilters() {
         selectedValues={currentCategory}
         disabled={isCategoryDisabled}
       />
-      <Dropdown
-        label="Price"
-        options={PRICE_OPTIONS}
-        multiple={true}
-        onChange={handlePriceChange}
-        placeholder={priceLabel}
-        selectedValues={currentPriceValue ? [currentPriceValue] : []}
-      />
+      <div className="[&_[data-placeholder]]:!text-text w-full sm:w-auto [&_[data-placeholder]]:!opacity-100">
+        <Dropdown
+          label="Price"
+          options={PRICE_OPTIONS}
+          multiple={false}
+          onChange={handlePriceChange}
+          placeholder={priceLabel}
+          selectedValues={currentPriceValue ? [currentPriceValue] : []}
+        />
+      </div>
+      <Button
+        type="button"
+        onClick={handleClearAll}
+        className="!bg-background !text-text hover:!bg-backgroundSec !box-border !h-[32px] !w-full !rounded-md !border !border-gray-300 !px-[15px] !py-0 !text-sm !leading-5 !font-normal hover:!border-gray-300 sm:!w-[120px]"
+      >
+        Clear all
+      </Button>
     </div>
   );
 }
