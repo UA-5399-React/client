@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ChartBarStacked,
+  ChevronsLeft,
+  ChevronsRight,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -10,8 +12,6 @@ import {
   Sparkles,
   Store,
   UsersIcon,
-  ChevronsLeft,
-  ChevronsRight,
 } from 'lucide-react';
 
 import { Button } from '@/components/Button';
