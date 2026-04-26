@@ -133,7 +133,7 @@ export function ShopFilters() {
         <Dropdown
           label="Price"
           options={PRICE_OPTIONS}
-          multiple={false}
+          multiple={true}
           onChange={handlePriceChange}
           placeholder={priceLabel}
           selectedValues={currentPriceValue ? [currentPriceValue] : []}

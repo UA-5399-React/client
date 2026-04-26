@@ -54,6 +54,10 @@ export const Dropdown = ({
       .filter(Boolean) as DropdownProps['options'];
 
     onChange(selected);
+
+    if (closeOnSelect) {
+      setOpen(false);
+    }
   };
 
   return (
@@ -103,6 +107,11 @@ export const Dropdown = ({
                   key={option.value}
                   value={option.value}
                   className={styles.Item}
+                  onClick={() => {
+                    if (closeOnSelect) {
+                      setTimeout(() => setOpen(false), 0);
+                    }
+                  }}
                 >
                   <Select.ItemText className={styles.ItemText}>
                     {option.label}
