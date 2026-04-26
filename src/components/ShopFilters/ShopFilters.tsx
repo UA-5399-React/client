@@ -125,6 +125,7 @@ export function ShopFilters() {
           placeholder={categoryPlaceholder}
           selectedValues={currentCategory}
           disabled={isCategoryDisabled}
+          closeOnSelect
         />
       </div>
 
