@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { MainTable } from '@/components';
+import { MainTable, Switcher } from '@/components';
 import { QUANTITY, REVENUE } from '@/constants/general';
 import type { Column } from '@/types';
 
@@ -76,40 +76,6 @@ const CLASS_STYLES: Record<ABCAnalysisItem['classType'], string> = {
   C: 'bg-red-100 text-red-700',
 };
 
-interface MetricSwitcherProps {
-  mode: MetricMode;
-  onChange: (mode: MetricMode) => void;
-}
-
-function MetricSwitcher({ mode, onChange }: MetricSwitcherProps) {
-  const isRevenue = mode === REVENUE;
-
-  return (
-    <div className="inline-flex items-center gap-2 text-sm text-gray-700">
-      <span className={!isRevenue ? 'font-semibold text-gray-900' : ''}>
-        Count
-      </span>
-
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isRevenue}
-        onClick={() => onChange(isRevenue ? QUANTITY : REVENUE)}
-        aria-label="Toggle between quantity and revenue"
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 focus-visible:outline-none ${isRevenue ? 'bg-blue-500' : 'bg-gray-300'}`}
-      >
-        <span
-          className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${isRevenue ? 'translate-x-5' : 'translate-x-0'}`}
-        />
-      </button>
-
-      <span className={isRevenue ? 'font-semibold text-gray-900' : ''}>
-        Revenue
-      </span>
-    </div>
-  );
-}
-
 export function ABCAnalysisTable() {
   const [metricMode, setMetricMode] = useState<MetricMode>(REVENUE);
 
@@ -134,8 +100,18 @@ export function ABCAnalysisTable() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <MetricSwitcher mode={metricMode} onChange={setMetricMode} />
+      <div className="flex justify-end pr-5">
+        <Switcher
+          isRightActive={metricMode === REVENUE}
+          leftLabel="Count"
+          rightLabel="Revenue"
+          onToggle={() =>
+            setMetricMode((prevMode) =>
+              prevMode === REVENUE ? QUANTITY : REVENUE,
+            )
+          }
+          ariaLabel="Toggle between quantity and revenue"
+        />
       </div>
 
       <MainTable

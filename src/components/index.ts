@@ -45,6 +45,7 @@ export { Sidebar } from './Sidebar/Sidebar';
 export { SortOrderButton } from './SortProducts/SortOrderButton/SortOrderButton';
 export { SortProductsDropdown } from './SortProducts/SortProductsDropdown/SortProductsDropdown';
 export { SortRadioItem } from './SortProducts/SortRadioItem/SortRadioItem';
+export { Switcher } from './Switcher/Switcher';
 export { TableCategories } from './TableCategories/TableCategories';
 export { TableOrders } from './TableOrders/TableOrders';
 export { TableProducts } from './TableProducts/TableProducts';
