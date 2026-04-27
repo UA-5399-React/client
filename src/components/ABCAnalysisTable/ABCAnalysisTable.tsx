@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 
 import { MainTable } from '@/components';
+import { QUANTITY, REVENUE } from '@/constants/general';
 import type { Column } from '@/types';
 
-type MetricMode = 'quantity' | 'revenue';
+type MetricMode = typeof QUANTITY | typeof REVENUE;
 
 type ABCAnalysisItem = {
   id: string;
@@ -81,34 +82,36 @@ interface MetricSwitcherProps {
 }
 
 function MetricSwitcher({ mode, onChange }: MetricSwitcherProps) {
-  const isRevenue = mode === 'revenue';
+  const isRevenue = mode === REVENUE;
 
   return (
-    <button
-      type="button"
-      onClick={() => onChange(isRevenue ? 'quantity' : 'revenue')}
-      className="flex items-center gap-2 text-sm text-gray-700"
-      aria-label="Toggle between quantity and revenue"
-    >
+    <div className="inline-flex items-center gap-2 text-sm text-gray-700">
       <span className={!isRevenue ? 'font-semibold text-gray-900' : ''}>
         Count
       </span>
-      <span
-        className={`relative h-5 w-10 rounded-full transition-colors ${isRevenue ? 'bg-blue-500' : 'bg-gray-300'}`}
+
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isRevenue}
+        onClick={() => onChange(isRevenue ? QUANTITY : REVENUE)}
+        aria-label="Toggle between quantity and revenue"
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-1 focus-visible:outline-none ${isRevenue ? 'bg-blue-500' : 'bg-gray-300'}`}
       >
         <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${isRevenue ? 'translate-x-5' : 'translate-x-0.5'}`}
+          className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${isRevenue ? 'translate-x-5' : 'translate-x-0'}`}
         />
-      </span>
+      </button>
+
       <span className={isRevenue ? 'font-semibold text-gray-900' : ''}>
         Revenue
       </span>
-    </button>
+    </div>
   );
 }
 
 export function ABCAnalysisTable() {
-  const [metricMode, setMetricMode] = useState<MetricMode>('revenue');
+  const [metricMode, setMetricMode] = useState<MetricMode>(REVENUE);
 
   const columns = useMemo<Column[]>(
     () => [
@@ -116,12 +119,12 @@ export function ABCAnalysisTable() {
       { key: 'product', label: 'Product', className: 'text-left' },
       {
         key: 'quantityOrRevenue',
-        label: metricMode === 'quantity' ? 'Quantity' : 'Revenue',
+        label: metricMode === QUANTITY ? 'Quantity' : 'Revenue',
         className: 'text-left',
       },
       {
         key: 'salesPercent',
-        label: metricMode === 'quantity' ? 'Sales.%' : 'Sales,%',
+        label: metricMode === QUANTITY ? 'Sales.%' : 'Sales,%',
         className: 'text-left',
       },
       { key: 'class', label: 'Class', className: 'text-center' },
@@ -145,10 +148,10 @@ export function ABCAnalysisTable() {
             </td>
             <td className="text-left text-sm text-gray-800">{item.product}</td>
             <td className="text-left text-sm text-gray-700">
-              {metricMode === 'quantity' ? item.quantity : item.revenue}
+              {metricMode === QUANTITY ? item.quantity : item.revenue}
             </td>
             <td className="text-left text-sm text-gray-700">
-              {metricMode === 'quantity'
+              {metricMode === QUANTITY
                 ? item.salesPercent
                 : item.salesRevenuePercent}
             </td>

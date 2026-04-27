@@ -6,3 +6,6 @@ export const ORDER = 'desc';
 export const PRODUCT = 'PRODUCT';
 export const DAY = 'DAY';
 export const CATEGORY = 'CATEGORY';
+
+export const QUANTITY = 'quantity';
+export const REVENUE = 'revenue';

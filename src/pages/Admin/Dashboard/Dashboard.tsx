@@ -39,7 +39,7 @@ function DashboardCard({
       className={`bg-background rounded-2xl border border-gray-300 ${className}`}
     >
       <div className="mb-4 flex items-start justify-between gap-3 p-4">
-        <h2 className="text-text text-xs font-bold tracking-[0.08em] uppercase">
+        <h2 className="text-text text-base font-bold tracking-[0.08em] uppercase">
           {title}
         </h2>
       </div>
@@ -96,11 +96,6 @@ export function Dashboard() {
               }
             />
           </div>
-
-          <DashboardCard
-            title="Number of Sales"
-            className="min-h-[320px]"
-          ></DashboardCard>
 
           <DashboardCard title="ABC Analysis" className="min-h-[300px]">
             <ABCAnalysisTable />
