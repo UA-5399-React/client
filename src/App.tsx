@@ -41,6 +41,7 @@ import { NotFound } from './pages/NotFound/NotFound';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
 import { Profile } from './pages/User/Profile';
+import { Wishlist } from './pages/User/Wishlist';
 
 function App() {
   const isAuthReady = useRestoreAuthSession();
@@ -79,6 +80,7 @@ function App() {
     MYORDERS,
     FORGOT_PASSWORD,
     RESET_PASSWORD,
+    WISHLIST,
   } = ROUTES;
 
   if (!isAuthReady) {
@@ -96,6 +98,7 @@ function App() {
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
+          <Route path={WISHLIST} element={<Wishlist />} />
           <Route
             path={NEWSLETTER_UNSUBSCRIBE}
             element={<NewsletterUnsubscribePage />}

@@ -159,14 +159,6 @@ describe('AccountSidebar', () => {
     expect(screen.getByRole('link', { name: 'Orders' })).toBeInTheDocument();
   });
 
-  it('renders wishlist as disabled text item', () => {
-    renderComponent();
-
-    const wishlist = screen.getByText('Wishlist');
-    expect(wishlist).toBeInTheDocument();
-    expect(wishlist).toHaveAttribute('aria-disabled', 'true');
-  });
-
   it('marks account link as active on /profile route', () => {
     renderComponent(undefined, ['/profile']);
 
