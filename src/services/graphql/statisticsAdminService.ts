@@ -82,3 +82,41 @@ export const GET_SALES_BY_CATEGORY = gql`
     }
   }
 `;
+
+export const GET_ABC_ANALYSIS = gql`
+  query GetAbcAnalysis(
+    $dateFrom: DateTime!
+    $dateTo: DateTime!
+    $metric: AbcMetricEnum!
+    $aThreshold: Int
+    $bThreshold: Int
+    $categoryId: ID
+  ) {
+    getAbcAnalysis(
+      dateFrom: $dateFrom
+      dateTo: $dateTo
+      metric: $metric
+      aThreshold: $aThreshold
+      bThreshold: $bThreshold
+      categoryId: $categoryId
+    ) {
+      items {
+        productName
+        productCode
+        value
+        cumulativeValue
+        totalValue
+        cumulativePercentage
+        percentageByTotal
+        bucket
+      }
+      summary {
+        aCount
+        bCount
+        cCount
+        metric
+        totalValue
+      }
+    }
+  }
+`;
