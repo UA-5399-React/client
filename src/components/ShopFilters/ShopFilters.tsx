@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/components/Button';
-import { CategoryDropdown, Dropdown } from '@/components/Dropdown';
+import { Dropdown } from '@/components/Dropdown';
 import { useShopCategories } from '@/hooks/useShopCategories';
 
 const PRICE_OPTIONS = [
@@ -10,6 +10,9 @@ const PRICE_OPTIONS = [
   { label: '$1000 - $2000', value: '1000-2000' },
   { label: 'Over $2000', value: '2000+' },
 ];
+
+const DROPDOWN_WRAPPER_CLASS =
+  'w-full sm:w-auto [&_[data-placeholder]]:!text-text [&_[data-placeholder]]:!opacity-100';
 
 const getSelectedCategories = (searchParams: URLSearchParams) => {
   const categories = searchParams
@@ -51,11 +54,6 @@ export function ShopFilters() {
       : categoryOptions.length === 0
         ? 'No categories available'
         : 'All Electronics';
-  const selectedCategoryLabels = currentCategory
-    .map((v) => categoryOptions.find((o) => o.value === v)?.label)
-    .filter(Boolean)
-    .join(', ');
-  const categoryLabel = selectedCategoryLabels || categoryPlaceholder;
 
   const handleCategoryChange = (values: { value: string }[]) => {
     const filtered = values.map((v) => v.value).filter(Boolean);
@@ -116,28 +114,32 @@ export function ShopFilters() {
       return next;
     });
   };
-
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-      <CategoryDropdown
-        label="Categories"
-        options={categoryOptions}
-        multiple={true}
-        onChange={handleCategoryChange}
-        placeholder={categoryLabel}
-        selectedValues={currentCategory}
-        disabled={isCategoryDisabled}
-      />
-      <div className="[&_[data-placeholder]]:!text-text w-full sm:w-auto [&_[data-placeholder]]:!opacity-100">
+      <div className={DROPDOWN_WRAPPER_CLASS}>
+        <Dropdown
+          label="Categories"
+          options={categoryOptions}
+          multiple={true}
+          onChange={handleCategoryChange}
+          placeholder={categoryPlaceholder}
+          selectedValues={currentCategory}
+          disabled={isCategoryDisabled}
+          closeOnSelect
+        />
+      </div>
+
+      <div className={DROPDOWN_WRAPPER_CLASS}>
         <Dropdown
           label="Price"
           options={PRICE_OPTIONS}
-          multiple={false}
+          multiple={true}
           onChange={handlePriceChange}
           placeholder={priceLabel}
           selectedValues={currentPriceValue ? [currentPriceValue] : []}
         />
       </div>
+
       <Button
         type="button"
         onClick={handleClearAll}

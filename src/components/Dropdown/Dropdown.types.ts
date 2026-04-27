@@ -15,4 +15,5 @@ export interface DropdownProps {
   multiple?: boolean;
   disabled?: boolean;
   required?: boolean;
+  closeOnSelect?: boolean;
 }
