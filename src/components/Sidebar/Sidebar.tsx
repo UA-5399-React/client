@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ChartBarStacked,
+  ChevronsLeft,
+  ChevronsRight,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -35,7 +37,12 @@ const SIDEBAR_LINKS = [
   { to: ROUTES.HOME, label: 'View Store', icon: <Store /> },
 ];
 
-export const Sidebar = () => {
+interface SidebarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (value: boolean) => void;
+}
+
+export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
   const { isDark } = useTheme();
   const { logout, role } = useAuth();
   const navigate = useNavigate();
@@ -57,27 +64,45 @@ export const Sidebar = () => {
   };
 
   return (
-    <div className="flex h-full min-h-full flex-col justify-between">
+    <aside
+      className={`flex h-full min-h-full flex-col justify-between transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}
+    >
       <div>
-        <h1 className="pb-16 text-center text-4xl font-bold text-[rgb(var(--color-text))]">
-          ADMIN
-        </h1>
+        <div
+          className={`flex items-center p-4 ${isCollapsed ? 'justify-center' : 'justify-between'}`}
+        >
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label="toggle sidebar"
+            className="border-none bg-transparent text-[rgb(var(--color-text))] hover:opacity-80"
+          >
+            {isCollapsed ? <ChevronsRight /> : <ChevronsLeft />}
+          </button>
+        </div>
+        {!isCollapsed && (
+          <h1 className="text-text pb-10 text-center text-4xl font-bold">
+            ADMIN
+          </h1>
+        )}
 
-        <nav>
+        <nav className="flex flex-col gap-2 px-2">
           {visibleLinks.map(({ to, label, icon }) => (
             <NavLink
               key={to}
               to={to}
+              title={isCollapsed ? label : ''}
               className={({ isActive }) =>
-                `flex h-[42px] items-center gap-2 rounded-md px-4 py-2 ${isDark ? 'hover:bg-white! hover:text-black!' : 'hover:bg-black! hover:text-white!'} ${
+                `flex h-[42px] items-center gap-2 rounded-md transition-all ${
+                  isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'
+                } ${isDark ? 'hover:bg-white! hover:text-black!' : 'hover:bg-black! hover:text-white!'} ${
                   isActive
                     ? `${isDark ? 'bg-white text-black!' : 'bg-black text-white!'}`
                     : ''
                 }`
               }
             >
-              {icon}
-              {label}
+              <span className="flex-shrink-0">{icon}</span>
+              {!isCollapsed && <span className="truncate">{label}</span>}
             </NavLink>
           ))}
         </nav>
@@ -88,12 +113,12 @@ export const Sidebar = () => {
         onClick={handleLogout}
       >
         <div
-          className={`flex items-center gap-2 py-8 ${isDark ? 'text-white' : 'text-black'}`}
+          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2 px-4'} py-8 ${isDark ? 'text-white' : 'text-black'}`}
         >
           <LogOut />
-          Logout
+          {!isCollapsed && <span>Logout</span>}
         </div>
       </Button>
-    </div>
+    </aside>
   );
 };
