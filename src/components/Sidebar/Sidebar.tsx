@@ -80,7 +80,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
           </button>
         </div>
         {!isCollapsed && (
-          <h1 className="pb-10 text-center text-4xl font-bold text-[rgb(var(--color-text))]">
+          <h1 className="text-text pb-10 text-center text-4xl font-bold">
             ADMIN
           </h1>
         )}
