@@ -63,7 +63,12 @@ export function Dashboard() {
     error: periodError,
   } = useUserStats(selectedPeriod, isSuperAdmin);
 
-  const { items, loading, error } = useGroupByTable({
+  const {
+    items,
+    summary: groupSummary,
+    loading,
+    error,
+  } = useGroupByTable({
     groupBy: selectedGroupBy,
   });
 
@@ -115,6 +120,7 @@ export function Dashboard() {
             </div>
 
             <GroupTable
+              summary={groupSummary}
               groupBy={selectedGroupBy}
               items={items}
               loading={loading}
