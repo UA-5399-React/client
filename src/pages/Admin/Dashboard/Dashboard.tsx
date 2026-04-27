@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { StatusOrdersWidget } from '@/components';
+import { ABCAnalysisTable, StatusOrdersWidget } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStats } from '@/hooks/useUserStats';
@@ -76,10 +76,9 @@ export function Dashboard() {
             className="min-h-[320px]"
           ></DashboardCard>
 
-          <DashboardCard
-            title="ABC Analysis"
-            className="min-h-[300px]"
-          ></DashboardCard>
+          <DashboardCard title="ABC Analysis" className="min-h-[300px]">
+            <ABCAnalysisTable />
+          </DashboardCard>
         </div>
       </section>
     </div>

@@ -1,3 +1,4 @@
+export { ABCAnalysisTable } from './ABCAnalysisTable/ABCAnalysisTable';
 export { ActionMenu } from './ActionMenu/ActionMenu';
 export { StatusOrdersWidget } from './AdminDashboard/StatusOrdersWidget/StatusOrdersWidget';
 export { AdminOrderForm } from './AdminOrderForm/AdminOrderForm';
