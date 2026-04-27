@@ -5,6 +5,7 @@ import type { DropdownOption } from '@/components';
 import { Dropdown, GroupTable, StatusOrdersWidget } from '@/components';
 import { ROUTES } from '@/constants';
 import { CATEGORY, DAY, PRODUCT } from '@/constants/general';
+import { useAuth } from '@/hooks/useAuth';
 import { useGroupByTable } from '@/hooks/useGroupByTable';
 import { useUserStats } from '@/hooks/useUserStats';
 import type { GroupByEnum } from '@/types/statistic.types';
@@ -44,12 +45,9 @@ function DashboardCard({
 }
 export function Dashboard() {
   const navigate = useNavigate();
+  const { isSuperAdmin } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
   const [selectedGroupBy, setSelectedGroupBy] = useState<GroupByEnum>(DAY);
-
-  const handleShowAll = () => {
-    navigate(ROUTES.ADMIN_USERS);
-  };
 
   const {
     dailyCounts,
@@ -58,7 +56,7 @@ export function Dashboard() {
     dateLabel,
     loading: periodLoading,
     error: periodError,
-  } = useUserStats(selectedPeriod);
+  } = useUserStats(selectedPeriod, isSuperAdmin);
 
   const { items, loading, error } = useGroupByTable({
     groupBy: selectedGroupBy,
@@ -88,7 +86,9 @@ export function Dashboard() {
               onPeriodChange={setSelectedPeriod}
               loading={periodLoading}
               error={periodError}
-              onShowAll={handleShowAll}
+              onShowAll={
+                isSuperAdmin ? () => navigate(ROUTES.ADMIN_USERS) : undefined
+              }
             />
           </div>
 
