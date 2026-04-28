@@ -1,4 +1,5 @@
 export { ActionMenu } from './ActionMenu/ActionMenu';
+export { SalesDynamicsWidget } from './AdminDashboard/SalesDynamics/SalesDynamicsWidget';
 export { StatusOrdersWidget } from './AdminDashboard/StatusOrdersWidget/StatusOrdersWidget';
 export { AdminOrderForm } from './AdminOrderForm/AdminOrderForm';
 export { AdminPageHeader } from './AdminPageHeader';

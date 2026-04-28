@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { StatusOrdersWidget } from '@/components';
+import { SalesDynamicsWidget } from '@/components';
 import { ROUTES } from '@/constants';
 import { useUserStats } from '@/hooks/useUserStats';
 import { getCurrentMonthPeriod } from '@/utils';
 
 import { UsersChart } from '../UsersChart/UsersChart';
+
 type DashboardCardProps = {
   title: string;
   className?: string;
@@ -71,10 +73,9 @@ export function Dashboard() {
             />
           </div>
 
-          <DashboardCard
-            title="Number of Sales"
-            className="min-h-[320px]"
-          ></DashboardCard>
+          <DashboardCard title="Number of Sales" className="min-h-[320px]">
+            <SalesDynamicsWidget />
+          </DashboardCard>
 
           <DashboardCard
             title="ABC Analysis"
