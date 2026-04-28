@@ -1,17 +1,10 @@
 import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { wishlistService } from '@/services/wishlist.service';
 import type { Product } from '@/types/product.types';
 import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { ProductCard } from './ProductCard';
-
-vi.mock('@/services/wishlist.service', () => ({
-  wishlistService: {
-    getMe: vi.fn(),
-  },
-}));
 
 // ─── Cart store ────────────────────────────────────────────────────────────────
 const mockAddItem = vi.fn();
@@ -53,50 +46,21 @@ describe('UI Component: ProductCard', () => {
   });
 
   it('should mark product as favorite if it exists in wishlist', async () => {
-    vi.mocked(wishlistService.getMe).mockResolvedValue({
-      id: '1',
-      email: 'test@mail.com',
-      wishlist: [
-        {
-          productId: '1',
-          title: 'Test Product',
-          price: 99.99,
-        },
-      ],
-    });
-
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={true} />);
 
     const btn = await screen.findByLabelText(/remove/i);
     expect(btn).toBeInTheDocument();
   });
 
   it('should mark product as not favorite if not in wishlist', async () => {
-    vi.mocked(wishlistService.getMe).mockResolvedValue({
-      id: '1',
-      email: 'test@mail.com',
-      wishlist: [],
-    });
-
-    render(<ProductCard product={mockProduct} />);
-
-    const btn = await screen.findByLabelText(/add to wishlist/i);
-    expect(btn).toBeInTheDocument();
-  });
-
-  it('should set isFavorite to false if wishlist request fails', async () => {
-    vi.mocked(wishlistService.getMe).mockRejectedValue(
-      new Error('Network error'),
-    );
-
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
 
     const btn = await screen.findByLabelText(/add to wishlist/i);
     expect(btn).toBeInTheDocument();
   });
 
   it('should show placeholder when image fails to load', async () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
 
     const img = screen.getByAltText('Test Product');
     img.dispatchEvent(new Event('error'));
@@ -109,20 +73,20 @@ describe('UI Component: ProductCard', () => {
 
   // ── Static rendering ─────────────────────────────────────────────────────────
   it('should render product title and price', () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     expect(screen.getByText('Test Product')).toBeInTheDocument();
     expect(screen.getByText('$99.99')).toBeInTheDocument();
   });
 
   it('should render product image with correct alt text and src', () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     const image = screen.getByAltText('Test Product');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', mockProduct.imageUrl);
   });
 
   it('should render the placeholder icon when imageUrl is absent', () => {
-    render(<ProductCard product={productWithoutImage} />);
+    render(<ProductCard product={productWithoutImage} isFavorite={false} />);
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     const placeholder = document.querySelector('.bg-gray-100');
     expect(placeholder).toBeInTheDocument();
@@ -130,14 +94,14 @@ describe('UI Component: ProductCard', () => {
 
   // ── Link / navigation ─────────────────────────────────────────────────────────
   it('should render as an anchor element with the correct href', () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     const link = screen.getByRole('link', { name: 'Test Product' });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/product/mongo1');
   });
 
   it('should render href with _id when product has only _id', () => {
-    render(<ProductCard product={productWithMongoId} />);
+    render(<ProductCard product={productWithMongoId} isFavorite={false} />);
     const link = screen.getByRole('link', { name: 'Mongo Product' });
     expect(link).toHaveAttribute('href', '/product/mongo-only');
   });
@@ -145,20 +109,20 @@ describe('UI Component: ProductCard', () => {
   // ── Hover interactions ───────────────────────────────────────────────────────
   it('should show Add to Cart button on hover', async () => {
     const user = userEvent.setup();
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     const link = screen.getByRole('link', { name: 'Test Product' });
     await user.hover(link);
     expect(screen.getByText('Add to Cart')).toBeVisible();
   });
 
   it('should render wishlist button with correct accessibility label', async () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     const btn = await screen.findByLabelText(/wishlist/i);
     expect(btn).toBeInTheDocument();
   });
 
   it('should hide Add to Cart button wrapper when not hovered', () => {
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     const button = screen.getByText('Add to Cart');
     expect(button.closest('div')).toHaveClass('opacity-0');
   });
@@ -166,14 +130,14 @@ describe('UI Component: ProductCard', () => {
   // ── Add to Cart ──────────────────────────────────────────────────────────────
   it('should call addItem with the product when Add to Cart is clicked', async () => {
     const user = userEvent.setup();
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     await user.click(screen.getByText('Add to Cart'));
     expect(mockAddItem).toHaveBeenCalledWith(mockProduct);
   });
 
   it('should prevent default link navigation when Add to Cart is clicked', async () => {
     const user = userEvent.setup();
-    render(<ProductCard product={mockProduct} />);
+    render(<ProductCard product={mockProduct} isFavorite={false} />);
     await user.click(screen.getByText('Add to Cart'));
     // addItem called; the link href should NOT have been followed (no navigation event)
     expect(mockAddItem).toHaveBeenCalledTimes(1);

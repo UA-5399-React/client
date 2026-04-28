@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
-import { wishlistService } from '@/services/wishlist.service';
 import { useCartStore } from '@/store/useCartStore';
 import type { Product } from '@/types';
 
@@ -11,32 +10,16 @@ import { HeartButton } from '../HeartButton/HeartButton';
 
 interface ProductCardProps {
   product: Product;
+  isFavorite: boolean;
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
   const { _id, id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
   const [imgError, setImgError] = useState(false);
   const productPath = ROUTES.PRODUCT.replace(':id', _id ?? id);
 
-  const productId = id || _id || '';
-
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    const fetchWishlistStatus = async () => {
-      try {
-        const user = await wishlistService.getMe();
-        const found = user.wishlist?.some(
-          (item) => item.productId === productId,
-        );
-        setIsFavorite(!!found);
-      } catch {
-        setIsFavorite(false);
-      }
-    };
-    fetchWishlistStatus();
-  }, [productId]);
+  const productId = id ?? _id ?? '';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
