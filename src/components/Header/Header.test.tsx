@@ -655,19 +655,20 @@ describe('UI Component: Header', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('should render Wishlist button', () => {
+  it('should render Wishlist link', () => {
     render(<Header />);
-    expect(
-      screen.getByRole('button', { name: 'Wishlist' }),
-    ).toBeInTheDocument();
+
+    const link = screen.getByRole('link', { name: /wishlist/i });
+
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 
-  it('should navigate to wishlist when Wishlist button is clicked', async () => {
-    const user = userEvent.setup();
+  it('should render wishlist link with correct href', () => {
     render(<Header />);
 
-    await user.click(screen.getByRole('button', { name: 'Wishlist' }));
+    const link = screen.getByRole('link', { name: 'Wishlist' });
 
-    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.WISHLIST);
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 });
