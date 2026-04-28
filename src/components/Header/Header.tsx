@@ -370,6 +370,7 @@ export const Header = () => {
               <Link
                 to={ROUTES.WISHLIST}
                 onClick={closeMenu}
+                aria-label="Wishlist"
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Wishlist</span>
