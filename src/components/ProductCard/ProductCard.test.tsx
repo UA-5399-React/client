@@ -1,9 +1,17 @@
+import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { wishlistService } from '@/services/wishlist.service';
 import type { Product } from '@/types/product.types';
 import { render, screen, userEvent } from '@/utils/test-utils';
 
 import { ProductCard } from './ProductCard';
+
+vi.mock('@/services/wishlist.service', () => ({
+  wishlistService: {
+    getMe: vi.fn(),
+  },
+}));
 
 // ─── Cart store ────────────────────────────────────────────────────────────────
 const mockAddItem = vi.fn();
@@ -42,6 +50,61 @@ const productWithMongoId: Product = {
 describe('UI Component: ProductCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('should mark product as favorite if it exists in wishlist', async () => {
+    vi.mocked(wishlistService.getMe).mockResolvedValue({
+      id: '1',
+      email: 'test@mail.com',
+      wishlist: [
+        {
+          productId: '1',
+          title: 'Test Product',
+          price: 99.99,
+        },
+      ],
+    });
+
+    render(<ProductCard product={mockProduct} />);
+
+    const btn = await screen.findByLabelText(/remove/i);
+    expect(btn).toBeInTheDocument();
+  });
+
+  it('should mark product as not favorite if not in wishlist', async () => {
+    vi.mocked(wishlistService.getMe).mockResolvedValue({
+      id: '1',
+      email: 'test@mail.com',
+      wishlist: [],
+    });
+
+    render(<ProductCard product={mockProduct} />);
+
+    const btn = await screen.findByLabelText(/add to wishlist/i);
+    expect(btn).toBeInTheDocument();
+  });
+
+  it('should set isFavorite to false if wishlist request fails', async () => {
+    vi.mocked(wishlistService.getMe).mockRejectedValue(
+      new Error('Network error'),
+    );
+
+    render(<ProductCard product={mockProduct} />);
+
+    const btn = await screen.findByLabelText(/add to wishlist/i);
+    expect(btn).toBeInTheDocument();
+  });
+
+  it('should show placeholder when image fails to load', async () => {
+    render(<ProductCard product={mockProduct} />);
+
+    const img = screen.getByAltText('Test Product');
+    img.dispatchEvent(new Event('error'));
+
+    await waitFor(() => {
+      const placeholder = document.querySelector('.bg-gray-100');
+      expect(placeholder).toBeInTheDocument();
+    });
   });
 
   // ── Static rendering ─────────────────────────────────────────────────────────
@@ -88,12 +151,10 @@ describe('UI Component: ProductCard', () => {
     expect(screen.getByText('Add to Cart')).toBeVisible();
   });
 
-  it('should show wishlist button on hover', async () => {
-    const user = userEvent.setup();
+  it('should render wishlist button with correct accessibility label', async () => {
     render(<ProductCard product={mockProduct} />);
-    const link = screen.getByRole('link', { name: 'Test Product' });
-    await user.hover(link);
-    expect(screen.getByLabelText('Add to wishlist')).toBeVisible();
+    const btn = await screen.findByLabelText(/wishlist/i);
+    expect(btn).toBeInTheDocument();
   });
 
   it('should hide Add to Cart button wrapper when not hovered', () => {

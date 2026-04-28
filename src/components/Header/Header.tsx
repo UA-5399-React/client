@@ -138,6 +138,10 @@ export const Header = () => {
     document.body.style.overflow = '';
   };
 
+  const handleWishlistNavigate = () => {
+    navigate(ROUTES.WISHLIST);
+  };
+
   return (
     <>
       <header className="bg-background text-text transition-colors duration-300">
@@ -240,6 +244,14 @@ export const Header = () => {
                 <UserStar className="h-6 w-6" />
               </button>
             )}
+
+            <button
+              onClick={handleWishlistNavigate}
+              aria-label="Wishlist"
+              className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+            >
+              <Heart className="h-6 w-6" />
+            </button>
 
             <button
               onClick={handleUserNavigate}
@@ -360,7 +372,7 @@ export const Header = () => {
               </button>
 
               <Link
-                to="#"
+                to={ROUTES.WISHLIST}
                 onClick={closeMenu}
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >

@@ -475,8 +475,12 @@ describe('UI Component: Header', () => {
   it('should render Wishlist link in drawer when open', async () => {
     const user = userEvent.setup();
     render(<Header />);
+
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    expect(screen.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+
+    const link = screen.getByRole('link', { name: 'Wishlist' });
+
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 
   it('should render Admin Panel action in drawer for admin users', async () => {
@@ -649,5 +653,21 @@ describe('UI Component: Header', () => {
     vi.useRealTimers();
 
     window.history.pushState({}, '', '/');
+  });
+
+  it('should render Wishlist button', () => {
+    render(<Header />);
+    expect(
+      screen.getByRole('button', { name: 'Wishlist' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should navigate to wishlist when Wishlist button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+
+    await user.click(screen.getByRole('button', { name: 'Wishlist' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith(ROUTES.WISHLIST);
   });
 });
