@@ -15,6 +15,7 @@ type SidebarLink = {
 const SIDEBAR_LINKS: SidebarLink[] = [
   { to: ROUTES.PROFILE, end: true, label: 'Account' },
   { to: ROUTES.MYORDERS, label: 'Orders' },
+  { to: ROUTES.WISHLIST, label: 'Wishlist' },
 ];
 
 type AccountSidebarProps = {
@@ -147,15 +148,6 @@ export function AccountSidebar({
               </NavLink>
             </li>
           ))}
-
-          <li>
-            <span
-              aria-disabled="true"
-              className={`${navItemClass} border-transparent text-gray-600`}
-            >
-              Wishlist
-            </span>
-          </li>
 
           <li>
             <button

@@ -1,6 +1,6 @@
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const useShopCategoriesMock = vi.fn();
 
@@ -9,31 +9,38 @@ vi.mock('@/hooks/useShopCategories', () => ({
 }));
 
 vi.mock('@/components/Dropdown', () => ({
-  CategoryDropdown: ({
+  Dropdown: ({
+    label,
     placeholder,
     disabled,
     onChange,
     options,
     selectedValues,
   }: {
+    label: string;
     placeholder: string;
     disabled?: boolean;
     onChange: (values: { label: string; value: string }[]) => void;
     options: { label: string; value: string }[];
     selectedValues?: string[];
-  }) => (
-    <div>
-      <div data-testid="category-placeholder">{placeholder}</div>
-      <div data-testid="category-disabled">{String(Boolean(disabled))}</div>
-      <div data-testid="category-selected">
-        {selectedValues?.join(',') ?? ''}
-      </div>
-      <button type="button" onClick={() => onChange(options.slice(0, 2))}>
-        Select categories
-      </button>
-    </div>
-  ),
-  Dropdown: () => <div data-testid="price-dropdown" />,
+  }) => {
+    if (label === 'Categories') {
+      return (
+        <div>
+          <div data-testid="category-placeholder">{placeholder}</div>
+          <div data-testid="category-disabled">{String(Boolean(disabled))}</div>
+          <div data-testid="category-selected">
+            {selectedValues?.join(',') ?? ''}
+          </div>
+          <button type="button" onClick={() => onChange(options.slice(0, 2))}>
+            Select categories
+          </button>
+        </div>
+      );
+    }
+
+    return <div data-testid="price-dropdown" />;
+  },
 }));
 
 import { ShopFilters } from './ShopFilters';
@@ -43,6 +50,10 @@ const LocationDisplay = () => {
 
   return <div data-testid="location-search">{location.search}</div>;
 };
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('ShopFilters', () => {
   it('shows a disabled loading state while categories are loading', () => {
@@ -88,5 +99,40 @@ describe('ShopFilters', () => {
     expect(search).toContain('category=cat-1');
     expect(search).toContain('category=cat-2');
     expect(search).toContain('page=1');
+  });
+
+  it('clears category and price filters and resets page to 1', () => {
+    useShopCategoriesMock.mockReturnValue({
+      data: [
+        { id: 'cat-1', title: 'Phones' },
+        { id: 'cat-2', title: 'Tablets' },
+      ],
+      isLoading: false,
+      isError: false,
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/shop?category=cat-1&minPrice=500&maxPrice=1000&page=3&sort=price&search=iphone',
+        ]}
+      >
+        <ShopFilters />
+        <LocationDisplay />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
+
+    const search = screen.getByTestId('location-search').textContent ?? '';
+    const params = new URLSearchParams(search);
+
+    expect(params.get('category')).toBeNull();
+    expect(params.get('minPrice')).toBeNull();
+    expect(params.get('maxPrice')).toBeNull();
+    expect(params.get('page')).toBe('1');
+
+    expect(params.get('sort')).toBe('price');
+    expect(params.get('search')).toBe('iphone');
   });
 });

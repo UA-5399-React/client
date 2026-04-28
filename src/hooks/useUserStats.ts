@@ -8,7 +8,7 @@ import {
   resolvePeriod,
 } from '@/utils';
 
-export function useUserStats(period?: string) {
+export function useUserStats(period?: string, enabled = true) {
   const today = new Date();
   const { year, month } = resolvePeriod(period);
 
@@ -16,6 +16,7 @@ export function useUserStats(period?: string) {
     GET_USER_STATS,
     {
       variables: { year, month },
+      skip: !enabled,
     },
   );
 

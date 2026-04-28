@@ -5,6 +5,7 @@ import { MobileSidebar, Sidebar } from '@/components';
 
 export function AdminLayout() {
   const [isOpen, isSetOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <div
@@ -12,8 +13,12 @@ export function AdminLayout() {
         isOpen ? 'max-md:h-screen max-md:overflow-hidden' : ''
       }`}
     >
-      <aside className="scrollbar-hide sticky top-0 hidden h-screen w-[255px] max-w-[255px] shrink-0 flex-col overflow-y-auto bg-[rgb(var(--color-bg-sec))] md:flex">
-        <Sidebar />
+      <aside
+        className={`scrollbar-hide sticky top-0 hidden h-screen shrink-0 flex-col overflow-y-auto bg-[rgb(var(--color-bg-sec))] transition-all duration-300 md:flex ${
+          isCollapsed ? 'w-[80px]' : 'w-[255px]'
+        }`}
+      >
+        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       </aside>
 
       <div
@@ -23,10 +28,10 @@ export function AdminLayout() {
       </div>
 
       <main
-        className={`text-text bg-background flex-1 ${
+        className={`text-text bg-background flex-1 transition-all duration-300 ${
           isOpen
             ? 'max-md:invisible max-md:h-screen max-md:overflow-hidden'
-            : 'min-w-[920px]'
+            : ' '
         }`}
       >
         <Outlet />

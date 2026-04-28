@@ -4,7 +4,7 @@ export interface DropdownOption {
 }
 
 export interface DropdownProps {
-  label: string;
+  label?: string;
   selectClassName?: string;
   labelClassName?: string;
   options: DropdownOption[];
@@ -15,4 +15,5 @@ export interface DropdownProps {
   multiple?: boolean;
   disabled?: boolean;
   required?: boolean;
+  closeOnSelect?: boolean;
 }
