@@ -103,15 +103,7 @@ export const SalesDynamicsChart: React.FC<SalesDynamicsChartProps> = ({
         display: false,
       },
       tooltip: {
-        backgroundColor: '#1e293b',
-        titleColor: '#94a3b8',
-        bodyColor: '#f1f5f9',
-        padding: 12,
-        cornerRadius: 8,
-        displayColors: productIds.length > 1,
-        callbacks: {
-          label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y} units`,
-        },
+        enabled: false,
       },
     },
     scales: {

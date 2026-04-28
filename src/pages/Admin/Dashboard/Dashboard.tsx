@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { StatusOrdersWidget } from '@/components';
-import { SalesDynamicsWidget } from '@/components';
 import type { DropdownOption } from '@/components';
+import { SalesDynamicsWidget } from '@/components';
 import { Dropdown, GroupTable, StatusOrdersWidget } from '@/components';
 import { ROUTES } from '@/constants';
 import { CATEGORY, DAY, PRODUCT } from '@/constants/general';
