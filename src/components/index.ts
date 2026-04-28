@@ -52,6 +52,7 @@ export { TableProducts } from './TableProducts/TableProducts';
 export { TableSortControl } from './TableSortControl/TableSortControl';
 export { TableSubscribers } from './TableSubscriptions/TableSubscriptions';
 export { TextArea } from './TextArea';
+export { ThresholdRange } from './ThresholdRange/ThresholdRange';
 export { UserAvatar } from './UserAvatar';
 export { UserForm } from './UserForm/UserForm';
 export { AccountDetailsForm } from './UserProfile/AccountDetailsForm/AccountDetailsForm';

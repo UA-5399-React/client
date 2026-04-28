@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { MainTable, Switcher } from '@/components';
+import { ThresholdRange } from '@/components';
 import { QUANTITY, REVENUE } from '@/constants/general';
 import { useAbcAnalysis } from '@/hooks/useAbcAnalysis';
 import type { Column } from '@/types';
@@ -11,6 +12,17 @@ import type {
 } from '@/types/statistic.types';
 
 type MetricMode = typeof QUANTITY | typeof REVENUE;
+
+const TRACK_MIN = 0;
+const TRACK_MAX = 95;
+const LEFT_MIN = 5;
+const LEFT_MAX = 20;
+const RIGHT_MIN = 80;
+const RIGHT_MAX = 95;
+const COLOR_MIN = LEFT_MIN;
+const COLOR_MAX = RIGHT_MAX;
+const COLOR_RANGE = COLOR_MAX - COLOR_MIN;
+const STEP = 1;
 
 type ABCAnalysisRow = {
   id: string;
@@ -40,9 +52,22 @@ const toMetricEnum = (mode: MetricMode): AbcMetricEnum =>
 
 export function ABCAnalysisTable() {
   const [metricMode, setMetricMode] = useState<MetricMode>(REVENUE);
+  const [redThreshold, setRedThreshold] = useState(LEFT_MIN);
+  const [greenThreshold, setGreenThreshold] = useState(RIGHT_MAX);
+
   const { items, summary, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
+    aThreshold: redThreshold,
+    bThreshold: greenThreshold,
   });
+
+  const handleRedThresholdChange = (value: number) => {
+    setRedThreshold(Math.max(LEFT_MIN, Math.min(value, LEFT_MAX)));
+  };
+
+  const handleGreenThresholdChange = (value: number) => {
+    setGreenThreshold(Math.min(RIGHT_MAX, Math.max(value, RIGHT_MIN)));
+  };
 
   const columns = useMemo<Column[]>(
     () => [
@@ -109,7 +134,7 @@ export function ABCAnalysisTable() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end pr-5">
+      <div className="flex flex-wrap items-center justify-end gap-4 px-5">
         <Switcher
           isRightActive={metricMode === REVENUE}
           leftLabel="Count"
@@ -120,6 +145,19 @@ export function ABCAnalysisTable() {
             )
           }
           ariaLabel="Toggle between quantity and revenue"
+        />
+
+        <ThresholdRange
+          redThreshold={redThreshold}
+          greenThreshold={greenThreshold}
+          leftMin={LEFT_MIN}
+          trackMin={TRACK_MIN}
+          trackMax={TRACK_MAX}
+          colorMin={COLOR_MIN}
+          colorRange={COLOR_RANGE}
+          step={STEP}
+          onRedThresholdChange={handleRedThresholdChange}
+          onGreenThresholdChange={handleGreenThresholdChange}
         />
       </div>
 
