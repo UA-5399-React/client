@@ -37,7 +37,7 @@ export function ThresholdRange({
       </div>
 
       <div className="relative h-8">
-        <div className="absolute top-1/2 h-6 w-full -translate-y-1/2 overflow-hidden rounded-full">
+        <div className="absolute top-1/2 h-5 w-full -translate-y-1/2 overflow-hidden rounded-full">
           <div
             className="h-full w-full"
             style={{ background: trackGradient }}
@@ -51,7 +51,7 @@ export function ThresholdRange({
           step={step}
           value={redThreshold}
           onChange={(event) => onRedThresholdChange(Number(event.target.value))}
-          className="pointer-events-none absolute top-1/2 z-10 h-8 w-full -translate-y-1/2 appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:rounded [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-gray-500 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded [&::-webkit-slider-thumb]:bg-gray-500"
+          className="pointer-events-none absolute top-3.5 z-10 h-8 w-full -translate-y-1/2 appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:rounded [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-gray-500 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded [&::-webkit-slider-thumb]:bg-gray-500"
           aria-label="Red threshold"
         />
         <input
@@ -63,7 +63,7 @@ export function ThresholdRange({
           onChange={(event) =>
             onGreenThresholdChange(Number(event.target.value))
           }
-          className="pointer-events-none absolute top-1/2 z-20 h-8 w-full -translate-y-1/2 appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:rounded [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-gray-500 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded [&::-webkit-slider-thumb]:bg-gray-500"
+          className="pointer-events-none absolute top-3.5 z-20 h-8 w-full -translate-y-1/2 appearance-none bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-7 [&::-moz-range-thumb]:w-1.5 [&::-moz-range-thumb]:rounded [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-gray-500 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-7 [&::-webkit-slider-thumb]:w-1.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded [&::-webkit-slider-thumb]:bg-gray-500"
           aria-label="Green threshold"
         />
       </div>
