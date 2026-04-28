@@ -480,6 +480,7 @@ describe('UI Component: Header', () => {
 
     const link = screen.getByRole('link', { name: 'Wishlist' });
 
+    expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 
@@ -539,10 +540,14 @@ describe('UI Component: Header', () => {
   it('should apply dark drawer styles when isDark is true', async () => {
     const user = userEvent.setup();
     darkTheme();
+
     render(<Header />);
+
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const wishlist = screen.getByRole('link', { name: 'Wishlist' });
-    expect(wishlist).toBeInTheDocument();
+
+    const drawer = screen.getByText('TechnoWorld.').closest('div');
+
+    expect(drawer).toHaveClass('bg-[#141718]');
   });
 
   it('should render Cart button in dark theme drawer', async () => {
