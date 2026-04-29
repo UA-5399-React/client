@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { SalesDynamicsPoint } from '@/hooks/useSalesDynamics';
+import type { SalesDynamicsPoint } from '@/types/salesDynamics';
 
 import { SalesDynamicsChart } from './SalesDynamicsChart';
 
