@@ -1,6 +1,7 @@
-import { GroupBy } from '@/hooks/useSalesDynamics';
+import { GroupBy } from '@/constants/salesDynamics';
+import type { GroupByType } from '@/types/salesDynamics';
 
-export const GROUP_BY_OPTIONS: { label: string; value: GroupBy }[] = [
+export const GROUP_BY_OPTIONS: { label: string; value: GroupByType }[] = [
   { label: 'Day', value: GroupBy.DAY },
   { label: 'Week', value: GroupBy.WEEK },
   { label: 'Month', value: GroupBy.MONTH },
