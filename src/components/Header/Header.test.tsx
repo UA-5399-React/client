@@ -478,7 +478,7 @@ describe('UI Component: Header', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
 
-    const link = await screen.findByRole('link', { name: /wishlist/i });
+    const link = await screen.findByTestId('drawer-wishlist-link');
 
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', ROUTES.WISHLIST);

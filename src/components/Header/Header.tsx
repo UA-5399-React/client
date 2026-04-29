@@ -368,6 +368,7 @@ export const Header = () => {
               </button>
 
               <Link
+                data-testid="drawer-wishlist-link"
                 to={ROUTES.WISHLIST}
                 onClick={closeMenu}
                 aria-label="Wishlist"
