@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from 'chart.js';
 
-import type { SalesDynamicsPoint } from '@/hooks/useSalesDynamics';
+import type { SalesDynamicsPoint } from '@/types/salesDynamics';
 
 ChartJS.register(
   CategoryScale,
