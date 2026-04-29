@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import { Heart, Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 import { ROUTES } from '@/constants';
 import { useCartStore } from '@/store/useCartStore';
 import type { Product } from '@/types';
 
 import { Button } from '../Button/Button';
+import { HeartButton } from '../HeartButton/HeartButton';
 
 interface ProductCardProps {
   product: Product;
+  isFavorite: boolean;
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
   const { _id, id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
   const [imgError, setImgError] = useState(false);
   const productPath = ROUTES.PRODUCT.replace(':id', _id ?? id);
+
+  const productId = id ?? _id ?? '';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,12 +54,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             Add to Cart
           </Button>
         </div>
-        <button
-          aria-label="Add to wishlist"
-          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-black opacity-0 transition-all duration-300 group-hover:opacity-100 hover:scale-110"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
+        <HeartButton
+          product={{
+            id: productId,
+            title,
+            price,
+            image: imageUrl,
+          }}
+          isFavorite={isFavorite}
+        />
       </a>
       <div className="flex flex-col">
         <h3 className="line-clamp-2 text-sm font-medium text-[rgb(var(--color-text))]">
