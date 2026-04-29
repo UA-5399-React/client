@@ -17,6 +17,7 @@ export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { GroupTable } from './GroupTable/GroupTable';
 export { Header } from './Header';
+export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
