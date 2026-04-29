@@ -39,6 +39,10 @@ export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { SaleBanner } from './SaleBanner';
+export {
+  type FilterState,
+  SalesDynamicsFilter,
+} from './SalesDynamicsFilter/SalesDynamicsFilter';
 export { ScrollToTop } from './ScrollToTop';
 export { SearchInput } from './SearchInput/SearchInput';
 export { Sidebar } from './Sidebar/Sidebar';

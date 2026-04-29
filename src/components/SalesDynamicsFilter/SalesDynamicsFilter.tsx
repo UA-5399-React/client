@@ -113,7 +113,7 @@ export function SalesDynamicsFilter({
                 <Calendar
                   size={14}
                   strokeWidth={1.5}
-                  className="shrink-0 text-slate-400"
+                  className="shrink-0 cursor-pointer text-slate-400"
                 />
                 <input
                   type="date"
@@ -155,7 +155,7 @@ export function SalesDynamicsFilter({
               </span>
               <button
                 onClick={() => handleCategoryChange('')}
-                className="flex h-6 w-6 items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
+                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
                 title="Reset category"
               >
                 <RotateCcw size={14} strokeWidth={1.5} />
@@ -192,7 +192,7 @@ export function SalesDynamicsFilter({
                 onClick={() =>
                   setDraft((p) => ({ ...p, productId: '', productName: '' }))
                 }
-                className="flex h-6 w-6 items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
+                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
                 title="Reset product"
               >
                 <RotateCcw size={14} strokeWidth={1.5} />

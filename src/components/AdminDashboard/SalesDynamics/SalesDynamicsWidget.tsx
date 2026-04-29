@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
 
-import { GroupBy, useSalesDynamics } from '@/hooks/useSalesDynamics';
+import { type FilterState, SalesDynamicsFilter } from '@/components';
+import { GroupBy } from '@/constants/salesDynamics';
+import { useSalesDynamics } from '@/hooks/useSalesDynamics';
+import type { GroupByType } from '@/types/salesDynamics';
 
 import { GROUP_BY_OPTIONS } from './constants';
 import { SalesDynamicsChart } from './SalesDynamicsChart';
-import { type FilterState, SalesDynamicsFilter } from './SalesDynamicsFilter';
 
 interface SalesDynamicsWidgetProps {
   className?: string;
@@ -14,7 +16,7 @@ function toISODate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
-function getDatesForGroupBy(groupBy: GroupBy) {
+function getDatesForGroupBy(groupBy: GroupByType) {
   const to = new Date();
   const from = new Date();
 
@@ -47,7 +49,7 @@ export function SalesDynamicsWidget({
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [compareFilterOpen, setCompareFilterOpen] = useState(false);
-  const [groupBy, setGroupBy] = useState<GroupBy>(GroupBy.MONTH);
+  const [groupBy, setGroupBy] = useState<GroupByType>(GroupBy.MONTH);
 
   const [appliedFilter, setAppliedFilter] =
     useState<FilterState>(defaultFilter);
@@ -112,7 +114,7 @@ export function SalesDynamicsWidget({
     setCompareFilterOpen(false);
   };
 
-  const handleGroupByChange = (newGroupBy: GroupBy) => {
+  const handleGroupByChange = (newGroupBy: GroupByType) => {
     setGroupBy(newGroupBy);
     const newDates = getDatesForGroupBy(newGroupBy);
     setAppliedFilter((prev) => ({
@@ -148,7 +150,7 @@ export function SalesDynamicsWidget({
 
               <button
                 onClick={handleResetAll}
-                className="flex h-7 items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-[12px] font-medium text-slate-600 transition-all outline-none hover:border-red-300 hover:bg-red-50 hover:text-red-500"
+                className="flex h-7 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-[12px] font-medium text-slate-600 transition-all outline-none hover:border-red-300 hover:bg-red-50 hover:text-red-500"
                 title="Clear entire chart"
               >
                 Clear chart
@@ -165,7 +167,7 @@ export function SalesDynamicsWidget({
                 <button
                   key={opt.value}
                   onClick={() => handleGroupByChange(opt.value)}
-                  className={`flex h-9 items-center justify-center rounded-lg border px-4 text-[13px] font-medium transition-all outline-none ${
+                  className={`flex h-9 cursor-pointer items-center justify-center rounded-lg border px-4 text-[13px] font-medium transition-all outline-none ${
                     isActive
                       ? 'border-blue-500 bg-white text-blue-500 shadow-sm'
                       : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-400'
@@ -180,7 +182,7 @@ export function SalesDynamicsWidget({
           <div className="relative" ref={filterBtnRef}>
             <button
               onClick={() => setFilterOpen((p) => !p)}
-              className={`flex h-9 items-center justify-center gap-2 rounded-lg border px-4 text-[13px] font-medium transition-all outline-none ${
+              className={`flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-[13px] font-medium transition-all outline-none ${
                 filterOpen || appliedFilter.productId
                   ? 'border-blue-500 bg-white text-blue-500 shadow-sm'
                   : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-400'
@@ -203,7 +205,7 @@ export function SalesDynamicsWidget({
             <div className="relative">
               <button
                 onClick={() => setCompareFilterOpen((p) => !p)}
-                className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-[13px] font-medium whitespace-nowrap text-slate-600 transition-all hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-500"
+                className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-[13px] font-medium whitespace-nowrap text-slate-600 transition-all hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-500"
               >
                 <span className="text-base leading-none text-blue-500">+</span>
                 Add compare product
