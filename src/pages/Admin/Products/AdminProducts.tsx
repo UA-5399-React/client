@@ -169,7 +169,7 @@ export function AdminProducts() {
   };
 
   return (
-    <div>
+    <div className="pb-6">
       {showImportModal && (
         <ImportProductsModal onClose={() => setShowImportModal(false)} />
       )}
@@ -218,7 +218,7 @@ export function AdminProducts() {
         </div>
       )}
 
-      <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-4 shadow-md md:mx-5">
+      <div className="mx-2 my-5 rounded-l-lg rounded-r-lg border border-[#e5e7eb] pb-6 shadow-md md:mx-5">
         <TableProducts
           items={items}
           loading={loading}
