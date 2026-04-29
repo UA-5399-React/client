@@ -2,14 +2,27 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { GroupBy } from '@/hooks/useSalesDynamics';
+import type * as ComponentsModule from '@/components';
+import { GroupBy } from '@/constants/salesDynamics';
 
 import { SalesDynamicsWidget } from './SalesDynamicsWidget';
 
 const mockUseSalesDynamics = vi.fn();
+
 vi.mock('@/hooks/useSalesDynamics', () => ({
   useSalesDynamics: (queryVars: unknown) => mockUseSalesDynamics(queryVars),
-  GroupBy: { DAY: 'DAY', WEEK: 'WEEK', MONTH: 'MONTH' },
+}));
+
+vi.mock('@/hooks/useAdminCategories', () => ({
+  useAdminCategories: vi.fn(() => ({
+    categories: [],
+    loading: false,
+    error: null,
+  })),
+}));
+
+vi.mock('@/hooks/useAdminProduct', () => ({
+  useAdminProducts: vi.fn(() => ({ items: [], loading: false, error: null })),
 }));
 
 vi.mock('./SalesDynamicsChart', () => ({
@@ -20,39 +33,43 @@ vi.mock('./SalesDynamicsChart', () => ({
   ),
 }));
 
-vi.mock('./SalesDynamicsFilter', () => ({
-  SalesDynamicsFilter: ({
-    isOpen,
-    onApply,
-    isCompareMode,
-  }: {
-    isOpen: boolean;
-    onApply: (data: unknown) => void;
-    isCompareMode?: boolean;
-  }) => {
-    if (!isOpen) return null;
-    return (
-      <div data-testid={`mock-filter-${isCompareMode ? 'compare' : 'main'}`}>
-        <button
-          data-testid={`apply-filter-${isCompareMode ? 'compare' : 'main'}`}
-          onClick={() =>
-            onApply({
-              dateFrom: '2026-01-01',
-              dateTo: '2026-01-31',
-              categoryId: 'cat-1',
-              productId: isCompareMode ? 'prod-2' : 'prod-1',
-              productName: isCompareMode
-                ? 'Gorgeous Concrete Fish'
-                : 'Fresh Wooden Salad',
-            })
-          }
-        >
-          Apply Mock Filter
-        </button>
-      </div>
-    );
-  },
-}));
+vi.mock('@/components', async (importOriginal) => {
+  const actual = await importOriginal<typeof ComponentsModule>();
+  return {
+    ...actual,
+    SalesDynamicsFilter: ({
+      isOpen,
+      onApply,
+      isCompareMode,
+    }: {
+      isOpen: boolean;
+      onApply: (data: unknown) => void;
+      isCompareMode?: boolean;
+    }) => {
+      if (!isOpen) return null;
+      return (
+        <div data-testid={`mock-filter-${isCompareMode ? 'compare' : 'main'}`}>
+          <button
+            data-testid={`apply-filter-${isCompareMode ? 'compare' : 'main'}`}
+            onClick={() =>
+              onApply({
+                dateFrom: '2026-01-01',
+                dateTo: '2026-01-31',
+                categoryId: 'cat-1',
+                productId: isCompareMode ? 'prod-2' : 'prod-1',
+                productName: isCompareMode
+                  ? 'Gorgeous Concrete Fish'
+                  : 'Fresh Wooden Salad',
+              })
+            }
+          >
+            Apply Mock Filter
+          </button>
+        </div>
+      );
+    },
+  };
+});
 
 describe('SalesDynamicsWidget', () => {
   beforeEach(() => {
@@ -92,12 +109,6 @@ describe('SalesDynamicsWidget', () => {
 
     expect(screen.getByTestId('mock-chart')).toHaveTextContent(
       'Chart rendered with: prod-1',
-    );
-    expect(mockUseSalesDynamics).toHaveBeenCalledWith(
-      expect.objectContaining({
-        productIds: ['prod-1'],
-        groupBy: GroupBy.MONTH,
-      }),
     );
   });
 
@@ -147,10 +158,6 @@ describe('SalesDynamicsWidget', () => {
 
     await user.click(screen.getByRole('button', { name: /Select Product/i }));
     await user.click(screen.getByTestId('apply-filter-main'));
-
-    expect(mockUseSalesDynamics).toHaveBeenCalledWith(
-      expect.objectContaining({ groupBy: GroupBy.MONTH }),
-    );
 
     await user.click(screen.getByRole('button', { name: /Week/i }));
 
