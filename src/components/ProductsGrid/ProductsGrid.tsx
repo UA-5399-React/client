@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
+
+import { wishlistService } from '@/services/wishlist.service';
 
 import type { Product } from '../../types';
 import ProductCard from '../ProductCard';
@@ -17,6 +20,27 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   viewType = 'grid-5',
   error = null,
 }: ProductGridProps) => {
+  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const user = await wishlistService.getMe();
+
+        const ids = new Set(
+          user.wishlist?.map((item: { productId: string }) => item.productId) ||
+            [],
+        );
+
+        setWishlistIds(ids);
+      } catch (err) {
+        console.error('Failed to fetch wishlist', err);
+      }
+    };
+
+    fetchWishlist();
+  }, []);
+
   const gridClass = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
     'grid-5': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5',
@@ -82,15 +106,17 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
       className={`grid gap-4 pb-12 transition-opacity duration-500 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
     >
       {products.map((product) => {
-        const key = product._id || product.id;
+        const productId = (product._id || product.id || '').toString();
+        const isFavorite = wishlistIds.has(productId);
         return viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed
-            key={key}
+            key={productId}
             product={product}
+            isFavorite={isFavorite}
           />
         ) : (
-          <div key={key} className="w-full min-w-0 overflow-hidden">
-            <ProductCard product={product} />
+          <div key={productId} className="w-full min-w-0 overflow-hidden">
+            <ProductCard product={product} isFavorite={isFavorite} />
           </div>
         );
       })}

@@ -6,6 +6,7 @@ import {
   Dropdown,
   type DropdownOption,
   GroupTable,
+  SalesDynamicsWidget,
   StatusOrdersWidget,
 } from '@/components';
 import { ROUTES } from '@/constants';
@@ -17,6 +18,7 @@ import type { GroupByEnum } from '@/types/statistic.types';
 import { getCurrentMonthPeriod } from '@/utils';
 
 import { UsersChart } from '../UsersChart/UsersChart';
+
 type DashboardCardProps = {
   title: string;
   className?: string;
@@ -101,6 +103,10 @@ export function Dashboard() {
               }
             />
           </div>
+
+          <DashboardCard title="Number of Sales" className="min-h-[320px]">
+            <SalesDynamicsWidget />
+          </DashboardCard>
 
           <DashboardCard title="ABC Analysis" className="min-h-[300px]">
             <ABCAnalysisTable />

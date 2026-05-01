@@ -475,8 +475,13 @@ describe('UI Component: Header', () => {
   it('should render Wishlist link in drawer when open', async () => {
     const user = userEvent.setup();
     render(<Header />);
+
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    expect(screen.getByRole('link', { name: 'Wishlist' })).toBeInTheDocument();
+
+    const link = await screen.findByTestId('drawer-wishlist-link');
+
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 
   it('should render Admin Panel action in drawer for admin users', async () => {
@@ -534,11 +539,18 @@ describe('UI Component: Header', () => {
 
   it('should apply dark drawer styles when isDark is true', async () => {
     const user = userEvent.setup();
+
     darkTheme();
     render(<Header />);
+
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    const wishlist = screen.getByRole('link', { name: 'Wishlist' });
-    expect(wishlist).toBeInTheDocument();
+
+    const drawer = document.querySelector('.fixed');
+
+    expect(drawer).toBeInTheDocument();
+    expect(drawer).toHaveClass('fixed');
+
+    expect(screen.getByText('Wishlist')).toBeInTheDocument();
   });
 
   it('should render Cart button in dark theme drawer', async () => {
@@ -649,5 +661,22 @@ describe('UI Component: Header', () => {
     vi.useRealTimers();
 
     window.history.pushState({}, '', '/');
+  });
+
+  it('should render Wishlist link', () => {
+    render(<Header />);
+
+    const link = screen.getByRole('link', { name: /wishlist/i });
+
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
+  });
+
+  it('should render wishlist link with correct href', () => {
+    render(<Header />);
+
+    const link = screen.getByRole('link', { name: 'Wishlist' });
+
+    expect(link).toHaveAttribute('href', ROUTES.WISHLIST);
   });
 });

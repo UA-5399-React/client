@@ -1,5 +1,6 @@
 export { ABCAnalysisTable } from './ABCAnalysisTable/ABCAnalysisTable';
 export { ActionMenu } from './ActionMenu/ActionMenu';
+export { SalesDynamicsWidget } from './AdminDashboard/SalesDynamics/SalesDynamicsWidget';
 export { StatusOrdersWidget } from './AdminDashboard/StatusOrdersWidget/StatusOrdersWidget';
 export { AdminOrderForm } from './AdminOrderForm/AdminOrderForm';
 export { AdminPageHeader } from './AdminPageHeader';
@@ -18,6 +19,7 @@ export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { GroupTable } from './GroupTable/GroupTable';
 export { Header } from './Header';
+export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';
 export { LoginForm } from './LoginForm/LoginForm';
@@ -39,6 +41,10 @@ export { ProductCard } from './ProductCard';
 export { ProductFiltersBar } from './ProductsFilters/ProductsFiltersBar';
 export { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
 export { SaleBanner } from './SaleBanner';
+export {
+  type FilterState,
+  SalesDynamicsFilter,
+} from './SalesDynamicsFilter/SalesDynamicsFilter';
 export { ScrollToTop } from './ScrollToTop';
 export { SearchInput } from './SearchInput/SearchInput';
 export { Sidebar } from './Sidebar/Sidebar';

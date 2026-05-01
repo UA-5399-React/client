@@ -241,6 +241,14 @@ export const Header = () => {
               </button>
             )}
 
+            <Link
+              to={ROUTES.WISHLIST}
+              aria-label="Wishlist"
+              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+            >
+              <Heart className="h-6 w-6" />
+            </Link>
+
             <button
               onClick={handleUserNavigate}
               aria-label="User"
@@ -360,8 +368,10 @@ export const Header = () => {
               </button>
 
               <Link
-                to="#"
+                data-testid="drawer-wishlist-link"
+                to={ROUTES.WISHLIST}
                 onClick={closeMenu}
+                aria-label="Wishlist"
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Wishlist</span>

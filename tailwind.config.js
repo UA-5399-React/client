@@ -22,6 +22,7 @@ export default {
         red: {
           600: 'rgb(var(--color-red-600) / <alpha-value>)',
           700: 'rgb(var(--color-red-700) / <alpha-value>)',
+          500: 'rgb(var(--color-red-500) / <alpha-value>)',
         },
         /* blue colors */
         blue: {
@@ -36,6 +37,7 @@ export default {
         },
         /* orange colors */
         orange: {
+          400: 'rgb(var(--color-orange-400) / <alpha-value>)',
           500: 'rgb(var(--color-orange-500) / <alpha-value>)',
         },
         /* gray colors */

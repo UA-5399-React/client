@@ -66,6 +66,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       inputClassName = '',
       id,
       required = false,
+      onChange,
+      value,
+      defaultValue,
       ...props
     },
     ref,
@@ -73,8 +76,43 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const reactId = React.useId();
     const inputId = id || reactId;
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+    const isControlled = value !== undefined;
+    const [uncontrolledHasValue, setUncontrolledHasValue] = React.useState(() =>
+      Boolean(defaultValue ?? ''),
+    );
+    const hasValue = isControlled ? Boolean(value) : uncontrolledHasValue;
+
+    const internalRef = React.useRef<HTMLInputElement>(null);
+    const resolvedRef =
+      (ref as React.RefObject<HTMLInputElement>) ?? internalRef;
+
     const isPassword = type === 'password';
     const inputType = isPassword && isPasswordVisible ? 'text' : type;
+
+    const handleChange: NonNullable<typeof onChange> = (e) => {
+      if (!isControlled) setUncontrolledHasValue(Boolean(e.target.value));
+      onChange?.(e);
+    };
+
+    const handleClear = () => {
+      const input = resolvedRef.current;
+      if (!input) return;
+
+      // Use the native setter + dispatch so React's synthetic event system
+      // picks it up and calls our handleChange — no manual onChange call needed
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value',
+      )?.set;
+      nativeInputValueSetter?.call(input, '');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      if (!isControlled) setUncontrolledHasValue(false);
+      input.focus();
+    };
+
+    const hasRightSlot = isPassword || rightElement || hasValue;
 
     const paddingClasses = clsx({
       'pl-10': leftIcon,
@@ -111,8 +149,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <BaseInput
             {...props}
             id={inputId}
-            ref={ref}
+            ref={resolvedRef}
             type={inputType}
+            value={value}
+            defaultValue={defaultValue}
+            onChange={handleChange}
             className={clsx(
               BASE_INPUT_CLASSES,
               VARIANT_STYLES[variant],
@@ -122,7 +163,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             )}
           />
 
-          {(isPassword || rightElement) && (
+          {hasRightSlot && (
             <div
               className={clsx(
                 RIGHT_ELEMENT_CLASSES,
@@ -143,6 +184,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   ) : (
                     <EyeSlashIcon className="h-5 w-5" />
                   )}
+                </button>
+              ) : hasValue ? (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="flex items-center justify-center border-none bg-transparent p-0 text-[rgb(var(--color-icon))] transition-colors hover:cursor-pointer hover:text-[rgb(var(--color-icon-hover))] focus:outline-none"
+                  aria-label="Clear input"
+                >
+                  <XCircleIcon className="h-5 w-5" />
                 </button>
               ) : (
                 <div className="text-icon hover:text-icon-hover flex cursor-pointer items-center transition-colors">
@@ -208,6 +258,25 @@ function EyeSlashIcon({ className, ...props }: React.ComponentProps<'svg'>) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+      />
+    </svg>
+  );
+}
+
+function XCircleIcon({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
   );

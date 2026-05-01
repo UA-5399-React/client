@@ -120,3 +120,23 @@ export const GET_ABC_ANALYSIS = gql`
     }
   }
 `;
+
+export const SALES_DYNAMICS_QUERY = gql`
+  query SalesDynamics(
+    $productIds: [ID!]!
+    $from: DateTime!
+    $to: DateTime!
+    $groupBy: GroupBy!
+  ) {
+    salesDynamics(
+      productIds: $productIds
+      from: $from
+      to: $to
+      groupBy: $groupBy
+    ) {
+      date
+      productId
+      value
+    }
+  }
+`;
