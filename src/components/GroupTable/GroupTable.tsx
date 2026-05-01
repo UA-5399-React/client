@@ -3,8 +3,11 @@ import type { Column } from '@/types';
 import type {
   GroupByEnum,
   SalesByCategoryItem,
+  SalesByCategorySummary,
   SalesByDayItem,
+  SalesByDaySummary,
   SalesByProductItem,
+  SalesByProductSummary,
 } from '@/types/statistic.types';
 import { formatDateToShort } from '@/utils';
 
@@ -36,9 +39,15 @@ interface GroupTableProps {
   items: SalesByProductItem[] | SalesByDayItem[] | SalesByCategoryItem[];
   loading: boolean;
   error: Error | null | undefined;
+  summary:
+    | SalesByProductSummary
+    | SalesByDaySummary
+    | SalesByCategorySummary
+    | null;
 }
 
 export function GroupTable({
+  summary,
   groupBy,
   items,
   loading,
@@ -95,6 +104,17 @@ export function GroupTable({
     return productColumns;
   }
 
+  const renderSummary = (
+    summary: SalesByProductSummary | SalesByDaySummary | SalesByCategorySummary,
+  ) => {
+    return (
+      <div className="flex-end justify-end gap-2 pr-2 text-right text-sm font-bold text-gray-700">
+        <p>Total Revenue: {summary?.totalRevenue}</p>
+        <p>Total Units Sold: {summary?.totalUnitsSold}</p>
+      </div>
+    );
+  };
+
   return (
     <MainTable
       columns={getColumns()}
@@ -103,6 +123,7 @@ export function GroupTable({
       error={error}
       emptyMessage="No sales data found"
       renderRow={renderRow}
+      summary={summary ? renderSummary(summary) : null}
     />
   );
 }
