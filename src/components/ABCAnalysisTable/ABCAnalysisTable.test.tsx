@@ -34,7 +34,7 @@ describe('UI Component: ABCAnalysisTable', () => {
         totalValue: 1200.5,
       },
       loading: false,
-      error: null,
+      error: undefined,
       refetch: vi.fn(),
     });
 
@@ -69,7 +69,7 @@ describe('UI Component: ABCAnalysisTable', () => {
       ],
       summary: null,
       loading: false,
-      error: null,
+      error: undefined,
       refetch: vi.fn(),
     });
 
@@ -102,7 +102,7 @@ describe('UI Component: ABCAnalysisTable', () => {
       items: [],
       summary: null,
       loading: false,
-      error: null,
+      error: undefined,
       refetch: vi.fn(),
     });
 
