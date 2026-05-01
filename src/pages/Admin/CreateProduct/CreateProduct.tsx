@@ -24,6 +24,12 @@ export const CreateProduct = () => {
         uploadedImage = await uploadImage(formData.imageFile);
       }
 
+      const uploadedAdditionalImages = formData.additionalImageFiles?.length
+        ? await Promise.all(
+            formData.additionalImageFiles.map((file) => uploadImage(file)),
+          )
+        : [];
+
       const input = {
         title: formData.name,
         price: parseFloat(formData.price),
@@ -38,6 +44,9 @@ export const CreateProduct = () => {
           imageUrl: uploadedImage.imageUrl,
           imagePublicId: uploadedImage.imagePublicId,
         }),
+        ...(uploadedAdditionalImages.length
+          ? { additionalImages: uploadedAdditionalImages }
+          : {}),
       };
 
       await createProduct(input);

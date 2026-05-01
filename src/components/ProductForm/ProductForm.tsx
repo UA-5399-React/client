@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, X } from 'lucide-react';
 import { z } from 'zod';
 
 import { CategoryDropdown, Dropdown, Input, TextArea } from '@/components';
@@ -58,6 +58,15 @@ const productFormSchema = z.object({
     ),
   imagePreview: z.string().nullable(),
   imageFile: z.instanceof(File).optional(),
+  additionalImages: z
+    .array(
+      z.object({
+        imageUrl: z.string(),
+        imagePublicId: z.string(),
+      }),
+    )
+    .optional(),
+  additionalImageFiles: z.array(z.instanceof(File)).optional(),
 });
 
 interface ProductFormProps {
@@ -78,7 +87,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   updatedAt,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const additionalFileInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const additionalPreviewUrlsRef = useRef<Set<string>>(new Set());
+  const [additionalImagePreviews, setAdditionalImagePreviews] = useState<
+    string[]
+  >([]);
   const { categories } = useAdminCategories();
   const categoryOptions = categories.map((c) => ({
     label: c.title,
@@ -108,10 +122,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
+      additionalImages: initialData?.additionalImages || [],
     },
   });
 
   const imagePreview = useWatch({ control, name: 'imagePreview' });
+  const existingAdditionalImages =
+    useWatch({ control, name: 'additionalImages' }) || [];
+  const additionalImageFiles = useWatch({
+    control,
+    name: 'additionalImageFiles',
+  });
 
   useEffect(() => {
     register('imagePreview');
@@ -119,6 +140,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }, [register]);
 
   useEffect(() => {
+    additionalPreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    additionalPreviewUrlsRef.current.clear();
+
     reset({
       name: initialData?.name || '',
       price: initialData?.price || '',
@@ -131,6 +155,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       description: initialData?.description || '',
       imagePreview: initialData?.imagePreview || null,
       imageFile: undefined,
+      additionalImages: initialData?.additionalImages || [],
+      additionalImageFiles: undefined,
     });
   }, [initialData, reset]);
 
@@ -139,6 +165,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
       }
+      additionalPreviewUrlsRef.current.forEach((url) =>
+        URL.revokeObjectURL(url),
+      );
+      additionalPreviewUrlsRef.current.clear();
     };
   }, []);
 
@@ -159,6 +189,60 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       shouldDirty: true,
       shouldValidate: true,
     });
+  };
+
+  const handleAdditionalImagesChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const previewUrls = files.map((file) => {
+      const previewUrl = URL.createObjectURL(file);
+      additionalPreviewUrlsRef.current.add(previewUrl);
+      return previewUrl;
+    });
+
+    setAdditionalImagePreviews((previews) => [...previews, ...previewUrls]);
+    setValue(
+      'additionalImageFiles',
+      [...(additionalImageFiles || []), ...files],
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
+    e.target.value = '';
+  };
+
+  const handleRemoveAdditionalImage = (index: number) => {
+    const previewToRemove = additionalImagePreviews[index];
+    if (previewToRemove) {
+      URL.revokeObjectURL(previewToRemove);
+      additionalPreviewUrlsRef.current.delete(previewToRemove);
+    }
+
+    const nextFiles = (additionalImageFiles || []).filter(
+      (_, fileIndex) => fileIndex !== index,
+    );
+    setAdditionalImagePreviews((previews) =>
+      previews.filter((_, previewIndex) => previewIndex !== index),
+    );
+    setValue('additionalImageFiles', nextFiles.length ? nextFiles : undefined, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleRemoveExistingAdditionalImage = (index: number) => {
+    setValue(
+      'additionalImages',
+      existingAdditionalImages.filter((_, imageIndex) => imageIndex !== index),
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
   };
 
   const handleSave = async (data: ProductFormData) => {
@@ -209,6 +293,76 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           >
             Choose File
           </button>
+          <input
+            type="file"
+            ref={additionalFileInputRef}
+            onChange={handleAdditionalImagesChange}
+            accept="image/*"
+            multiple
+            className="hidden"
+          />
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => additionalFileInputRef.current?.click()}
+              className="cursor-pointer rounded-md border border-green-500 bg-transparent px-5 py-1.5 text-green-500 hover:border hover:border-green-500/60 dark:hover:bg-green-900/20"
+            >
+              Add Gallery Photos
+            </button>
+            {!!additionalImageFiles?.length && (
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {additionalImageFiles.length} selected
+              </span>
+            )}
+          </div>
+          {existingAdditionalImages.length > 0 && (
+            <div className="flex max-w-xs flex-wrap justify-center gap-2">
+              {existingAdditionalImages.map((image, index) => (
+                <div
+                  key={image.imagePublicId}
+                  className="relative h-20 w-20 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800"
+                >
+                  <img
+                    src={image.imageUrl}
+                    alt={`Existing gallery photo ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Remove existing gallery photo ${index + 1}`}
+                    onClick={() => handleRemoveExistingAdditionalImage(index)}
+                    className="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white/70 bg-black/60 text-white hover:bg-black/80"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {additionalImagePreviews.length > 0 && (
+            <div className="flex max-w-xs flex-wrap justify-center gap-2">
+              {additionalImagePreviews.map((previewUrl, index) => (
+                <div
+                  key={previewUrl}
+                  className="group relative h-20 w-20 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800"
+                >
+                  <img
+                    src={previewUrl}
+                    alt={`Gallery preview ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Remove gallery photo ${index + 1}`}
+                    onClick={() => handleRemoveAdditionalImage(index)}
+                    className="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white/70 bg-black/60 text-white hover:bg-black/80"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

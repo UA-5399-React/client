@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client/react';
 
 import { GET_PRODUCT } from '@/services/graphql/productAdminService';
-import type { ProductStatusUpperCase } from '@/types';
+import type { ProductImage, ProductStatusUpperCase } from '@/types';
 
 interface GetProductData {
   product: {
@@ -13,6 +13,7 @@ interface GetProductData {
     description: string;
     categories: string[];
     imageUrl?: string;
+    additionalImages?: ProductImage[];
   };
 }
 

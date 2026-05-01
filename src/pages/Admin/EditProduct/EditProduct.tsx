@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { AdminPageHeader } from '@/components';
@@ -31,17 +32,22 @@ export const EditProduct = () => {
   const { updateProduct, loading: isUpdating } = useUpdateAdminProduct();
   const { uploadImage, loading: isUploading } = useUploadProductImage();
 
-  const initialData = product
-    ? {
-        name: product.title,
-        price: String(product.price),
-        description: product.description || '',
-        categories: product.categories?.join(', ') || '',
-        status: product.status,
-        imagePreview: product.imageUrl || null,
-        updatedAt: product.updatedAt,
-      }
-    : null;
+  const initialData = useMemo(
+    () =>
+      product
+        ? {
+            name: product.title,
+            price: String(product.price),
+            description: product.description || '',
+            categories: product.categories?.join(', ') || '',
+            status: product.status,
+            imagePreview: product.imageUrl || null,
+            additionalImages: product.additionalImages || [],
+            updatedAt: product.updatedAt,
+          }
+        : null,
+    [product],
+  );
 
   if (!id) return <Navigate to={ROUTES.ADMIN_PRODUCTS} replace />;
 
@@ -80,12 +86,22 @@ export const EditProduct = () => {
         uploadedImage = await uploadImage(formData.imageFile);
       }
 
+      const uploadedAdditionalImages = formData.additionalImageFiles?.length
+        ? await Promise.all(
+            formData.additionalImageFiles.map((file) => uploadImage(file)),
+          )
+        : [];
+
       await updateProduct(id, {
         title: formData.name,
         price: Number(formData.price),
         status: formData.status as ProductStatus,
         description: formData.description,
         categories: formData.categories.split(',').map((c) => c.trim()),
+        additionalImages: [
+          ...(formData.additionalImages || []),
+          ...uploadedAdditionalImages,
+        ],
         ...(uploadedImage && {
           imageUrl: uploadedImage.imageUrl,
           imagePublicId: uploadedImage.imagePublicId,

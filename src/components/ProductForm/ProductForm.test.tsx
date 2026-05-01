@@ -60,6 +60,12 @@ describe('Component: ProductForm', () => {
           status: 'ACTIVE',
           description: 'Laptop for work',
           imagePreview: 'https://example.com/product.png',
+          additionalImages: [
+            {
+              imageUrl: 'https://example.com/product-detail.png',
+              imagePublicId: 'products/product-detail',
+            },
+          ],
         }}
         onSubmit={vi.fn()}
         onCancel={vi.fn()}
@@ -78,6 +84,10 @@ describe('Component: ProductForm', () => {
     expect(screen.getByAltText('Preview')).toHaveAttribute(
       'src',
       'https://example.com/product.png',
+    );
+    expect(screen.getByAltText('Existing gallery photo 1')).toHaveAttribute(
+      'src',
+      'https://example.com/product-detail.png',
     );
 
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent(
@@ -145,6 +155,8 @@ describe('Component: ProductForm', () => {
         description: 'Flagship phone',
         imagePreview: null,
         imageFile: undefined,
+        additionalImages: [],
+        additionalImageFiles: undefined,
       });
     });
   }, 10000);
@@ -197,6 +209,84 @@ describe('Component: ProductForm', () => {
     expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:preview');
   }, 10000);
 
+  it('should preview and remove selected gallery photos', async () => {
+    const user = userEvent.setup();
+    const createObjectURLMock = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockImplementation((file) => `blob:${(file as File).name}`);
+    const revokeObjectURLMock = vi
+      .spyOn(URL, 'revokeObjectURL')
+      .mockImplementation(() => undefined);
+
+    const { container } = render(
+      <ProductForm onSubmit={vi.fn()} onCancel={vi.fn()} />,
+    );
+
+    const fileInputs = container.querySelectorAll('input[type="file"]');
+    const galleryInput = fileInputs[1] as HTMLInputElement;
+    const galleryFile = new File(['gallery'], 'gallery.png', {
+      type: 'image/png',
+    });
+
+    fireEvent.change(galleryInput, { target: { files: [galleryFile] } });
+
+    expect(createObjectURLMock).toHaveBeenCalledWith(galleryFile);
+    expect(screen.getByAltText('Gallery preview 1')).toHaveAttribute(
+      'src',
+      'blob:gallery.png',
+    );
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove gallery photo 1' }),
+    );
+
+    expect(screen.queryByAltText('Gallery preview 1')).not.toBeInTheDocument();
+    expect(screen.queryByText('1 selected')).not.toBeInTheDocument();
+    expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:gallery.png');
+  }, 10000);
+
+  it('should remove existing gallery photos from submit data', async () => {
+    const user = userEvent.setup();
+    const handleSubmit = vi.fn();
+
+    render(
+      <ProductForm
+        isEditMode={true}
+        updatedAt="2025-10-10T12:00:00Z"
+        initialData={{
+          name: 'MacBook Pro',
+          price: '2499',
+          categories: 'laptop, electronics',
+          status: 'ACTIVE',
+          description: 'Laptop for work',
+          imagePreview: null,
+          additionalImages: [
+            {
+              imageUrl: 'https://example.com/product-detail.png',
+              imagePublicId: 'products/product-detail',
+            },
+          ],
+        }}
+        onSubmit={handleSubmit}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Remove existing gallery photo 1' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(handleSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          additionalImages: [],
+        }),
+      );
+    });
+  }, 10000);
+
   it('should update product status in edit mode', async () => {
     const user = userEvent.setup();
     const handleSubmit = vi.fn();
@@ -219,7 +309,7 @@ describe('Component: ProductForm', () => {
     );
 
     await user.click(screen.getByRole('combobox', { name: 'Status' }));
-    await user.click(screen.getByRole('option', { name: 'Inactive' }));
+    await user.click(await screen.findByRole('option', { name: 'Inactive' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(
@@ -232,6 +322,8 @@ describe('Component: ProductForm', () => {
           description: 'Laptop for work',
           imagePreview: null,
           imageFile: undefined,
+          additionalImages: [],
+          additionalImageFiles: undefined,
         });
       },
       { timeout: 10000 },
