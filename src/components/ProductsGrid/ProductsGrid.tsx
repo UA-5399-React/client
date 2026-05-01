@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 
 import { wishlistService } from '@/services/wishlist.service';
@@ -21,25 +22,30 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   error = null,
 }: ProductGridProps) => {
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+  const location = useLocation();
+
+  const fetchWishlist = async () => {
+    try {
+      const user = await wishlistService.getMe();
+
+      const ids = new Set(
+        user.wishlist?.map((item: { productId: string }) => item.productId) ||
+          [],
+      );
+
+      setWishlistIds(ids);
+    } catch (err) {
+      console.error('Failed to fetch wishlist', err);
+    }
+  };
 
   useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        const user = await wishlistService.getMe();
-
-        const ids = new Set(
-          user.wishlist?.map((item: { productId: string }) => item.productId) ||
-            [],
-        );
-
-        setWishlistIds(ids);
-      } catch (err) {
-        console.error('Failed to fetch wishlist', err);
-      }
+    const loadWishlist = async () => {
+      await fetchWishlist();
     };
 
-    fetchWishlist();
-  }, []);
+    void loadWishlist();
+  }, [location.pathname]);
 
   const gridClass = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
@@ -106,17 +112,22 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
       className={`grid gap-4 pb-12 transition-opacity duration-500 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
     >
       {products.map((product) => {
-        const productId = (product._id || product.id || '').toString();
+        const productId = String(product._id || product.id);
         const isFavorite = wishlistIds.has(productId);
         return viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed
             key={productId}
             product={product}
             isFavorite={isFavorite}
+            onWishlistChange={fetchWishlist}
           />
         ) : (
           <div key={productId} className="w-full min-w-0 overflow-hidden">
-            <ProductCard product={product} isFavorite={isFavorite} />
+            <ProductCard
+              product={product}
+              isFavorite={isFavorite}
+              onWishlistChange={fetchWishlist}
+            />
           </div>
         );
       })}

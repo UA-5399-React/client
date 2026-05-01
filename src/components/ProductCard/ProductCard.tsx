@@ -11,15 +11,20 @@ import { HeartButton } from '../HeartButton/HeartButton';
 interface ProductCardProps {
   product: Product;
   isFavorite: boolean;
+  onWishlistChange?: () => void;
 }
 
-export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
+export const ProductCard = ({
+  product,
+  isFavorite,
+  onWishlistChange,
+}: ProductCardProps) => {
   const { _id, id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
   const [imgError, setImgError] = useState(false);
   const productPath = ROUTES.PRODUCT.replace(':id', _id ?? id);
 
-  const productId = id ?? _id ?? '';
+  const productId = String(product._id || product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,6 +67,7 @@ export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
             image: imageUrl,
           }}
           isFavorite={isFavorite}
+          onChange={onWishlistChange}
         />
       </a>
       <div className="flex flex-col">

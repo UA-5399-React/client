@@ -12,11 +12,13 @@ interface HeartButtonProps {
     image?: string;
   };
   isFavorite: boolean;
+  onChange?: () => void;
 }
 
 export const HeartButton = ({
   product,
   isFavorite: initialIsFavorite,
+  onChange,
 }: HeartButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +38,6 @@ export const HeartButton = ({
     const previousState = isFavorite;
     setIsFavorite(!previousState);
     setIsLoading(true);
-
     try {
       if (previousState) {
         await wishlistService.removeFromWishlist(product.id);
@@ -44,7 +45,7 @@ export const HeartButton = ({
         showMessage('success', 'Removed', 'Product removed from wishlist');
       } else {
         await wishlistService.addToWishlist({
-          productId: product.id,
+          productId: String(product.id),
           title: product.title,
           price: product.price,
           image: product.image,
@@ -62,6 +63,7 @@ export const HeartButton = ({
       );
     } finally {
       setIsLoading(false);
+      onChange?.();
     }
   };
 
@@ -78,7 +80,7 @@ export const HeartButton = ({
         strokeWidth={isFavorite ? 2.5 : 1.8}
         className={`transition-all duration-300 ${
           isFavorite
-            ? 'fill-transparent stroke-red-500'
+            ? 'fill-transparent stroke-red-700'
             : 'fill-transparent stroke-gray-400'
         } ${isLoading ? 'animate-pulse' : ''}`}
       />
