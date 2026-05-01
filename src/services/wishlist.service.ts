@@ -14,11 +14,15 @@ export interface UserResponse {
 }
 
 export const wishlistService = {
-  getMe: (): Promise<UserResponse> => apiClient.get<UserResponse>('/users/me'),
+  getMe: (): Promise<UserResponse> =>
+    apiClient.get<UserResponse>(`/users/me?t=${Date.now()}`),
 
   addToWishlist: (product: UserWishlistItem): Promise<UserResponse> =>
     apiClient.patch<UserResponse>('/users/me/wishlist', product),
 
   removeFromWishlist: (productId: string): Promise<UserResponse> =>
     apiClient.delete<UserResponse>(`/users/me/wishlist/${productId}`),
+
+  clearFullWishlist: (): Promise<UserResponse> =>
+    apiClient.delete<UserResponse>('/users/me/wishlist'),
 };

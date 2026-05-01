@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from 'lucide-react';
 
 import { ProductCard } from '@/components';
 import { ROUTES } from '@/constants';
+import { wishlistService } from '@/services/wishlist.service';
 import type { Product } from '@/types';
 
 import './NewArrivals.css';
@@ -18,6 +20,27 @@ export const NewArrivals = ({
   isLoading,
   isError,
 }: NewArrivalsProps) => {
+  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+
+  const fetchWishlist = async () => {
+    try {
+      const user = await wishlistService.getMe();
+      const ids = new Set(
+        user.wishlist?.map((item) => String(item.productId)) || [],
+      );
+      setWishlistIds(ids);
+    } catch (err) {
+      console.error('Failed to fetch wishlist in NewArrivals', err);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchWishlist();
+    };
+    void loadData();
+  }, []);
+
   const renderState = (text: string) => (
     <div className="mx-auto mb-8 px-16 py-8 text-sm">
       <p className="text-center text-[26px]">{text}</p>
@@ -48,14 +71,23 @@ export const NewArrivals = ({
 
       <div className="new-arrivals-scroll-out">
         <div className="new-arrivals-scroll-inner flex min-w-0 gap-4 overflow-x-auto scroll-smooth pr-8 pb-4 [scrollbar-width:thin]">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="new-arrivals-card w-[262px] shrink-0"
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+          {products.map((product) => {
+            const productId = String(product._id || product.id);
+            const isFavorite = wishlistIds.has(productId);
+
+            return (
+              <div
+                key={product._id}
+                className="new-arrivals-card w-[262px] shrink-0"
+              >
+                <ProductCard
+                  product={product}
+                  isFavorite={isFavorite}
+                  onWishlistChange={fetchWishlist}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
