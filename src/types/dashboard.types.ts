@@ -6,6 +6,5 @@ export interface OrderStatusSegment {
 
 export interface OrdersStatusStats {
   total: number;
-  largestSegment: OrderStatusSegment;
   statuses: OrderStatusSegment[];
 }
