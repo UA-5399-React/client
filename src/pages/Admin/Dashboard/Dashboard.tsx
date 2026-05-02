@@ -6,6 +6,7 @@ import {
   Dropdown,
   type DropdownOption,
   GroupTable,
+  Pagination,
   SalesDynamicsWidget,
   StatusOrdersWidget,
 } from '@/components';
@@ -31,6 +32,8 @@ const GROUP_BY_OPTIONS = [
   { label: 'Category', value: CATEGORY },
 ];
 
+const GROUP_TABLE_LIMIT = 10;
+
 function DashboardCard({
   title,
   className = '',
@@ -55,6 +58,7 @@ export function Dashboard() {
   const { isSuperAdmin } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
   const [selectedGroupBy, setSelectedGroupBy] = useState<GroupByEnum>(DAY);
+  const [groupTablePage, setGroupTablePage] = useState(1);
 
   const {
     dailyCounts,
@@ -70,14 +74,20 @@ export function Dashboard() {
     summary: groupSummary,
     loading,
     error,
+    page,
+    totalPages,
   } = useGroupByTable({
     groupBy: selectedGroupBy,
+    page: groupTablePage,
+    limit: GROUP_TABLE_LIMIT,
   });
 
   const handleGroupByChange = (selected: DropdownOption[]) => {
     const nextGroupBy = selected[0]?.value as GroupByEnum | undefined;
     if (!nextGroupBy) return;
+
     setSelectedGroupBy(nextGroupBy);
+    setGroupTablePage(1);
   };
 
   return (
@@ -132,6 +142,16 @@ export function Dashboard() {
               loading={loading}
               error={error}
             />
+
+            {totalPages > 1 && (
+              <div className="flex justify-center px-4 py-4">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setGroupTablePage}
+                />
+              </div>
+            )}
           </DashboardCard>
         </div>
       </section>

@@ -32,12 +32,13 @@ function getDefaultRange() {
     dateTo: now.toISOString(),
   };
 }
-
-interface UseSalesByProductParams {
+interface UseGroupByTableParams {
   groupBy?: GroupByEnum;
   dateFrom?: string;
   dateTo?: string;
   categoryId?: string | null;
+  page?: number;
+  limit?: number;
 }
 
 export function useGroupByTable({
@@ -45,7 +46,9 @@ export function useGroupByTable({
   dateFrom,
   dateTo,
   categoryId = null,
-}: UseSalesByProductParams = {}) {
+  page = 1,
+  limit = 10,
+}: UseGroupByTableParams = {}) {
   const defaults = useMemo(() => getDefaultRange(), []);
 
   const variables: SalesByProductQueryVariables = {
@@ -53,6 +56,8 @@ export function useGroupByTable({
     dateFrom: dateFrom ?? defaults.dateFrom,
     dateTo: dateTo ?? defaults.dateTo,
     categoryId,
+    page,
+    limit,
   };
 
   const query =
@@ -69,24 +74,19 @@ export function useGroupByTable({
     variables,
   });
 
-  const items =
+  const response =
     groupBy === DAY
-      ? ((data as SalesByDayQueryData | undefined)?.getSalesByDay?.items ?? [])
+      ? (data as SalesByDayQueryData | undefined)?.getSalesByDay
       : groupBy === CATEGORY
-        ? ((data as SalesByCategoryQueryData | undefined)?.getSalesByCategory
-            ?.items ?? [])
-        : ((data as SalesByProductQueryData | undefined)?.getSalesByProduct
-            ?.items ?? []);
+        ? (data as SalesByCategoryQueryData | undefined)?.getSalesByCategory
+        : (data as SalesByProductQueryData | undefined)?.getSalesByProduct;
 
-  const summary =
-    groupBy === DAY
-      ? ((data as SalesByDayQueryData | undefined)?.getSalesByDay?.summary ??
-        null)
-      : groupBy === CATEGORY
-        ? ((data as SalesByCategoryQueryData | undefined)?.getSalesByCategory
-            ?.summary ?? null)
-        : ((data as SalesByProductQueryData | undefined)?.getSalesByProduct
-            ?.summary ?? null);
+  const items = response?.items ?? [];
+  const summary = response?.summary ?? null;
+  const total = response?.total ?? 0;
+  const currentPage = response?.page ?? page;
+  const currentLimit = response?.limit ?? limit;
+  const totalPages = total > 0 ? Math.ceil(total / currentLimit) : 0;
 
   return {
     items: items as
@@ -98,6 +98,10 @@ export function useGroupByTable({
       | SalesByDaySummary
       | SalesByCategorySummary
       | null,
+    total,
+    page: currentPage,
+    limit: currentLimit,
+    totalPages,
     groupBy,
     loading,
     error,

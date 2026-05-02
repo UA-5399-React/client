@@ -6,12 +6,16 @@ export const GET_SALES_BY_PRODUCT = gql`
     $dateTo: DateTime!
     $groupBy: GroupByEnum!
     $categoryId: ID
+    $page: Int
+    $limit: Int
   ) {
     getSalesByProduct(
       dateFrom: $dateFrom
       dateTo: $dateTo
       groupBy: $groupBy
       categoryId: $categoryId
+      page: $page
+      limit: $limit
     ) {
       items {
         productName
@@ -19,6 +23,9 @@ export const GET_SALES_BY_PRODUCT = gql`
         revenue
         productCode
       }
+      total
+      page
+      limit
       summary {
         totalUnitsSold
         totalRevenue
@@ -33,12 +40,16 @@ export const GET_SALES_BY_DAY = gql`
     $dateTo: DateTime!
     $groupBy: GroupByEnum!
     $categoryId: ID
+    $page: Int
+    $limit: Int
   ) {
     getSalesByDay(
       dateFrom: $dateFrom
       dateTo: $dateTo
       groupBy: $groupBy
       categoryId: $categoryId
+      page: $page
+      limit: $limit
     ) {
       items {
         date
@@ -47,6 +58,9 @@ export const GET_SALES_BY_DAY = gql`
         revenue
         averageCheck
       }
+      total
+      page
+      limit
       summary {
         totalOrdersCount
         totalUnitsSold
@@ -63,18 +77,25 @@ export const GET_SALES_BY_CATEGORY = gql`
     $dateTo: DateTime!
     $groupBy: GroupByEnum!
     $categoryId: ID
+    $page: Int
+    $limit: Int
   ) {
     getSalesByCategory(
       dateFrom: $dateFrom
       dateTo: $dateTo
       groupBy: $groupBy
       categoryId: $categoryId
+      page: $page
+      limit: $limit
     ) {
       items {
         category
         unitsSold
         revenue
       }
+      total
+      page
+      limit
       summary {
         totalUnitsSold
         totalRevenue
