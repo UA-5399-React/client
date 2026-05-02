@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 
-import { MainTable, Switcher } from '@/components';
+import { MainTable, Pagination, Switcher } from '@/components';
 import { ThresholdRange } from '@/components';
+import { ADMIN_PAGE_LIMIT } from '@/constants';
 import {
   COLOR_MIN,
   COLOR_RANGE,
   LEFT_MAX,
   LEFT_MIN,
+  PAGE,
   QUANTITY,
   REVENUE,
   RIGHT_MAX,
@@ -55,19 +57,24 @@ export function ABCAnalysisTable() {
   const [metricMode, setMetricMode] = useState<MetricMode>(REVENUE);
   const [redThreshold, setRedThreshold] = useState(LEFT_MIN);
   const [greenThreshold, setGreenThreshold] = useState(RIGHT_MAX);
+  const [currentPage, setCurrentPage] = useState(PAGE);
 
-  const { items, summary, loading, error } = useAbcAnalysis({
+  const { items, summary, total, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
+    page: currentPage,
+    limit: ADMIN_PAGE_LIMIT,
     aThreshold: redThreshold,
     bThreshold: greenThreshold,
   });
 
   const handleRedThresholdChange = (value: number) => {
     setRedThreshold(Math.max(LEFT_MIN, Math.min(value, LEFT_MAX)));
+    setCurrentPage(PAGE);
   };
 
   const handleGreenThresholdChange = (value: number) => {
     setGreenThreshold(Math.min(RIGHT_MAX, Math.max(value, RIGHT_MIN)));
+    setCurrentPage(PAGE);
   };
 
   const columns = useMemo<Column[]>(
@@ -140,11 +147,12 @@ export function ABCAnalysisTable() {
           isRightActive={metricMode === REVENUE}
           leftLabel="Count"
           rightLabel="Revenue"
-          onToggle={() =>
+          onToggle={() => {
             setMetricMode((prevMode) =>
               prevMode === REVENUE ? QUANTITY : REVENUE,
-            )
-          }
+            );
+            setCurrentPage(PAGE);
+          }}
           ariaLabel="Toggle between quantity and revenue"
         />
 
@@ -170,6 +178,12 @@ export function ABCAnalysisTable() {
         emptyMessage="No ABC analysis data found"
         renderRow={(item) => renderRow(item)}
         summary={summary ? renderSummary(summary) : null}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={total}
+        onPageChange={setCurrentPage}
       />
     </div>
   );
