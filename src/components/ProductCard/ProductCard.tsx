@@ -11,14 +11,9 @@ import { HeartButton } from '../HeartButton/HeartButton';
 interface ProductCardProps {
   product: Product;
   isFavorite: boolean;
-  onWishlistChange?: () => void;
 }
 
-export const ProductCard = ({
-  product,
-  isFavorite,
-  onWishlistChange,
-}: ProductCardProps) => {
+export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
   const { _id, id, title, price, imageUrl } = product;
   const addItem = useCartStore((state) => state.addItem);
   const [imgError, setImgError] = useState(false);
@@ -67,7 +62,6 @@ export const ProductCard = ({
             image: imageUrl,
           }}
           isFavorite={isFavorite}
-          onChange={onWishlistChange}
         />
       </a>
       <div className="flex flex-col">

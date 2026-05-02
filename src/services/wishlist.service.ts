@@ -14,8 +14,7 @@ export interface UserResponse {
 }
 
 export const wishlistService = {
-  getMe: (): Promise<UserResponse> =>
-    apiClient.get<UserResponse>(`/users/me?t=${Date.now()}`),
+  getMe: (): Promise<UserResponse> => apiClient.get<UserResponse>('/users/me'),
 
   addToWishlist: (product: UserWishlistItem): Promise<UserResponse> =>
     apiClient.patch<UserResponse>('/users/me/wishlist', product),

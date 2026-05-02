@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from 'lucide-react';
 
 import { ProductCard } from '@/components';
 import { ROUTES } from '@/constants';
-import { wishlistService } from '@/services/wishlist.service';
+import { useWishlistProductIds } from '@/hooks/useWishlistProductIds';
 import type { Product } from '@/types';
 
 import './NewArrivals.css';
@@ -20,26 +19,7 @@ export const NewArrivals = ({
   isLoading,
   isError,
 }: NewArrivalsProps) => {
-  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
-
-  const fetchWishlist = async () => {
-    try {
-      const user = await wishlistService.getMe();
-      const ids = new Set(
-        user.wishlist?.map((item) => String(item.productId)) || [],
-      );
-      setWishlistIds(ids);
-    } catch (err) {
-      console.error('Failed to fetch wishlist in NewArrivals', err);
-    }
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      await fetchWishlist();
-    };
-    void loadData();
-  }, []);
+  const { wishlistIds } = useWishlistProductIds();
 
   const renderState = (text: string) => (
     <div className="mx-auto mb-8 px-16 py-8 text-sm">
@@ -80,11 +60,7 @@ export const NewArrivals = ({
                 key={product._id}
                 className="new-arrivals-card w-[262px] shrink-0"
               >
-                <ProductCard
-                  product={product}
-                  isFavorite={isFavorite}
-                  onWishlistChange={fetchWishlist}
-                />
+                <ProductCard product={product} isFavorite={isFavorite} />
               </div>
             );
           })}

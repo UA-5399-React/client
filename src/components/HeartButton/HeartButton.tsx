@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks';
 import { wishlistService } from '@/services/wishlist.service';
 import { useErrorStore } from '@/store/errorStore';
 
@@ -18,10 +21,11 @@ interface HeartButtonProps {
 export const HeartButton = ({
   product,
   isFavorite: initialIsFavorite,
-  onChange,
 }: HeartButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { isAuth } = useAuth();
 
   const showMessage = useErrorStore((s) => s.show);
 
@@ -38,6 +42,7 @@ export const HeartButton = ({
     const previousState = isFavorite;
     setIsFavorite(!previousState);
     setIsLoading(true);
+
     try {
       if (previousState) {
         await wishlistService.removeFromWishlist(product.id);
@@ -45,7 +50,7 @@ export const HeartButton = ({
         showMessage('success', 'Removed', 'Product removed from wishlist');
       } else {
         await wishlistService.addToWishlist({
-          productId: String(product.id),
+          productId: product.id,
           title: product.title,
           price: product.price,
           image: product.image,
@@ -54,6 +59,10 @@ export const HeartButton = ({
         showMessage('success', 'Added', 'Product added to wishlist');
       }
     } catch (error) {
+      if (!isAuth) {
+        navigate(ROUTES.LOGIN);
+      }
+
       setIsFavorite(previousState);
 
       showMessage(
@@ -63,7 +72,6 @@ export const HeartButton = ({
       );
     } finally {
       setIsLoading(false);
-      onChange?.();
     }
   };
 
@@ -80,7 +88,7 @@ export const HeartButton = ({
         strokeWidth={isFavorite ? 2.5 : 1.8}
         className={`transition-all duration-300 ${
           isFavorite
-            ? 'fill-transparent stroke-red-700'
+            ? 'fill-transparent stroke-red-500'
             : 'fill-transparent stroke-gray-400'
         } ${isLoading ? 'animate-pulse' : ''}`}
       />

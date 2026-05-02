@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 
-import { wishlistService } from '@/services/wishlist.service';
+import type { Product } from '@/types';
 
-import type { Product } from '../../types';
 import ProductCard from '../ProductCard';
 import type { ViewType } from './types';
 
@@ -13,6 +10,7 @@ interface ProductGridProps {
   isLoading?: boolean;
   viewType?: ViewType;
   error?: string | null;
+  wishlistIds: Set<string>;
 }
 
 export const ProductsGrid: React.FC<ProductGridProps> = ({
@@ -20,33 +18,8 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   isLoading = false,
   viewType = 'grid-5',
   error = null,
+  wishlistIds,
 }: ProductGridProps) => {
-  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
-  const location = useLocation();
-
-  const fetchWishlist = async () => {
-    try {
-      const user = await wishlistService.getMe();
-
-      const ids = new Set(
-        user.wishlist?.map((item: { productId: string }) => item.productId) ||
-          [],
-      );
-
-      setWishlistIds(ids);
-    } catch (err) {
-      console.error('Failed to fetch wishlist', err);
-    }
-  };
-
-  useEffect(() => {
-    const loadWishlist = async () => {
-      await fetchWishlist();
-    };
-
-    void loadWishlist();
-  }, [location.pathname]);
-
   const gridClass = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
     'grid-5': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5',
@@ -119,15 +92,10 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
             key={productId}
             product={product}
             isFavorite={isFavorite}
-            onWishlistChange={fetchWishlist}
           />
         ) : (
           <div key={productId} className="w-full min-w-0 overflow-hidden">
-            <ProductCard
-              product={product}
-              isFavorite={isFavorite}
-              onWishlistChange={fetchWishlist}
-            />
+            <ProductCard product={product} isFavorite={isFavorite} />
           </div>
         );
       })}
