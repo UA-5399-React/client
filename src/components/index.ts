@@ -18,6 +18,11 @@ export { ExportButton } from './ExportButton/ExportButton';
 export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
 export { GroupTable } from './GroupTable/GroupTable';
+export {
+  GroupTableFilter,
+  type GroupTableFilterState,
+} from './GroupTableFilter/GroupTableFilter';
+export { emptyGroupFilter } from './GroupTableFilter/utils';
 export { Header } from './Header';
 export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
