@@ -3,6 +3,7 @@ import { ArrowRightIcon } from 'lucide-react';
 
 import { ProductCard } from '@/components';
 import { ROUTES } from '@/constants';
+import { useWishlistProductIds } from '@/hooks/useWishlistProductIds';
 import type { Product } from '@/types';
 
 import './NewArrivals.css';
@@ -18,6 +19,8 @@ export const NewArrivals = ({
   isLoading,
   isError,
 }: NewArrivalsProps) => {
+  const { wishlistIds } = useWishlistProductIds();
+
   const renderState = (text: string) => (
     <div className="mx-auto mb-8 px-16 py-8 text-sm">
       <p className="text-center text-[26px]">{text}</p>
@@ -48,14 +51,19 @@ export const NewArrivals = ({
 
       <div className="new-arrivals-scroll-out">
         <div className="new-arrivals-scroll-inner flex min-w-0 gap-4 overflow-x-auto scroll-smooth pr-8 pb-4 [scrollbar-width:thin]">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="new-arrivals-card w-[262px] shrink-0"
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+          {products.map((product) => {
+            const productId = String(product._id || product.id);
+            const isFavorite = wishlistIds.has(productId);
+
+            return (
+              <div
+                key={product._id}
+                className="new-arrivals-card w-[262px] shrink-0"
+              >
+                <ProductCard product={product} isFavorite={isFavorite} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

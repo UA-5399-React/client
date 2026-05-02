@@ -88,6 +88,8 @@ export const GET_ABC_ANALYSIS = gql`
     $dateFrom: DateTime!
     $dateTo: DateTime!
     $metric: AbcMetricEnum!
+    $page: Int!
+    $limit: Int!
     $aThreshold: Int
     $bThreshold: Int
     $categoryId: ID
@@ -96,10 +98,15 @@ export const GET_ABC_ANALYSIS = gql`
       dateFrom: $dateFrom
       dateTo: $dateTo
       metric: $metric
+      page: $page
+      limit: $limit
       aThreshold: $aThreshold
       bThreshold: $bThreshold
       categoryId: $categoryId
     ) {
+      total
+      page
+      limit
       items {
         productName
         productCode

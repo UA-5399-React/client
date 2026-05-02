@@ -4,15 +4,18 @@ import { ListFilter } from 'lucide-react';
 import {
   Button,
   MainTable,
+  Pagination,
   SalesDynamicsFilter,
   Switcher,
   ThresholdRange,
 } from '@/components';
+import { ADMIN_PAGE_LIMIT } from '@/constants';
 import {
   COLOR_MIN,
   COLOR_RANGE,
   LEFT_MAX,
   LEFT_MIN,
+  PAGE,
   QUANTITY,
   REVENUE,
   RIGHT_MAX,
@@ -85,9 +88,12 @@ export function ABCAnalysisTable() {
     () => toIsoDateRange(appliedFilter.dateFrom, appliedFilter.dateTo),
     [appliedFilter.dateFrom, appliedFilter.dateTo],
   );
+  const [currentPage, setCurrentPage] = useState(PAGE);
 
-  const { items, summary, loading, error } = useAbcAnalysis({
+  const { items, summary, totalPages, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
+    page: currentPage,
+    limit: ADMIN_PAGE_LIMIT,
     aThreshold: redThreshold,
     bThreshold: greenThreshold,
     dateFrom: queryDateRange.dateFrom,
@@ -97,10 +103,12 @@ export function ABCAnalysisTable() {
 
   const handleRedThresholdChange = (value: number) => {
     setRedThreshold(Math.max(LEFT_MIN, Math.min(value, LEFT_MAX)));
+    setCurrentPage(PAGE);
   };
 
   const handleGreenThresholdChange = (value: number) => {
     setGreenThreshold(Math.min(RIGHT_MAX, Math.max(value, RIGHT_MIN)));
+    setCurrentPage(PAGE);
   };
 
   const columns = useMemo<Column[]>(
@@ -167,7 +175,7 @@ export function ABCAnalysisTable() {
   };
 
   return (
-    <div className="flex flex-col gap-4 space-y-3">
+    <div className="flex flex-col space-y-3 pb-4">
       <div className="flex flex-wrap items-center justify-between gap-4 px-5">
         <ThresholdRange
           redThreshold={redThreshold}
@@ -187,11 +195,12 @@ export function ABCAnalysisTable() {
             isRightActive={metricMode === REVENUE}
             leftLabel="Count"
             rightLabel="Revenue"
-            onToggle={() =>
+            onToggle={() => {
               setMetricMode((prevMode) =>
                 prevMode === REVENUE ? QUANTITY : REVENUE,
-              )
-            }
+              );
+              setCurrentPage(PAGE);
+            }}
             ariaLabel="Toggle between quantity and revenue"
           />
 
@@ -209,7 +218,10 @@ export function ABCAnalysisTable() {
               <SalesDynamicsFilter
                 isOpen={true}
                 onClose={() => setShowFilters(false)}
-                onApply={(filter) => setAppliedFilter(filter as FilterState)}
+                onApply={(filter) => {
+                  setAppliedFilter(filter as FilterState);
+                  setCurrentPage(PAGE);
+                }}
                 initial={appliedFilter}
                 isRequired={false}
                 isShowProduct={false}
@@ -228,6 +240,14 @@ export function ABCAnalysisTable() {
         renderRow={(item) => renderRow(item)}
         summary={summary ? renderSummary(summary) : null}
       />
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

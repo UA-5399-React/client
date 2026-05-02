@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
-import { AccountSidebar, BackButton, Button } from '@/components';
+import { AccountSidebar, BackButton, Button, ConfirmModal } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -10,6 +10,7 @@ import {
   type UserWishlistItem,
   wishlistService,
 } from '@/services/wishlist.service';
+import { useErrorStore } from '@/store/errorStore';
 import type { User } from '@/types/user';
 
 type ExtendedUser = User & UserResponse;
@@ -19,6 +20,9 @@ export function Wishlist() {
   const [user, setUser] = useState<ExtendedUser | null>(null);
   const [wishlistItems, setWishlistItems] = useState<UserWishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showMessage = useErrorStore((s) => s.show);
 
   useEffect(() => {
     const loadWishlist = async () => {
@@ -55,7 +59,32 @@ export function Wishlist() {
   };
 
   const handleClearAll = () => {
-    setWishlistItems([]);
+    setIsModalOpen(true);
+  };
+
+  const confirmClearAll = async () => {
+    try {
+      setIsClearing(true);
+
+      await wishlistService.clearFullWishlist();
+
+      setWishlistItems([]);
+      showMessage(
+        'success',
+        'Wishlist cleared',
+        'All items have been removed.',
+      );
+    } catch (error) {
+      console.error('Failed to clear wishlist:', error);
+      showMessage(
+        'error',
+        'Error',
+        error instanceof Error ? error.message : 'Could not clear wishlist',
+      );
+    } finally {
+      setIsClearing(false);
+      setIsModalOpen(false);
+    }
   };
 
   if (isLoading)
@@ -85,10 +114,10 @@ export function Wishlist() {
 
               <Button
                 onClick={handleClearAll}
-                disabled={wishlistItems.length === 0}
+                disabled={wishlistItems.length === 0 || isClearing}
                 className="text-text hover:bg-backgroundSec h-[40px] rounded-md border border-neutral-900! bg-transparent px-5 text-sm font-medium transition disabled:cursor-not-allowed"
               >
-                Clear all
+                {isClearing ? 'Clearing...' : 'Clear all'}
               </Button>
             </div>
 
@@ -149,6 +178,17 @@ export function Wishlist() {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+        <ConfirmModal
+          title="Clear all wishlist?"
+          description="Are you sure you want to remove all items from your wishlist? This action cannot be undone."
+          confirmText={isClearing ? 'Clearing...' : 'Yes, clear all'}
+          cancelText="Cancel"
+          onConfirm={confirmClearAll}
+          onCancel={() => setIsModalOpen(false)}
+          isCritical={true}
+        />
+      )}
     </section>
   );
 }

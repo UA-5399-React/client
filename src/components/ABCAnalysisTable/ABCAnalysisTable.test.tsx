@@ -33,6 +33,7 @@ describe('UI Component: ABCAnalysisTable', () => {
         metric: 'REVENUE',
         totalValue: 1200.5,
       },
+      total: 1,
       loading: false,
       error: undefined,
       refetch: vi.fn(),
@@ -68,6 +69,7 @@ describe('UI Component: ABCAnalysisTable', () => {
         },
       ],
       summary: null,
+      total: 1,
       loading: false,
       error: undefined,
       refetch: vi.fn(),
@@ -101,6 +103,7 @@ describe('UI Component: ABCAnalysisTable', () => {
     mockUseAbcAnalysis.mockReturnValue({
       items: [],
       summary: null,
+      total: 1,
       loading: false,
       error: undefined,
       refetch: vi.fn(),

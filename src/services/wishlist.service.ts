@@ -21,4 +21,7 @@ export const wishlistService = {
 
   removeFromWishlist: (productId: string): Promise<UserResponse> =>
     apiClient.delete<UserResponse>(`/users/me/wishlist/${productId}`),
+
+  clearFullWishlist: (): Promise<UserResponse> =>
+    apiClient.delete<UserResponse>('/users/me/wishlist'),
 };

@@ -110,6 +110,7 @@ export interface AbcAnalysisQueryData {
   getAbcAnalysis: {
     items: AbcAnalysisItem[];
     summary: AbcAnalysisSummary;
+    total: number;
   };
 }
 
@@ -117,6 +118,8 @@ export interface AbcAnalysisQueryVariables {
   dateFrom: string;
   dateTo: string;
   metric: AbcMetricEnum;
+  page: number;
+  limit: number;
   aThreshold?: number;
   bThreshold?: number;
   categoryId?: string | null;

@@ -6,6 +6,7 @@ import type { DropdownOption } from '@/components/Dropdown';
 import { ShopFilters } from '@/components/ShopFilters';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useProducts } from '@/hooks/useProducts';
+import { useWishlistProductIds } from '@/hooks/useWishlistProductIds';
 
 import { ProductsGrid } from '../../components/ProductsGrid/ProductsGrid';
 import type { ViewType } from '../../components/ProductsGrid/types';
@@ -15,6 +16,7 @@ import { SORT_OPTIONS } from './types';
 import './Products.css';
 
 export const Products = () => {
+  const { wishlistIds } = useWishlistProductIds();
   const [viewType, setViewType] = useState<ViewType>('grid-5');
   const [isMobile, setIsMobile] = useState(false);
 
@@ -130,6 +132,7 @@ export const Products = () => {
             products={data?.items ?? []}
             viewType={viewType}
             isLoading={isLoading || isFetching}
+            wishlistIds={wishlistIds}
           />
           {data && (
             <Pagination
