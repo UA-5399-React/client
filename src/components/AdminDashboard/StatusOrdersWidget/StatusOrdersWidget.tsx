@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useOrdersStatusStats } from '@/hooks/useOrdersStatusStats';
@@ -40,14 +41,23 @@ export const StatusOrdersWidget = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useOrdersStatusStats();
 
+  const statusesWithPercentage = useMemo(() => {
+    if (!data) return [];
+
+    return data.statuses.map((s) => ({
+      ...s,
+      percentage: data.total > 0 ? Math.round((s.count / data.total) * 100) : 0,
+    }));
+  }, [data]);
+
   if (isLoading) return <StatusOrdersSkeleton />;
   if (error || !data)
     return <div className="text-sm text-red-400">Error loading data</div>;
 
   return (
     <div className="flex flex-col items-center gap-6 py-2">
-      <StatusOrdersChart data={data} />
-      <StatusOrdersLegend statuses={data.statuses} />
+      <StatusOrdersChart data={{ ...data, statuses: statusesWithPercentage }} />
+      <StatusOrdersLegend statuses={statusesWithPercentage} />
 
       <button
         onClick={() => navigate('/admin/orders')}

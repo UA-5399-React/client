@@ -19,7 +19,7 @@ export const ProductCard = ({ product, isFavorite }: ProductCardProps) => {
   const [imgError, setImgError] = useState(false);
   const productPath = ROUTES.PRODUCT.replace(':id', _id ?? id);
 
-  const productId = id ?? _id ?? '';
+  const productId = String(product._id || product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
