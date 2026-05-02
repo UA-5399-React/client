@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { DropdownOption } from '@/components';
-import { SalesDynamicsWidget } from '@/components';
-import { Dropdown, GroupTable, StatusOrdersWidget } from '@/components';
+import {
+  ABCAnalysisTable,
+  Dropdown,
+  type DropdownOption,
+  GroupTable,
+  SalesDynamicsWidget,
+  StatusOrdersWidget,
+} from '@/components';
 import { ROUTES } from '@/constants';
 import { CATEGORY, DAY, PRODUCT } from '@/constants/general';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,7 +41,7 @@ function DashboardCard({
       className={`bg-background rounded-2xl border border-gray-300 ${className}`}
     >
       <div className="mb-4 flex items-start justify-between gap-3 p-4">
-        <h2 className="text-text text-xs font-bold tracking-[0.08em] uppercase">
+        <h2 className="text-text text-base font-bold tracking-[0.08em] uppercase">
           {title}
         </h2>
       </div>
@@ -60,7 +65,12 @@ export function Dashboard() {
     error: periodError,
   } = useUserStats(selectedPeriod, isSuperAdmin);
 
-  const { items, loading, error } = useGroupByTable({
+  const {
+    items,
+    summary: groupSummary,
+    loading,
+    error,
+  } = useGroupByTable({
     groupBy: selectedGroupBy,
   });
 
@@ -98,10 +108,9 @@ export function Dashboard() {
             <SalesDynamicsWidget />
           </DashboardCard>
 
-          <DashboardCard
-            title="ABC Analysis"
-            className="min-h-[300px]"
-          ></DashboardCard>
+          <DashboardCard title="ABC Analysis" className="min-h-[300px]">
+            <ABCAnalysisTable />
+          </DashboardCard>
 
           <DashboardCard title="Group" className="min-h-[320px]">
             <div className="flex items-center justify-end px-4 pb-4">
@@ -117,6 +126,7 @@ export function Dashboard() {
             </div>
 
             <GroupTable
+              summary={groupSummary}
               groupBy={selectedGroupBy}
               items={items}
               loading={loading}
