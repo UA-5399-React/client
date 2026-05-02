@@ -56,25 +56,30 @@ export interface SalesByCategorySummary {
   totalRevenue: number;
 }
 
+export interface PaginatedSalesResponse<TItem, TSummary> {
+  items: TItem[];
+  total: number;
+  page: number;
+  limit: number;
+  summary: TSummary;
+}
+
 export interface SalesByProductQueryData {
-  getSalesByProduct: {
-    items: SalesByProductItem[];
-    summary: SalesByProductSummary;
-  };
+  getSalesByProduct: PaginatedSalesResponse<
+    SalesByProductItem,
+    SalesByProductSummary
+  >;
 }
 
 export interface SalesByDayQueryData {
-  getSalesByDay: {
-    items: SalesByDayItem[];
-    summary: SalesByDaySummary;
-  };
+  getSalesByDay: PaginatedSalesResponse<SalesByDayItem, SalesByDaySummary>;
 }
 
 export interface SalesByCategoryQueryData {
-  getSalesByCategory: {
-    items: SalesByCategoryItem[];
-    summary: SalesByCategorySummary;
-  };
+  getSalesByCategory: PaginatedSalesResponse<
+    SalesByCategoryItem,
+    SalesByCategorySummary
+  >;
 }
 
 export interface SalesByProductQueryVariables {
@@ -82,6 +87,8 @@ export interface SalesByProductQueryVariables {
   dateTo: string;
   groupBy: GroupByEnum;
   categoryId?: string | null;
+  page?: number;
+  limit?: number;
 }
 
 export type AbcMetricEnum = 'UNITS' | 'REVENUE';
