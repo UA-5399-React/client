@@ -2,67 +2,42 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
-import { AccountSidebar, BackButton, Button } from '@/components';
+import { AccountSidebar, BackButton, Button, ConfirmModal } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
-import { usersService } from '@/services/users.service';
+import {
+  type UserResponse,
+  type UserWishlistItem,
+  wishlistService,
+} from '@/services/wishlist.service';
+import { useErrorStore } from '@/store/errorStore';
 import type { User } from '@/types/user';
 
-type WishlistItem = {
-  id: string;
-  name: string;
-  color: string;
-  price: string;
-  imageUrl: string;
-};
-
-const MOCK_WISHLIST_ITEMS: WishlistItem[] = [
-  {
-    id: '1',
-    name: 'Tray Table',
-    color: 'Black',
-    price: '$19.19',
-    imageUrl:
-      'https://images.unsplash.com/photo-1581539250439-c96689b516dd?w=300&q=80',
-  },
-  {
-    id: '2',
-    name: 'Sofa',
-    color: 'Beige',
-    price: '$345',
-    imageUrl:
-      'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=300&q=80',
-  },
-  {
-    id: '3',
-    name: 'Bamboo basket',
-    color: 'Beige',
-    price: '$8.80',
-    imageUrl:
-      'https://images.unsplash.com/photo-1613690573436-3f0a8f40a1db?w=300&q=80',
-  },
-  {
-    id: '4',
-    name: 'Pillow',
-    color: 'Beige',
-    price: '$8.80',
-    imageUrl:
-      'https://images.unsplash.com/photo-1584285405429-e5b9c9f2f6d8?w=300&q=80',
-  },
-];
+type ExtendedUser = User & UserResponse;
 
 export function Wishlist() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [wishlistItems, setWishlistItems] =
-    useState<WishlistItem[]>(MOCK_WISHLIST_ITEMS);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [wishlistItems, setWishlistItems] = useState<UserWishlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showMessage = useErrorStore((s) => s.show);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const user = await usersService.getMe();
-      setUser(user);
+    const loadWishlist = async () => {
+      try {
+        setIsLoading(true);
+        const userData = await wishlistService.getMe();
+        setUser(userData as ExtendedUser);
+        setWishlistItems(userData.wishlist || []);
+      } catch (error) {
+        console.error('Failed to load wishlist:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    void loadUser();
+    void loadWishlist();
   }, []);
 
   const { logout } = useAuth();
@@ -72,17 +47,52 @@ export function Wishlist() {
     navigate(ROUTES.LOGIN);
   };
 
-  const handleRemoveItem = (id: string) => {
-    setWishlistItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const handleRemoveItem = async (productId: string) => {
+    try {
+      await wishlistService.removeFromWishlist(productId);
+      setWishlistItems((prev) =>
+        prev.filter((item) => item.productId !== productId),
+      );
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+    }
   };
 
   const handleClearAll = () => {
-    setWishlistItems([]);
+    setIsModalOpen(true);
   };
 
-  if (!user) {
-    return <div>User not found</div>;
-  }
+  const confirmClearAll = async () => {
+    try {
+      setIsClearing(true);
+
+      await wishlistService.clearFullWishlist();
+
+      setWishlistItems([]);
+      showMessage(
+        'success',
+        'Wishlist cleared',
+        'All items have been removed.',
+      );
+    } catch (error) {
+      console.error('Failed to clear wishlist:', error);
+      showMessage(
+        'error',
+        'Error',
+        error instanceof Error ? error.message : 'Could not clear wishlist',
+      );
+    } finally {
+      setIsClearing(false);
+      setIsModalOpen(false);
+    }
+  };
+
+  if (isLoading)
+    return <div className="p-20 text-center">Loading your favorites...</div>;
+  if (!user)
+    return (
+      <div className="p-20 text-center">Please login to see your wishlist</div>
+    );
 
   return (
     <section className="bg-background text-text min-h-screen px-8 lg:px-40 lg:pb-20">
@@ -104,10 +114,10 @@ export function Wishlist() {
 
               <Button
                 onClick={handleClearAll}
-                disabled={wishlistItems.length === 0}
+                disabled={wishlistItems.length === 0 || isClearing}
                 className="text-text hover:bg-backgroundSec h-[40px] rounded-md border border-neutral-900! bg-transparent px-5 text-sm font-medium transition disabled:cursor-not-allowed"
               >
-                Clear all
+                {isClearing ? 'Clearing...' : 'Clear all'}
               </Button>
             </div>
 
@@ -125,37 +135,34 @@ export function Wishlist() {
               <div>
                 {wishlistItems.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.productId}
                     className="grid grid-cols-1 gap-4 border-b border-[#E8ECEF] py-4 md:grid-cols-[minmax(0,1fr)_120px_120px] md:items-center md:gap-0"
                   >
                     <div className="flex items-center gap-3">
                       <Button
                         type="button"
-                        onClick={() => handleRemoveItem(item.id)}
+                        onClick={() => handleRemoveItem(item.productId)}
                         className="text-muted hover:text-text shrink-0 cursor-pointer border-none bg-transparent transition"
-                        aria-label={`Remove ${item.name} from wishlist`}
+                        aria-label={`Remove ${item.title} from wishlist`}
                       >
                         <X size={18} />
                       </Button>
 
                       <img
-                        src={item.imageUrl}
-                        alt={item.name}
+                        src={item.image || '/placeholder.png'}
+                        alt={item.title}
                         className="h-[72px] w-[72px] rounded-sm object-cover"
                       />
 
                       <div>
                         <p className="text-text text-sm font-semibold">
-                          {item.name}
-                        </p>
-                        <p className="text-muted mt-1 text-xs">
-                          Color: {item.color}
+                          {item.title}
                         </p>
                       </div>
                     </div>
 
                     <p className="text-text text-sm md:text-base">
-                      {item.price}
+                      ${item.price}
                     </p>
 
                     <Button
@@ -171,6 +178,17 @@ export function Wishlist() {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+        <ConfirmModal
+          title="Clear all wishlist?"
+          description="Are you sure you want to remove all items from your wishlist? This action cannot be undone."
+          confirmText={isClearing ? 'Clearing...' : 'Yes, clear all'}
+          cancelText="Cancel"
+          onConfirm={confirmClearAll}
+          onCancel={() => setIsModalOpen(false)}
+          isCritical={true}
+        />
+      )}
     </section>
   );
 }

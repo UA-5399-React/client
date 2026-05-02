@@ -1,6 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 
-import type { Product } from '../../types';
+import type { Product } from '@/types';
+
 import ProductCard from '../ProductCard';
 import type { ViewType } from './types';
 
@@ -9,6 +10,7 @@ interface ProductGridProps {
   isLoading?: boolean;
   viewType?: ViewType;
   error?: string | null;
+  wishlistIds: Set<string>;
 }
 
 export const ProductsGrid: React.FC<ProductGridProps> = ({
@@ -16,6 +18,7 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
   isLoading = false,
   viewType = 'grid-5',
   error = null,
+  wishlistIds,
 }: ProductGridProps) => {
   const gridClass = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
@@ -82,15 +85,17 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
       className={`grid gap-4 pb-12 transition-opacity duration-500 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
     >
       {products.map((product) => {
-        const key = product._id || product.id;
+        const productId = String(product._id || product.id);
+        const isFavorite = wishlistIds.has(productId);
         return viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed
-            key={key}
+            key={productId}
             product={product}
+            isFavorite={isFavorite}
           />
         ) : (
-          <div key={key} className="w-full min-w-0 overflow-hidden">
-            <ProductCard product={product} />
+          <div key={productId} className="w-full min-w-0 overflow-hidden">
+            <ProductCard product={product} isFavorite={isFavorite} />
           </div>
         );
       })}

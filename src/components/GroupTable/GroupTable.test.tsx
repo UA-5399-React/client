@@ -44,6 +44,7 @@ describe('UI Component: GroupTable', () => {
         items={productItems}
         loading={false}
         error={null}
+        summary={null}
       />,
     );
 
@@ -73,6 +74,7 @@ describe('UI Component: GroupTable', () => {
         items={dayItems}
         loading={false}
         error={null}
+        summary={null}
       />,
     );
 
@@ -106,6 +108,7 @@ describe('UI Component: GroupTable', () => {
         items={categoryItems}
         loading={false}
         error={null}
+        summary={null}
       />,
     );
 
@@ -126,7 +129,13 @@ describe('UI Component: GroupTable', () => {
 
   it('should show empty state when there are no items', () => {
     render(
-      <GroupTable groupBy="PRODUCT" items={[]} loading={false} error={null} />,
+      <GroupTable
+        groupBy="PRODUCT"
+        items={[]}
+        loading={false}
+        error={null}
+        summary={null}
+      />,
     );
 
     expect(screen.getByText('No sales data found')).toBeInTheDocument();
@@ -134,7 +143,13 @@ describe('UI Component: GroupTable', () => {
 
   it('should show loading and error states from MainTable', () => {
     const { rerender } = render(
-      <GroupTable groupBy="PRODUCT" items={[]} loading error={null} />,
+      <GroupTable
+        groupBy="PRODUCT"
+        items={[]}
+        loading
+        error={null}
+        summary={null}
+      />,
     );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -145,6 +160,7 @@ describe('UI Component: GroupTable', () => {
         items={productItems}
         loading={false}
         error={new Error('Network failure')}
+        summary={null}
       />,
     );
 
