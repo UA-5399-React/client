@@ -1,5 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
@@ -256,7 +257,7 @@ describe('Cart Page', () => {
     expect(screen.getAllByText('$100.00').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('handles coupon application', () => {
+  it('handles coupon application', async () => {
     setupWithItems();
     render(
       <BrowserRouter>
@@ -264,13 +265,15 @@ describe('Cart Page', () => {
       </BrowserRouter>,
     );
 
+    const user = userEvent.setup();
+
     const input = screen.getByPlaceholderText(/Coupon Code/i);
-    fireEvent.change(input, { target: { value: 'SAVE10' } });
+    await user.type(input, 'SAVE10');
 
-    const applyBtn = screen.getByRole('button', { name: /apply/i });
-    fireEvent.click(applyBtn);
+    // Apply button is hidden while input has value (clear button takes its place),
+    // so we submit the form by pressing Enter instead
+    await user.keyboard('{Enter}');
 
-    // Input should be cleared after application (based on Cart.tsx logic)
     expect(input).toHaveValue('');
   });
 

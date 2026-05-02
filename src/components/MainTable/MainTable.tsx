@@ -14,6 +14,7 @@ interface MainTableProps<T extends TableItem> {
   error?: Error | null;
   colSpan?: number;
   emptyMessage?: string;
+  summary?: ReactNode;
 }
 
 interface RenderBodyContentProps<T extends TableItem> {
@@ -82,6 +83,7 @@ export function MainTable<T extends TableItem>({
   error,
   colSpan = columns.length,
   emptyMessage = 'No data found',
+  summary,
 }: MainTableProps<T>) {
   return (
     <div className="overflow-x-auto rounded-l-lg rounded-r-lg border border-gray-100 shadow-md">
@@ -112,6 +114,11 @@ export function MainTable<T extends TableItem>({
             emptyMessage,
             renderRow,
           })}
+          {summary && (
+            <tr>
+              <td colSpan={colSpan}>{summary}</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

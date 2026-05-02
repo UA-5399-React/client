@@ -15,6 +15,7 @@ interface HeartButtonProps {
     image?: string;
   };
   isFavorite: boolean;
+  onChange?: () => void;
 }
 
 export const HeartButton = ({

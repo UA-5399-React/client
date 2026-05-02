@@ -1,6 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 
-import type { Product } from '../../types';
+import type { Product } from '@/types';
+
 import ProductCard from '../ProductCard';
 import type { ViewType } from './types';
 
@@ -84,7 +85,7 @@ export const ProductsGrid: React.FC<ProductGridProps> = ({
       className={`grid gap-4 pb-12 transition-opacity duration-500 sm:gap-5 lg:gap-6 ${isLoading ? 'opacity-50' : 'opacity-100'} ${gridClass}`}
     >
       {products.map((product) => {
-        const productId = (product._id || product.id || '').toString();
+        const productId = String(product._id || product.id);
         const isFavorite = wishlistIds.has(productId);
         return viewType === 'list' ? (
           <ProductCard /// List view can have a different card design, so we can create a separate component if needed
