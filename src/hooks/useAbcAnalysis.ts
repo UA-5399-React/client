@@ -8,18 +8,7 @@ import type {
   AbcAnalysisQueryVariables,
   AbcMetricEnum,
 } from '@/types/statistic.types';
-
-function getDefaultRange() {
-  const now = new Date();
-  const startOfMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0),
-  );
-
-  return {
-    dateFrom: startOfMonth.toISOString(),
-    dateTo: now.toISOString(),
-  };
-}
+import { getDefaultDateCurrentMonth } from '@/utils/date.utils';
 
 interface UseAbcAnalysisParams {
   metric?: AbcMetricEnum;
@@ -38,7 +27,7 @@ export function useAbcAnalysis({
   bThreshold = 95,
   categoryId = null,
 }: UseAbcAnalysisParams = {}) {
-  const defaults = useMemo(() => getDefaultRange(), []);
+  const defaults = useMemo(() => getDefaultDateCurrentMonth(), []);
 
   const variables: AbcAnalysisQueryVariables = {
     metric,
@@ -57,7 +46,10 @@ export function useAbcAnalysis({
   return {
     items: data?.getAbcAnalysis?.items ?? [],
     summary: data?.getAbcAnalysis?.summary ?? null,
+    categoryId,
     loading,
+    dateFrom,
+    dateTo,
     error,
     refetch,
   };

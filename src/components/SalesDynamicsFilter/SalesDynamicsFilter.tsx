@@ -10,12 +10,14 @@ export interface FilterState {
   dateFrom: string;
   dateTo: string;
   categoryId: string;
-  productId: string;
-  productName: string;
+  productId?: string;
+  productName?: string;
 }
 
 export interface SalesDynamicsFilterProps {
   isOpen: boolean;
+  isRequired?: boolean;
+  isShowProduct?: boolean;
   onClose: () => void;
   onApply: (filter: FilterState) => void;
   initial: FilterState;
@@ -44,6 +46,8 @@ const emptyFilter = (): FilterState => {
 export function SalesDynamicsFilter({
   isOpen,
   onClose,
+  isRequired = true,
+  isShowProduct = true,
   onApply,
   initial,
 }: SalesDynamicsFilterProps) {
@@ -183,44 +187,46 @@ export function SalesDynamicsFilter({
             </div>
           </div>
 
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-blue-500">
-                Product
-              </span>
-              <button
-                onClick={() =>
-                  setDraft((p) => ({ ...p, productId: '', productName: '' }))
-                }
-                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
-                title="Reset product"
-              >
-                <RotateCcw size={14} strokeWidth={1.5} />
-              </button>
-            </div>
-            <div className="relative">
-              <select
-                value={draft.productId}
-                onChange={(e) => handleProductChange(e.target.value)}
-                disabled={!draft.categoryId || prodLoading}
-                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-8 text-[13px] text-slate-700 transition-colors outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="">
-                  {!draft.categoryId ? 'Select category first' : 'Product'}
-                </option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
+          {isShowProduct && (
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[13px] font-semibold text-blue-500">
+                  Product
+                </span>
+                <button
+                  onClick={() =>
+                    setDraft((p) => ({ ...p, productId: '', productName: '' }))
+                  }
+                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-transparent text-slate-400 transition-colors outline-none hover:bg-slate-100 hover:text-blue-500 focus:outline-none"
+                  title="Reset product"
+                >
+                  <RotateCcw size={14} strokeWidth={1.5} />
+                </button>
+              </div>
+              <div className="relative">
+                <select
+                  value={draft.productId}
+                  onChange={(e) => handleProductChange(e.target.value)}
+                  disabled={!draft.categoryId || prodLoading}
+                  className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-8 text-[13px] text-slate-700 transition-colors outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">
+                    {!draft.categoryId ? 'Select category first' : 'Product'}
                   </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={14}
-                strokeWidth={1.5}
-                className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-slate-400"
-              />
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={1.5}
+                  className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-slate-400"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="flex gap-3 border-t border-slate-100 px-5 py-4">
@@ -236,7 +242,7 @@ export function SalesDynamicsFilter({
           <Button
             variant="primary"
             onClick={handleApply}
-            disabled={!draft.productId}
+            disabled={!draft.productId && isRequired}
             className="flex flex-1 items-center justify-center gap-2"
           >
             <Check size={14} strokeWidth={1.5} />
