@@ -21,6 +21,7 @@ interface UseAbcAnalysisParams {
   aThreshold?: number;
   bThreshold?: number;
   categoryId?: string | null;
+  search?: string | null;
 }
 
 export function useAbcAnalysis({
@@ -32,6 +33,7 @@ export function useAbcAnalysis({
   aThreshold = 80,
   bThreshold = 95,
   categoryId = null,
+  search = null,
 }: UseAbcAnalysisParams = {}) {
   const defaults = useMemo(() => getDefaultDateCurrentMonth(), []);
 
@@ -44,6 +46,7 @@ export function useAbcAnalysis({
     aThreshold,
     bThreshold,
     categoryId,
+    search,
   };
 
   const { data, loading, error, refetch } = useQuery<

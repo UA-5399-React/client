@@ -132,4 +132,5 @@ export interface AbcAnalysisQueryVariables {
   aThreshold?: number;
   bThreshold?: number;
   categoryId?: string | null;
+  search: string | null;
 }

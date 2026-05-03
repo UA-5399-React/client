@@ -114,6 +114,7 @@ export const GET_ABC_ANALYSIS = gql`
     $aThreshold: Int
     $bThreshold: Int
     $categoryId: ID
+    $search: String
   ) {
     getAbcAnalysis(
       dateFrom: $dateFrom
@@ -124,6 +125,7 @@ export const GET_ABC_ANALYSIS = gql`
       aThreshold: $aThreshold
       bThreshold: $bThreshold
       categoryId: $categoryId
+      search: $search
     ) {
       total
       page
