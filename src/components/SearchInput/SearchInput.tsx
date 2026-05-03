@@ -7,9 +7,11 @@ type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
   onFocus?: FocusEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
   disabled?: boolean;
   error?: boolean;
+  ariaInvalid?: boolean;
   className?: string;
 };
 
@@ -18,11 +20,14 @@ export function SearchInput({
   value,
   onChange,
   onFocus,
+  onBlur,
   placeholder = 'Search',
   disabled = false,
   error = false,
+  ariaInvalid: ariaInvalidProp,
   className = '',
 }: SearchInputProps) {
+  const ariaInvalid = ariaInvalidProp !== undefined ? ariaInvalidProp : error;
   // Border color depending on component state
   const borderClass = clsx({
     'border-gray-600': disabled,
@@ -68,9 +73,10 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={placeholder}
         disabled={disabled}
-        aria-invalid={error || undefined}
+        aria-invalid={ariaInvalid || undefined}
         className={clsx(
           'box-border h-[44px] w-full rounded-[8px] border',
           'py-[10px] pl-[42px]',

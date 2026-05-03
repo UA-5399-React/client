@@ -27,7 +27,7 @@ const STATE_STYLES = {
     underlined: 'focus:border-border-focus',
   },
   success: 'border-green-500',
-  error: 'border-red-500',
+  error: 'border-red-600',
 };
 
 const ICON_WRAPPER_CLASSES =
@@ -96,6 +96,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     const handleClear = () => {
+      console.log('handleClear');
       const input = resolvedRef.current;
       if (!input) return;
 
@@ -130,7 +131,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={clsx(LABEL_CLASSES, labelClassName)}
           >
             {label}{' '}
-            {required && <span className="font-bold text-red-500">*</span>}
+            {required && <span className="font-bold text-red-600">*</span>}
           </label>
         )}
 

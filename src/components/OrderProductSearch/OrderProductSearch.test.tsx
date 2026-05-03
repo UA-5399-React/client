@@ -135,6 +135,43 @@ describe('Component: OrderProductSearch', () => {
     ).toHaveAttribute('aria-invalid', 'true');
   });
 
+  it('does not show error outline or message while focused when empty and error is set', async () => {
+    const user = userEvent.setup();
+    render(
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+        error="Pick a product"
+      />,
+    );
+
+    const input = screen.getByRole('textbox', { name: searchProductInputName });
+    expect(input).toHaveClass('border-red-600');
+    expect(screen.getByText('Pick a product')).toBeInTheDocument();
+
+    await user.click(input);
+
+    expect(input).not.toHaveClass('border-red-600');
+    expect(screen.queryByText('Pick a product')).not.toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('shows error outline again on blur when still empty and error is set', async () => {
+    const user = userEvent.setup();
+    render(
+      <TestHarness
+        items={[{ productId: '', productName: '', price: '', quantity: '1' }]}
+        error="Pick a product"
+      />,
+    );
+
+    const input = screen.getByRole('textbox', { name: searchProductInputName });
+    await user.click(input);
+    await user.tab();
+
+    expect(input).toHaveClass('border-red-600');
+    expect(screen.getByText('Pick a product')).toBeInTheDocument();
+  });
+
   it('opens suggestions on focus and shows empty state when there are no products', async () => {
     const user = userEvent.setup();
 

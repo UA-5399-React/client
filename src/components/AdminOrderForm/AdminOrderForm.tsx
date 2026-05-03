@@ -281,7 +281,7 @@ export function AdminOrderForm({
                   required
                 />
                 {errors.carrier?.message && (
-                  <span className="mt-1 text-xs text-red-500">
+                  <span className="mt-1 text-xs text-red-600">
                     {errors.carrier.message}
                   </span>
                 )}
@@ -297,7 +297,7 @@ export function AdminOrderForm({
                 {isNovaPostCarrier ? (
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
-                      City <span className="font-bold text-red-500">*</span>
+                      City <span className="font-bold text-red-600">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -316,7 +316,7 @@ export function AdminOrderForm({
                       onSearchChange={(s) => setCitySearch(s)}
                     />
 
-                    <span className="mt-1 block h-2 text-xs text-red-500">
+                    <span className="mt-1 block h-2 text-xs text-red-600">
                       {errors.city?.message}
                     </span>
                   </>
@@ -345,7 +345,7 @@ export function AdminOrderForm({
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
                       Branch Number{' '}
-                      <span className="font-bold text-red-500">*</span>
+                      <span className="font-bold text-red-600">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -363,7 +363,7 @@ export function AdminOrderForm({
                       onSearchChange={(s) => setWarehouseSearch(s)}
                     />
 
-                    <span className="mt-1 block h-2 text-xs text-red-500">
+                    <span className="mt-1 block h-2 text-xs text-red-600">
                       {errors.branchNumber?.message}
                     </span>
                   </>

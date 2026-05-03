@@ -71,7 +71,7 @@ export const Dropdown = ({
         nativeLabel={false}
         render={<div />}
       >
-        {label} {required && <span className="font-bold text-red-500">*</span>}
+        {label} {required && <span className="font-bold text-red-600">*</span>}
       </Field.Label>
 
       <Select.Root

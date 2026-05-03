@@ -82,6 +82,16 @@ describe('UI Component: SearchInput', () => {
     expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
   });
 
+  it('should use ariaInvalid for aria-invalid when provided, independent of error outline', () => {
+    render(
+      <SearchInput value="" onChange={vi.fn()} error={false} ariaInvalid />,
+    );
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('textbox')).toHaveClass(
+      'border-[rgb(var(--default-border))]',
+    );
+  });
+
   it('should not set aria-invalid by default', () => {
     render(<SearchInput value="" onChange={vi.fn()} />);
     expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
