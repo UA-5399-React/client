@@ -1,4 +1,11 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { EllipsisVertical } from 'lucide-react';
 
@@ -27,14 +34,32 @@ export const ActionMenu = ({
   triggerAriaLabel,
 }: ActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const updateMenuPosition = useCallback(() => {
+    const trigger = rootRef.current;
+    if (!trigger) return;
+
+    const rect = trigger.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.top,
+      left: rect.right - 50,
+    });
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const close = (e: PointerEvent) => {
       const el = rootRef.current;
-      if (el && !el.contains(e.target as Node)) {
+      const menuEl = menuRef.current;
+      const target = e.target as Node;
+
+      if (el?.contains(target) || menuEl?.contains(target)) return;
+
+      if (el) {
         setIsOpen(false);
       }
     };
@@ -42,6 +67,20 @@ export const ActionMenu = ({
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    updateMenuPosition();
+
+    window.addEventListener('resize', updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updateMenuPosition);
+      window.removeEventListener('scroll', updateMenuPosition, true);
+    };
+  }, [isOpen, updateMenuPosition]);
 
   if (!actions.length) return null;
 
@@ -52,49 +91,61 @@ export const ActionMenu = ({
         aria-label={triggerAriaLabel ?? 'Open actions menu'}
         className={clsx(
           styles.button,
-          'bg-transparent text-gray-600 hover:!border-transparent',
+          'bg-transparent text-gray-600 hover:border-transparent!',
         )}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() =>
+          setIsOpen((prev) => {
+            if (!prev) updateMenuPosition();
+            return !prev;
+          })
+        }
       >
         <EllipsisVertical className="text-bgSecInverted h-5 w-5" />
       </Button>
 
-      {isOpen && (
-        <div
-          className={clsx(
-            'bg-background absolute top-full right-0 z-20 mt-2 flex w-[160px] flex-col rounded-xl border border-gray-300 p-2 shadow-lg',
-            className,
-          )}
-        >
-          {actions.map((action, index) => (
-            <div key={action.id}>
-              {index > 0 && (
-                <hr className="my-2 w-full border-0 border-t border-gray-300" />
-              )}
-
-              <Button
-                type="button"
-                title={action.title}
-                disabled={action.disabled}
-                className={clsx(
-                  styles.button,
-                  'bg-transparent disabled:cursor-not-allowed disabled:opacity-50',
-                  action.variant === 'danger' ? 'text-red-700' : 'text-text',
+      {isOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className={clsx(
+              'bg-background fixed z-20 mt-0 flex w-[160px] -translate-x-full flex-col rounded-xl border border-gray-300 p-2 shadow-lg',
+              className,
+            )}
+            style={{
+              top: menuPosition.top,
+              left: menuPosition.left,
+            }}
+          >
+            {actions.map((action, index) => (
+              <div key={action.id}>
+                {index > 0 && (
+                  <hr className="my-2 w-full border-0 border-t border-gray-300" />
                 )}
-                onClick={() => {
-                  setIsOpen(false);
-                  action.onClick();
-                }}
-              >
-                <div className={styles.buttonActionContent}>
-                  {action.icon}
-                  <span>{action.label}</span>
-                </div>
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+
+                <Button
+                  type="button"
+                  title={action.title}
+                  disabled={action.disabled}
+                  className={clsx(
+                    styles.button,
+                    'bg-transparent disabled:cursor-not-allowed disabled:opacity-50',
+                    action.variant === 'danger' ? 'text-red-700' : 'text-text',
+                  )}
+                  onClick={() => {
+                    setIsOpen(false);
+                    action.onClick();
+                  }}
+                >
+                  <div className={styles.buttonActionContent}>
+                    {action.icon}
+                    <span>{action.label}</span>
+                  </div>
+                </Button>
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

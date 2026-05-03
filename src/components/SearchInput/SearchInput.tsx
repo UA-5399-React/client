@@ -1,6 +1,6 @@
 import type { FocusEventHandler } from 'react';
 import clsx from 'clsx';
-import { Search, X } from 'lucide-react';
+import { Search, XCircleIcon } from 'lucide-react';
 
 type SearchInputProps = {
   id?: string;
@@ -88,9 +88,9 @@ export function SearchInput({
           type="button"
           onClick={() => onChange('')}
           aria-label="Clear search"
-          className="absolute top-1/2 right-[12px] -translate-y-1/2 text-[rgb(var(--color-muted))] hover:text-[rgb(var(--color-text))]"
+          className="absolute top-1/2 right-[12px] -translate-y-1/2 cursor-pointer border-none bg-transparent text-[rgb(var(--color-muted))] hover:text-neutral-800"
         >
-          <X size={15} />
+          <XCircleIcon className="h-5 w-5" />
         </button>
       )}
     </div>

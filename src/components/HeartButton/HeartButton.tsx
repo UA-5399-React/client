@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
+import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks';
 import { wishlistService } from '@/services/wishlist.service';
 import { useErrorStore } from '@/store/errorStore';
 
@@ -12,6 +15,7 @@ interface HeartButtonProps {
     image?: string;
   };
   isFavorite: boolean;
+  onChange?: () => void;
 }
 
 export const HeartButton = ({
@@ -20,6 +24,8 @@ export const HeartButton = ({
 }: HeartButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { isAuth } = useAuth();
 
   const showMessage = useErrorStore((s) => s.show);
 
@@ -53,6 +59,10 @@ export const HeartButton = ({
         showMessage('success', 'Added', 'Product added to wishlist');
       }
     } catch (error) {
+      if (!isAuth) {
+        navigate(ROUTES.LOGIN);
+      }
+
       setIsFavorite(previousState);
 
       showMessage(

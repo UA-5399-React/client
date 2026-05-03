@@ -74,7 +74,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label="toggle sidebar"
-            className="border-none bg-transparent text-[rgb(var(--color-text))] hover:opacity-80"
+            className="cursor-pointer border-none bg-transparent text-[rgb(var(--color-text))] hover:opacity-80"
           >
             {isCollapsed ? <ChevronsRight /> : <ChevronsLeft />}
           </button>

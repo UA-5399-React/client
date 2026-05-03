@@ -1,20 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@apollo/client/react';
 
-import { dashboardService } from '@/services/dashboardService';
+import { GET_ORDERS_STATUS_STATS } from '@/services/graphql/dashboardAdminService';
 import type { OrdersStatusStats } from '@/types';
 
 export const useOrdersStatusStats = () => {
-  const [data, setData] = useState<OrdersStatusStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error } = useQuery<{
+    ordersStatusStats: OrdersStatusStats;
+  }>(GET_ORDERS_STATUS_STATS);
 
-  useEffect(() => {
-    dashboardService
-      .getOrderStatusStats()
-      .then(setData)
-      .catch((e: Error) => setError(e.message))
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  return { data, isLoading, error };
+  return {
+    data: data?.ordersStatusStats ?? null,
+    isLoading: loading,
+    error: error?.message ?? null,
+  };
 };
