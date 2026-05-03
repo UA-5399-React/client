@@ -410,6 +410,7 @@ export function AdminOrderForm({
                       value={field.value ?? ''}
                       state={errors.items?.[index]?.price ? 'error' : 'default'}
                       helperText={errors.items?.[index]?.price?.message}
+                      isClearable={false}
                     />
                   )}
                 />
@@ -429,6 +430,7 @@ export function AdminOrderForm({
                         errors.items?.[index]?.quantity ? 'error' : 'default'
                       }
                       helperText={errors.items?.[index]?.quantity?.message}
+                      isClearable={false}
                     />
                   )}
                 />

@@ -48,6 +48,7 @@ export interface InputProps extends React.ComponentPropsWithoutRef<
   rightElement?: React.ReactNode;
   inputClassName?: string;
   required?: boolean;
+  isClearable?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -69,6 +70,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       onChange,
       value,
       defaultValue,
+      isClearable = true,
       ...props
     },
     ref,
@@ -83,9 +85,17 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
     const hasValue = isControlled ? Boolean(value) : uncontrolledHasValue;
 
-    const internalRef = React.useRef<HTMLInputElement>(null);
-    const resolvedRef =
-      (ref as React.RefObject<HTMLInputElement>) ?? internalRef;
+    const internalRef = React.useRef<HTMLInputElement | null>(null);
+    const setInputRef = React.useCallback(
+      (node: HTMLInputElement | null) => {
+        internalRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref != null)
+          (ref as React.MutableRefObject<HTMLInputElement | null>).current =
+            node;
+      },
+      [ref],
+    );
 
     const isPassword = type === 'password';
     const inputType = isPassword && isPasswordVisible ? 'text' : type;
@@ -96,21 +106,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     const handleClear = () => {
-      console.log('handleClear');
-      const input = resolvedRef.current;
-      if (!input) return;
+      const el = internalRef.current;
 
-      // Use the native setter + dispatch so React's synthetic event system
-      // picks it up and calls our handleChange — no manual onChange call needed
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      )?.set;
-      nativeInputValueSetter?.call(input, '');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-
-      if (!isControlled) setUncontrolledHasValue(false);
-      input.focus();
+      handleChange({
+        target: { value: '' } as EventTarget & HTMLInputElement,
+        currentTarget: el ?? ({} as HTMLInputElement),
+        preventBaseUIHandler: () => {},
+      } as Parameters<NonNullable<typeof onChange>>[0]);
+      if (!isControlled && el) el.value = '';
+      el?.focus();
     };
 
     const hasRightSlot = isPassword || rightElement || hasValue;
@@ -150,7 +154,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <BaseInput
             {...props}
             id={inputId}
-            ref={resolvedRef}
+            ref={setInputRef}
             type={inputType}
             value={value}
             defaultValue={defaultValue}
@@ -186,7 +190,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     <EyeSlashIcon className="h-5 w-5" />
                   )}
                 </button>
-              ) : hasValue ? (
+              ) : hasValue && isClearable ? (
                 <button
                   type="button"
                   onClick={handleClear}

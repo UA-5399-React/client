@@ -158,6 +158,7 @@ export function UsersChart({
             value={selectedPeriod}
             onChange={(event) => onPeriodChange(event.target.value)}
             inputClassName="w-56 text-gray-700"
+            isClearable={false}
           />
         </div>
       </div>

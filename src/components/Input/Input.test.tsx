@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { render, screen, userEvent } from '@/utils/test-utils';
 
@@ -115,5 +115,59 @@ describe('UI Component: Input', () => {
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
     expect(ref.current?.placeholder).toBe('Ref input');
+  });
+
+  it('clears a controlled value when the clear button is clicked', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+
+    function ControlledInput() {
+      const [v, setV] = React.useState('Alice');
+      return (
+        <Input
+          label="Name"
+          value={v}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setV(e.target.value);
+          }}
+        />
+      );
+    }
+
+    render(<ControlledInput />);
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Alice');
+
+    await user.click(screen.getByRole('button', { name: 'Clear input' }));
+
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('');
+    expect(onChange).toHaveBeenCalledWith('');
+  });
+
+  it('clears when ref is a callback ref (react-hook-form style)', async () => {
+    const user = userEvent.setup();
+    let captured: HTMLInputElement | null = null;
+    const ref = (node: HTMLInputElement | null) => {
+      captured = node;
+    };
+
+    function ControlledInput() {
+      const [v, setV] = React.useState('Bob');
+      return (
+        <Input
+          ref={ref}
+          label="Name"
+          value={v}
+          onChange={(e) => setV(e.target.value)}
+        />
+      );
+    }
+
+    render(<ControlledInput />);
+    expect(captured).toBeInstanceOf(HTMLInputElement);
+
+    await user.click(screen.getByRole('button', { name: 'Clear input' }));
+
+    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('');
   });
 });
