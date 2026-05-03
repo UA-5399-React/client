@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react';
+import { ListFilter } from 'lucide-react';
 
-import { MainTable, Pagination, Switcher } from '@/components';
-import { ThresholdRange } from '@/components';
+import {
+  Button,
+  MainTable,
+  Pagination,
+  SalesDynamicsFilter,
+  Switcher,
+  ThresholdRange,
+} from '@/components';
 import { ADMIN_PAGE_LIMIT } from '@/constants';
 import {
   COLOR_MIN,
@@ -24,6 +31,10 @@ import type {
   AbcBucket,
   AbcMetricEnum,
 } from '@/types/statistic.types';
+import {
+  getDefaultDateCurrentMonthForInput,
+  toIsoDateRange,
+} from '@/utils/date.utils';
 
 type MetricMode = typeof QUANTITY | typeof REVENUE;
 
@@ -53,18 +64,41 @@ const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 const toMetricEnum = (mode: MetricMode): AbcMetricEnum =>
   mode === QUANTITY ? 'UNITS' : 'REVENUE';
 
+interface FilterState {
+  dateFrom: string;
+  dateTo: string;
+  categoryId: string;
+}
+
+function defaultFilter() {
+  return {
+    ...getDefaultDateCurrentMonthForInput(),
+    categoryId: '',
+  };
+}
+
 export function ABCAnalysisTable() {
   const [metricMode, setMetricMode] = useState<MetricMode>(REVENUE);
   const [redThreshold, setRedThreshold] = useState(LEFT_MIN);
   const [greenThreshold, setGreenThreshold] = useState(RIGHT_MAX);
+  const [showFilters, setShowFilters] = useState(false);
+  const [appliedFilter, setAppliedFilter] =
+    useState<FilterState>(defaultFilter);
+  const queryDateRange = useMemo(
+    () => toIsoDateRange(appliedFilter.dateFrom, appliedFilter.dateTo),
+    [appliedFilter.dateFrom, appliedFilter.dateTo],
+  );
   const [currentPage, setCurrentPage] = useState(PAGE);
 
-  const { items, summary, total, loading, error } = useAbcAnalysis({
+  const { items, summary, totalPages, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
     page: currentPage,
     limit: ADMIN_PAGE_LIMIT,
     aThreshold: redThreshold,
     bThreshold: greenThreshold,
+    dateFrom: queryDateRange.dateFrom,
+    dateTo: queryDateRange.dateTo,
+    categoryId: appliedFilter.categoryId || null,
   });
 
   const handleRedThresholdChange = (value: number) => {
@@ -141,21 +175,8 @@ export function ABCAnalysisTable() {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-end gap-4 px-5">
-        <Switcher
-          isRightActive={metricMode === REVENUE}
-          leftLabel="Count"
-          rightLabel="Revenue"
-          onToggle={() => {
-            setMetricMode((prevMode) =>
-              prevMode === REVENUE ? QUANTITY : REVENUE,
-            );
-            setCurrentPage(PAGE);
-          }}
-          ariaLabel="Toggle between quantity and revenue"
-        />
-
+    <div className="flex flex-col space-y-3 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-5">
         <ThresholdRange
           redThreshold={redThreshold}
           greenThreshold={greenThreshold}
@@ -168,6 +189,46 @@ export function ABCAnalysisTable() {
           onRedThresholdChange={handleRedThresholdChange}
           onGreenThresholdChange={handleGreenThresholdChange}
         />
+
+        <div className="flex gap-4">
+          <Switcher
+            isRightActive={metricMode === REVENUE}
+            leftLabel="Count"
+            rightLabel="Revenue"
+            onToggle={() => {
+              setMetricMode((prevMode) =>
+                prevMode === REVENUE ? QUANTITY : REVENUE,
+              );
+              setCurrentPage(PAGE);
+            }}
+            ariaLabel="Toggle between quantity and revenue"
+          />
+
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters((prev) => !prev)}
+              className="flex items-center gap-2 border-gray-300! bg-white text-gray-700 shadow-sm transition hover:bg-gray-50"
+            >
+              <ListFilter className="h-5 w-5" />
+              Filters
+            </Button>
+
+            {showFilters && (
+              <SalesDynamicsFilter
+                isOpen={true}
+                onClose={() => setShowFilters(false)}
+                onApply={(filter) => {
+                  setAppliedFilter(filter as FilterState);
+                  setCurrentPage(PAGE);
+                }}
+                initial={appliedFilter}
+                isRequired={false}
+                isShowProduct={false}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       <MainTable
@@ -180,11 +241,13 @@ export function ABCAnalysisTable() {
         summary={summary ? renderSummary(summary) : null}
       />
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={total}
-        onPageChange={setCurrentPage}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

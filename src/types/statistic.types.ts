@@ -118,6 +118,8 @@ export interface AbcAnalysisQueryData {
     items: AbcAnalysisItem[];
     summary: AbcAnalysisSummary;
     total: number;
+    page: number;
+    limit: number;
   };
 }
 

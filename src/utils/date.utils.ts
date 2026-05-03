@@ -5,6 +5,11 @@ import type { RegistrationByDayRow } from '@/types/statistic.types';
 /**
  * Format a date to a readable string
  */
+
+export function toDateInputValue(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
 export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -46,6 +51,35 @@ export function buildDailyCountsFromRegistrations(
 export function getCurrentMonthPeriod() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function getDefaultDateCurrentMonth() {
+  const now = new Date();
+  const startOfMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0),
+  );
+
+  return {
+    dateFrom: startOfMonth.toISOString(),
+    dateTo: now.toISOString(),
+  };
+}
+
+export function getDefaultDateCurrentMonthForInput() {
+  const to = new Date();
+  const from = new Date(to.getFullYear(), to.getMonth(), 1);
+
+  return {
+    dateFrom: toDateInputValue(from),
+    dateTo: toDateInputValue(to),
+  };
+}
+
+export function toIsoDateRange(dateFrom: string, dateTo: string) {
+  return {
+    dateFrom: new Date(dateFrom).toISOString(),
+    dateTo: new Date(`${dateTo}T23:59:59`).toISOString(),
+  };
 }
 
 export function resolvePeriod(period?: string) {

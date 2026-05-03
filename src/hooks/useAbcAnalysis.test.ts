@@ -131,7 +131,8 @@ describe('useAbcAnalysis', () => {
 
     expect(result.current.items).toEqual([]);
     expect(result.current.summary).toBeNull();
-    expect(result.current.total).toBe(PAGE);
+    expect(result.current.total).toBe(0);
+    expect(result.current.totalPages).toBe(1);
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe(queryError);
     expect(result.current.refetch).toBe(refetch);
