@@ -45,6 +45,7 @@ describe('useAbcAnalysis', () => {
         aThreshold: 80,
         bThreshold: 95,
         categoryId: null,
+        search: null,
       },
     });
   });
@@ -107,6 +108,7 @@ describe('useAbcAnalysis', () => {
         aThreshold: 70,
         bThreshold: 90,
         categoryId: 'cat-1',
+        search: null,
       },
     });
     expect(result.current.items).toEqual(items);

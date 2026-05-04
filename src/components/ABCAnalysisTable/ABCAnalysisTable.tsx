@@ -6,6 +6,7 @@ import {
   MainTable,
   Pagination,
   SalesDynamicsFilter,
+  SearchInput,
   Switcher,
   ThresholdRange,
 } from '@/components';
@@ -25,6 +26,7 @@ import {
   TRACK_MIN,
 } from '@/constants/general';
 import { useAbcAnalysis } from '@/hooks/useAbcAnalysis';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import type { Column } from '@/types';
 import type {
   AbcAnalysisSummary,
@@ -89,6 +91,8 @@ export function ABCAnalysisTable() {
     [appliedFilter.dateFrom, appliedFilter.dateTo],
   );
   const [currentPage, setCurrentPage] = useState(PAGE);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search.trim(), 500);
 
   const { items, summary, totalPages, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
@@ -99,6 +103,7 @@ export function ABCAnalysisTable() {
     dateFrom: queryDateRange.dateFrom,
     dateTo: queryDateRange.dateTo,
     categoryId: appliedFilter.categoryId || null,
+    search: debouncedSearch || null,
   });
 
   const handleRedThresholdChange = (value: number) => {
@@ -202,6 +207,15 @@ export function ABCAnalysisTable() {
               setCurrentPage(PAGE);
             }}
             ariaLabel="Toggle between quantity and revenue"
+          />
+
+          <SearchInput
+            value={search}
+            onChange={(value) => {
+              setSearch(value);
+              setCurrentPage(PAGE);
+            }}
+            placeholder="Search"
           />
 
           <div className="relative">
