@@ -12,11 +12,9 @@ const BASE_INPUT_CLASSES =
   'dark:[&:-webkit-autofill]:![-webkit-text-fill-color:rgb(var(--color-text))]';
 
 const WRAPPER_CLASSES =
-  'group flex w-full flex-col gap-1.5 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+  'group flex w-full flex-col  has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
 
 const LABEL_CLASSES = 'text-sm font-medium text-text';
-
-const HELPER_TEXT_CLASSES = 'mt-0 ml-2 text-xs';
 
 const VARIANT_STYLES = {
   outlined: 'border rounded-md px-3 py-2',
@@ -29,7 +27,7 @@ const STATE_STYLES = {
     underlined: 'focus:border-border-focus',
   },
   success: 'border-green-500',
-  error: 'border-red-500',
+  error: 'border-red-600',
 };
 
 const ICON_WRAPPER_CLASSES =
@@ -49,6 +47,8 @@ export interface InputProps extends React.ComponentPropsWithoutRef<
   leftIcon?: React.ReactNode;
   rightElement?: React.ReactNode;
   inputClassName?: string;
+  required?: boolean;
+  isClearable?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -66,6 +66,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       className = '',
       inputClassName = '',
       id,
+      required = false,
+      onChange,
+      value,
+      defaultValue,
+      isClearable = true,
       ...props
     },
     ref,
@@ -73,8 +78,46 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const reactId = React.useId();
     const inputId = id || reactId;
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+    const isControlled = value !== undefined;
+    const [uncontrolledHasValue, setUncontrolledHasValue] = React.useState(() =>
+      Boolean(defaultValue ?? ''),
+    );
+    const hasValue = isControlled ? Boolean(value) : uncontrolledHasValue;
+
+    const internalRef = React.useRef<HTMLInputElement | null>(null);
+    const setInputRef = React.useCallback(
+      (node: HTMLInputElement | null) => {
+        internalRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref != null)
+          (ref as React.MutableRefObject<HTMLInputElement | null>).current =
+            node;
+      },
+      [ref],
+    );
+
     const isPassword = type === 'password';
     const inputType = isPassword && isPasswordVisible ? 'text' : type;
+
+    const handleChange: NonNullable<typeof onChange> = (e) => {
+      if (!isControlled) setUncontrolledHasValue(Boolean(e.target.value));
+      onChange?.(e);
+    };
+
+    const handleClear = () => {
+      const el = internalRef.current;
+
+      handleChange({
+        target: { value: '' } as EventTarget & HTMLInputElement,
+        currentTarget: el ?? ({} as HTMLInputElement),
+        preventBaseUIHandler: () => {},
+      } as Parameters<NonNullable<typeof onChange>>[0]);
+      if (!isControlled && el) el.value = '';
+      el?.focus();
+    };
+
+    const hasRightSlot = isPassword || rightElement || hasValue;
 
     const paddingClasses = clsx({
       'pl-10': leftIcon,
@@ -91,11 +134,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             htmlFor={inputId}
             className={clsx(LABEL_CLASSES, labelClassName)}
           >
-            {label}
+            {label}{' '}
+            {required && <span className="font-bold text-red-600">*</span>}
           </label>
         )}
 
-        <div className="relative flex w-full items-center">
+        <div className="relative flex w-full items-center pt-1.5">
           {leftIcon && (
             <div
               className={clsx(
@@ -110,8 +154,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <BaseInput
             {...props}
             id={inputId}
-            ref={ref}
+            ref={setInputRef}
             type={inputType}
+            value={value}
+            defaultValue={defaultValue}
+            onChange={handleChange}
             className={clsx(
               BASE_INPUT_CLASSES,
               VARIANT_STYLES[variant],
@@ -121,7 +168,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             )}
           />
 
-          {(isPassword || rightElement) && (
+          {hasRightSlot && (
             <div
               className={clsx(
                 RIGHT_ELEMENT_CLASSES,
@@ -143,6 +190,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     <EyeSlashIcon className="h-5 w-5" />
                   )}
                 </button>
+              ) : hasValue && isClearable ? (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="flex items-center justify-center border-none bg-transparent p-0 text-[rgb(var(--color-icon))] transition-colors hover:cursor-pointer hover:text-[rgb(var(--color-icon-hover))] focus:outline-none"
+                  aria-label="Clear input"
+                >
+                  <XCircleIcon className="h-5 w-5" />
+                </button>
               ) : (
                 <div className="text-icon hover:text-icon-hover flex cursor-pointer items-center transition-colors">
                   {rightElement}
@@ -152,18 +208,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {helperText && (
-          <span
-            id={`${inputId}-helper`}
-            className={clsx(
-              HELPER_TEXT_CLASSES,
-              state === 'error' ? 'text-red-600' : 'text-green-700',
-              helperTextClassName,
-            )}
-          >
-            {helperText}
-          </span>
-        )}
+        <span
+          id={`${inputId}-helper`}
+          className={clsx(
+            state === 'error' ? 'text-red-600' : 'text-green-700',
+            helperTextClassName,
+            'h-3 pt-1 text-xs',
+          )}
+        >
+          {helperText}
+        </span>
       </div>
     );
   },
@@ -209,6 +263,25 @@ function EyeSlashIcon({ className, ...props }: React.ComponentProps<'svg'>) {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+      />
+    </svg>
+  );
+}
+
+function XCircleIcon({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className={className}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
   );

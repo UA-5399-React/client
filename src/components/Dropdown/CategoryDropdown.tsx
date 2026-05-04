@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
@@ -19,6 +20,8 @@ export const CategoryDropdown = ({
   multiple = true,
   disabled = false,
 }: DropdownProps) => {
+  const [open, setOpen] = useState(false);
+
   const selectedOptions = selectedValues
     ? options.filter((option) => selectedValues.includes(option.value))
     : undefined;
@@ -34,13 +37,14 @@ export const CategoryDropdown = ({
   const handleValueChange = (value: string | string[] | null) => {
     if (!value) {
       onChange([]);
-      return;
+    } else {
+      const vals = Array.isArray(value) ? value : [value];
+      const selected = vals
+        .map((v) => options.find((o) => o.value === v))
+        .filter(Boolean) as DropdownProps['options'];
+      onChange(selected);
     }
-    const vals = Array.isArray(value) ? value : [value];
-    const selected = vals
-      .map((v) => options.find((o) => o.value === v))
-      .filter(Boolean) as DropdownProps['options'];
-    onChange(selected);
+    setOpen(false);
   };
 
   let content;
@@ -70,6 +74,8 @@ export const CategoryDropdown = ({
         onValueChange={handleValueChange}
         value={value}
         disabled={disabled}
+        open={open}
+        onOpenChange={setOpen}
       >
         <Select.Trigger
           className={clsx(styles.Select, selectClassName)}

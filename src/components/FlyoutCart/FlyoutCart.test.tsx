@@ -26,10 +26,20 @@ vi.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({ isDark: mockIsDark }),
 }));
 
+// ─── Error store ───────────────────────────────────────────────────────────────
+const mockShowMessage = vi.fn();
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(
+    (selector: (s: { show: typeof mockShowMessage }) => unknown) =>
+      selector({ show: mockShowMessage }),
+  ),
+}));
+
 // ─── Cart store ────────────────────────────────────────────────────────────────
 const mockCloseCart = vi.fn();
 const mockUpdateQuantity = vi.fn();
 const mockRemoveItem = vi.fn();
+const mockClearCart = vi.fn();
 const mockGetCartTotal = vi.fn(() => 100);
 
 vi.mock('@/store/useCartStore', () => ({
@@ -40,6 +50,7 @@ vi.mock('@/store/useCartStore', () => ({
 const baseStore = (overrides = {}) => ({
   items: [],
   isOpen: true,
+  clearCart: mockClearCart,
   closeCart: mockCloseCart,
   updateQuantity: mockUpdateQuantity,
   removeItem: mockRemoveItem,
@@ -129,10 +140,12 @@ describe('FlyoutCart component', () => {
 
   // Item rendering
   it('renders cart items with title, price and quantity', () => {
-    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    vi.mocked(useCartStore).mockReturnValue(
+      baseStore({ items: [makeItem()], getCartTotal: vi.fn(() => 200) }),
+    );
     renderCart();
     expect(screen.getByText('Test Product')).toBeInTheDocument();
-    expect(screen.getByText('$50.00')).toBeInTheDocument();
+    expect(screen.getByText('$100.00')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
@@ -156,14 +169,17 @@ describe('FlyoutCart component', () => {
     expect(screen.getByText('No img')).toBeInTheDocument();
   });
 
-  it('renders product categories when present', () => {
+  it('renders the product title as a link to the product page', () => {
     vi.mocked(useCartStore).mockReturnValue(
       baseStore({
         items: [makeItem({ categories: ['Electronics', 'Gadgets'] })],
       }),
     );
     renderCart();
-    expect(screen.getByText('Electronics, Gadgets')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Test Product' })).toHaveAttribute(
+      'href',
+      ROUTES.PRODUCT.replace(':id', 'p1'),
+    );
   });
 
   it('renders Subtotal and Total when items are present', () => {
@@ -179,9 +195,9 @@ describe('FlyoutCart component', () => {
   it('calls removeItem with the product id when the per-item X button is clicked', () => {
     vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
     renderCart();
-    // Buttons order: [0] header-X, [1] per-item-X, [2] minus, [3] plus, [4] Checkout, [5] View Cart
-    const buttons = screen.getAllByRole('button');
-    const removeBtn = buttons[1];
+    const removeBtn = screen
+      .getAllByRole('button')
+      .filter((button) => button.querySelector('.lucide-x'))[1];
     fireEvent.click(removeBtn);
     expect(mockRemoveItem).toHaveBeenCalledWith('p1');
   });
@@ -191,8 +207,10 @@ describe('FlyoutCart component', () => {
       baseStore({ items: [makeItem({ useMongoId: true })] }),
     );
     renderCart();
-    const buttons = screen.getAllByRole('button');
-    fireEvent.click(buttons[1]);
+    const removeBtn = screen
+      .getAllByRole('button')
+      .filter((button) => button.querySelector('.lucide-x'))[1];
+    fireEvent.click(removeBtn);
     expect(mockRemoveItem).toHaveBeenCalledWith('p1');
   });
 
@@ -297,5 +315,26 @@ describe('FlyoutCart component', () => {
     // The text is a direct child of the div that holds the dark-mode class
     const wrapper = emptyMsg.closest('[class*="text-gray"]');
     expect(wrapper).toHaveClass('text-gray-400');
+  });
+
+  // Clear all button
+  it('does not render the "Clear all" button when cart is empty', () => {
+    renderCart();
+    expect(screen.queryByRole('button', { name: /clear all/i })).toBeNull();
+  });
+
+  it('renders the "Clear all" button when cart has items', () => {
+    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    renderCart();
+    expect(
+      screen.getByRole('button', { name: /clear all/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('calls clearCart when "Clear all" is clicked', () => {
+    vi.mocked(useCartStore).mockReturnValue(baseStore({ items: [makeItem()] }));
+    renderCart();
+    fireEvent.click(screen.getByRole('button', { name: /clear all/i }));
+    expect(mockClearCart).toHaveBeenCalledTimes(1);
   });
 });

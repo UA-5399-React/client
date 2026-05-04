@@ -158,6 +158,7 @@ export function UsersChart({
             value={selectedPeriod}
             onChange={(event) => onPeriodChange(event.target.value)}
             inputClassName="w-56 text-gray-700"
+            isClearable={false}
           />
         </div>
       </div>
@@ -187,12 +188,14 @@ export function UsersChart({
 
         <p className="text-muted text-center text-sm">{dateLabel}</p>
 
-        <Button
-          onClick={onShowAll}
-          className="rounded-full border! border-blue-500! bg-transparent p-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
-        >
-          Show all
-        </Button>
+        {onShowAll && (
+          <Button
+            onClick={onShowAll}
+            className="rounded-full border! border-blue-500! bg-transparent p-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
+          >
+            Show all
+          </Button>
+        )}
       </div>
     </section>
   );

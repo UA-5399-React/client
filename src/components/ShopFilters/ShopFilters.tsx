@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 
-import { CategoryDropdown, Dropdown } from '@/components/Dropdown';
+import { Button } from '@/components/Button';
+import { Dropdown } from '@/components/Dropdown';
 import { useShopCategories } from '@/hooks/useShopCategories';
 
 const PRICE_OPTIONS = [
@@ -9,6 +10,9 @@ const PRICE_OPTIONS = [
   { label: '$1000 - $2000', value: '1000-2000' },
   { label: 'Over $2000', value: '2000+' },
 ];
+
+const DROPDOWN_WRAPPER_CLASS =
+  'w-full sm:w-auto [&_[data-placeholder]]:!text-text [&_[data-placeholder]]:!opacity-100';
 
 const getSelectedCategories = (searchParams: URLSearchParams) => {
   const categories = searchParams
@@ -50,11 +54,6 @@ export function ShopFilters() {
       : categoryOptions.length === 0
         ? 'No categories available'
         : 'All Electronics';
-  const selectedCategoryLabels = currentCategory
-    .map((v) => categoryOptions.find((o) => o.value === v)?.label)
-    .filter(Boolean)
-    .join(', ');
-  const categoryLabel = selectedCategoryLabels || categoryPlaceholder;
 
   const handleCategoryChange = (values: { value: string }[]) => {
     const filtered = values.map((v) => v.value).filter(Boolean);
@@ -103,25 +102,51 @@ export function ShopFilters() {
     });
   };
 
+  const handleClearAll = () => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+
+      next.delete('category');
+      next.delete('minPrice');
+      next.delete('maxPrice');
+      next.set('page', '1');
+
+      return next;
+    });
+  };
   return (
-    <div className="flex flex-col gap-4 sm:flex-row">
-      <CategoryDropdown
-        label="Categories"
-        options={categoryOptions}
-        multiple={true}
-        onChange={handleCategoryChange}
-        placeholder={categoryLabel}
-        selectedValues={currentCategory}
-        disabled={isCategoryDisabled}
-      />
-      <Dropdown
-        label="Price"
-        options={PRICE_OPTIONS}
-        multiple={true}
-        onChange={handlePriceChange}
-        placeholder={priceLabel}
-        selectedValues={currentPriceValue ? [currentPriceValue] : []}
-      />
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+      <div className={DROPDOWN_WRAPPER_CLASS}>
+        <Dropdown
+          label="Categories"
+          options={categoryOptions}
+          multiple={true}
+          onChange={handleCategoryChange}
+          placeholder={categoryPlaceholder}
+          selectedValues={currentCategory}
+          disabled={isCategoryDisabled}
+          closeOnSelect
+        />
+      </div>
+
+      <div className={DROPDOWN_WRAPPER_CLASS}>
+        <Dropdown
+          label="Price"
+          options={PRICE_OPTIONS}
+          multiple={true}
+          onChange={handlePriceChange}
+          placeholder={priceLabel}
+          selectedValues={currentPriceValue ? [currentPriceValue] : []}
+        />
+      </div>
+
+      <Button
+        type="button"
+        onClick={handleClearAll}
+        className="!bg-background !text-text hover:!bg-backgroundSec !box-border !h-[32px] !w-full !rounded-md !border !border-gray-300 !px-[15px] !py-0 !text-sm !leading-5 !font-normal hover:!border-gray-300 sm:!w-[120px]"
+      >
+        Clear all
+      </Button>
     </div>
   );
 }

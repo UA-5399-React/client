@@ -156,7 +156,7 @@ describe('Page: Checkout', () => {
   it('renders checkout sections, summary, total note, and autofill-friendly inputs', () => {
     render(<Checkout />);
 
-    expect(screen.getByText('Contact Infomation')).toBeInTheDocument();
+    expect(screen.getByText('Contact Information')).toBeInTheDocument();
     expect(screen.getByText('Shipping Address')).toBeInTheDocument();
     expect(screen.getByText('Payment method')).toBeInTheDocument();
     expect(screen.getAllByText('Order summary')).toHaveLength(2);

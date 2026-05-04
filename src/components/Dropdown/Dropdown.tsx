@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
@@ -18,7 +19,11 @@ export const Dropdown = ({
   hasBorder = true,
   multiple = true,
   disabled = false,
+  required = false,
+  closeOnSelect = false,
 }: DropdownProps) => {
+  const [open, setOpen] = useState(false);
+
   const selectedOptions = selectedValues
     ? options.filter((option) => selectedValues.includes(option.value))
     : undefined;
@@ -32,6 +37,11 @@ export const Dropdown = ({
   const handleValueChange = (value: string | string[] | null) => {
     if (!value) {
       onChange([]);
+
+      if (closeOnSelect) {
+        setOpen(false);
+      }
+
       return;
     }
 
@@ -44,6 +54,10 @@ export const Dropdown = ({
       .filter(Boolean) as DropdownProps['options'];
 
     onChange(selected);
+
+    if (closeOnSelect) {
+      setOpen(false);
+    }
   };
 
   return (
@@ -57,7 +71,7 @@ export const Dropdown = ({
         nativeLabel={false}
         render={<div />}
       >
-        {label}
+        {label} {required && <span className="font-bold text-red-600">*</span>}
       </Field.Label>
 
       <Select.Root
@@ -66,6 +80,8 @@ export const Dropdown = ({
         value={value}
         items={options}
         disabled={disabled}
+        open={open}
+        onOpenChange={setOpen}
       >
         <Select.Trigger
           className={clsx(styles.Select, selectClassName)}
@@ -91,6 +107,11 @@ export const Dropdown = ({
                   key={option.value}
                   value={option.value}
                   className={styles.Item}
+                  onClick={() => {
+                    if (closeOnSelect) {
+                      setTimeout(() => setOpen(false), 0);
+                    }
+                  }}
                 >
                   <Select.ItemText className={styles.ItemText}>
                     {option.label}

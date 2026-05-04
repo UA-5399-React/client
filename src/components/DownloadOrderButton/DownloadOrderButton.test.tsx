@@ -1,8 +1,8 @@
-import { toast } from 'react-hot-toast';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 import { exportService } from '@/services/exportService';
+import { useErrorStore } from '@/store/errorStore';
 
 import { DownloadOrderButton } from './DownloadOrderButton';
 
@@ -12,20 +12,21 @@ vi.mock('@/services/exportService', () => ({
   },
 }));
 
-vi.mock('react-hot-toast', () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn(),
-  },
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(),
 }));
 
 const mockedExportOrderPDF = vi.mocked(exportService.exportOrderPDF);
+const mockedUseErrorStore = vi.mocked(useErrorStore) as unknown as Mock;
 
 describe('DownloadOrderButton', () => {
   const mockOrderId = '12345';
+  const mockShowFn = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockedUseErrorStore.mockReturnValue(mockShowFn);
 
     window.URL.createObjectURL = vi.fn(() => 'blob:url');
     window.URL.revokeObjectURL = vi.fn();
@@ -52,14 +53,18 @@ describe('DownloadOrderButton', () => {
 
     await waitFor(() => {
       expect(mockedExportOrderPDF).toHaveBeenCalledWith(mockOrderId);
-      expect(toast.success).toHaveBeenCalledWith('PDF downloaded successfully');
+      expect(mockShowFn).toHaveBeenCalledWith(
+        'success',
+        'Export Successful',
+        'PDF downloaded successfully',
+      );
     });
 
     expect(button).not.toBeDisabled();
     expect(screen.getByText('Download PDF')).toBeInTheDocument();
   });
 
-  it('shows error toast when the export service fails', async () => {
+  it('shows error message when the export service fails', async () => {
     mockedExportOrderPDF.mockRejectedValueOnce(new Error('API Error'));
 
     render(<DownloadOrderButton orderId={mockOrderId} />);
@@ -67,7 +72,11 @@ describe('DownloadOrderButton', () => {
     fireEvent.click(screen.getByRole('button'));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to download PDF');
+      expect(mockShowFn).toHaveBeenCalledWith(
+        'error',
+        'Export Failed',
+        'API Error',
+      );
     });
 
     expect(screen.getByText('Download PDF')).toBeInTheDocument();

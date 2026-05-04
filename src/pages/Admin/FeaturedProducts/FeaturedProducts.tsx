@@ -1,8 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Check, Loader2, PackageSearch, Plus, Trash2 } from 'lucide-react';
+import { generatePath, useNavigate } from 'react-router-dom';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { closestCenter, DndContext } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Check, Loader2, PackageSearch, Plus } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 
-import { AdminPageHeader, Button, SearchInput } from '@/components';
-import { NEW_ARRIVALS_LIMIT } from '@/constants';
+import { AdminPageHeader, SearchInput } from '@/components';
+import { ActionMenu } from '@/components';
+import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
 import type { Product } from '@/types/product.types';
 
@@ -15,7 +27,47 @@ interface FeaturedResponse {
   type: string;
   position: number;
 }
+
+interface SortableItemProps {
+  product: FeaturedProductItem;
+  children: React.ReactNode;
+}
+
+function SortableItem({ product, children }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: product._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      tabIndex={0}
+      className={`hover:bg-backgroundSec/50 bg-background flex items-center justify-between px-6 py-4 transition-colors ${
+        isDragging ? 'z-50 opacity-80 shadow-2xl ring-2 ring-blue-500/20' : ''
+      } cursor-grab active:cursor-grabbing`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function FeaturedProducts() {
+  const navigate = useNavigate();
+
   const [allProducts, setAllProducts] = useState<FeaturedProductItem[]>([]);
   const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
@@ -27,16 +79,6 @@ export function FeaturedProducts() {
   );
 
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setConfirmId(null);
-      setDeleteConfirmId(null);
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
 
   const fetchFeatured = async () => {
     try {
@@ -110,7 +152,6 @@ export function FeaturedProducts() {
       );
 
       await fetchFeatured();
-      setDeleteConfirmId(null);
     } catch (error) {
       console.error('Remove error:', error);
     } finally {
@@ -122,7 +163,7 @@ export function FeaturedProducts() {
     Array.isArray(allProducts) ? allProducts : []
   ).filter(
     (p) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) &&
+      p.title?.toLowerCase().includes(search.toLowerCase()) &&
       !featured.some((f) => f._id === p._id),
   );
 
@@ -134,17 +175,40 @@ export function FeaturedProducts() {
     );
   }
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = featured.findIndex((p) => p._id === active.id);
+    const newIndex = featured.findIndex((p) => p._id === over.id);
+
+    const newOrder = arrayMove(featured, oldIndex, newIndex);
+    setFeatured(newOrder);
+
+    const payload = newOrder.map((p, index) => ({
+      productId: p._id,
+      position: index,
+    }));
+
+    try {
+      await apiClient.patch('/featured-products/reorder', payload);
+    } catch (error) {
+      console.error('Failed to save order:', error);
+      fetchFeatured();
+    }
+  };
+
   return (
     <div className="pb-10">
       <AdminPageHeader />
 
       <div className="px-4 pt-6 md:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-text flex items-center gap-2 text-3xl font-bold">
+        <div className="mb-8 flex items-center justify-start gap-4">
+          <h2 className="text-text flex items-center text-3xl leading-none font-bold">
             Manage New Arrivals
           </h2>
           <div
-            className={`rounded-full px-3 py-1 text-sm font-bold ${
+            className={`mt-1 inline-flex self-center rounded-full px-3 py-1 text-sm font-bold ${
               featured.length >= NEW_ARRIVALS_LIMIT
                 ? 'bg-red-600/10 text-red-600'
                 : 'bg-blue-500/10 text-blue-400'
@@ -184,13 +248,24 @@ export function FeaturedProducts() {
             {search && featured.length < NEW_ARRIVALS_LIMIT && (
               <div className="border-fieldBorder bg-background absolute left-0 z-50 mt-1 max-h-60 w-full max-w-md overflow-x-hidden overflow-y-auto rounded-md border shadow-2xl">
                 <style>{`
-      .absolute::-webkit-scrollbar { width: 5px; }
-      .absolute::-webkit-scrollbar-track { background: transparent; }
-      .absolute::-webkit-scrollbar-thumb { 
-        background-color: var(--fieldBorder); 
-        border-radius: 20px; 
-      }
-      button { border: none !important; outline: none !important; }
+                  .absolute::-webkit-scrollbar { 
+                    width: 6px; 
+                    display: block !important; 
+                  }
+                  .absolute::-webkit-scrollbar-track { 
+                    background: rgb(var(--color-gray-100)); 
+                    border-radius: 10px; 
+                  }
+                  .absolute::-webkit-scrollbar-thumb { 
+                    background-color: rgb(var(--color-gray-300)); 
+                    border-radius: 20px;
+                    border: 1px solid transparent;
+                    background-clip: content-box; 
+                  }
+                  button { 
+                    border: none !important; 
+                    outline: none !important; 
+                  }
     `}</style>
 
                 {dropdownResults.length > 0 ? (
@@ -248,7 +323,7 @@ export function FeaturedProducts() {
           </div>
         </div>
 
-        <div className="border-fieldBorder bg-background overflow-hidden rounded-lg border shadow-md">
+        <div className="border-fieldBorder bg-background rounded-lg border shadow-md">
           <div className="border-fieldBorder bg-backgroundSec border-b px-6 py-4">
             <span className="text-muted text-sm font-bold tracking-wider uppercase">
               Current Homepage List
@@ -264,59 +339,71 @@ export function FeaturedProducts() {
                 </p>
               </div>
             ) : (
-              featured.map((product) => (
-                <div
-                  key={product._id}
-                  className="hover:bg-backgroundSec/50 flex items-center justify-between px-6 py-4 transition-colors"
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={featured.map((p) => p._id)}
+                  strategy={verticalListSortingStrategy}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="border-fieldBorder bg-backgroundSec h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="text-muted flex h-full w-full items-center justify-center">
-                          <Plus size={16} />
+                  {featured.map((product) => (
+                    <SortableItem key={product._id} product={product}>
+                      <div className="flex items-center gap-4">
+                        <div className="border-fieldBorder bg-backgroundSec h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border">
+                          {product.imageUrl ? (
+                            <img
+                              src={product.imageUrl}
+                              alt={product.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-muted flex h-full w-full items-center justify-center">
+                              <Plus size={16} />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    <div>
-                      <div className="text-text font-bold">{product.title}</div>
-                      <div className="text-muted text-sm">${product.price}</div>
-                    </div>
-                  </div>
+                        <div>
+                          <div className="text-text font-bold">
+                            {product.title}
+                          </div>
+                          <div className="text-muted text-sm">
+                            ${product.price}
+                          </div>
+                        </div>
+                      </div>
 
-                  <div className="flex items-center gap-2">
-                    {deleteConfirmId === product._id ? (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveProduct(product._id);
-                        }}
-                        className="animate-in zoom-in rounded-full border-none bg-red-600 px-4 py-1.5 text-[11px] font-bold tracking-wider text-white uppercase shadow-md transition-all duration-200 outline-none hover:bg-red-700 focus:ring-0 active:scale-95"
-                      >
-                        Confirm Delete
-                      </button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirmId(product._id);
-                        }}
-                        className="border-fieldBorder text-muted bg-transparent !p-2 transition-all hover:border-red-600 hover:text-red-600 active:scale-90"
-                      >
-                        <Trash2 size={18} />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))
+                      <div onPointerDown={(e) => e.stopPropagation()}>
+                        <ActionMenu
+                          triggerAriaLabel={`Actions for ${product.title}`}
+                          actions={[
+                            {
+                              id: 'edit',
+                              label: 'Edit',
+                              icon: <Pencil className="h-4 w-4" />,
+                              onClick: () => {
+                                navigate(
+                                  generatePath(ROUTES.ADMIN_PRODUCT_EDIT, {
+                                    id: product._id,
+                                  }),
+                                );
+                              },
+                            },
+                            {
+                              id: 'delete',
+                              label: 'Delete',
+                              variant: 'danger',
+                              icon: <Trash className="h-4 w-4" />,
+                              onClick: () => handleRemoveProduct(product._id),
+                            },
+                          ]}
+                        />
+                      </div>
+                    </SortableItem>
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         </div>

@@ -1,15 +1,17 @@
 import type { FocusEventHandler } from 'react';
 import clsx from 'clsx';
-import { Search, X } from 'lucide-react';
+import { Search, XCircleIcon } from 'lucide-react';
 
 type SearchInputProps = {
   id?: string;
   value: string;
   onChange: (value: string) => void;
   onFocus?: FocusEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
   disabled?: boolean;
   error?: boolean;
+  ariaInvalid?: boolean;
   className?: string;
 };
 
@@ -18,11 +20,14 @@ export function SearchInput({
   value,
   onChange,
   onFocus,
+  onBlur,
   placeholder = 'Search',
   disabled = false,
   error = false,
+  ariaInvalid: ariaInvalidProp,
   className = '',
 }: SearchInputProps) {
+  const ariaInvalid = ariaInvalidProp !== undefined ? ariaInvalidProp : error;
   // Border color depending on component state
   const borderClass = clsx({
     'border-gray-600': disabled,
@@ -68,9 +73,10 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={placeholder}
         disabled={disabled}
-        aria-invalid={error || undefined}
+        aria-invalid={ariaInvalid || undefined}
         className={clsx(
           'box-border h-[44px] w-full rounded-[8px] border',
           'py-[10px] pl-[42px]',
@@ -88,9 +94,9 @@ export function SearchInput({
           type="button"
           onClick={() => onChange('')}
           aria-label="Clear search"
-          className="absolute top-1/2 right-[12px] -translate-y-1/2 text-[rgb(var(--color-muted))] hover:text-[rgb(var(--color-text))]"
+          className="absolute top-1/2 right-[12px] -translate-y-1/2 cursor-pointer border-none bg-transparent text-[rgb(var(--color-muted))] hover:text-neutral-800"
         >
-          <X size={15} />
+          <XCircleIcon className="h-5 w-5" />
         </button>
       )}
     </div>

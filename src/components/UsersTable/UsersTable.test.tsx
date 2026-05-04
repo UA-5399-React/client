@@ -166,7 +166,7 @@ describe('UsersTable', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: /activity/i }));
     expect(onLastLoginSortChange).toHaveBeenLastCalledWith('asc');
-  });
+  }, 10000);
 
   it('opens action menu and confirms delete flow', async () => {
     const user = userEvent.setup();

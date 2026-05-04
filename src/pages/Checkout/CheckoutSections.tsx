@@ -38,7 +38,7 @@ export const ContactInformationSection = ({
   register,
 }: CheckoutSectionProps) => (
   <CheckoutSection
-    title="Contact Infomation"
+    title="Contact Information"
     isDark={isDark}
     className="md:px-[23px] md:pt-[39px] md:pb-10"
   >

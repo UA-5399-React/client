@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  //Heart,
+  Heart,
   Menu,
   Moon,
   Search,
   ShoppingBag,
   Sun,
   UserCircle,
+  UserStar,
   X,
 } from 'lucide-react';
 
@@ -28,6 +29,36 @@ const NAV_LINKS = [
   //{ path: ROUTES.CONTACT_US, label: 'Contact Us', end: false },
 ];
 
+type UserAvatarProps = {
+  avatarUrl?: string;
+  userInitials: string | null;
+};
+
+const UserAvatar = ({ avatarUrl, userInitials }: UserAvatarProps) => {
+  const [hasImageLoadError, setHasImageLoadError] = useState(false);
+
+  if (avatarUrl && !hasImageLoadError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={userInitials ? `${userInitials} avatar` : 'User avatar'}
+        className="h-7 w-7 rounded-full object-cover"
+        onError={() => setHasImageLoadError(true)}
+      />
+    );
+  }
+
+  if (userInitials) {
+    return (
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+        {userInitials}
+      </span>
+    );
+  }
+
+  return <UserCircle className="h-6 w-6" />;
+};
+
 export const Header = () => {
   const { theme, setTheme, isDark } = useTheme();
   const logoSrc = isDark ? logoDark : logoLight;
@@ -44,9 +75,9 @@ export const Header = () => {
 
   const [prevUrlSearch, setPrevUrlSearch] = useState(initialSearch);
 
-  const { isAuth, isCustomer } = useAuth();
+  const { isAuth, canAccessAdminPanel } = useAuth();
 
-  const { data: me } = useMe(isAuth && isCustomer);
+  const { data: me } = useMe(isAuth);
 
   const userInitials = (() => {
     if (!me) return null;
@@ -58,6 +89,10 @@ export const Header = () => {
 
   const handleUserNavigate = () => {
     navigate(isAuth ? ROUTES.PROFILE : ROUTES.LOGIN);
+  };
+
+  const handleAdminNavigate = () => {
+    navigate(ROUTES.ADMIN_DASHBOARD);
   };
 
   if (initialSearch !== prevUrlSearch) {
@@ -196,18 +231,35 @@ export const Header = () => {
               </button>
             </div>
 
+            {canAccessAdminPanel && (
+              <button
+                onClick={handleAdminNavigate}
+                aria-label="Admin panel"
+                title="Admin panel"
+                className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+              >
+                <UserStar className="h-6 w-6" />
+              </button>
+            )}
+
+            <Link
+              to={ROUTES.WISHLIST}
+              aria-label="Wishlist"
+              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+            >
+              <Heart className="h-6 w-6" />
+            </Link>
+
             <button
               onClick={handleUserNavigate}
               aria-label="User"
               className="cursor-pointer border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
-              {userInitials ? (
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
-                  {userInitials}
-                </span>
-              ) : (
-                <UserCircle className="h-6 w-6" />
-              )}
+              <UserAvatar
+                key={me?.avatarUrl ?? 'no-avatar'}
+                avatarUrl={me?.avatarUrl}
+                userInitials={userInitials}
+              />
             </button>
 
             <button
@@ -277,6 +329,19 @@ export const Header = () => {
             <div
               className={`mt-auto shrink-0 border-t px-6 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}
             >
+              {canAccessAdminPanel && (
+                <button
+                  onClick={() => {
+                    closeMenu();
+                    handleAdminNavigate();
+                  }}
+                  className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
+                >
+                  <span>Admin Panel</span>
+                  <UserStar className="h-5 w-5 shrink-0 text-gray-400" />
+                </button>
+              )}
+
               <button
                 onClick={handleToggleTheme}
                 className={`flex w-full cursor-pointer items-center justify-between border-x-0 border-t-0 border-b bg-transparent py-4 pr-0 pl-0 text-left font-[inherit] text-sm font-medium outline-none ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
@@ -303,14 +368,16 @@ export const Header = () => {
                 </div>
               </button>
 
-              {/*<Link
-                to="#"
+              <Link
+                data-testid="drawer-wishlist-link"
+                to={ROUTES.WISHLIST}
                 onClick={closeMenu}
+                aria-label="Wishlist"
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Wishlist</span>
                 <Heart className="h-5 w-5 shrink-0 text-gray-400" />
-              </Link>*/}
+              </Link>
             </div>
             <div className="shrink-0 px-6 pt-2 pb-6">
               <Button

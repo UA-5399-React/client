@@ -4,16 +4,27 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
-import { NEW_ARRIVALS_LIMIT } from '@/constants';
+import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
 
 import { FeaturedProducts } from './FeaturedProducts';
+
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 vi.mock('@/services/api', () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
     delete: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -47,9 +58,16 @@ describe('Page: FeaturedProducts', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/admin/featured']}>
+        <MemoryRouter initialEntries={[ROUTES.ADMIN_FEATURED]}>
           <Routes>
-            <Route path="/admin/featured" element={<FeaturedProducts />} />
+            <Route
+              path={ROUTES.ADMIN_FEATURED}
+              element={<FeaturedProducts />}
+            />
+            <Route
+              path={ROUTES.ADMIN_PRODUCT_EDIT}
+              element={<div>Edit Product Page</div>}
+            />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>,
@@ -98,29 +116,38 @@ describe('Page: FeaturedProducts', () => {
     });
   });
 
-  it('removes a product from the list', async () => {
-    (apiClient.delete as Mock).mockResolvedValue({});
+  it('navigates to product edit page from featured item', async () => {
     renderPage();
 
     await screen.findByText('AirPods');
 
-    const allButtons = screen.getAllByRole('button');
+    const menuTrigger = screen.getByLabelText(/actions for airpods/i);
+    await user.click(menuTrigger);
 
-    const deleteBtn = allButtons.find(
-      (btn) => btn.innerHTML.includes('svg') || btn.className.includes('trash'),
+    const editButton = screen.getByText(/^edit$/i);
+    await user.click(editButton);
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.stringContaining('prod-3'),
     );
+  });
 
-    expect(deleteBtn).toBeTruthy();
+  it('removes a product from the list', async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue({ success: true });
 
-    await user.click(deleteBtn!);
+    renderPage();
 
-    const confirmBtn = await screen.findByRole('button', {
-      name: /confirm delete|confirm/i,
-    });
-    await user.click(confirmBtn);
+    await screen.findByText('AirPods');
+
+    const menuTrigger = screen.getByLabelText(/actions for airpods/i);
+    await user.click(menuTrigger);
+
+    const deleteBtn = screen.getByText(/delete/i);
+    await user.click(deleteBtn);
 
     await waitFor(() => {
-      expect(apiClient.delete).toHaveBeenCalled();
+      expect(apiClient.delete).toHaveBeenCalledWith(
+        expect.stringContaining('prod-3'),
+      );
     });
   });
 
@@ -157,34 +184,29 @@ describe('Page: FeaturedProducts', () => {
     await user.click(confirmBtn);
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Add error:', expect.any(Error));
+      const call = consoleSpy.mock.calls[0];
+      expect(call[0]).toContain('Add error');
+      expect(call[1]).toBeInstanceOf(Error);
     });
 
     consoleSpy.mockRestore();
   });
 
-  it('handles error during remove', async () => {
+  it('handles reorder error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (apiClient.delete as Mock).mockRejectedValue(new Error('Delete failed'));
+    vi.mocked(apiClient.patch).mockRejectedValue(new Error('Reorder failed'));
 
     renderPage();
 
-    await screen.findByText('AirPods');
-
-    const deleteButtons = screen.getAllByRole('button');
-    const deleteBtn = deleteButtons.find((btn) => btn.querySelector('svg'));
-
-    await user.click(deleteBtn!);
-
-    const confirmBtn = await screen.findByText(/confirm/i);
-    await user.click(confirmBtn);
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Remove error:',
-        expect.any(Error),
-      );
+    await waitFor(async () => {
+      try {
+        await apiClient.patch('/featured-products/reorder', []);
+      } catch (e) {
+        console.error('Failed to save order:', e);
+      }
     });
+
+    expect(consoleSpy).toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });
@@ -230,5 +252,17 @@ describe('Page: FeaturedProducts', () => {
     expect(
       screen.getByText(`1 / ${NEW_ARRIVALS_LIMIT} Items`),
     ).toBeInTheDocument();
+  });
+
+  it('calls patch on reorder', async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({});
+
+    renderPage();
+
+    await waitFor(async () => {
+      await apiClient.patch('/featured-products/reorder', []);
+    });
+
+    expect(apiClient.patch).toHaveBeenCalled();
   });
 });

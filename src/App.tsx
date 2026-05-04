@@ -1,4 +1,3 @@
-import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProductDetails } from '@/pages/ProductDetails/ProductDetails';
@@ -37,10 +36,12 @@ import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
-import { ContactUs, NotFound, Shop } from './pages/Mocks';
+import { ContactUs, Shop } from './pages/Mocks';
+import { NotFound } from './pages/NotFound/NotFound';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
 import { Profile } from './pages/User/Profile';
+import { Wishlist } from './pages/User/Wishlist';
 
 function App() {
   const isAuthReady = useRestoreAuthSession();
@@ -79,6 +80,7 @@ function App() {
     MYORDERS,
     FORGOT_PASSWORD,
     RESET_PASSWORD,
+    WISHLIST,
   } = ROUTES;
 
   if (!isAuthReady) {
@@ -87,7 +89,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Toaster position="top-right" reverseOrder={false} />
       <ScrollToTop />
       <Message />
       <Routes>
@@ -97,6 +98,7 @@ function App() {
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT_US} element={<ContactUs />} />
           <Route path={CART} element={<Cart />} />
+          <Route path={WISHLIST} element={<Wishlist />} />
           <Route
             path={NEWSLETTER_UNSUBSCRIBE}
             element={<NewsletterUnsubscribePage />}

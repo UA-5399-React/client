@@ -20,6 +20,7 @@ export interface Product {
   tags?: string[];
   description?: string;
   purchaseCount?: number;
+  productCode?: string;
 
   //it's a workaround to pass build, because there are no fields for createdAt/updatedAt in mock data and storybooks(probably?). Overall these 2 fields should not be optional
   createdAt?: string;

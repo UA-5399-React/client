@@ -38,7 +38,13 @@ export function OrderProductSearch({
   });
   const [draft, setDraft] = useState<string | null>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const inputValue = draft === null ? (productName ?? '') : draft;
+  const hasFormError = Boolean(error);
+  const showErrorOutline =
+    hasFormError && !isFocused && inputValue.trim() === '';
+  const showErrorMessage =
+    hasFormError && (!isFocused || inputValue.trim().length > 0);
   const debouncedSearch = useDebouncedValue(inputValue.trim(), 500);
 
   const { items, loading } = useAdminProducts({
@@ -94,7 +100,7 @@ export function OrderProductSearch({
         htmlFor={inputId}
         className="text-sm font-medium text-[rgb(var(--color-text))]"
       >
-        Search product
+        Search product <span className="font-bold text-red-600">*</span>
       </label>
 
       <div className="relative">
@@ -102,10 +108,15 @@ export function OrderProductSearch({
           id={inputId}
           value={inputValue}
           onChange={handleSearchChange}
-          onFocus={() => setSuggestionsOpen(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            setSuggestionsOpen(true);
+          }}
+          onBlur={() => setIsFocused(false)}
           placeholder="Search or pick a product"
           disabled={disabled}
-          error={!!error}
+          error={showErrorOutline}
+          ariaInvalid={hasFormError}
           className="w-full! max-w-none"
         />
         {showSuggestions ? (
@@ -152,7 +163,9 @@ export function OrderProductSearch({
         ) : null}
       </div>
 
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      <span className="h-2 text-xs text-red-600">
+        {showErrorMessage ? error : ''}
+      </span>
     </div>
   );
 }

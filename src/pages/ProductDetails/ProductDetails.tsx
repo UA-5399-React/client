@@ -1,15 +1,24 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Heart, Image as ImageIcon, Minus, Plus } from 'lucide-react';
+import { Heart, Minus, Plus } from 'lucide-react';
 
+import { ImageSlider } from '@/components';
+import { ROUTES } from '@/constants';
+import { useShopCategories } from '@/hooks/useShopCategories';
 import { productService } from '@/services/productService';
 import { useCartStore } from '@/store/useCartStore';
+
+type ResolvedCategory = {
+  id: string;
+  title: string;
+};
 
 export const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
+  const { data: categories = [] } = useShopCategories();
 
   const {
     data: product,
@@ -30,6 +39,35 @@ export const ProductDetails = () => {
       </div>
     );
 
+  const productCategories = product.categories ?? [];
+
+  const resolvedCategories: ResolvedCategory[] = productCategories.reduce(
+    (acc: ResolvedCategory[], value: string) => {
+      const matchedCategory = categories.find(
+        (category) =>
+          String(category.id) === String(value) || category.title === value,
+      );
+
+      if (!matchedCategory) {
+        return acc;
+      }
+
+      const categoryId = String(matchedCategory.id);
+
+      if (acc.some((category) => category.id === categoryId)) {
+        return acc;
+      }
+
+      acc.push({
+        id: categoryId,
+        title: matchedCategory.title,
+      });
+
+      return acc;
+    },
+    [],
+  );
+
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
 
@@ -37,28 +75,43 @@ export const ProductDetails = () => {
     addItem(product, quantity);
   };
 
+  const images = product.imageUrl ? [product.imageUrl] : [];
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <div className="flex h-[500px] items-center justify-center overflow-hidden rounded-lg bg-gray-200">
-            {product.imageUrl ? (
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <ImageIcon className="h-24 w-24 text-gray-400" />
-            )}
-          </div>
+          <ImageSlider images={images} alt={product.title} />
         </div>
         <div className="flex flex-col">
           <h1 className="mb-4 text-4xl font-bold">{product.title}</h1>
           <p className="mb-6 text-gray-600">
             {product.description || 'No info available'}
           </p>
+          {resolvedCategories.length > 0 && (
+            <div className="mb-6 flex flex-wrap gap-2">
+              {resolvedCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`${ROUTES.SHOP}?category=${category.id}`}
+                  className="border-fieldBorder bg-backgroundSec text-text hover:bg-background flex items-center rounded-full border px-3 py-1 text-sm transition-colors"
+                >
+                  {category.title}
+                </Link>
+              ))}
+            </div>
+          )}
           <div className="mb-8 text-2xl font-bold">${product.price}</div>
+          <div className="border-fieldBorder mb-6 border-t pt-4">
+            <div className="flex items-center">
+              <span className="text-muted w-24 shrink-0 text-sm font-medium uppercase">
+                SKU
+              </span>
+              <span className="text-text text-sm">
+                {product.productCode ?? '—'}
+              </span>
+            </div>
+          </div>
           <div className="mt-auto flex flex-col gap-4">
             <div className="flex h-[52px] gap-4">
               <div className="flex w-[120px] items-center justify-between rounded-lg bg-[#F3F5F7] px-2">

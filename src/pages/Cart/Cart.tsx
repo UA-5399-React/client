@@ -262,7 +262,10 @@ export const Cart = () => {
                             )}
                             onClick={() =>
                               navigate(
-                                `/product/${item.product._id || item.product.id}`,
+                                ROUTES.PRODUCT.replace(
+                                  ':id',
+                                  item.product._id || item.product.id,
+                                ),
                               )
                             }
                           >
@@ -288,7 +291,7 @@ export const Cart = () => {
                               isDark ? 'text-white' : 'text-black',
                             )}
                           >
-                            ${item.product.price.toFixed(2)}
+                            ${(item.product.price * item.quantity).toFixed(2)}
                           </span>
                           <Button
                             onClick={() =>

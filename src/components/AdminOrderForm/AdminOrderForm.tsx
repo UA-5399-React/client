@@ -172,7 +172,7 @@ export function AdminOrderForm({
   return (
     <div className="bg-backgroundSec rounded-lg border border-gray-200 p-4 shadow-sm">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 align-top md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-2 align-top md:grid-cols-2">
           <Controller
             control={control}
             name="customerName"
@@ -185,6 +185,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.customerName ? 'error' : 'default'}
                 helperText={errors.customerName?.message}
+                required
               />
             )}
           />
@@ -202,6 +203,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.email ? 'error' : 'default'}
                 helperText={errors.email?.message}
+                required
               />
             )}
           />
@@ -218,6 +220,7 @@ export function AdminOrderForm({
                 value={field.value ?? ''}
                 state={errors.phone ? 'error' : 'default'}
                 helperText={errors.phone?.message}
+                required
               />
             )}
           />
@@ -241,6 +244,7 @@ export function AdminOrderForm({
                   }}
                   placeholder="Select status"
                   multiple={false}
+                  required
                 />
               </div>
             )}
@@ -274,9 +278,10 @@ export function AdminOrderForm({
                   }}
                   placeholder="Select carrier"
                   multiple={false}
+                  required
                 />
                 {errors.carrier?.message && (
-                  <span className="mt-1 text-xs text-red-500">
+                  <span className="mt-1 text-xs text-red-600">
                     {errors.carrier.message}
                   </span>
                 )}
@@ -292,7 +297,7 @@ export function AdminOrderForm({
                 {isNovaPostCarrier ? (
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
-                      City
+                      City <span className="font-bold text-red-600">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -310,11 +315,10 @@ export function AdminOrderForm({
                       isLoading={citiesLoading}
                       onSearchChange={(s) => setCitySearch(s)}
                     />
-                    {errors.city?.message && (
-                      <span className="mt-1 block text-xs text-red-500">
-                        {errors.city.message}
-                      </span>
-                    )}
+
+                    <span className="mt-1 block h-2 text-xs text-red-600">
+                      {errors.city?.message}
+                    </span>
                   </>
                 ) : (
                   <Input
@@ -325,6 +329,7 @@ export function AdminOrderForm({
                     value={field.value ?? ''}
                     state={errors.city ? 'error' : 'default'}
                     helperText={errors.city?.message}
+                    required
                   />
                 )}
               </div>
@@ -339,7 +344,8 @@ export function AdminOrderForm({
                 {isNovaPostCarrier ? (
                   <>
                     <span className="mb-1 block text-sm font-medium text-[#141718]">
-                      Branch Number
+                      Branch Number{' '}
+                      <span className="font-bold text-red-600">*</span>
                     </span>
                     <SearchableSelect
                       isDark={false}
@@ -356,11 +362,10 @@ export function AdminOrderForm({
                       disabled={!cityField.value}
                       onSearchChange={(s) => setWarehouseSearch(s)}
                     />
-                    {errors.branchNumber?.message && (
-                      <span className="mt-1 block text-xs text-red-500">
-                        {errors.branchNumber.message}
-                      </span>
-                    )}
+
+                    <span className="mt-1 block h-2 text-xs text-red-600">
+                      {errors.branchNumber?.message}
+                    </span>
                   </>
                 ) : (
                   <Input
@@ -371,6 +376,7 @@ export function AdminOrderForm({
                     value={field.value ?? ''}
                     state={errors.branchNumber ? 'error' : 'default'}
                     helperText={errors.branchNumber?.message}
+                    required
                   />
                 )}
               </div>
@@ -404,6 +410,7 @@ export function AdminOrderForm({
                       value={field.value ?? ''}
                       state={errors.items?.[index]?.price ? 'error' : 'default'}
                       helperText={errors.items?.[index]?.price?.message}
+                      isClearable={false}
                     />
                   )}
                 />
@@ -423,6 +430,7 @@ export function AdminOrderForm({
                         errors.items?.[index]?.quantity ? 'error' : 'default'
                       }
                       helperText={errors.items?.[index]?.quantity?.message}
+                      isClearable={false}
                     />
                   )}
                 />
@@ -445,7 +453,7 @@ export function AdminOrderForm({
             </div>
           ))}
 
-          <div className="w-full">
+          <div className="w-full pt-2">
             <Button
               type="button"
               onClick={() =>

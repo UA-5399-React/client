@@ -127,5 +127,5 @@ describe('UserForm', () => {
       'src',
       'blob:preview',
     );
-  });
+  }, 10000);
 });

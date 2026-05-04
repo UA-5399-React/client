@@ -131,10 +131,9 @@ export function UsersTable({
             (isUpdating || isDeleting) && 'pointer-events-none opacity-50',
           )}
         >
-          {items.map((user, index) => {
+          {items.map((user) => {
             const currentStatus = user.isActive ? 'active' : 'blocked';
             const currentRole = user.role;
-            const shouldOpenUpward = index >= items.length - 2;
 
             return (
               <tr key={user.id} className="text-text text-base">
@@ -209,33 +208,31 @@ export function UsersTable({
                 </td>
 
                 <td className="relative text-right">
-                  <ActionMenu
-                    triggerAriaLabel={`Actions for ${getFullName(user)}`}
-                    actions={[
-                      {
-                        id: 'edit',
-                        label: 'Edit',
-                        icon: <Pencil className="h-[20px] w-[20px]" />,
-                        onClick: () =>
-                          navigate(
-                            generatePath(ROUTES.ADMIN_USER_EDIT, {
-                              id: user.id,
-                            }),
-                          ),
-                      },
-                      {
-                        id: 'delete',
-                        label: 'Delete',
-                        icon: <Trash className="h-[20px] w-[20px]" />,
-                        onClick: () => handleDeleteUser(user.id),
-                        variant: 'danger',
-                      },
-                    ]}
-                    className={clsx(
-                      'right-0 left-auto',
-                      shouldOpenUpward ? 'top-auto bottom-10' : 'top-10',
-                    )}
-                  />
+                  <div className="pr-2">
+                    <ActionMenu
+                      triggerAriaLabel={`Actions for ${getFullName(user)}`}
+                      actions={[
+                        {
+                          id: 'edit',
+                          label: 'Edit',
+                          icon: <Pencil className="h-[20px] w-[20px]" />,
+                          onClick: () =>
+                            navigate(
+                              generatePath(ROUTES.ADMIN_USER_EDIT, {
+                                id: user.id,
+                              }),
+                            ),
+                        },
+                        {
+                          id: 'delete',
+                          label: 'Delete',
+                          icon: <Trash className="h-[20px] w-[20px]" />,
+                          onClick: () => handleDeleteUser(user.id),
+                          variant: 'danger',
+                        },
+                      ]}
+                    />
+                  </div>
                 </td>
               </tr>
             );
