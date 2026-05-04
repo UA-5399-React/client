@@ -118,10 +118,21 @@ export function UsersChart({
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 400 },
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
+          enabled: true,
+          intersect: false,
+          displayColors: false,
           callbacks: {
+            title: (items) => {
+              const day = items[0]?.label;
+              return day ? `Day ${day}` : '';
+            },
             label: (ctx) => {
               const n = ctx.raw as number;
               return n === 0 ? 'No registrations' : `${n} registrations`;
