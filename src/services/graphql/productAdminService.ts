@@ -51,6 +51,10 @@ export const GET_PRODUCT = gql`
       categories
       imageUrl
       imagePublicId
+      additionalImages {
+        imageUrl
+        imagePublicId
+      }
     }
   }
 `;
@@ -67,6 +71,10 @@ export const CREATE_PRODUCT = gql`
       categories
       imageUrl
       imagePublicId
+      additionalImages {
+        imageUrl
+        imagePublicId
+      }
     }
   }
 `;
@@ -83,6 +91,10 @@ export const UPDATE_PRODUCT = gql`
       categories
       imageUrl
       imagePublicId
+      additionalImages {
+        imageUrl
+        imagePublicId
+      }
     }
   }
 `;

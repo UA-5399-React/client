@@ -8,12 +8,18 @@ export const PRODUCT_STATUS = {
 export type ProductStatus = 'active' | 'inactive' | 'draft';
 export type ProductStatusUpperCase = Uppercase<ProductStatus>;
 
+export interface ProductImage {
+  imageUrl: string;
+  imagePublicId: string;
+}
+
 export interface Product {
   _id?: string;
   id: string;
   categories?: string[];
   imageUrl?: string;
   imagePublicId?: string;
+  additionalImages?: ProductImage[];
   price: number;
   title: string;
   status: ProductStatus;
@@ -62,9 +68,8 @@ export interface ProductFormData {
   description: string;
   imagePreview: string | null;
   imageFile?: File;
+  additionalImages?: ProductImage[];
+  additionalImageFiles?: File[];
 }
 
-export interface UploadProductImageResponse {
-  imageUrl: string;
-  imagePublicId: string;
-}
+export type UploadProductImageResponse = ProductImage;
