@@ -1,6 +1,6 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { Pencil, Trash } from 'lucide-react';
+import { KeyRound, Pencil, Trash } from 'lucide-react';
 
 import { ActionMenu, Checkbox, Dropdown, TableSortControl } from '@/components';
 import { UserAvatar } from '@/components/UserAvatar';
@@ -12,6 +12,8 @@ import {
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useDeleteAdminUser } from '@/hooks/useDeleteAdminUser';
 import { useUpdateAdminUser } from '@/hooks/useUpdateAdminUser';
+import { authService } from '@/services/authService';
+import { useErrorStore } from '@/store/errorStore';
 import type {
   AdminUser,
   UserLastLoginSortOrder,
@@ -56,6 +58,7 @@ export function UsersTable({
   const { handleUpdate, isUpdating } = useUpdateAdminUser();
   const { deleteUser, loading: isDeleting } = useDeleteAdminUser();
   const { openConfirmModal } = useConfirmModal();
+  const showMessage = useErrorStore((s) => s.show);
 
   const handleStatusChange = async (
     userId: string,
@@ -85,6 +88,21 @@ export function UsersTable({
       confirmText: 'Delete',
       onConfirm: () => deleteUser(id),
     });
+  };
+
+  const handleResetPassword = (email: string) => {
+    authService
+      .requestPasswordReset(email)
+      .then(() =>
+        showMessage(
+          'success',
+          'Password reset sent',
+          `A reset link has been sent to ${email}`,
+        ),
+      )
+      .catch((e: Error) =>
+        showMessage('error', 'Failed to send reset link', e.message),
+      );
   };
 
   if (!items.length) {
@@ -222,6 +240,12 @@ export function UsersTable({
                                 id: user.id,
                               }),
                             ),
+                        },
+                        {
+                          id: 'reset-password',
+                          label: 'Reset Password',
+                          icon: <KeyRound className="h-[20px] w-[20px]" />,
+                          onClick: () => handleResetPassword(user.email),
                         },
                         {
                           id: 'delete',
