@@ -9,6 +9,8 @@ const mockNavigate = vi.fn();
 const mockDuplicate = vi.fn();
 const mockDelete = vi.fn();
 const mockSortChange = vi.fn();
+const mockToggleSelect = vi.fn();
+const mockSelectAll = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -48,9 +50,12 @@ const defaultProps = {
   error: undefined,
   sort: 'title' as const,
   order: 'asc' as const,
+  selectedIds: [] as string[],
   onSortChange: mockSortChange,
   onDelete: mockDelete,
   onDuplicate: mockDuplicate,
+  onToggleSelect: mockToggleSelect,
+  onSelectAll: mockSelectAll,
 };
 
 const renderTable = (
@@ -209,9 +214,12 @@ describe('UI Component: TableProducts', () => {
         loading={false}
         sort="updatedAt"
         order="desc"
+        selectedIds={[]}
         onSortChange={vi.fn()}
         onDelete={mockDelete}
         onDuplicate={mockDuplicate}
+        onToggleSelect={mockToggleSelect}
+        onSelectAll={mockSelectAll}
       />,
     );
     const img = screen.getByRole('img', { name: mockProducts[0].title });
@@ -229,9 +237,12 @@ describe('UI Component: TableProducts', () => {
         loading={false}
         sort="updatedAt"
         order="desc"
+        selectedIds={[]}
         onSortChange={vi.fn()}
         onDelete={mockDelete}
         onDuplicate={mockDuplicate}
+        onToggleSelect={mockToggleSelect}
+        onSelectAll={mockSelectAll}
       />,
     );
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
