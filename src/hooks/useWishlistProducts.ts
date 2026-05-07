@@ -36,6 +36,12 @@ export const useWishlistProducts = () => {
   }, [isAuth]);
 
   useEffect(() => {
+    if (!isAuth) {
+      setUser(null);
+      setWishlistItems([]);
+      return;
+    }
+
     const loadWishlist = async () => {
       try {
         setIsLoading(true);
@@ -49,7 +55,7 @@ export const useWishlistProducts = () => {
       }
     };
     void loadWishlist();
-  }, []);
+  }, [isAuth]);
 
   const handleRemoveItemClick = async (
     e: React.MouseEvent<HTMLButtonElement>,
