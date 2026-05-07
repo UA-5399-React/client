@@ -21,7 +21,7 @@ import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useTheme } from '@/hooks/useTheme';
-import { canAccessAdminRoute } from '@/utils/permissions';
+import { canAccessAdminRoute, isSuperAdminRole } from '@/utils/permissions';
 
 const SIDEBAR_LINKS = [
   { to: ROUTES.ADMIN_DASHBOARD, label: 'Dashboard', icon: <LayoutDashboard /> },
@@ -78,7 +78,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <aside
-      className={`flex h-full min-h-full flex-col justify-between transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}
+      className={`w-full} flex h-full min-h-full flex-col justify-between transition-all duration-300`}
     >
       <div>
         <div
@@ -93,8 +93,8 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
           </button>
         </div>
         {!isCollapsed && (
-          <h1 className="text-text pb-10 text-center text-4xl font-bold">
-            ADMIN
+          <h1 className="text-text pb-5 text-center text-2xl font-bold">
+            {isSuperAdminRole(role) ? 'Super Admin' : 'Admin'}
           </h1>
         )}
 
@@ -141,7 +141,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
         onClick={handleLogout}
       >
         <div
-          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2 px-4'} py-8 ${isDark ? 'text-white' : 'text-black'}`}
+          className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2 px-4'} text-text py-8 ${isDark ? 'text-white' : 'text-black'}`}
         >
           <LogOut />
           {!isCollapsed && <span>Logout</span>}

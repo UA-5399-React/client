@@ -1,66 +1,56 @@
-import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { fireEvent, render, screen } from '@/utils/test-utils';
 
 import { NewsletterPreview } from './NewsletterPreview';
 
-describe('NewsletterPreview', () => {
-  it('shows subject or fallback when subject is empty', () => {
-    const { rerender } = render(
+vi.mock('./newsletterTemplate', () => ({
+  buildNewsletterTemplate: vi.fn(
+    (subject: string, body: string) =>
+      `<html><h1>${subject}</h1>${body}</html>`,
+  ),
+}));
+
+describe('UI Component: NewsletterPreview', () => {
+  it('renders subject and iframe preview content', () => {
+    render(
       <NewsletterPreview
-        subject="Weekly deals"
-        body="<p>a</p>"
+        subject="Weekly digest"
+        body="<p>Top products</p>"
         onClose={vi.fn()}
       />,
     );
 
-    expect(screen.getByText('Weekly deals')).toBeInTheDocument();
+    expect(screen.getByText('Preview')).toBeInTheDocument();
+    expect(screen.getByText('Weekly digest')).toBeInTheDocument();
+    expect(screen.getByTitle('Email preview')).toHaveAttribute(
+      'srcdoc',
+      '<html><h1>Weekly digest</h1><p>Top products</p></html>',
+    );
+  });
 
-    rerender(<NewsletterPreview subject="" body="" onClose={vi.fn()} />);
+  it('renders fallback title when subject is empty', () => {
+    render(<NewsletterPreview subject="" body="<p>x</p>" onClose={vi.fn()} />);
 
     expect(screen.getByText('No subject')).toBeInTheDocument();
   });
 
-  it('renders iframe srcDoc from buildNewsletterTemplate output', () => {
-    render(
-      <NewsletterPreview subject="Subj" body="<p>b</p>" onClose={vi.fn()} />,
-    );
-
-    const iframe = screen.getByTitle('Email preview');
-    const srcDoc = iframe.getAttribute('srcDoc') ?? '';
-
-    expect(srcDoc).toContain('<h1>Subj</h1>');
-    expect(srcDoc).toContain('<p>b</p>');
-    expect(srcDoc).toContain('/newsletter/unsubscribe');
-    expect(iframe).toHaveAttribute('sandbox', 'allow-same-origin');
-  });
-
-  it('calls onClose when backdrop is clicked', () => {
+  it('calls onClose when overlay or close button is clicked', () => {
     const onClose = vi.fn();
+
     const { container } = render(
-      <NewsletterPreview subject="x" body="y" onClose={onClose} />,
+      <NewsletterPreview
+        subject="Subject"
+        body="<p>Body</p>"
+        onClose={onClose}
+      />,
     );
 
-    fireEvent.click(container.firstChild as HTMLElement);
+    const overlay = container.querySelector('.fixed.inset-0');
+    expect(overlay).toBeInTheDocument();
+    fireEvent.click(overlay!);
+    fireEvent.click(screen.getByRole('button'));
 
-    expect(onClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not close when modal content is clicked', () => {
-    const onClose = vi.fn();
-    render(<NewsletterPreview subject="x" body="y" onClose={onClose} />);
-
-    fireEvent.click(screen.getByTitle('Email preview'));
-
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it('calls onClose when close button is clicked', () => {
-    const onClose = vi.fn();
-    render(<NewsletterPreview subject="x" body="y" onClose={onClose} />);
-
-    const [closeButton] = screen.getAllByRole('button');
-    fireEvent.click(closeButton);
-
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 });

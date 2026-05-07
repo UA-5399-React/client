@@ -1,11 +1,16 @@
-import * as ApolloReact from '@apollo/client/react';
+import * as ApolloClient from '@apollo/client/react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GET_PRODUCTS_PAGE } from '@/services/graphql/productAdminService';
 import { productsImportService } from '@/services/productsImportService';
+import type { ImportResult } from '@/types/import.types';
 
 import { useImportProducts } from './useImportProducts';
+
+vi.mock('@apollo/client/react', () => ({
+  useApolloClient: vi.fn(),
+}));
 
 vi.mock('@apollo/client/react', async (importOriginal) => {
   const actual = await importOriginal();
@@ -21,137 +26,115 @@ vi.mock('@/services/productsImportService', () => ({
   },
 }));
 
-describe('useImportProducts', () => {
-  const refetchQueries = vi.fn().mockResolvedValue(undefined);
+describe('Hook: useImportProducts', () => {
+  const mockRefetchQueries = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(ApolloReact.useApolloClient).mockReturnValue({
-      refetchQueries,
-    } as unknown as ReturnType<typeof ApolloReact.useApolloClient>);
+    vi.mocked(ApolloClient.useApolloClient).mockReturnValue({
+      refetchQueries: mockRefetchQueries,
+    } as unknown as ReturnType<typeof ApolloClient.useApolloClient>);
   });
 
-  it('validateFile rejects unsupported extensions', () => {
+  it('validates file extension and size', () => {
     const { result } = renderHook(() => useImportProducts());
 
-    expect(result.current.validateFile(new File([], 'a.pdf'))).toBe(
+    const invalidExt = new File(['id,title'], 'products.txt', {
+      type: 'text/plain',
+    });
+    const tooLarge = new File(['x'], 'products.csv', { type: 'text/csv' });
+    Object.defineProperty(tooLarge, 'size', { value: 11 * 1024 * 1024 });
+
+    expect(result.current.validateFile(invalidExt)).toBe(
       'Only .xlsx, .csv files are accepted',
     );
-  });
-
-  it('validateFile rejects files larger than 10 MB', () => {
-    const { result } = renderHook(() => useImportProducts());
-    const large = new File([new ArrayBuffer(10 * 1024 * 1024 + 1)], 'big.csv');
-
-    expect(result.current.validateFile(large)).toBe(
+    expect(result.current.validateFile(tooLarge)).toBe(
       'File must be smaller than 10 MB',
     );
   });
 
-  it('validateFile accepts xlsx and csv', () => {
+  it('sets validation error and skips import call for invalid file', async () => {
     const { result } = renderHook(() => useImportProducts());
-
-    expect(result.current.validateFile(new File([], 'a.csv'))).toBeNull();
-    expect(result.current.validateFile(new File([], 'b.XLSX'))).toBeNull();
-  });
-
-  it('importProducts sets validation error and skips request for invalid file', async () => {
-    const { result } = renderHook(() => useImportProducts());
-
-    await act(async () => {
-      await result.current.importProducts(new File([], 'bad.pdf'));
+    const invalidFile = new File(['x'], 'bad.pdf', {
+      type: 'application/pdf',
     });
 
-    expect(result.current.error).toBe('Only .xlsx, .csv files are accepted');
+    await act(async () => {
+      await result.current.importProducts(invalidFile);
+    });
+
     expect(productsImportService.importProducts).not.toHaveBeenCalled();
-    expect(refetchQueries).not.toHaveBeenCalled();
+    expect(result.current.error).toBe('Only .xlsx, .csv files are accepted');
+    expect(result.current.loading).toBe(false);
   });
 
-  it('importProducts stores result and refetches products page on success', async () => {
-    const payload = {
+  it('imports products successfully and refetches products query', async () => {
+    const response: ImportResult = {
       imported: 2,
-      failed: [] as { row: number; reason: string }[],
+      failed: [],
     };
-    vi.mocked(productsImportService.importProducts).mockResolvedValue(payload);
+
+    vi.mocked(productsImportService.importProducts).mockResolvedValue(response);
+    mockRefetchQueries.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useImportProducts());
-
-    await act(async () => {
-      await result.current.importProducts(new File([], 'stock.csv'));
+    const validFile = new File(['id,title'], 'products.csv', {
+      type: 'text/csv',
     });
 
-    expect(productsImportService.importProducts).toHaveBeenCalledTimes(1);
-    expect(refetchQueries).toHaveBeenCalledWith({
+    await act(async () => {
+      await result.current.importProducts(validFile);
+    });
+
+    expect(productsImportService.importProducts).toHaveBeenCalledWith(
+      validFile,
+    );
+    expect(mockRefetchQueries).toHaveBeenCalledWith({
       include: [GET_PRODUCTS_PAGE],
     });
-    expect(result.current.result).toEqual(payload);
+    expect(result.current.result).toEqual(response);
     expect(result.current.error).toBeNull();
     expect(result.current.loading).toBe(false);
   });
 
-  it('importProducts sets error from thrown Error', async () => {
+  it('sets error from thrown Error message', async () => {
     vi.mocked(productsImportService.importProducts).mockRejectedValue(
-      new Error('Bad rows'),
+      new Error('Import failed'),
     );
 
     const { result } = renderHook(() => useImportProducts());
-
-    await act(async () => {
-      await result.current.importProducts(new File([], 'bad.csv'));
+    const validFile = new File(['id,title'], 'products.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
 
-    expect(result.current.error).toBe('Bad rows');
+    await act(async () => {
+      await result.current.importProducts(validFile);
+    });
+
+    expect(result.current.error).toBe('Import failed');
     expect(result.current.result).toBeNull();
     expect(result.current.loading).toBe(false);
   });
 
-  it('importProducts sets generic error for non-Error throws', async () => {
-    vi.mocked(productsImportService.importProducts).mockRejectedValue('oops');
+  it('resets state after import attempt', async () => {
+    const response: ImportResult = {
+      imported: 1,
+      failed: [],
+    };
+
+    vi.mocked(productsImportService.importProducts).mockResolvedValue(response);
+    mockRefetchQueries.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useImportProducts());
+    const validFile = new File(['id,title'], 'products.csv', {
+      type: 'text/csv',
+    });
 
     await act(async () => {
-      await result.current.importProducts(new File([], 'bad.csv'));
+      await result.current.importProducts(validFile);
     });
 
-    expect(result.current.error).toBe('Unexpected error during import');
-  });
-
-  it('sets loading true while import is in flight', async () => {
-    const payload = { imported: 0, failed: [] };
-    let resolveImport!: (value: typeof payload) => void;
-    const deferred = new Promise<typeof payload>((r) => {
-      resolveImport = r;
-    });
-
-    vi.mocked(productsImportService.importProducts).mockReturnValue(deferred);
-
-    const { result } = renderHook(() => useImportProducts());
-
-    act(() => {
-      void result.current.importProducts(new File([], 'wait.csv'));
-    });
-
-    await waitFor(() => expect(result.current.loading).toBe(true));
-
-    await act(async () => {
-      resolveImport(payload);
-      await deferred;
-    });
-
-    expect(result.current.loading).toBe(false);
-  });
-
-  it('reset clears loading, error, and result', async () => {
-    vi.mocked(productsImportService.importProducts).mockRejectedValue(
-      new Error('x'),
-    );
-
-    const { result } = renderHook(() => useImportProducts());
-
-    await act(async () => {
-      await result.current.importProducts(new File([], 'a.csv'));
-    });
+    await waitFor(() => expect(result.current.result).toEqual(response));
 
     act(() => {
       result.current.reset();

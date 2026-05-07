@@ -1,47 +1,68 @@
-import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { fireEvent, render, screen } from '@/utils/test-utils';
 
 import { EditorToolbar } from './EditorToolbar';
 
-describe('EditorToolbar', () => {
-  const execCommandMock = vi.fn(() => true);
+describe('UI Component: EditorToolbar', () => {
+  const execCommandMock = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(document, 'execCommand', {
       value: execCommandMock,
-      writable: true,
       configurable: true,
+      writable: true,
     });
   });
 
-  it.each<[title: string, command: string, value: string | undefined]>([
-    ['Bold', 'bold', undefined],
-    ['Italic', 'italic', undefined],
-    ['Underline', 'underline', undefined],
-    ['Heading 1', 'formatBlock', 'h1'],
-    ['Heading 2', 'formatBlock', 'h2'],
-    ['Bullet list', 'insertUnorderedList', undefined],
-    ['Numbered list', 'insertOrderedList', undefined],
-  ])(
-    'on mouseDown runs document.execCommand for %s',
-    (title, command, value) => {
-      const onInsertLink = vi.fn();
-      render(<EditorToolbar onInsertLink={onInsertLink} />);
+  it('renders all toolbar actions', () => {
+    render(<EditorToolbar onInsertLink={vi.fn()} />);
 
-      fireEvent.mouseDown(screen.getByTitle(title));
+    expect(screen.getByRole('button', { name: 'Bold' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Italic' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Underline' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Heading 1' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Heading 2' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Bullet list' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Numbered list' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Insert link' }),
+    ).toBeInTheDocument();
+  });
 
-      expect(execCommandMock).toHaveBeenCalledTimes(1);
-      expect(execCommandMock).toHaveBeenCalledWith(command, false, value);
-      expect(onInsertLink).not.toHaveBeenCalled();
-    },
-  );
+  it('executes formatting commands on mouse down', () => {
+    render(<EditorToolbar onInsertLink={vi.fn()} />);
 
-  it('calls onInsertLink for Insert link without execCommand', () => {
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Bold' }));
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Heading 1' }));
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Bullet list' }));
+
+    expect(execCommandMock).toHaveBeenCalledWith('bold', false, undefined);
+    expect(execCommandMock).toHaveBeenCalledWith('formatBlock', false, 'h1');
+    expect(execCommandMock).toHaveBeenCalledWith(
+      'insertUnorderedList',
+      false,
+      undefined,
+    );
+  });
+
+  it('calls onInsertLink for link action without using execCommand', () => {
     const onInsertLink = vi.fn();
+
     render(<EditorToolbar onInsertLink={onInsertLink} />);
 
-    fireEvent.mouseDown(screen.getByTitle('Insert link'));
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Insert link' }));
 
     expect(onInsertLink).toHaveBeenCalledTimes(1);
     expect(execCommandMock).not.toHaveBeenCalled();

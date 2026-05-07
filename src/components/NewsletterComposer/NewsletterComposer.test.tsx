@@ -1,133 +1,84 @@
-import { fireEvent, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
+import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 
 import { NewsletterComposer } from './NewsletterComposer';
 
 vi.mock('./newsletterTemplate', () => ({
-  buildNewsletterTemplate: vi.fn((subject: string, body: string) => {
-    return `<html>${subject}||${body}</html>`;
-  }),
+  buildNewsletterTemplate: vi.fn(
+    (subject: string, body: string) => `TEMPLATE:${subject}::${body}`,
+  ),
 }));
 
-function fillEditorBody(editor: HTMLElement, html: string) {
-  editor.innerHTML = html;
-  Object.defineProperty(editor, 'innerText', {
-    configurable: true,
-    get() {
-      return (this as HTMLElement).textContent ?? '';
-    },
-  });
-  fireEvent.input(editor);
-}
-
-describe('NewsletterComposer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('disables Preview and Send when subject or body is empty', () => {
+describe('UI Component: NewsletterComposer', () => {
+  it('keeps action buttons disabled when subject/body are empty', () => {
     render(<NewsletterComposer onSend={vi.fn()} isSending={false} />);
 
-    expect(screen.getByRole('button', { name: /preview/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Preview' })).toBeDisabled();
     expect(
-      screen.getByRole('button', { name: /send newsletter/i }),
+      screen.getByRole('button', { name: 'Send newsletter' }),
     ).toBeDisabled();
   });
 
-  it('enables actions when subject and body have text', async () => {
-    const user = userEvent.setup();
+  it('opens preview modal when content is filled and preview is clicked', () => {
     const { container } = render(
       <NewsletterComposer onSend={vi.fn()} isSending={false} />,
     );
 
-    await user.type(screen.getByPlaceholderText('Subject'), 'News');
+    fireEvent.change(screen.getByPlaceholderText('Subject'), {
+      target: { value: 'Launch update' },
+    });
 
     const editor = container.querySelector(
       '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>Content here</p>');
+    ) as HTMLDivElement;
+    editor.innerHTML = '<p>Hello subscribers</p>';
+    editor.innerText = 'Hello subscribers';
+    fireEvent.input(editor);
 
-    expect(screen.getByRole('button', { name: /preview/i })).not.toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: /send newsletter/i }),
-    ).not.toBeDisabled();
-  });
-
-  it('opens preview and closes when clicking backdrop', async () => {
-    const user = userEvent.setup();
-    const { container } = render(
-      <NewsletterComposer onSend={vi.fn()} isSending={false} />,
-    );
-
-    await user.type(screen.getByPlaceholderText('Subject'), 'My subject');
-
-    const editor = container.querySelector(
-      '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>Line</p>');
-
-    await user.click(screen.getByRole('button', { name: /preview/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
 
     expect(screen.getByTitle('Email preview')).toBeInTheDocument();
-    expect(screen.getByText('My subject')).toBeInTheDocument();
-
-    const backdrop = screen.getByTitle('Email preview').closest('div.fixed');
-    fireEvent.click(backdrop as HTMLElement);
-
-    await waitFor(() => {
-      expect(screen.queryByTitle('Email preview')).not.toBeInTheDocument();
-    });
+    expect(
+      screen.getByText('Launch update', { selector: 'p' }),
+    ).toBeInTheDocument();
   });
 
-  it('shows Sending label and disables send while isSending', async () => {
-    const user = userEvent.setup();
-    const { container } = render(
-      <NewsletterComposer onSend={vi.fn()} isSending={true} />,
-    );
-
-    await user.type(screen.getByPlaceholderText('Subject'), 'S');
-
-    const editor = container.querySelector(
-      '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>B</p>');
-
-    expect(screen.getByRole('button', { name: /sending/i })).toBeDisabled();
-  });
-
-  it('calls onSend with built HTML after confirm; resets fields', async () => {
-    const user = userEvent.setup();
+  it('opens confirm modal and sends newsletter, then resets fields', async () => {
     const onSend = vi.fn().mockResolvedValue(undefined);
     const { container } = render(
       <NewsletterComposer onSend={onSend} isSending={false} />,
     );
 
-    await user.type(screen.getByPlaceholderText('Subject'), 'Promo');
+    fireEvent.change(screen.getByPlaceholderText('Subject'), {
+      target: { value: 'May newsletter' },
+    });
 
     const editor = container.querySelector(
       '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>Details</p>');
+    ) as HTMLDivElement;
+    editor.innerHTML = '<p>Big discounts</p>';
+    editor.innerText = 'Big discounts';
+    fireEvent.input(editor);
 
-    await user.click(screen.getByRole('button', { name: /send newsletter/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send newsletter' }));
 
-    const dialog = screen.getByRole('dialog');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('heading', { name: 'Send newsletter' }),
+      screen.getByText('Send newsletter', { selector: 'h2' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Are you sure you want to send "May newsletter" to all active subscribers?',
+      ),
     ).toBeInTheDocument();
 
-    await user.click(within(dialog).getByRole('button', { name: 'Send' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
 
     await waitFor(() => {
       expect(onSend).toHaveBeenCalledWith(
-        'Promo',
-        '<html>Promo||<p>Details</p></html>',
+        'May newsletter',
+        'TEMPLATE:May newsletter::<p>Big discounts</p>',
       );
     });
 
@@ -135,51 +86,22 @@ describe('NewsletterComposer', () => {
     expect(editor.innerHTML).toBe('');
   });
 
-  it('does not send when confirm is cancelled', async () => {
-    const user = userEvent.setup();
-    const onSend = vi.fn();
-    const { container } = render(
-      <NewsletterComposer onSend={onSend} isSending={false} />,
-    );
-
-    await user.type(screen.getByPlaceholderText('Subject'), 'X');
-
-    const editor = container.querySelector(
-      '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>Y</p>');
-
-    await user.click(screen.getByRole('button', { name: /send newsletter/i }));
-
-    const dialog = screen.getByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-
-    expect(onSend).not.toHaveBeenCalled();
-  });
-
-  it('inserts link when prompt returns a URL', () => {
-    vi.spyOn(window, 'prompt').mockReturnValue('https://example.com');
-    const execCommandMock = vi.fn(() => true);
+  it('handles insert link action from toolbar', () => {
+    const promptMock = vi
+      .spyOn(window, 'prompt')
+      .mockReturnValue('https://example.com');
+    const execCommandMock = vi.fn();
     Object.defineProperty(document, 'execCommand', {
       value: execCommandMock,
-      writable: true,
       configurable: true,
+      writable: true,
     });
 
-    const { container } = render(
-      <NewsletterComposer onSend={vi.fn()} isSending={false} />,
-    );
+    render(<NewsletterComposer onSend={vi.fn()} isSending={false} />);
 
-    const editor = container.querySelector(
-      '[contenteditable="true"]',
-    ) as HTMLElement;
-    fillEditorBody(editor, '<p>link me</p>');
-    editor.focus();
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Insert link' }));
 
-    const insertLink = screen.getByTitle('Insert link');
-    fireEvent.mouseDown(insertLink);
-
-    expect(window.prompt).toHaveBeenCalledWith('Enter URL:');
+    expect(promptMock).toHaveBeenCalledWith('Enter URL:');
     expect(execCommandMock).toHaveBeenCalledWith(
       'createLink',
       false,

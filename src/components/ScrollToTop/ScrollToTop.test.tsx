@@ -1,56 +1,46 @@
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ScrollToTop } from './ScrollToTop';
 
-describe('ScrollToTop', () => {
+describe('UI Component: ScrollToTop', () => {
   beforeEach(() => {
-    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    vi.clearAllMocks();
+    window.scrollTo = vi.fn();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('calls window.scrollTo(0, 0) after mount', async () => {
+  it('scrolls to top on initial render', () => {
     render(
-      <MemoryRouter initialEntries={['/page']}>
+      <MemoryRouter initialEntries={['/profile']}>
+        <ScrollToTop />
+      </MemoryRouter>,
+    );
+
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(window.scrollTo).toHaveBeenCalledTimes(1);
+  });
+
+  it('scrolls to top when pathname changes', () => {
+    render(
+      <MemoryRouter initialEntries={['/profile']}>
         <ScrollToTop />
         <Routes>
-          <Route path="/page" element={<div>Page</div>} />
+          <Route
+            path="/profile"
+            element={<Link to="/orders">Go to orders</Link>}
+          />
+          <Route path="/orders" element={<div>Orders page</div>} />
         </Routes>
       </MemoryRouter>,
     );
 
-    await waitFor(() => {
-      expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
-    });
-  });
+    expect(window.scrollTo).toHaveBeenCalledTimes(1);
 
-  it('calls window.scrollTo again when the pathname changes', async () => {
-    const user = userEvent.setup();
+    fireEvent.click(screen.getByRole('link', { name: 'Go to orders' }));
 
-    render(
-      <MemoryRouter initialEntries={['/first']}>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/first" element={<Link to="/second">Next</Link>} />
-          <Route path="/second" element={<div>Second</div>} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    await waitFor(() => {
-      expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    });
-
-    await user.click(screen.getByRole('link', { name: 'Next' }));
-
-    await waitFor(() => {
-      expect(window.scrollTo).toHaveBeenCalledTimes(2);
-      expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0);
-    });
+    expect(screen.getByText('Orders page')).toBeInTheDocument();
+    expect(window.scrollTo).toHaveBeenCalledTimes(2);
+    expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0);
   });
 });

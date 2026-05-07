@@ -1,43 +1,49 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BackButton } from './BackButton';
 
-const mocks = vi.hoisted(() => ({
-  navigate: vi.fn(),
-}));
+const mockNavigate = vi.fn();
 
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
   return {
-    ...(actual as Record<string, unknown>),
-    useNavigate: () => mocks.navigate,
+    ...actual,
+    useNavigate: () => mockNavigate,
   };
 });
 
-describe('BackButton', () => {
-  it('navigates back one step when clicked', () => {
+describe('UI Component: BackButton', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders default label', () => {
+    render(<BackButton />);
+
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+  });
+
+  it('renders custom label', () => {
+    render(<BackButton label="Go back" />);
+
+    expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
+  });
+
+  it('navigates back when clicked', () => {
     render(<BackButton />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
 
-    expect(mocks.navigate).toHaveBeenCalledTimes(1);
-    expect(mocks.navigate).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
   });
 
-  it('renders custom label', () => {
-    render(<BackButton label="Return to list" />);
-
-    expect(
-      screen.getByRole('button', { name: 'Return to list' }),
-    ).toBeInTheDocument();
-  });
-
-  it('merges optional className onto the button', () => {
-    render(<BackButton className="extra-class" />);
+  it('applies extra className', () => {
+    render(<BackButton className="custom-back-btn" />);
 
     expect(screen.getByRole('button', { name: 'Back' })).toHaveClass(
-      'extra-class',
+      'custom-back-btn',
     );
   });
 });

@@ -32,7 +32,7 @@ describe('useDeleteAdminCategory', () => {
   });
 
   it('calls delete mutation with id variable', async () => {
-    const mutationResponse = { data: { deleteCategory: { id: 'cat-1' } } };
+    const mutationResponse = { data: { deleteCategory: { id: 'CAT-123' } } };
     deleteCategoryMutationMock.mockResolvedValueOnce(mutationResponse);
 
     vi.mocked(ApolloClient.useMutation).mockReturnValue([
@@ -48,11 +48,11 @@ describe('useDeleteAdminCategory', () => {
 
     let response: unknown;
     await act(async () => {
-      response = await result.current.deleteCategory('cat-1');
+      response = await result.current.deleteCategory('CAT-123');
     });
 
     expect(deleteCategoryMutationMock).toHaveBeenCalledWith({
-      variables: { id: 'cat-1' },
+      variables: { id: 'CAT-123' },
     });
     expect(response).toEqual(mutationResponse);
     expect(result.current.data).toEqual(mutationResponse.data);
