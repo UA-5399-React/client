@@ -6,11 +6,13 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  Moon,
   PackageIcon,
   SettingsIcon,
   ShoppingCartIcon,
   Sparkles,
   Store,
+  Sun,
   UsersIcon,
 } from 'lucide-react';
 
@@ -43,13 +45,24 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
-  const { isDark } = useTheme();
+  const { theme, isDark, setTheme } = useTheme();
   const { logout, role } = useAuth();
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
   const visibleLinks = SIDEBAR_LINKS.filter(({ to }) =>
     canAccessAdminRoute(role, to),
   );
+
+  const handleToggleTheme = () => {
+    if (theme === 'system') {
+      const isSystemDark = window.matchMedia(
+        '(prefers-color-scheme: dark)',
+      ).matches;
+      setTheme(isSystemDark ? 'light' : 'dark');
+    } else {
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+    }
+  };
 
   const handleLogout = () => {
     openConfirmModal({
@@ -105,6 +118,21 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
               {!isCollapsed && <span className="truncate">{label}</span>}
             </NavLink>
           ))}
+          <button
+            onClick={handleToggleTheme}
+            title={isCollapsed ? (isDark ? 'Light mode' : 'Dark mode') : ''}
+            aria-label="Toggle theme"
+            className={`flex h-[42px] w-full cursor-pointer items-center rounded-md border-none bg-transparent text-[rgb(var(--color-text))] transition-all [font:inherit] ${
+              isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'
+            } ${isDark ? 'hover:bg-white! hover:text-black!' : 'hover:bg-black! hover:text-white!'}`}
+          >
+            <span className="flex-shrink-0">{isDark ? <Sun /> : <Moon />}</span>
+            {!isCollapsed && (
+              <span className="truncate">
+                {isDark ? 'Light mode' : 'Dark mode'}
+              </span>
+            )}
+          </button>
         </nav>
       </div>
 
