@@ -20,6 +20,7 @@ import { ROUTES } from '@/constants';
 import { CATEGORY, DAY, PRODUCT } from '@/constants/general';
 import { useAuth } from '@/hooks/useAuth';
 import { useGroupByTable } from '@/hooks/useGroupByTable';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useUserStats } from '@/hooks/useUserStats';
 import type { GroupByEnum } from '@/types/statistic.types';
 import { getCurrentMonthPeriod } from '@/utils';
@@ -66,7 +67,11 @@ export function Dashboard() {
   const { isSuperAdmin } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthPeriod());
   const [selectedGroupBy, setSelectedGroupBy] = useState<GroupByEnum>(DAY);
-  const [groupTablePage, setGroupTablePage] = useState(1);
+  const {
+    currentPage: groupTablePage,
+    setPage: setGroupTablePage,
+    resetPage: resetGroupTablePage,
+  } = usePaginationPageParam({ paramName: 'page' });
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [groupFilter, setGroupFilter] =
@@ -106,7 +111,7 @@ export function Dashboard() {
     if (!nextGroupBy) return;
 
     setSelectedGroupBy(nextGroupBy);
-    setGroupTablePage(1);
+    resetGroupTablePage();
   };
 
   return (
@@ -162,7 +167,10 @@ export function Dashboard() {
                 <GroupTableFilter
                   isOpen={filterOpen}
                   onClose={() => setFilterOpen(false)}
-                  onApply={setGroupFilter}
+                  onApply={(filter) => {
+                    setGroupFilter(filter);
+                    resetGroupTablePage();
+                  }}
                   initial={groupFilter}
                 />
               </div>
