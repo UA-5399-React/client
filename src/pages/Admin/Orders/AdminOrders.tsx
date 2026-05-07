@@ -124,7 +124,7 @@ export function AdminOrders() {
           + Create Order
         </Button>
 
-        <ExportButton type={EXPORT_TYPES.ORDERS} />
+        <ExportButton type={EXPORT_TYPES.ORDERS} status={currentStatus} />
       </div>
 
       <OrderTabs />

@@ -22,6 +22,7 @@ import { useDuplicate } from '@/hooks/useDuplicate';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { useAdminProductsStore } from '@/store/useAdminProductsStore';
+import { PRODUCT_STATUS } from '@/types';
 import { type ProductsFilters } from '@/types/filters';
 import type {
   ProductSortField,
@@ -47,8 +48,19 @@ export function AdminProducts() {
 
   useErrorMessage();
 
-  const { filters, search, sort, order, setFilters, setSearch, setSort } =
-    useAdminProductsStore();
+  const {
+    filters,
+    search,
+    sort,
+    order,
+    selectedIds,
+    setFilters,
+    setSearch,
+    setSort,
+    toggleSelect,
+    selectAll,
+    clearSelection,
+  } = useAdminProductsStore();
 
   const {
     currentPage,
@@ -75,6 +87,10 @@ export function AdminProducts() {
   });
 
   const selectedSortValue = buildSortValue(sort, order);
+
+  useEffect(() => {
+    return () => clearSelection();
+  }, []);
 
   useEffect(() => {
     normalizeInvalidPageParam();
@@ -145,6 +161,7 @@ export function AdminProducts() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    clearSelection();
   };
 
   const handleCreateProduct = () => {
@@ -152,20 +169,62 @@ export function AdminProducts() {
   };
 
   const handleDeleteProduct = (id: string) => {
+    const isBulk = selectedIds.includes(id) && selectedIds.length > 1;
+    const draftIds = isBulk
+      ? items
+          .filter(
+            (item) =>
+              selectedIds.includes(item.id) &&
+              item.status.toUpperCase() === PRODUCT_STATUS.DRAFT,
+          )
+          .map((item) => item.id)
+      : [id];
+
+    if (isBulk && draftIds.length === 0) return;
+
+    const description = isBulk
+      ? `Delete ${draftIds.length} draft product${draftIds.length !== 1 ? 's' : ''}?${
+          selectedIds.length > draftIds.length
+            ? ` (${selectedIds.length - draftIds.length} non-draft will be skipped)`
+            : ''
+        }`
+      : 'Are you sure you want to delete this product?';
+
     openConfirmModal({
-      title: 'Delete Product',
-      description: 'Are you sure you want to delete this product?',
+      title: isBulk ? 'Delete Selected' : 'Delete Product',
+      description,
       isCritical: true,
       confirmText: 'Delete',
       onConfirm: async () => {
-        await deleteProduct(id);
-        navigate('.', {
-          state: {
-            successMessage: 'Product deleted successfully!',
-          },
-        });
+        if (isBulk) {
+          await Promise.all(draftIds.map((draftId) => deleteProduct(draftId)));
+          clearSelection();
+        } else {
+          await deleteProduct(id);
+          navigate('.', {
+            state: { successMessage: 'Product deleted successfully!' },
+          });
+        }
       },
     });
+  };
+
+  const handleDuplicate = async (id: string) => {
+    if (selectedIds.includes(id) && selectedIds.length > 1) {
+      openConfirmModal({
+        title: 'Duplicate Selected',
+        description: `Duplicate ${selectedIds.length} products?`,
+        confirmText: 'Duplicate',
+        onConfirm: async () => {
+          await Promise.all(
+            selectedIds.map((selectedId) => duplicateProduct(selectedId)),
+          );
+          clearSelection();
+        },
+      });
+    } else {
+      await duplicateProduct(id);
+    }
   };
 
   return (
@@ -199,7 +258,11 @@ export function AdminProducts() {
           >
             Import
           </Button>
-          <ExportButton type={EXPORT_TYPES.PRODUCTS} />{' '}
+          <ExportButton
+            type={EXPORT_TYPES.PRODUCTS}
+            filters={filters}
+            search={search}
+          />{' '}
         </div>
 
         <div className="flex items-center justify-end gap-4 p-4">
@@ -225,9 +288,12 @@ export function AdminProducts() {
           error={error}
           sort={sort}
           order={order}
+          selectedIds={selectedIds}
           onSortChange={handleTableSortChange}
           onDelete={handleDeleteProduct}
-          onDuplicate={duplicateProduct}
+          onDuplicate={handleDuplicate}
+          onToggleSelect={toggleSelect}
+          onSelectAll={selectAll}
         />
 
         <Pagination
