@@ -53,7 +53,7 @@ describe('HeartButton', () => {
     expect(button).toHaveAttribute('aria-label', 'Remove from wishlist');
 
     const icon = button.querySelector('svg');
-    expect(icon).toHaveClass('stroke-red-500');
+    expect(icon).toHaveClass('stroke-red-600');
   });
 
   it('calls addToWishlist when clicked and not favorite', async () => {
@@ -71,7 +71,7 @@ describe('HeartButton', () => {
 
     await waitFor(() => {
       const icon = button.querySelector('svg');
-      expect(icon).toHaveClass('stroke-red-500');
+      expect(icon).toHaveClass('stroke-red-600');
     });
 
     expect(mockShowMessage).toHaveBeenCalledWith(
@@ -114,7 +114,7 @@ describe('HeartButton', () => {
     fireEvent.click(button);
 
     const icon = button.querySelector('svg');
-    expect(icon).toHaveClass('stroke-red-500');
+    expect(icon).toHaveClass('stroke-red-600');
 
     await waitFor(() => {
       expect(icon).toHaveClass('stroke-gray-400');
@@ -173,6 +173,6 @@ describe('HeartButton', () => {
 
     button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-label', 'Remove from wishlist');
-    expect(button.querySelector('svg')).toHaveClass('stroke-red-500');
+    expect(button.querySelector('svg')).toHaveClass('stroke-red-600');
   });
 });
