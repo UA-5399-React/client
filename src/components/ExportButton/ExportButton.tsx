@@ -3,14 +3,29 @@ import { Download } from 'lucide-react';
 
 import { Button } from '@/components';
 import { EXPORT_TYPES, type ExportType } from '@/constants';
-import { exportService } from '@/services/exportService';
+import {
+  type ExportOrdersParams,
+  type ExportProductsParams,
+  exportService,
+} from '@/services/exportService';
 import { useErrorStore } from '@/store/errorStore';
+import type { ProductsFilters } from '@/types/filters';
 
-interface ExportButtonProps {
-  type: ExportType;
+interface ExportButtonProductsProps {
+  type: Extract<ExportType, 'products'>;
+  filters?: ProductsFilters;
+  search?: string;
 }
 
-export function ExportButton({ type }: ExportButtonProps) {
+interface ExportButtonOrdersProps {
+  type: Extract<ExportType, 'orders'>;
+  status?: string;
+}
+
+type ExportButtonProps = ExportButtonProductsProps | ExportButtonOrdersProps;
+
+export function ExportButton(props: ExportButtonProps) {
+  const { type } = props;
   const [isLoading, setIsLoading] = useState(false);
   const showMessage = useErrorStore((s) => s.show);
 
@@ -19,11 +34,29 @@ export function ExportButton({ type }: ExportButtonProps) {
     try {
       const isProducts = type === EXPORT_TYPES.PRODUCTS;
       const fileName = isProducts ? 'products_export' : 'orders_export';
-      const onExport = isProducts
-        ? exportService.exportProducts
-        : exportService.exportOrders;
 
-      const blob = await onExport();
+      let blob: Blob;
+      if (isProducts) {
+        const p = props as ExportButtonProductsProps;
+        const params: ExportProductsParams = {};
+        if (p.filters) {
+          if (p.filters.status) params.status = p.filters.status;
+          if (p.filters.categories.length > 0)
+            params.category = p.filters.categories;
+          if (p.filters.minPrice) params.minPrice = p.filters.minPrice;
+          if (p.filters.maxPrice) params.maxPrice = p.filters.maxPrice;
+          if (p.filters.dateFrom) params.dateFrom = p.filters.dateFrom;
+          if (p.filters.dateTo) params.dateTo = p.filters.dateTo;
+          if (p.filters.dateField) params.dateField = p.filters.dateField;
+        }
+        if (p.search) params.search = p.search;
+        blob = await exportService.exportProducts(params);
+      } else {
+        const p = props as ExportButtonOrdersProps;
+        const params: ExportOrdersParams = {};
+        if (p.status) params.status = p.status;
+        blob = await exportService.exportOrders(params);
+      }
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

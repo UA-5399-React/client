@@ -199,7 +199,11 @@ export function AdminProducts() {
           >
             Import
           </Button>
-          <ExportButton type={EXPORT_TYPES.PRODUCTS} />{' '}
+          <ExportButton
+            type={EXPORT_TYPES.PRODUCTS}
+            filters={filters}
+            search={search}
+          />{' '}
         </div>
 
         <div className="flex items-center justify-end gap-4 p-4">
