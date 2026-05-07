@@ -68,9 +68,9 @@ export function SalesDynamicsWidget({
   const productLabels = useMemo(() => {
     const map: Record<string, string> = {};
     if (appliedFilter.productId)
-      map[appliedFilter.productId] = appliedFilter.productName;
+      map[appliedFilter.productId] = appliedFilter.productName ?? '';
     if (hasCompare && compareFilter.productId)
-      map[compareFilter.productId] = compareFilter.productName;
+      map[compareFilter.productId] = compareFilter.productName ?? '';
     return map;
   }, [appliedFilter, compareFilter, hasCompare]);
 

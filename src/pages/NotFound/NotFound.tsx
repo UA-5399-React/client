@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/Button';
 import { ROUTES } from '@/constants';
 
 export const NotFound = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-background flex min-h-[60vh] flex-col items-center justify-center px-4 py-20 text-center">
       <p className="text-primary text-8xl font-bold">404</p>
@@ -16,7 +17,7 @@ export const NotFound = () => {
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
         <Button
-          onClick={() => (window.location.href = ROUTES.HOME)}
+          onClick={() => navigate(ROUTES.HOME)}
           className="h-11 rounded-lg bg-[#38cb89] px-6 text-sm font-medium text-white hover:!bg-[#2fb377]"
         >
           Go to Home
