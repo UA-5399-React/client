@@ -3,7 +3,7 @@ import { ArrowRightIcon } from 'lucide-react';
 
 import { ProductCard } from '@/components';
 import { ROUTES } from '@/constants';
-import { useWishlistProductIds } from '@/hooks/useWishlistProductIds';
+import { useWishlistProducts } from '@/hooks/useWishlistProducts';
 import type { Product } from '@/types';
 
 import './NewArrivals.css';
@@ -19,7 +19,7 @@ export const NewArrivals = ({
   isLoading,
   isError,
 }: NewArrivalsProps) => {
-  const { wishlistIds } = useWishlistProductIds();
+  const { wishlistIds } = useWishlistProducts();
 
   const renderState = (text: string) => (
     <div className="mx-auto mb-8 px-16 py-8 text-sm">

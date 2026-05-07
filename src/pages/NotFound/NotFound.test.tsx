@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -25,17 +25,17 @@ describe('NotFound page', () => {
   });
 
   it('navigates to home when Go to Home button is clicked', () => {
-    const originalLocation = window.location;
-
-    delete (window as Partial<Window>).location;
-    window.location = { ...originalLocation, href: '/not-found' } as Location;
-
-    renderPage();
+    render(
+      <MemoryRouter initialEntries={['/not-found']}>
+        <Routes>
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="/" element={<div>Home Page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: /go to home/i }));
 
-    expect(window.location.href).toBe('/');
-
-    window.location = originalLocation;
+    expect(screen.getByText('Home Page')).toBeInTheDocument();
   });
 });

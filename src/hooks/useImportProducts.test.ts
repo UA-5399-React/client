@@ -12,6 +12,14 @@ vi.mock('@apollo/client/react', () => ({
   useApolloClient: vi.fn(),
 }));
 
+vi.mock('@apollo/client/react', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...(actual as Record<string, unknown>),
+    useApolloClient: vi.fn(),
+  };
+});
+
 vi.mock('@/services/productsImportService', () => ({
   productsImportService: {
     importProducts: vi.fn(),
