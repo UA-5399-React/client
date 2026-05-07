@@ -88,7 +88,7 @@ export const HeartButton = ({
         strokeWidth={isFavorite ? 2.5 : 1.8}
         className={`transition-all duration-300 ${
           isFavorite
-            ? 'fill-transparent stroke-red-500'
+            ? 'fill-red-600 stroke-red-600'
             : 'fill-transparent stroke-gray-400'
         } ${isLoading ? 'animate-pulse' : ''}`}
       />
