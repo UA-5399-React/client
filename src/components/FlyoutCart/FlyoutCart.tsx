@@ -107,6 +107,7 @@ export const FlyoutCart = () => {
             )}
             <Button
               onClick={closeCart}
+              aria-label="Close cart"
               className={clsx(
                 'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                 isDark
@@ -188,6 +189,7 @@ export const FlyoutCart = () => {
                               item.quantity - 1,
                             )
                           }
+                          aria-label={`Decrease quantity for ${item.product.title}`}
                           disabled={item.quantity <= 1}
                           className={clsx(
                             'flex h-full w-8 items-center justify-center border-none bg-transparent !p-0 transition-colors hover:border-transparent disabled:opacity-50',
@@ -217,6 +219,7 @@ export const FlyoutCart = () => {
                               item.quantity + 1,
                             )
                           }
+                          aria-label={`Increase quantity for ${item.product.title}`}
                           className={clsx(
                             'flex h-full w-8 items-center justify-center border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                             isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100',
@@ -235,6 +238,7 @@ export const FlyoutCart = () => {
                           e.stopPropagation();
                           removeItem(item.product.id || item.product._id!);
                         }}
+                        aria-label={`Remove ${item.product.title}`}
                         className={clsx(
                           'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                           isDark
