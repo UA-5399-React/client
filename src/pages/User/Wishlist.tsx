@@ -1,61 +1,58 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
 import { AccountSidebar, BackButton, Button, ConfirmModal } from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { useWishlistProducts } from '@/hooks/useWishlistProducts';
 import {
-  type UserResponse,
   type UserWishlistItem,
   wishlistService,
 } from '@/services/wishlist.service';
 import { useErrorStore } from '@/store/errorStore';
-import type { User } from '@/types/user';
-
-type ExtendedUser = User & UserResponse;
+import { useCartStore } from '@/store/useCartStore';
+import type { Product } from '@/types/product.types';
 
 export function Wishlist() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<ExtendedUser | null>(null);
-  const [wishlistItems, setWishlistItems] = useState<UserWishlistItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { logout } = useAuth();
+
   const [isClearing, setIsClearing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showMessage = useErrorStore((s) => s.show);
+  const addItem = useCartStore((state) => state.addItem);
 
-  useEffect(() => {
-    const loadWishlist = async () => {
-      try {
-        setIsLoading(true);
-        const userData = await wishlistService.getMe();
-        setUser(userData as ExtendedUser);
-        setWishlistItems(userData.wishlist || []);
-      } catch (error) {
-        console.error('Failed to load wishlist:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    void loadWishlist();
-  }, []);
-
-  const { logout } = useAuth();
+  const {
+    wishlistItems,
+    isLoading,
+    user,
+    setWishlistItems,
+    handleRemoveItemClick,
+  } = useWishlistProducts();
 
   const handleLogout = async () => {
     await logout();
     navigate(ROUTES.LOGIN);
   };
 
-  const handleRemoveItem = async (productId: string) => {
-    try {
-      await wishlistService.removeFromWishlist(productId);
-      setWishlistItems((prev) =>
-        prev.filter((item) => item.productId !== productId),
-      );
-    } catch (error) {
-      console.error('Failed to remove item:', error);
-    }
+  const handleProductClick = (productId: string) => () => {
+    navigate(ROUTES.PRODUCT.replace(':id', productId));
+  };
+
+  const handleAddToCart = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    product: UserWishlistItem,
+  ) => {
+    e.stopPropagation();
+
+    const productData = {
+      ...product,
+      id: product.productId,
+      imageUrl: product.image,
+      status: 'active',
+    };
+    addItem(productData as Product);
   };
 
   const handleClearAll = () => {
@@ -106,7 +103,7 @@ export function Wishlist() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
           <AccountSidebar user={user} onLogout={handleLogout} />
 
-          <div className="min-w-0 px-2 md:px-6 lg:px-[72px]">
+          <div className="md:pl-6">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-text text-[20px] font-semibold">
                 Your Wishlist
@@ -136,12 +133,15 @@ export function Wishlist() {
                 {wishlistItems.map((item) => (
                   <div
                     key={item.productId}
-                    className="grid grid-cols-1 gap-4 border-b border-[#E8ECEF] py-4 md:grid-cols-[minmax(0,1fr)_120px_120px] md:items-center md:gap-0"
+                    className="grid cursor-pointer grid-cols-1 gap-4 border-b border-[#E8ECEF] py-4 md:grid-cols-[minmax(0,1fr)_120px_120px] md:items-center md:gap-0"
+                    onClick={handleProductClick(item.productId)}
                   >
                     <div className="flex items-center gap-3">
                       <Button
                         type="button"
-                        onClick={() => handleRemoveItem(item.productId)}
+                        onClick={(e) =>
+                          handleRemoveItemClick(e, item.productId)
+                        }
                         className="text-muted hover:text-text shrink-0 cursor-pointer border-none bg-transparent transition"
                         aria-label={`Remove ${item.title} from wishlist`}
                       >
@@ -168,6 +168,7 @@ export function Wishlist() {
                     <Button
                       type="button"
                       className="bg-text text-background h-[42px] w-[130px] rounded-md text-sm font-medium transition hover:opacity-90"
+                      onClick={(e) => handleAddToCart(e, item)}
                     >
                       Add to cart
                     </Button>

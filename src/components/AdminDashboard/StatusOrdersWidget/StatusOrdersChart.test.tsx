@@ -28,8 +28,6 @@ vi.mock('./constants', () => ({
 describe('UI Component: StatusOrdersChart', () => {
   const mockData: OrdersStatusStats = {
     total: 250,
-
-    largestSegment: { status: 'completed', count: 150, percentage: 60 },
     statuses: [
       { status: 'completed', count: 150, percentage: 60 },
       { status: 'processing', count: 75, percentage: 30 },

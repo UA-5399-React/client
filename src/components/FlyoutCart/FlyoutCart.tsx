@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { Minus, Plus, X } from 'lucide-react';
 
@@ -35,6 +35,20 @@ export const FlyoutCart = () => {
     } else {
       navigate('/checkout');
     }
+  };
+
+  const handleProductClick = (productId: string) => () => {
+    closeCart();
+    navigate(ROUTES.PRODUCT.replace(':id', productId));
+  };
+
+  const handleQuantityChange = (
+    e: React.MouseEvent,
+    productId: string,
+    quantity: number,
+  ) => {
+    e.stopPropagation();
+    updateQuantity(productId, quantity);
   };
 
   const handleViewCart = () => {
@@ -93,6 +107,7 @@ export const FlyoutCart = () => {
             )}
             <Button
               onClick={closeCart}
+              aria-label="Close cart"
               className={clsx(
                 'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                 isDark
@@ -120,8 +135,11 @@ export const FlyoutCart = () => {
               {items.map((item) => (
                 <div
                   key={item.product.id || item.product._id}
+                  onClick={handleProductClick(
+                    item.product.id || item.product._id!,
+                  )}
                   className={clsx(
-                    'flex gap-4 border-b pb-6',
+                    'flex cursor-pointer gap-4 border-b pb-6',
                     isDark ? 'border-gray-800' : 'border-gray-200',
                   )}
                 >
@@ -144,20 +162,10 @@ export const FlyoutCart = () => {
                       <span className="text-xs text-gray-400">No img</span>
                     </div>
                   )}
-
                   <div className="flex flex-1 flex-col justify-between">
                     <div className="flex justify-between">
                       <h3 className="mt-0.5 mb-0 line-clamp-2 text-sm font-semibold">
-                        <Link
-                          to={ROUTES.PRODUCT.replace(
-                            ':id',
-                            item.product.id || item.product._id!,
-                          )}
-                          onClick={closeCart}
-                          className="hover:underline"
-                        >
-                          {item.product.title}
-                        </Link>
+                        {item.product.title}
                       </h3>
                       <div className="flex flex-col items-end gap-1">
                         <span className="pl-2 font-semibold">
@@ -174,12 +182,14 @@ export const FlyoutCart = () => {
                         )}
                       >
                         <Button
-                          onClick={() =>
-                            updateQuantity(
+                          onClick={(e) =>
+                            handleQuantityChange(
+                              e,
                               item.product.id || item.product._id!,
                               item.quantity - 1,
                             )
                           }
+                          aria-label={`Decrease quantity for ${item.product.title}`}
                           disabled={item.quantity <= 1}
                           className={clsx(
                             'flex h-full w-8 items-center justify-center border-none bg-transparent !p-0 transition-colors hover:border-transparent disabled:opacity-50',
@@ -202,12 +212,14 @@ export const FlyoutCart = () => {
                           {item.quantity}
                         </span>
                         <Button
-                          onClick={() =>
-                            updateQuantity(
+                          onClick={(e) =>
+                            handleQuantityChange(
+                              e,
                               item.product.id || item.product._id!,
                               item.quantity + 1,
                             )
                           }
+                          aria-label={`Increase quantity for ${item.product.title}`}
                           className={clsx(
                             'flex h-full w-8 items-center justify-center border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                             isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100',
@@ -222,9 +234,11 @@ export const FlyoutCart = () => {
                         </Button>
                       </div>
                       <Button
-                        onClick={() =>
-                          removeItem(item.product.id || item.product._id!)
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.product.id || item.product._id!);
+                        }}
+                        aria-label={`Remove ${item.product.title}`}
                         className={clsx(
                           'h-fit w-fit border-none bg-transparent !p-0 transition-colors hover:border-transparent',
                           isDark
