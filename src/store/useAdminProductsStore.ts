@@ -10,11 +10,15 @@ interface AdminProductsStore {
   page: number;
   sort: ProductSortField;
   order: SortOrder;
+  selectedIds: string[];
   setFilters: (filters: ProductsFilters) => void;
   setSearch: (serach: string) => void;
   setPage: (page: number) => void;
   setSort: (sort: ProductSortField, order: SortOrder) => void;
   reset: () => void;
+  toggleSelect: (id: string) => void;
+  selectAll: (ids: string[]) => void;
+  clearSelection: () => void;
 }
 
 export const useAdminProductsStore = create<AdminProductsStore>((set) => ({
@@ -23,6 +27,7 @@ export const useAdminProductsStore = create<AdminProductsStore>((set) => ({
   page: 1,
   sort: 'updatedAt',
   order: 'desc',
+  selectedIds: [],
   setFilters: (filters) => set({ filters, page: 1 }),
   setSearch: (search) =>
     set({
@@ -39,4 +44,12 @@ export const useAdminProductsStore = create<AdminProductsStore>((set) => ({
       sort: 'updatedAt',
       order: 'desc',
     }),
+  toggleSelect: (id) =>
+    set((state) => ({
+      selectedIds: state.selectedIds.includes(id)
+        ? state.selectedIds.filter((s) => s !== id)
+        : [...state.selectedIds, id],
+    })),
+  selectAll: (ids) => set({ selectedIds: ids }),
+  clearSelection: () => set({ selectedIds: [] }),
 }));

@@ -15,9 +15,12 @@ interface TableProductsProps {
   error?: Error | null;
   sort: ProductSortField;
   order: SortOrder;
+  selectedIds: string[];
   onSortChange: (field: ProductSortField) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onToggleSelect: (id: string) => void;
+  onSelectAll: (ids: string[]) => void;
 }
 
 function renderBodyContent(
@@ -28,6 +31,8 @@ function renderBodyContent(
   navigate: ReturnType<typeof useNavigate>,
   onDelete: (id: string) => void,
   onDuplicate: (id: string) => void,
+  selectedIds: string[],
+  onToggleSelect: (id: string) => void,
 ) {
   if (loading) {
     return (
@@ -87,7 +92,11 @@ function renderBodyContent(
       >
         <td>
           <div className="flex items-center gap-2">
-            <Checkbox className="h-[20px] w-[20px]" />
+            <Checkbox
+              className="h-[20px] w-[20px]"
+              checked={selectedIds.includes(item.id)}
+              onCheckedChange={() => onToggleSelect(item.id)}
+            />
             {item.imageUrl ? (
               <img
                 src={item.imageUrl}
@@ -156,12 +165,20 @@ export function TableProducts({
   error,
   sort,
   order,
+  selectedIds,
   onSortChange,
   onDelete,
   onDuplicate,
+  onToggleSelect,
+  onSelectAll,
 }: TableProductsProps) {
   const { isDark } = useTheme();
   const navigate = useNavigate();
+
+  const pageIds = items.map((i) => i.id);
+  const allSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedIds.includes(id));
+  const someSelected = pageIds.some((id) => selectedIds.includes(id));
 
   return (
     <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
@@ -170,7 +187,14 @@ export function TableProducts({
           <tr>
             <th>
               <div className="flex items-center gap-2">
-                <Checkbox className="h-[20px] w-[20px]" />
+                <Checkbox
+                  className="h-[20px] w-[20px]"
+                  checked={allSelected}
+                  indeterminate={!allSelected && someSelected}
+                  onCheckedChange={(checked) =>
+                    onSelectAll(checked ? pageIds : [])
+                  }
+                />
                 <span>Image</span>
               </div>
             </th>
@@ -232,6 +256,8 @@ export function TableProducts({
             navigate,
             onDelete,
             onDuplicate,
+            selectedIds,
+            onToggleSelect,
           )}
         </tbody>
       </table>
