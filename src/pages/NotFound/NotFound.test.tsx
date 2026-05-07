@@ -1,6 +1,6 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { NotFound } from './NotFound';
 
@@ -12,10 +12,6 @@ const renderPage = () =>
   );
 
 describe('NotFound page', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('renders 404 heading and navigation links', () => {
     renderPage();
     expect(screen.getByText('404')).toBeInTheDocument();
@@ -29,14 +25,17 @@ describe('NotFound page', () => {
   });
 
   it('navigates to home when Go to Home button is clicked', () => {
-    const assignSpy = vi
-      .spyOn(window.location, 'assign')
-      .mockImplementation(() => {});
-
-    renderPage();
+    render(
+      <MemoryRouter initialEntries={['/not-found']}>
+        <Routes>
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="/" element={<div>Home Page</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: /go to home/i }));
 
-    expect(assignSpy).toHaveBeenCalledWith('/');
+    expect(screen.getByText('Home Page')).toBeInTheDocument();
   });
 });
