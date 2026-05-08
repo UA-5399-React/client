@@ -4,6 +4,7 @@ import { AlertCircle, Copy, Pencil, Trash } from 'lucide-react';
 
 import { ActionMenu, Checkbox, TableSortControl } from '@/components';
 import { ROUTES } from '@/constants';
+import { STATUS_LABELS } from '@/constants/general';
 import { useTheme } from '@/hooks/useTheme';
 import { type Product, PRODUCT_STATUS } from '@/types';
 import type { ProductSortField, SortOrder } from '@/types/productsSort';
@@ -115,7 +116,9 @@ function renderBodyContent(
             <span>SKU: {item.productCode ?? '—'}</span>
           </div>
         </td>
-        <td>{item.status}</td>
+        <td className={`${STATUS_LABELS[item.status]} capitalize`}>
+          {item.status.toLowerCase()}
+        </td>
         <td>{item.price}</td>
         <td>{item.description ?? '—'}</td>
         <td>{item.createdAt ? formatDate(new Date(item.createdAt)) : '—'}</td>
