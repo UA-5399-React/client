@@ -73,3 +73,4 @@ export { PasswordForm } from './UserProfile/PasswordForm/PasswordForm';
 export { UsersTable } from './UsersTable';
 export { UsersToolbar } from './UsersToolbar';
 export { UsersTopWidgets } from './UsersTopWidgets';
+export { WishlistCounter } from './WishlistCounter/WishlistCounter';

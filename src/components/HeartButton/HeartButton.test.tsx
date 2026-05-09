@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
 import { wishlistService } from '@/services/wishlist.service';
+import { useWishlistStore } from '@/store/useWishlistStore';
 
 import { HeartButton } from './HeartButton';
 
@@ -44,6 +45,7 @@ describe('HeartButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsAuth = true;
+    useWishlistStore.setState({ items: [] });
   });
 
   it('renders with correct styles when isFavorite is true', () => {
@@ -79,6 +81,44 @@ describe('HeartButton', () => {
       'Added',
       'Product added to wishlist',
     );
+  });
+
+  it('updates wishlist store when adding product to wishlist', () => {
+    render(<HeartButton product={mockProduct} isFavorite={false} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.click(button);
+
+    expect(useWishlistStore.getState().items).toEqual([
+      {
+        productId: mockProduct.id,
+        title: mockProduct.title,
+        price: mockProduct.price,
+        image: mockProduct.image,
+      },
+    ]);
+  });
+
+  it('updates wishlist store when removing product from wishlist', () => {
+    useWishlistStore.setState({
+      items: [
+        {
+          productId: mockProduct.id,
+          title: mockProduct.title,
+          price: mockProduct.price,
+          image: mockProduct.image,
+        },
+      ],
+    });
+
+    render(<HeartButton product={mockProduct} isFavorite={true} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.click(button);
+
+    expect(useWishlistStore.getState().items).toEqual([]);
   });
 
   it('calls removeFromWishlist when clicked and is favorite', async () => {
@@ -126,6 +166,22 @@ describe('HeartButton', () => {
       'Wishlist Error',
       'Wishlist unavailable',
     );
+  });
+
+  it('rolls back wishlist store on add failure', async () => {
+    vi.mocked(wishlistService.addToWishlist).mockRejectedValueOnce(
+      new Error('Wishlist unavailable'),
+    );
+
+    render(<HeartButton product={mockProduct} isFavorite={false} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(useWishlistStore.getState().items).toEqual([]);
+    });
   });
 
   it('navigates to login on failure when guest', async () => {
