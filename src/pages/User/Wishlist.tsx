@@ -48,6 +48,7 @@ export function Wishlist() {
 
     const productData = {
       ...product,
+      _id: product.productId,
       id: product.productId,
       imageUrl: product.image,
       status: 'active',
