@@ -78,7 +78,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <aside
-      className={`w-full} flex h-full min-h-full flex-col justify-between transition-all duration-300`}
+      className={`flex h-full min-h-full w-full flex-col justify-between transition-all duration-300`}
     >
       <div>
         <div
