@@ -108,7 +108,7 @@ export function GroupTable({
     summary: SalesByProductSummary | SalesByDaySummary | SalesByCategorySummary,
   ) => {
     return (
-      <div className="flex-end justify-end gap-2 pr-2 text-right text-sm font-bold text-gray-700">
+      <div className="flex-end text-text justify-end gap-2 pr-2 text-right text-sm font-bold">
         <p>Total Revenue: {summary?.totalRevenue}</p>
         <p>Total Units Sold: {summary?.totalUnitsSold}</p>
       </div>
