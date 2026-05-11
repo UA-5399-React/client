@@ -66,7 +66,7 @@ export const HeartButton = ({
 
         showMessage('success', 'Removed', 'Product removed from wishlist');
       } else {
-        await wishlistService.addToWishlist(wishlistItem);
+        await wishlistService.addToWishlist(product.id);
 
         showMessage('success', 'Added', 'Product added to wishlist');
       }

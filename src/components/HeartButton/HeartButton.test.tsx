@@ -1,20 +1,21 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
 import { wishlistService } from '@/services/wishlist.service';
 import { useWishlistStore } from '@/store/useWishlistStore';
+import { render, screen, userEvent, waitFor } from '@/utils/test-utils';
 
 import { HeartButton } from './HeartButton';
 
 const mockNavigate = vi.fn();
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
 
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-let mockIsAuth = false;
+let mockIsAuth = true;
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ isAuth: mockIsAuth }),
 }));
@@ -41,125 +42,112 @@ const mockProduct = {
   image: 'test.jpg',
 };
 
+const wishlistItemFromMock = {
+  productId: mockProduct.id,
+  title: mockProduct.title,
+  price: mockProduct.price,
+  image: mockProduct.image,
+};
+
 describe('HeartButton', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsAuth = true;
     useWishlistStore.setState({ items: [] });
+
+    vi.mocked(wishlistService.addToWishlist).mockResolvedValue({
+      id: 'u1',
+      email: 'a@b.c',
+      wishlist: [],
+    });
+    vi.mocked(wishlistService.removeFromWishlist).mockResolvedValue({
+      id: 'u1',
+      email: 'a@b.c',
+      wishlist: [],
+    });
   });
 
-  it('renders with correct styles when isFavorite is true', () => {
-    render(<HeartButton product={mockProduct} isFavorite={true} />);
-
-    const button = screen.getByRole('button');
-    expect(button).toHaveAttribute('aria-label', 'Remove from wishlist');
-
-    const icon = button.querySelector('svg');
-    expect(icon).toHaveClass('stroke-red-600');
-  });
-
-  it('calls addToWishlist when clicked and not favorite', async () => {
+  it('renders add state when not favorite', () => {
     render(<HeartButton product={mockProduct} isFavorite={false} />);
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-
-    expect(wishlistService.addToWishlist).toHaveBeenCalledWith({
-      productId: mockProduct.id,
-      title: mockProduct.title,
-      price: mockProduct.price,
-      image: mockProduct.image,
-    });
-
-    await waitFor(() => {
-      const icon = button.querySelector('svg');
-      expect(icon).toHaveClass('stroke-red-600');
-    });
-
-    expect(mockShowMessage).toHaveBeenCalledWith(
-      'success',
-      'Added',
-      'Product added to wishlist',
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      'Add to wishlist',
+    );
+    expect(screen.getByRole('button').querySelector('svg')).toHaveClass(
+      'stroke-gray-400',
     );
   });
 
-  it('updates wishlist store when adding product to wishlist', () => {
+  it('renders remove state when favorite', () => {
+    render(<HeartButton product={mockProduct} isFavorite />);
+
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      'Remove from wishlist',
+    );
+    expect(screen.getByRole('button').querySelector('svg')).toHaveClass(
+      'stroke-red-600',
+    );
+  });
+
+  it('optimistically updates store, calls addToWishlist with product id, then shows success', async () => {
+    const user = userEvent.setup();
     render(<HeartButton product={mockProduct} isFavorite={false} />);
 
-    const button = screen.getByRole('button');
+    await user.click(screen.getByRole('button'));
 
-    fireEvent.click(button);
+    expect(useWishlistStore.getState().items).toEqual([wishlistItemFromMock]);
+    expect(wishlistService.addToWishlist).toHaveBeenCalledWith(mockProduct.id);
 
-    expect(useWishlistStore.getState().items).toEqual([
-      {
-        productId: mockProduct.id,
-        title: mockProduct.title,
-        price: mockProduct.price,
-        image: mockProduct.image,
-      },
-    ]);
+    await waitFor(() => {
+      expect(mockShowMessage).toHaveBeenCalledWith(
+        'success',
+        'Added',
+        'Product added to wishlist',
+      );
+    });
   });
 
-  it('updates wishlist store when removing product from wishlist', () => {
-    useWishlistStore.setState({
-      items: [
-        {
-          productId: mockProduct.id,
-          title: mockProduct.title,
-          price: mockProduct.price,
-          image: mockProduct.image,
-        },
-      ],
-    });
+  it('optimistically clears store, calls removeFromWishlist with product id, then shows success', async () => {
+    const user = userEvent.setup();
+    useWishlistStore.setState({ items: [wishlistItemFromMock] });
 
-    render(<HeartButton product={mockProduct} isFavorite={true} />);
+    render(<HeartButton product={mockProduct} isFavorite />);
 
-    const button = screen.getByRole('button');
-
-    fireEvent.click(button);
+    await user.click(screen.getByRole('button'));
 
     expect(useWishlistStore.getState().items).toEqual([]);
-  });
-
-  it('calls removeFromWishlist when clicked and is favorite', async () => {
-    render(<HeartButton product={mockProduct} isFavorite={true} />);
-
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-
     expect(wishlistService.removeFromWishlist).toHaveBeenCalledWith(
       mockProduct.id,
     );
 
     await waitFor(() => {
-      const icon = button.querySelector('svg');
-      expect(icon).toHaveClass('stroke-gray-400');
+      expect(mockShowMessage).toHaveBeenCalledWith(
+        'success',
+        'Removed',
+        'Product removed from wishlist',
+      );
     });
-
-    expect(mockShowMessage).toHaveBeenCalledWith(
-      'success',
-      'Removed',
-      'Product removed from wishlist',
-    );
   });
 
-  it('reverts state on service failure', async () => {
+  it('rolls back favorite and store when add fails for authenticated user', async () => {
+    const user = userEvent.setup();
     vi.mocked(wishlistService.addToWishlist).mockRejectedValueOnce(
       new Error('Wishlist unavailable'),
     );
 
     render(<HeartButton product={mockProduct} isFavorite={false} />);
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-
-    const icon = button.querySelector('svg');
-    expect(icon).toHaveClass('stroke-red-600');
+    await user.click(screen.getByRole('button'));
 
     await waitFor(() => {
-      expect(icon).toHaveClass('stroke-gray-400');
+      expect(screen.getByRole('button')).toHaveAttribute(
+        'aria-label',
+        'Add to wishlist',
+      );
     });
-
+    expect(useWishlistStore.getState().items).toEqual([]);
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(mockShowMessage).toHaveBeenCalledWith(
       'error',
@@ -168,23 +156,8 @@ describe('HeartButton', () => {
     );
   });
 
-  it('rolls back wishlist store on add failure', async () => {
-    vi.mocked(wishlistService.addToWishlist).mockRejectedValueOnce(
-      new Error('Wishlist unavailable'),
-    );
-
-    render(<HeartButton product={mockProduct} isFavorite={false} />);
-
-    const button = screen.getByRole('button');
-
-    fireEvent.click(button);
-
-    await waitFor(() => {
-      expect(useWishlistStore.getState().items).toEqual([]);
-    });
-  });
-
-  it('navigates to login on failure when guest', async () => {
+  it('navigates to login when add fails and user is not authenticated', async () => {
+    const user = userEvent.setup();
     mockIsAuth = false;
     vi.mocked(wishlistService.addToWishlist).mockRejectedValueOnce(
       new Error('Unauthorized'),
@@ -192,43 +165,78 @@ describe('HeartButton', () => {
 
     render(<HeartButton product={mockProduct} isFavorite={false} />);
 
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
+    await user.click(screen.getByRole('button'));
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(ROUTES.LOGIN);
     });
   });
 
-  it('disables button during loading state', async () => {
+  it('restores wishlist item when remove fails', async () => {
+    const user = userEvent.setup();
+    useWishlistStore.setState({ items: [wishlistItemFromMock] });
+    vi.mocked(wishlistService.removeFromWishlist).mockRejectedValueOnce(
+      new Error('Network error'),
+    );
+
+    render(<HeartButton product={mockProduct} isFavorite />);
+
+    await user.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(useWishlistStore.getState().items).toEqual([wishlistItemFromMock]);
+    });
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      'Remove from wishlist',
+    );
+    expect(mockShowMessage).toHaveBeenCalledWith(
+      'error',
+      'Wishlist Error',
+      'Network error',
+    );
+  });
+
+  it('disables the button while the wishlist request is in flight', async () => {
+    const user = userEvent.setup();
     vi.mocked(wishlistService.addToWishlist).mockImplementation(
-      () => new Promise((res) => setTimeout(res, 50)),
+      () => new Promise((resolve) => setTimeout(resolve, 50)),
     );
 
     render(<HeartButton product={mockProduct} isFavorite={false} />);
 
     const button = screen.getByRole('button');
-    fireEvent.click(button);
+    const clickPromise = user.click(button);
 
-    expect(button).toBeDisabled();
+    await waitFor(() => {
+      expect(button).toBeDisabled();
+    });
+
+    await clickPromise;
 
     await waitFor(() => {
       expect(button).not.toBeDisabled();
     });
   });
 
-  it('syncs local favorite state when isFavorite prop changes', () => {
+  it('syncs visible favorite state when isFavorite prop changes', () => {
     const { rerender } = render(
       <HeartButton product={mockProduct} isFavorite={false} />,
     );
 
-    let button = screen.getByRole('button');
-    expect(button).toHaveAttribute('aria-label', 'Add to wishlist');
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      'Add to wishlist',
+    );
 
     rerender(<HeartButton product={mockProduct} isFavorite />);
 
-    button = screen.getByRole('button');
-    expect(button).toHaveAttribute('aria-label', 'Remove from wishlist');
-    expect(button.querySelector('svg')).toHaveClass('stroke-red-600');
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      'Remove from wishlist',
+    );
+    expect(screen.getByRole('button').querySelector('svg')).toHaveClass(
+      'stroke-red-600',
+    );
   });
 });
