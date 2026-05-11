@@ -31,6 +31,7 @@ type DashboardCardProps = {
   className?: string;
   children?: React.ReactNode;
   headerRight?: React.ReactNode;
+  isFlexColumn?: boolean;
 };
 
 const GROUP_BY_OPTIONS = [
@@ -46,10 +47,11 @@ function DashboardCard({
   className = '',
   children,
   headerRight,
+  isFlexColumn = false,
 }: DashboardCardProps) {
   return (
     <section
-      className={`bg-background rounded-2xl border border-gray-300 ${className}`}
+      className={`bg-background rounded-2xl border border-gray-300 ${className} ${isFlexColumn ? `flex flex-col justify-between` : ``}`}
     >
       <div className="mb-4 flex items-center justify-between gap-3 p-4">
         <h2 className="text-text text-base font-bold tracking-[0.08em] uppercase">
@@ -119,7 +121,7 @@ export function Dashboard() {
       <section className="bg-background text-text min-h-screen px-4 py-6 transition-colors duration-300 md:px-6">
         <div className="mx-auto space-y-3">
           <div className="grid gap-3 xl:grid-cols-2">
-            <DashboardCard title="Status Orders">
+            <DashboardCard title="Status Orders" isFlexColumn>
               <StatusOrdersWidget />
             </DashboardCard>
 

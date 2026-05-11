@@ -37,7 +37,7 @@ function renderBodyContent(
   if (loading) {
     return (
       <tr>
-        <td colSpan={8}>Loading...</td>
+        <td colSpan={9}>Loading...</td>
       </tr>
     );
   }
@@ -45,7 +45,7 @@ function renderBodyContent(
   if (error) {
     return (
       <tr role="alert">
-        <td colSpan={8} className="py-8">
+        <td colSpan={9} className="py-8">
           <div
             className={clsx(
               'mx-auto flex max-w-md items-center gap-3 rounded-lg border p-4',
@@ -70,7 +70,7 @@ function renderBodyContent(
     return (
       <tr>
         <td
-          colSpan={8}
+          colSpan={9}
           className={clsx('py-8 text-center', {
             'text-black': isDark,
             'text-[#8A92A6]': !isDark,
@@ -90,13 +90,18 @@ function renderBodyContent(
         className="h-[80px] text-center text-[rgb(var(--color-text))]"
         key={item.id}
       >
-        <td>
-          <div className="flex items-center gap-2">
+        <td className="w-12">
+          <div className="flex justify-center">
             <Checkbox
               className="h-[20px] w-[20px]"
               checked={selectedIds.includes(item.id)}
               onCheckedChange={() => onToggleSelect(item.id)}
             />
+          </div>
+        </td>
+
+        <td>
+          <div className="flex justify-center">
             {item.imageUrl ? (
               <img
                 src={item.imageUrl}
@@ -179,25 +184,27 @@ export function TableProducts({
   const allSelected =
     pageIds.length > 0 && pageIds.every((id) => selectedIds.includes(id));
   const someSelected = pageIds.some((id) => selectedIds.includes(id));
+  const handleSelectAll = (checked: boolean) => {
+    onSelectAll(checked === true ? pageIds : []);
+  };
 
   return (
     <div className="mx-5 mt-5 overflow-x-auto rounded-l-lg rounded-r-lg border border-[#e5e7eb] shadow-md">
       <table className="w-full border-collapse overflow-hidden rounded-t-lg [&_td]:border-b [&_td]:border-[#e5e7eb] [&_thead_th]:border-b [&_thead_th]:border-[#e5e7eb] [&_thead_th]:px-4">
         <thead className="h-[50px] bg-[#F9FAFB] px-[12px] text-[#8A92A6]">
           <tr>
-            <th>
-              <div className="flex items-center gap-2">
+            <th className="w-12">
+              <div className="flex justify-center">
                 <Checkbox
                   className="h-[20px] w-[20px]"
                   checked={allSelected}
                   indeterminate={!allSelected && someSelected}
-                  onCheckedChange={(checked) =>
-                    onSelectAll(checked ? pageIds : [])
-                  }
+                  onCheckedChange={handleSelectAll}
                 />
-                <span>Image</span>
               </div>
             </th>
+
+            <th>Image</th>
 
             <th>
               <TableSortControl
