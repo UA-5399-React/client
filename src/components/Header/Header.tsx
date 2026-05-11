@@ -14,7 +14,13 @@ import {
 
 import logoDark from '@/assets/logo/dark_theme_logo.png';
 import logoLight from '@/assets/logo/light_theme_logo.png';
-import { Button, CartCounter, FlyoutCart, SearchInput } from '@/components';
+import {
+  Button,
+  CartCounter,
+  FlyoutCart,
+  SearchInput,
+  WishlistCounter,
+} from '@/components';
 import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
@@ -244,9 +250,10 @@ export const Header = () => {
             <Link
               to={ROUTES.WISHLIST}
               aria-label="Wishlist"
-              className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
+              className="flex cursor-pointer items-center justify-center gap-1.5 border-none bg-transparent p-0 text-inherit transition-opacity hover:opacity-70"
             >
               <Heart className="h-6 w-6" />
+              <WishlistCounter />
             </Link>
 
             <button
@@ -375,7 +382,10 @@ export const Header = () => {
                 className={`flex items-center justify-between border-b py-4 text-sm font-medium no-underline ${isDark ? 'border-gray-700 text-white' : 'border-gray-200 text-black'}`}
               >
                 <span>Wishlist</span>
-                <Heart className="h-5 w-5 shrink-0 text-gray-400" />
+                <div className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 shrink-0 text-gray-400" />
+                  <WishlistCounter />
+                </div>
               </Link>
             </div>
             <div className="shrink-0 px-6 pt-2 pb-6">

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ROUTES } from '@/constants';
 import { useCartStore } from '@/store/useCartStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
 import { act, fireEvent, render, screen, userEvent } from '@/utils/test-utils';
 
 import { Header } from './Header';
@@ -30,6 +31,10 @@ vi.mock('@/hooks/useAuth', () => ({
 
 vi.mock('@/hooks/useMe', () => ({
   useMe: (enabled: boolean) => mockUseMe(enabled),
+}));
+
+vi.mock('@/hooks/useWishlistProducts', () => ({
+  useWishlistProducts: vi.fn(),
 }));
 
 // ─── SearchInput stub ─────────────────────────────────────────────────────────
@@ -82,6 +87,7 @@ describe('UI Component: Header', () => {
     mockUseMe.mockReturnValue({ data: undefined });
 
     useCartStore.setState({ items: [], isOpen: false });
+    useWishlistStore.setState({ items: [] });
   });
 
   // ── Static structure ────────────────────────────────────────────────────────
@@ -397,6 +403,36 @@ describe('UI Component: Header', () => {
     expect(badges[0]).toBeInTheDocument();
   });
 
+  // ── Wishlist badge ────────────────────────────────────────────────────────────
+  it('should display wishlist item count badge when wishlist has items', () => {
+    useWishlistStore.setState({
+      items: [
+        {
+          productId: 'p1',
+          title: 'Product 1',
+          price: 100,
+        },
+        {
+          productId: 'p2',
+          title: 'Product 2',
+          price: 200,
+        },
+      ],
+    });
+
+    render(<Header />);
+
+    const badges = screen.getAllByText('2');
+
+    expect(badges.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should not display wishlist badge when wishlist is empty', () => {
+    render(<Header />);
+
+    expect(screen.queryByText('0')).toBeNull();
+  });
+
   // ── Drawer open/close ────────────────────────────────────────────────────────
   it('should not render drawer by default', () => {
     render(<Header />);
@@ -435,6 +471,38 @@ describe('UI Component: Header', () => {
     expect(
       screen.queryByRole('button', { name: 'Close menu' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('should display wishlist badge in drawer when wishlist has items', async () => {
+    const user = userEvent.setup();
+
+    useWishlistStore.setState({
+      items: [
+        {
+          productId: 'p1',
+          title: 'Product 1',
+          price: 100,
+        },
+        {
+          productId: 'p2',
+          title: 'Product 2',
+          price: 200,
+        },
+        {
+          productId: 'p3',
+          title: 'Product 3',
+          price: 300,
+        },
+      ],
+    });
+
+    render(<Header />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const badges = screen.getAllByText('3');
+
+    expect(badges.length).toBeGreaterThanOrEqual(1);
   });
 
   // ── Body scroll lock ─────────────────────────────────────────────────────────
