@@ -430,7 +430,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <Dropdown
                     label="Status"
                     labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
-                    selectClassName=" [--color-bg:white] [--color-text:black] [--color-gray-300:black] hover:[--color-primary:var(--color-gray-100)] data-[popup-open]:!bg-white"
+                    selectClassName="[--color-bg:255_255_255] [--color-text:20_23_24] [--color-gray-300:209_213_219] hover:[--color-primary:rgb(var(--color-gray-100))] data-[popup-open]:border-[rgb(var(--color-primary))] dark:[--color-bg:31_41_55] dark:[--color-text:255_255_255] dark:[--color-gray-300:75_85_99] dark:hover:[--color-primary:55_65_81] focus-visible:ring-2 focus-visible:ring-[rgb(var(--color-primary))] focus-visible:ring-offset-0"
                     options={availableStatusOptions}
                     selectedValues={field.value ? [field.value] : []}
                     onChange={(values) => {
