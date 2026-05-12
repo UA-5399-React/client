@@ -21,6 +21,8 @@ describe('UI Component: Switcher', () => {
     expect(screen.getByText('Revenue')).toBeInTheDocument();
     expect(switchElement).toHaveAttribute('aria-checked', 'false');
     expect(switchElement).toHaveClass('bg-gray-300');
+    expect(screen.getByText('Count')).toHaveClass('font-semibold');
+    expect(screen.getByText('Revenue')).not.toHaveClass('font-semibold');
   });
 
   it('should render active state classes when right side is active', () => {
@@ -37,10 +39,8 @@ describe('UI Component: Switcher', () => {
 
     expect(switchElement).toHaveAttribute('aria-checked', 'true');
     expect(switchElement).toHaveClass('bg-blue-500');
-    expect(screen.getByText('Revenue')).toHaveClass(
-      'font-semibold',
-      'text-gray-900',
-    );
+    expect(screen.getByText('Revenue')).toHaveClass('font-semibold');
+    expect(screen.getByText('Count')).not.toHaveClass('font-semibold');
   });
 
   it('should call onToggle when switch is clicked', async () => {

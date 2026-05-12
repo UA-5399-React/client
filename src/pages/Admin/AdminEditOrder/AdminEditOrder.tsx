@@ -157,22 +157,20 @@ export function AdminEditOrder() {
   };
 
   return (
-    <div>
-      <div className="mx-auto flex h-screen max-w-4xl flex-col items-center justify-center p-6">
-        <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md">
-          <div className="flex justify-start border-b border-gray-100 bg-gray-50 px-6 py-5">
-            <DownloadOrderButton orderId={order.orderId} />
-          </div>
-          <div className="-mx-[1px] -mt-1 -mb-[1px]">
-            <AdminOrderForm
-              initialData={initialData}
-              onSubmit={handleSubmit}
-              onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
-              isLoading={isUpdateOrderInfo}
-              isEditMode={true}
-              updatedAt={order.updatedAt}
-            />
-          </div>
+    <div className="grid place-items-center px-4 py-6">
+      <div className="flex max-h-[calc(100dvh-3rem)] min-h-0 w-full max-w-4xl flex-col overflow-y-auto overscroll-y-contain rounded-xl border border-gray-200 bg-white shadow-md">
+        <div className="flex shrink-0 justify-start border-b border-gray-100 bg-gray-50 px-6 py-5">
+          <DownloadOrderButton orderId={order.orderId} />
+        </div>
+        <div className="min-h-0">
+          <AdminOrderForm
+            initialData={initialData}
+            onSubmit={handleSubmit}
+            onCancel={() => navigate(ROUTES.ADMIN_ORDERS)}
+            isLoading={isUpdateOrderInfo}
+            isEditMode={true}
+            updatedAt={order.updatedAt}
+          />
         </div>
       </div>
     </div>

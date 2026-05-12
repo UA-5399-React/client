@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { MobileSidebar, Sidebar } from '@/components';
 
+const SIDEBAR_COLLAPSED_KEY = 'admin-sidebar-collapsed';
+
 export function AdminLayout() {
   const [isOpen, isSetOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    const savedState = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    return savedState !== null ? JSON.parse(savedState) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
 
   return (
     <div

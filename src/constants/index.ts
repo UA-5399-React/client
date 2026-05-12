@@ -8,7 +8,7 @@ export const ROUTES = {
   HOME: '/',
   SHOP: '/shop',
   PRODUCT: '/product/:id',
-  CONTACT_US: '/contact',
+  CONTACT: '/contact',
   LOGIN: '/login',
   CART: '/cart',
   NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',

@@ -24,6 +24,7 @@ export interface CheckboxProps extends React.ComponentPropsWithoutRef<
 
 export function Checkbox({
   label,
+  className = '',
   checkboxClassName = '',
   checkmarkClassName = 'text-background',
   labelClassName = '',
@@ -39,6 +40,7 @@ export function Checkbox({
         className={clsx(
           BASE_CHECKBOX_CLASSES,
           state === 'error' && 'border-red-500',
+          className,
           checkboxClassName,
         )}
       >
