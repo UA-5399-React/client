@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import type { DragEndEvent } from '@dnd-kit/core';
@@ -9,7 +10,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, Loader2, PackageSearch, Plus } from 'lucide-react';
+import {
+  Check,
+  GripVertical,
+  Loader2,
+  PackageSearch,
+  Plus,
+} from 'lucide-react';
 import { Pencil, Trash } from 'lucide-react';
 
 import { AdminPageHeader, SearchInput } from '@/components';
@@ -43,24 +50,37 @@ function SortableItem({ product, children }: SortableItemProps) {
     isDragging,
   } = useSortable({ id: product._id });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    position: isDragging ? 'relative' : undefined,
     zIndex: isDragging ? 50 : 1,
   };
+
+  const childrenArray = React.Children.toArray(children);
+  const content = childrenArray[0];
+  const actionMenu = childrenArray[1];
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      tabIndex={0}
       className={`hover:bg-backgroundSec/50 bg-background flex items-center justify-between px-6 py-4 transition-colors ${
         isDragging ? 'z-50 opacity-80 shadow-2xl ring-2 ring-blue-500/20' : ''
-      } cursor-grab active:cursor-grabbing`}
+      }`}
     >
-      {children}
+      <div className="flex flex-1 flex-grow items-center gap-4">
+        <div
+          {...attributes}
+          {...listeners}
+          className="text-muted hover:text-text cursor-grab p-1 transition-colors active:cursor-grabbing"
+        >
+          <GripVertical size={20} aria-label="Drag handle" />
+        </div>
+
+        {content}
+      </div>
+      {actionMenu}
     </div>
   );
 }
@@ -235,6 +255,7 @@ export function FeaturedProducts() {
                 onChange={(val) => {
                   setSearch(val);
                   setSelectedProductId(null);
+                  setConfirmId(null);
                 }}
                 className={`[&_input]:bg-backgroundSec [&_input]:text-text [&_input]:border-fieldBorder [&_button]:hover:!bg-background/50 [&_button]:right-3 [&_button]:!border-none [&_button]:!bg-transparent [&_button]:!shadow-none ${
                   featured.length >= NEW_ARRIVALS_LIMIT
@@ -288,6 +309,7 @@ export function FeaturedProducts() {
                         ) : confirmId === product._id ? (
                           <button
                             type="button"
+                            aria-label="Confirm"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleAddProduct(product);
@@ -301,6 +323,7 @@ export function FeaturedProducts() {
                         ) : (
                           <button
                             type="button"
+                            aria-label={`Add ${product.title}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setConfirmId(product._id);
@@ -374,7 +397,7 @@ export function FeaturedProducts() {
                         </div>
                       </div>
 
-                      <div onPointerDown={(e) => e.stopPropagation()}>
+                      <div className="ml-4 flex-shrink-0">
                         <ActionMenu
                           triggerAriaLabel={`Actions for ${product.title}`}
                           actions={[

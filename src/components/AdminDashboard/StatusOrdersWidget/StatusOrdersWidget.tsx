@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Button } from '@/components/Button';
 import { useOrdersStatusStats } from '@/hooks/useOrdersStatusStats';
 
 import { StatusOrdersChart } from './StatusOrdersChart';
@@ -52,19 +53,23 @@ export const StatusOrdersWidget = () => {
 
   if (isLoading) return <StatusOrdersSkeleton />;
   if (error || !data)
-    return <div className="text-sm text-red-400">Error loading data</div>;
+    return (
+      <div className="flex h-full min-h-40 items-center justify-center text-center text-sm text-red-400">
+        Something went wrong, please try again later.
+      </div>
+    );
 
   return (
-    <div className="flex flex-col items-center gap-6 py-2">
+    <div className="flex flex-col items-center gap-6 py-4">
       <StatusOrdersChart data={{ ...data, statuses: statusesWithPercentage }} />
       <StatusOrdersLegend statuses={statusesWithPercentage} />
 
-      <button
+      <Button
         onClick={() => navigate('/admin/orders')}
-        className="cursor-pointer rounded-full border border-blue-500 px-10 py-2 text-sm text-blue-500 transition hover:bg-blue-50"
+        className="rounded-full border! border-blue-500! bg-transparent p-2 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
       >
         Show all
-      </button>
+      </Button>
     </div>
   );
 };

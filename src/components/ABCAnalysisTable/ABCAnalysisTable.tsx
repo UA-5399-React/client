@@ -151,12 +151,12 @@ export function ABCAnalysisTable() {
 
   const renderRow = (item: ABCAnalysisRow) => (
     <>
-      <td className="text-left text-sm text-gray-600">{item.codeProduct}</td>
-      <td className="text-left text-sm text-gray-800">{item.product}</td>
-      <td className="text-left text-sm text-gray-700">
+      <td className="text-text text-left text-sm">{item.codeProduct}</td>
+      <td className="text-text text-left text-sm">{item.product}</td>
+      <td className="text-text text-left text-sm">
         {formatValue(item.value, metricMode)}
       </td>
-      <td className="text-left text-sm text-gray-700">
+      <td className="text-text text-left text-sm">
         {formatPercent(item.percentageByTotal)}
       </td>
       <td className="text-center">
@@ -172,7 +172,7 @@ export function ABCAnalysisTable() {
   const renderSummary = (summary: AbcAnalysisSummary) => {
     return (
       <>
-        <div className="pr-2 text-right text-sm font-bold text-gray-700">
+        <div className="text-text pr-2 text-right text-sm font-bold">
           <p>Total: {summary?.totalValue}</p>
         </div>
       </>

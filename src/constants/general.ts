@@ -20,3 +20,9 @@ export const COLOR_MIN = LEFT_MIN;
 export const COLOR_MAX = RIGHT_MAX;
 export const COLOR_RANGE = COLOR_MAX - COLOR_MIN;
 export const STEP = 1;
+
+export const STATUS_LABELS: Record<string, string> = {
+  ACTIVE: 'text-green-500',
+  INACTIVE: 'text-red-600',
+  DRAFT: 'text-orange-500',
+};

@@ -6,6 +6,7 @@ import { ROUTES } from '@/constants';
 import { useAuth } from '@/hooks';
 import { wishlistService } from '@/services/wishlist.service';
 import { useErrorStore } from '@/store/errorStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
 
 interface HeartButtonProps {
   product: {
@@ -28,6 +29,8 @@ export const HeartButton = ({
   const { isAuth } = useAuth();
 
   const showMessage = useErrorStore((s) => s.show);
+  const addWishlistItem = useWishlistStore((state) => state.addItem);
+  const removeWishlistItem = useWishlistStore((state) => state.removeItem);
 
   useEffect(() => {
     setIsFavorite(initialIsFavorite);
@@ -40,8 +43,22 @@ export const HeartButton = ({
     if (isLoading) return;
 
     const previousState = isFavorite;
+
     setIsFavorite(!previousState);
     setIsLoading(true);
+
+    const wishlistItem = {
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+    };
+
+    if (previousState) {
+      removeWishlistItem(product.id);
+    } else {
+      addWishlistItem(wishlistItem);
+    }
 
     try {
       if (previousState) {
@@ -49,12 +66,7 @@ export const HeartButton = ({
 
         showMessage('success', 'Removed', 'Product removed from wishlist');
       } else {
-        await wishlistService.addToWishlist({
-          productId: product.id,
-          title: product.title,
-          price: product.price,
-          image: product.image,
-        });
+        await wishlistService.addToWishlist(wishlistItem);
 
         showMessage('success', 'Added', 'Product added to wishlist');
       }
@@ -64,6 +76,12 @@ export const HeartButton = ({
       }
 
       setIsFavorite(previousState);
+
+      if (previousState) {
+        addWishlistItem(wishlistItem);
+      } else {
+        removeWishlistItem(product.id);
+      }
 
       showMessage(
         'error',

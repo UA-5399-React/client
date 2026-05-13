@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Heart, Minus, Plus } from 'lucide-react';
 
 import { ImageSlider } from '@/components';
+import { HeartButton } from '@/components';
 import { ROUTES } from '@/constants';
 import { useShopCategories } from '@/hooks/useShopCategories';
+import { useWishlistProducts } from '@/hooks/useWishlistProducts';
 import { productService } from '@/services/productService';
 import { useCartStore } from '@/store/useCartStore';
 
@@ -19,6 +21,8 @@ export const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
   const { data: categories = [] } = useShopCategories();
+
+  const { wishlistIds } = useWishlistProducts();
 
   const {
     data: product,
@@ -38,6 +42,17 @@ export const ProductDetails = () => {
         Error loading product!
       </div>
     );
+
+  const currentId = product.id || (product as { _id?: string })._id || '';
+
+  const isFavorite = wishlistIds.has(currentId);
+
+  const productForHeart = {
+    id: currentId,
+    title: product.title || '',
+    price: Number(product.price) || 0,
+    image: product.imageUrl || (product as { image?: string }).image || '',
+  };
 
   const productCategories = product.categories ?? [];
 
@@ -133,10 +148,23 @@ export const ProductDetails = () => {
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              <button className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-black transition-all outline-none hover:border-black">
-                <Heart className="h-5 w-5" />
-                <span>Wishlist</span>
-              </button>
+              <div className="relative flex flex-1">
+                <div className="absolute inset-0 z-30 opacity-0 [&>button]:!absolute [&>button]:!inset-0 [&>button]:!top-0 [&>button]:!right-0 [&>button]:!h-full [&>button]:!w-full [&>button]:cursor-pointer">
+                  <HeartButton
+                    product={productForHeart}
+                    isFavorite={isFavorite}
+                  />
+                </div>
+
+                <button className="flex h-[52px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-gray-200 bg-white font-medium text-black transition-all hover:border-black">
+                  <Heart
+                    className={`h-5 w-5 transition-colors ${
+                      isFavorite ? 'fill-red-600 text-red-600' : 'text-black'
+                    }`}
+                  />
+                  <span>{isFavorite ? 'In Wishlist' : 'Wishlist'}</span>
+                </button>
+              </div>
             </div>
             <button
               onClick={handleAddToCart}

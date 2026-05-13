@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Product } from '@/types';
@@ -63,6 +64,28 @@ const renderTable = (
 ) => {
   return render(<TableProducts {...defaultProps} {...props} />);
 };
+
+function ControlledTableProducts() {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((selectedId) => selectedId !== id)
+        : [...current, id],
+    );
+  };
+
+  return (
+    <TableProducts
+      {...defaultProps}
+      items={mockProducts}
+      selectedIds={selectedIds}
+      onToggleSelect={handleToggleSelect}
+      onSelectAll={setSelectedIds}
+    />
+  );
+}
 
 describe('UI Component: TableProducts', () => {
   beforeEach(() => {
@@ -262,5 +285,50 @@ describe('UI Component: TableProducts', () => {
     );
 
     expect(screen.getByRole('button', { name: /delete/i })).toBeDisabled();
+  });
+
+  it('should keep the first product selected when selecting another product', async () => {
+    const user = userEvent.setup();
+
+    render(<ControlledTableProducts />);
+
+    const [, firstProductCheckbox, secondProductCheckbox] =
+      screen.getAllByRole('checkbox');
+
+    await user.click(firstProductCheckbox);
+    await user.click(secondProductCheckbox);
+
+    expect(firstProductCheckbox).toHaveAttribute('aria-checked', 'true');
+    expect(secondProductCheckbox).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('should deselect only the product whose checked checkbox is clicked', async () => {
+    const user = userEvent.setup();
+
+    render(<ControlledTableProducts />);
+
+    const [, firstProductCheckbox, secondProductCheckbox] =
+      screen.getAllByRole('checkbox');
+
+    await user.click(firstProductCheckbox);
+    await user.click(secondProductCheckbox);
+    await user.click(firstProductCheckbox);
+
+    expect(firstProductCheckbox).toHaveAttribute('aria-checked', 'false');
+    expect(secondProductCheckbox).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('should select all products on the current page', async () => {
+    const user = userEvent.setup();
+
+    render(<ControlledTableProducts />);
+
+    const [selectAllCheckbox, firstProductCheckbox, secondProductCheckbox] =
+      screen.getAllByRole('checkbox');
+
+    await user.click(selectAllCheckbox);
+
+    expect(firstProductCheckbox).toHaveAttribute('aria-checked', 'true');
+    expect(secondProductCheckbox).toHaveAttribute('aria-checked', 'true');
   });
 });

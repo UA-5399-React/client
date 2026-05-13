@@ -241,7 +241,7 @@ describe('Page: FeaturedProducts', () => {
     const menuTrigger = screen.getByLabelText(/actions for airpods/i);
     await user.click(menuTrigger);
 
-    const editButton = screen.getByText(/^edit$/i);
+    const editButton = await screen.findByText(/^edit$/i);
     await user.click(editButton);
     expect(mockNavigate).toHaveBeenCalledWith(
       expect.stringContaining('prod-3'),
@@ -448,5 +448,49 @@ describe('Page: FeaturedProducts', () => {
     );
 
     expect(apiClient.patch).not.toHaveBeenCalled();
+  });
+
+  it('resets confirm button when search text changes', async () => {
+    renderPage();
+    const searchInput = await screen.findByRole('textbox');
+
+    await user.type(searchInput, 'iPhone');
+
+    const addButton = await screen.findByRole('button', {
+      name: /add iphone 15/i,
+    });
+    await user.click(addButton);
+
+    const confirmBtn = await screen.findByRole('button', { name: /confirm/i });
+    expect(confirmBtn).toBeInTheDocument();
+
+    await user.clear(searchInput);
+    await user.type(searchInput, 'Mac');
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /confirm/i }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders action menu triggers for multiple featured items', async () => {
+    (apiClient.get as Mock).mockImplementation((url: string) => {
+      if (url.includes('/featured-products'))
+        return Promise.resolve([
+          ...mockFeaturedSingle,
+          {
+            productId: { _id: 'prod-4', title: 'iPhone Case', price: 20 },
+            type: 'new_arrival',
+            position: 1,
+          },
+        ]);
+      return Promise.resolve(mockProducts);
+    });
+
+    renderPage();
+
+    const triggers = await screen.findAllByLabelText(/actions for/i);
+    expect(triggers).toHaveLength(2);
   });
 });
