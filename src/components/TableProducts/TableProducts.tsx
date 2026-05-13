@@ -70,13 +70,7 @@ function renderBodyContent(
   if (!items?.length) {
     return (
       <tr>
-        <td
-          colSpan={9}
-          className={clsx('py-8 text-center', {
-            'text-black': isDark,
-            'text-[#8A92A6]': !isDark,
-          })}
-        >
+        <td colSpan={9} className={clsx('text-text py-8 text-center')}>
           No products found
         </td>
       </tr>

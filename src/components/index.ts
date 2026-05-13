@@ -25,6 +25,7 @@ export {
 } from './GroupTableFilter/GroupTableFilter';
 export { emptyGroupFilter } from './GroupTableFilter/utils';
 export { Header } from './Header';
+export { HeartButton } from './HeartButton/HeartButton';
 export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';

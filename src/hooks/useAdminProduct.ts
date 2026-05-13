@@ -27,7 +27,7 @@ export function useAdminProducts({
   const normalizedSearch = search.trim();
 
   const filterInput = {
-    ...(filters.status && { status: filters.status }),
+    ...(filters.status?.length && { status: filters.status }),
     ...(filters.minPrice && { minPrice: parseFloat(filters.minPrice) }),
     ...(filters.maxPrice && { maxPrice: parseFloat(filters.maxPrice) }),
     ...(filters.categories?.length && { category: filters.categories }),

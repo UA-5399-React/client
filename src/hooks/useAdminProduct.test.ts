@@ -1,6 +1,6 @@
 import * as ApolloClient from '@apollo/client/react';
 import { renderHook } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ADMIN_PAGE_LIMIT } from '@/constants';
 import { GET_PRODUCTS_PAGE } from '@/services';
@@ -11,14 +11,28 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
-describe('useAdminProducts', () => {
-  it('calls query with default params and null search/filter', () => {
-    vi.mocked(ApolloClient.useQuery).mockReturnValue({
-      data: undefined,
-      loading: false,
-      error: undefined,
-    } as unknown as ReturnType<typeof ApolloClient.useQuery>);
+const emptyQueryResult = {
+  data: undefined,
+  loading: false,
+  error: undefined,
+} as unknown as ReturnType<typeof ApolloClient.useQuery>;
 
+function getLastQueryCall() {
+  const calls = vi.mocked(ApolloClient.useQuery).mock.calls;
+  const last = calls[calls.length - 1];
+  expect(last).toBeDefined();
+  return last as [
+    typeof GET_PRODUCTS_PAGE,
+    { variables: Record<string, unknown> },
+  ];
+}
+
+describe('useAdminProducts', () => {
+  beforeEach(() => {
+    vi.mocked(ApolloClient.useQuery).mockReturnValue(emptyQueryResult);
+  });
+
+  it('requests the first page with defaults when no options are passed', () => {
     renderHook(() => useAdminProducts());
 
     expect(ApolloClient.useQuery).toHaveBeenCalledWith(GET_PRODUCTS_PAGE, {
@@ -35,13 +49,21 @@ describe('useAdminProducts', () => {
     });
   });
 
-  it('trims search and builds filter payload from params', () => {
-    vi.mocked(ApolloClient.useQuery).mockReturnValue({
-      data: undefined,
-      loading: false,
-      error: undefined,
-    } as unknown as ReturnType<typeof ApolloClient.useQuery>);
+  it('sends trimmed search and omits filter when filters are empty', () => {
+    renderHook(() =>
+      useAdminProducts({
+        search: '  tablet  ',
+      }),
+    );
 
+    const [, options] = getLastQueryCall();
+    expect(options.variables).toMatchObject({
+      search: 'tablet',
+      filter: null,
+    });
+  });
+
+  it('builds filter from numeric, category, date, and status array fields', () => {
     const dateTo = '2026-04-07';
 
     renderHook(() =>
@@ -52,7 +74,7 @@ describe('useAdminProducts', () => {
         sort: 'price',
         order: 'asc',
         filters: {
-          status: 'active',
+          status: ['ACTIVE', 'INACTIVE'],
           minPrice: '10.5',
           maxPrice: '99.9',
           categories: ['phones', 'accessories'],
@@ -62,29 +84,41 @@ describe('useAdminProducts', () => {
       }),
     );
 
-    expect(ApolloClient.useQuery).toHaveBeenCalledWith(
-      GET_PRODUCTS_PAGE,
-      expect.objectContaining({
-        variables: {
-          limit: 20,
-          page: 3,
-          search: 'iphone',
-          sort: 'price',
-          order: 'asc',
-          filter: {
-            status: 'active',
-            minPrice: 10.5,
-            maxPrice: 99.9,
-            category: ['phones', 'accessories'],
-            updatedFrom: new Date('2026-04-01'),
-            updatedTo: new Date(`${dateTo}T23:59:59.999`).toISOString(),
-          },
+    const [, options] = getLastQueryCall();
+    expect(options.variables).toEqual({
+      limit: 20,
+      page: 3,
+      search: 'iphone',
+      sort: 'price',
+      order: 'asc',
+      filter: {
+        status: ['ACTIVE', 'INACTIVE'],
+        minPrice: 10.5,
+        maxPrice: 99.9,
+        category: ['phones', 'accessories'],
+        updatedFrom: new Date('2026-04-01'),
+        updatedTo: new Date(`${dateTo}T23:59:59.999`).toISOString(),
+      },
+    });
+  });
+
+  it('does not put status on filter when status array is empty', () => {
+    renderHook(() =>
+      useAdminProducts({
+        filters: {
+          status: [],
+          minPrice: '5',
         },
       }),
     );
+
+    const [, options] = getLastQueryCall();
+    expect(options.variables.filter).toEqual({
+      minPrice: 5,
+    });
   });
 
-  it('returns mapped products page values', () => {
+  it('maps productsPage from the query result', () => {
     const items = [
       {
         id: 'p-1',
@@ -92,7 +126,7 @@ describe('useAdminProducts', () => {
         category: { id: 'cat-1', title: 'Phones' },
         price: 500,
         quantity: 3,
-        status: 'active',
+        status: 'ACTIVE',
         imageUrls: [],
         createdAt: '2026-04-01T10:00:00.000Z',
         updatedAt: '2026-04-07T10:00:00.000Z',
@@ -121,7 +155,7 @@ describe('useAdminProducts', () => {
     expect(result.current.total).toBe(120);
   });
 
-  it('returns fallback values when query has no data', () => {
+  it('uses safe fallbacks and exposes the error when data is missing', () => {
     const queryError = new Error('Network failed');
     vi.mocked(ApolloClient.useQuery).mockReturnValue({
       data: undefined,
