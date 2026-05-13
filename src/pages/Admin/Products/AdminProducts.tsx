@@ -276,7 +276,7 @@ export function AdminProducts() {
       </div>
 
       {showFilters && (
-        <div className="border-b border-[#e5e7eb] bg-gray-50 px-4 py-3 text-gray-700">
+        <div className="bg-backgroundSec border-b border-[#e5e7eb] px-4 py-3">
           <ProductFiltersBar filters={filters} onChange={handleFiltersChange} />
         </div>
       )}
