@@ -210,6 +210,7 @@ export const CategoryForm = ({
             {isEdit ? 'Edit Category' : 'Add Category'}
           </h1>
           <button
+            type="button"
             onClick={() => navigate(-1)}
             className="cursor-pointer border-none bg-transparent text-gray-400 transition-colors hover:text-gray-600"
           >
@@ -234,6 +235,7 @@ export const CategoryForm = ({
                     alt="Preview"
                   />
                   <button
+                    type="button"
                     onClick={handleRemoveImage}
                     className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-red-400 bg-gray-100 text-red-400 shadow-sm transition-colors hover:bg-gray-200 focus:outline-none dark:border-red-400 dark:bg-neutral-700 dark:text-red-400 dark:hover:bg-neutral-600"
                   >
@@ -469,6 +471,7 @@ export const CategoryForm = ({
 
         <div className="flex items-center justify-end gap-6 rounded-b-2xl border-t border-[#e5e7eb] bg-[#F2F4F6]/50 px-8 py-5">
           <button
+            type="button"
             onClick={() => navigate(-1)}
             disabled={isSaving}
             className="cursor-pointer border-none bg-transparent text-sm font-bold text-[#8A92A6] transition-colors hover:text-[#1A1C1E]"
