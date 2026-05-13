@@ -47,7 +47,7 @@ export const DEFAULT_FILTER: ProductsFilters = {
   categories: [],
   minPrice: '',
   maxPrice: '',
-  status: '',
+  status: [],
   dateFrom: '',
   dateTo: '',
   dateField: 'createdAt',
