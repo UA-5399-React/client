@@ -52,7 +52,7 @@ describe('useAdminProducts', () => {
         sort: 'price',
         order: 'asc',
         filters: {
-          status: 'active',
+          status: ['active'],
           minPrice: '10.5',
           maxPrice: '99.9',
           categories: ['phones', 'accessories'],
