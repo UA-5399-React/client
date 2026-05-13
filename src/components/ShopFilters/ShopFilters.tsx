@@ -115,7 +115,7 @@ export function ShopFilters() {
     });
   };
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+    <div className="relative z-40 flex flex-col gap-4 sm:flex-row sm:items-end">
       <div className={DROPDOWN_WRAPPER_CLASS}>
         <Dropdown
           label="Categories"
