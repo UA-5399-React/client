@@ -22,6 +22,7 @@ interface TableProductsProps {
   onDuplicate: (id: string) => void;
   onToggleSelect: (id: string) => void;
   onSelectAll: (ids: string[]) => void;
+  onRowClick?: (id: string) => void;
 }
 
 function renderBodyContent(
@@ -34,6 +35,7 @@ function renderBodyContent(
   onDuplicate: (id: string) => void,
   selectedIds: string[],
   onToggleSelect: (id: string) => void,
+  onRowClick?: (id: string) => void,
 ) {
   if (loading) {
     return (
@@ -88,10 +90,11 @@ function renderBodyContent(
 
     return (
       <tr
-        className="h-[80px] text-center text-[rgb(var(--color-text))]"
+        className="h-[80px] cursor-pointer text-center text-[rgb(var(--color-text))] transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
         key={item.id}
+        onClick={() => onRowClick && onRowClick(item.id)}
       >
-        <td className="w-12">
+        <td className="w-12" onClick={(e) => e.stopPropagation()}>
           <div className="flex justify-center">
             <Checkbox
               className="h-[20px] w-[20px]"
@@ -129,7 +132,7 @@ function renderBodyContent(
         <td>{item.createdAt ? formatDate(new Date(item.createdAt)) : '—'}</td>
         <td>{item.purchaseCount ?? 0}</td>
 
-        <td>
+        <td onClick={(e) => e.stopPropagation()}>
           <div className="flex justify-end pr-2">
             <ActionMenu
               triggerAriaLabel={`Open actions for ${item.title}`}
@@ -179,6 +182,7 @@ export function TableProducts({
   onDuplicate,
   onToggleSelect,
   onSelectAll,
+  onRowClick,
 }: TableProductsProps) {
   const { isDark } = useTheme();
   const navigate = useNavigate();
@@ -268,6 +272,7 @@ export function TableProducts({
             onDuplicate,
             selectedIds,
             onToggleSelect,
+            onRowClick,
           )}
         </tbody>
       </table>
