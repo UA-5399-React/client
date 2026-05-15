@@ -22,7 +22,7 @@ export function Message() {
 
   return (
     <div
-      className={`fixed top-6 right-6 z-50 flex max-w-[420px] min-w-[320px] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3.5 shadow-sm ${current.border} `}
+      className={`fixed top-6 right-6 z-100 flex max-w-[420px] min-w-[320px] items-center gap-3 rounded-2xl border-2 bg-white px-4 py-3.5 shadow-sm ${current.border} `}
     >
       <div
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${current.bg} `}

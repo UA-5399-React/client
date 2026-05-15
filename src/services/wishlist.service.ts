@@ -16,8 +16,8 @@ export interface UserResponse {
 export const wishlistService = {
   getMe: (): Promise<UserResponse> => apiClient.get<UserResponse>('/users/me'),
 
-  addToWishlist: (product: UserWishlistItem): Promise<UserResponse> =>
-    apiClient.patch<UserResponse>('/users/me/wishlist', product),
+  addToWishlist: (productId: string): Promise<UserResponse> =>
+    apiClient.patch<UserResponse>('/users/me/wishlist', { productId }),
 
   removeFromWishlist: (productId: string): Promise<UserResponse> =>
     apiClient.delete<UserResponse>(`/users/me/wishlist/${productId}`),
