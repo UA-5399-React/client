@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
-import { BackButton, Button, ConfirmModal } from '@/components';
+import { Button, ConfirmModal } from '@/components';
 import { ROUTES } from '@/constants';
 import { useWishlistProducts } from '@/hooks/useWishlistProducts';
 import {
@@ -87,8 +87,6 @@ export function Wishlist() {
 
   return (
     <section>
-      <BackButton />
-
       <div>
         <div className="md:pl-6">
           <div className="mb-6 flex items-center justify-between">

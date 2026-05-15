@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { BackButton, OrderDetailsTable } from '@/components';
+import { OrderDetailsTable } from '@/components';
 import { orderService } from '@/services/orderService';
-import { usersService } from '@/services/users.service';
 import type { OrderDetails as OrderDetailsType } from '@/types/order.types';
-import type { User } from '@/types/user';
 import { mapApiOrderToOrderDetails } from '@/utils/orderMappers';
 
 const formatPrice = (value: number) => `$${value.toFixed(2)}`;
@@ -13,7 +11,6 @@ const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 export function OrderDetails() {
   const { orderId } = useParams<{ orderId: string }>();
 
-  const [user, setUser] = useState<User | null>(null);
   const [order, setOrder] = useState<OrderDetailsType | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -29,14 +26,8 @@ export function OrderDetails() {
       }
 
       try {
-        const [currentUser, apiOrders] = await Promise.all([
-          usersService.getMe(),
-          orderService.getMyOrders(),
-        ]);
-
+        const apiOrders = await orderService.getMyOrders();
         const currentOrder = apiOrders.find((item) => item.orderId === orderId);
-
-        setUser(currentUser);
 
         if (!currentOrder) {
           setOrderError('Order not found');
@@ -69,10 +60,6 @@ export function OrderDetails() {
     return <div className="p-10 text-red-600">{orderError}</div>;
   }
 
-  if (!user) {
-    return <div className="text-text p-10">User not found</div>;
-  }
-
   if (!order) {
     return <div className="text-text p-10">Order not found</div>;
   }
@@ -81,8 +68,6 @@ export function OrderDetails() {
 
   return (
     <section className="bg-background min-h-screen px-4 pb-16 md:px-8 lg:px-10">
-      <BackButton />
-
       <div>
         <div className="min-w-0 md:pl-6 lg:pl-8">
           <div className="mx-auto max-w-4xl">

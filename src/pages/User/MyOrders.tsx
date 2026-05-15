@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { BackButton, OrderCard } from '@/components';
+import { OrderCard } from '@/components';
 import { orderService } from '@/services/orderService';
 import type { Order } from '@/types/order.types';
 import { mapApiOrderToOrder } from '@/utils/orderMappers';
@@ -39,8 +39,6 @@ export function MyOrders() {
 
   return (
     <section>
-      <BackButton />
-
       <div className="mx-auto max-w-[1180px]">
         <div className="-full min-w-0 px-[72px]">
           <h2 className="text-text mb-6 text-xl font-semibold">
