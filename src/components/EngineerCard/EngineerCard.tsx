@@ -14,7 +14,7 @@ export const EngineerCard: React.FC<EngineerCardProps> = ({
 }) => {
   return (
     <div className="group flex cursor-pointer flex-col items-center text-center">
-      <div className="mb-5 aspect-square w-full overflow-hidden rounded-2xl bg-gray-50 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+      <div className="mb-5 aspect-square w-full overflow-hidden rounded-2xl bg-gray-50 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl dark:bg-gray-800">
         {photoUrl ? (
           <img
             src={photoUrl}
@@ -31,7 +31,7 @@ export const EngineerCard: React.FC<EngineerCardProps> = ({
       </div>
 
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-blue-600">
+        <h3 className="text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
           {name}
         </h3>
       </div>
