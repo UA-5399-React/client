@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { PAGE_TITLES, ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,7 +13,7 @@ import { BackButton } from '../BackButton/BackButton';
 import { AccountSidebar } from '../UserProfile/AccountSidebar/AccountSidebar';
 
 function getPageTitle(pathname: string): string {
-  if (pathname.startsWith('/profile/order/')) {
+  if (pathname.startsWith(ROUTES.MYORDERS + '/')) {
     return 'My Order Details';
   }
   return PAGE_TITLES[pathname] ?? 'My Account';
@@ -25,6 +25,7 @@ export function AccountLayout() {
 
   const navigate = useNavigate();
   const { openConfirmModal } = useConfirmModal();
+  const location = useLocation();
   const title = getPageTitle(location.pathname);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
 
