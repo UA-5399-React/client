@@ -114,3 +114,9 @@ export const API_ENDPOINTS = {
   EXPORT_ORDERS: '/export/orders',
   EXPORT_ORDER_PDF: (id: string) => `/orders/${id}/export?format=pdf`,
 } as const;
+
+export const PAGE_TITLES: Record<string, string> = {
+  [ROUTES.PROFILE]: 'My Account',
+  [ROUTES.MYORDERS]: 'My Orders',
+  [ROUTES.WISHLIST]: 'My Wishlist',
+};

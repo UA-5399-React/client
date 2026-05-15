@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
-import { ROUTES } from '@/constants';
+import { PAGE_TITLES, ROUTES } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
+import { useConfirmModal } from '@/hooks/useConfirmModal';
 import { useMe } from '@/hooks/useMe';
 import { queryClient } from '@/lib/queryClient';
 import { usersService } from '@/services/users.service';
@@ -10,12 +11,6 @@ import { useErrorStore } from '@/store/errorStore';
 
 import { BackButton } from '../BackButton/BackButton';
 import { AccountSidebar } from '../UserProfile/AccountSidebar/AccountSidebar';
-
-const PAGE_TITLES: Record<string, string> = {
-  [ROUTES.PROFILE]: 'My Account',
-  [ROUTES.MYORDERS]: 'My Orders',
-  [ROUTES.WISHLIST]: 'My Wishlist',
-};
 
 function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/profile/order/')) {
@@ -29,6 +24,7 @@ export function AccountLayout() {
   const { data: user, isPending } = useMe(isAuth);
 
   const navigate = useNavigate();
+  const { openConfirmModal } = useConfirmModal();
   const title = getPageTitle(location.pathname);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
 
@@ -84,8 +80,16 @@ export function AccountLayout() {
   }
 
   const handleLogout = async () => {
-    await logout();
-    navigate(ROUTES.HOME, { replace: true });
+    openConfirmModal({
+      title: 'Logout',
+      description: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      isCritical: true,
+      onConfirm: async () => {
+        await logout();
+        navigate(ROUTES.HOME, { replace: true });
+      },
+    });
   };
 
   return (
