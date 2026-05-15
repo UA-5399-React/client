@@ -38,9 +38,10 @@ interface FeaturedResponse {
 interface SortableItemProps {
   product: FeaturedProductItem;
   children: React.ReactNode;
+  onClick?: () => void;
 }
 
-function SortableItem({ product, children }: SortableItemProps) {
+function SortableItem({ product, children, onClick }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -65,7 +66,8 @@ function SortableItem({ product, children }: SortableItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`hover:bg-backgroundSec/50 bg-background flex items-center justify-between px-6 py-4 transition-colors ${
+      onClick={onClick}
+      className={`hover:bg-backgroundSec/50 bg-background flex cursor-pointer items-center justify-between px-6 py-4 transition-colors ${
         isDragging ? 'z-50 opacity-80 shadow-2xl ring-2 ring-blue-500/20' : ''
       }`}
     >
@@ -73,6 +75,7 @@ function SortableItem({ product, children }: SortableItemProps) {
         <div
           {...attributes}
           {...listeners}
+          onClick={(e) => e.stopPropagation()}
           className="text-muted hover:text-text cursor-grab p-1 transition-colors active:cursor-grabbing"
         >
           <GripVertical size={20} aria-label="Drag handle" />
@@ -80,7 +83,7 @@ function SortableItem({ product, children }: SortableItemProps) {
 
         {content}
       </div>
-      {actionMenu}
+      <div onClick={(e) => e.stopPropagation()}>{actionMenu}</div>
     </div>
   );
 }
@@ -371,7 +374,11 @@ export function FeaturedProducts() {
                   strategy={verticalListSortingStrategy}
                 >
                   {featured.map((product) => (
-                    <SortableItem key={product._id} product={product}>
+                    <SortableItem
+                      key={product._id}
+                      product={product}
+                      onClick={() => navigate(`/product/${product._id}`)}
+                    >
                       <div className="flex items-center gap-4">
                         <div className="border-fieldBorder bg-backgroundSec h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border">
                           {product.imageUrl ? (

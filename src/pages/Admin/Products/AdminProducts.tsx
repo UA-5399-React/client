@@ -168,6 +168,10 @@ export function AdminProducts() {
     navigate(ROUTES.ADMIN_PRODUCT_CREATE);
   };
 
+  const handleRowClick = (id: string) => {
+    navigate(`/product/${id}`);
+  };
+
   const handleDeleteProduct = (id: string) => {
     const isBulk = selectedIds.includes(id) && selectedIds.length > 1;
     const draftIds = isBulk
@@ -294,6 +298,7 @@ export function AdminProducts() {
           onDuplicate={handleDuplicate}
           onToggleSelect={toggleSelect}
           onSelectAll={selectAll}
+          onRowClick={handleRowClick}
         />
 
         <Pagination
