@@ -31,6 +31,19 @@ export function AccountLayout() {
 
   const showMessage = useErrorStore((s) => s.show);
 
+  const handleLogout = async () => {
+    openConfirmModal({
+      title: 'Logout',
+      description: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      isCritical: true,
+      onConfirm: async () => {
+        await logout();
+        navigate(ROUTES.HOME, { replace: true });
+      },
+    });
+  };
+
   const handleAvatarUpload = async (file: File) => {
     if (!user) return;
     try {
@@ -79,19 +92,6 @@ export function AccountLayout() {
   if (!user) {
     return <div>User not found</div>;
   }
-
-  const handleLogout = async () => {
-    openConfirmModal({
-      title: 'Logout',
-      description: 'Are you sure you want to logout?',
-      confirmText: 'Logout',
-      isCritical: true,
-      onConfirm: async () => {
-        await logout();
-        navigate(ROUTES.HOME, { replace: true });
-      },
-    });
-  };
 
   return (
     <section className="bg-background text-text min-h-screen px-8 lg:px-40 lg:pb-20">

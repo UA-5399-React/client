@@ -6,10 +6,8 @@ import type { Order } from '@/types/order.types';
 import { mapApiOrderToOrder } from '@/utils/orderMappers';
 
 export function MyOrders() {
-  const [isLoading, setIsLoading] = useState(true);
-
   const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
 
   useEffect(() => {
@@ -24,7 +22,6 @@ export function MyOrders() {
           err instanceof Error ? err.message : 'Failed to load orders',
         );
       } finally {
-        setOrdersLoading(false);
         setIsLoading(false);
       }
     };
@@ -34,6 +31,10 @@ export function MyOrders() {
 
   if (isLoading) {
     return <div className="p-10">Loading...</div>;
+  }
+
+  if (ordersError) {
+    return <div className="p-10">{ordersError}</div>;
   }
 
   return (
@@ -53,14 +54,9 @@ export function MyOrders() {
             <span>Price</span>
             <span />
           </div>
+
           <div className="flex flex-col">
-            {ordersLoading ? (
-              <div className="py-6 text-sm text-gray-500">
-                Loading orders...
-              </div>
-            ) : ordersError ? (
-              <div className="py-6 text-sm text-red-600">{ordersError}</div>
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
               <div className="py-6 text-sm text-gray-500">
                 You have no orders yet.
               </div>

@@ -6,6 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import googleIcon from '@/assets/icons/google-icon.webp';
 import { AccountDetailsForm, PasswordForm } from '@/components';
 import { ROUTES } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useMe } from '@/hooks/useMe';
+import { queryClient } from '@/lib';
 import { GOOGLE_CONNECT_FEEDBACK } from '@/pages/User/googleConnectFeedback';
 import {
   type ProfileFormValues,
@@ -13,21 +16,21 @@ import {
 } from '@/schemas/profile.schema';
 import { authService } from '@/services/authService';
 import { usersService } from '@/services/users.service';
-import type { User } from '@/types/user';
+import { useErrorStore } from '@/store/errorStore';
 import { clearAuthStorage } from '@/utils/auth-storage';
 import { EMPTY_FORM_VALUES, getFormValuesFromUser } from '@/utils/profile-form';
 
 export function Profile() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuth } = useAuth();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [pageError, setPageError] = useState('');
+  const { data: user, isPending: isLoadingUser, isError } = useMe(isAuth);
+
   const [isSaving, setIsSaving] = useState(false);
   const [isDisconnectingGoogle, setIsDisconnectingGoogle] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+
+  const showMessage = useErrorStore((s) => s.show);
 
   const {
     control,
@@ -41,35 +44,15 @@ export function Profile() {
 
   const handleUnauthorized = useCallback(() => {
     clearAuthStorage();
-    setUser(null);
-    setPageError('');
-    setSubmitError('');
-    setSuccessMessage('');
+
     reset(EMPTY_FORM_VALUES);
     navigate(ROUTES.LOGIN, { replace: true });
   }, [navigate, reset]);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await usersService.getMe();
-        setUser(currentUser);
-        reset(getFormValuesFromUser(currentUser));
-      } catch (err) {
-        if (err instanceof Error && err.message.includes('401')) {
-          handleUnauthorized();
-          return;
-        }
-        setPageError(
-          err instanceof Error ? err.message : 'Failed to load profile',
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void loadUser();
-  }, [reset, handleUnauthorized]);
+    if (!user) return;
+    reset(getFormValuesFromUser(user));
+  }, [reset, user]);
 
   useEffect(() => {
     const googleStatus = searchParams.get('google');
@@ -80,14 +63,20 @@ export function Profile() {
 
     const feedback = GOOGLE_CONNECT_FEEDBACK[googleStatus];
 
-    setSubmitError('');
-    setSuccessMessage('');
-
     if (feedback) {
       if (feedback.kind === 'success') {
-        setSuccessMessage(feedback.message);
+        void usersService.getMe().then((user) => {
+          queryClient.setQueryData(['me'], user);
+          reset(getFormValuesFromUser(user));
+        });
+
+        showMessage('success', 'Google account connected', feedback.message);
       } else {
-        setSubmitError(feedback.message);
+        showMessage(
+          'error',
+          'Google account connection failed',
+          feedback.message,
+        );
       }
     }
 
@@ -96,30 +85,11 @@ export function Profile() {
     setSearchParams(nextSearchParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  // Autoclear success and error messages
-  useEffect(() => {
-    if (!successMessage) return;
-    const timer = setTimeout(() => {
-      setSuccessMessage('');
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [successMessage]);
-
-  useEffect(() => {
-    if (!submitError) return;
-    const timer = setTimeout(() => {
-      setSubmitError('');
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [submitError]);
-
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
 
     try {
       setIsSaving(true);
-      setSubmitError('');
-      setSuccessMessage('');
 
       const normalizedFirstName = values.firstName.trim();
       const normalizedLastName = values.lastName.trim();
@@ -146,7 +116,7 @@ export function Profile() {
         });
 
         updatedUser = await usersService.getMe();
-        setUser(updatedUser);
+        queryClient.setQueryData(['me'], updatedUser);
       }
 
       if (hasAnyPasswordValue) {
@@ -159,11 +129,23 @@ export function Profile() {
       reset(getFormValuesFromUser(updatedUser));
 
       if (profileChanged && hasAnyPasswordValue) {
-        setSuccessMessage('Profile and password updated successfully');
+        showMessage(
+          'success',
+          'Profile and password updated',
+          'Profile and password updated successfully',
+        );
       } else if (profileChanged) {
-        setSuccessMessage('Profile updated successfully');
+        showMessage(
+          'success',
+          'Profile updated',
+          'Profile updated successfully',
+        );
       } else {
-        setSuccessMessage('Password updated successfully');
+        showMessage(
+          'success',
+          'Password updated',
+          'Password updated successfully',
+        );
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes('401')) {
@@ -171,7 +153,9 @@ export function Profile() {
         return;
       }
 
-      setSubmitError(
+      showMessage(
+        'error',
+        'Failed to update profile',
         err instanceof Error ? err.message : 'Failed to update profile',
       );
     } finally {
@@ -184,8 +168,6 @@ export function Profile() {
   };
 
   const handleGoogleConnect = () => {
-    setSubmitError('');
-    setSuccessMessage('');
     authService.startGoogleConnect();
   };
 
@@ -194,14 +176,17 @@ export function Profile() {
 
     try {
       setIsDisconnectingGoogle(true);
-      setSubmitError('');
-      setSuccessMessage('');
 
       await authService.disconnectGoogle();
 
       const updatedUser = await usersService.getMe();
-      setUser(updatedUser);
-      setSuccessMessage('Google account disconnected successfully');
+      queryClient.setQueryData(['me'], updatedUser);
+
+      showMessage(
+        'success',
+        'Google account disconnected',
+        'Google account disconnected successfully',
+      );
     } catch (err) {
       if (err instanceof Error && err.message.includes('401')) {
         handleUnauthorized();
@@ -221,18 +206,22 @@ export function Profile() {
         }
       }
 
-      setSubmitError(errorMessage);
+      showMessage('error', 'Failed to disconnect Google account', errorMessage);
     } finally {
       setIsDisconnectingGoogle(false);
     }
   };
 
-  if (isLoading) {
+  if (isLoadingUser) {
     return <div className="bg-background text-text p-10">Loading...</div>;
   }
 
-  if (pageError) {
-    return <div className="bg-background p-10 text-red-600">{pageError}</div>;
+  if (isError) {
+    return (
+      <div className="bg-background p-10 text-red-600">
+        Error loading profile
+      </div>
+    );
   }
 
   if (!user) {
@@ -317,18 +306,6 @@ export function Profile() {
               Cancel
             </button>
           </div>
-
-          {successMessage && (
-            <div className="mt-6 w-[280px] rounded-lg border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-800 lg:w-[675px] dark:border-green-700 dark:bg-green-900 dark:text-green-300">
-              {successMessage}
-            </div>
-          )}
-
-          {submitError && (
-            <div className="mt-6 w-[280px] rounded-lg border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800 lg:w-[675px] dark:border-red-700 dark:bg-red-900 dark:text-red-300">
-              {submitError}
-            </div>
-          )}
         </form>
       </div>
     </section>
