@@ -14,7 +14,7 @@ export const ROUTES = {
   NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',
   CHECKOUT: '/checkout',
   ORDER_CONFIRMATION: '/order-confirmation',
-  ORDER_DETAIL: '/order/:orderId',
+  ORDER_DETAIL: '/profile/order/:orderId',
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
