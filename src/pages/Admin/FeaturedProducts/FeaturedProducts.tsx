@@ -95,6 +95,7 @@ export function FeaturedProducts() {
   const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -123,7 +124,7 @@ export function FeaturedProducts() {
 
   const fetchProductsForSearch = async (searchQuery: string) => {
     try {
-      let url = '/products?status=active&status=draft&limit=10';
+      let url = '/products?limit=10';
 
       if (searchQuery.trim()) {
         url += `&search=${encodeURIComponent(searchQuery.trim())}`;
@@ -148,10 +149,15 @@ export function FeaturedProducts() {
   };
 
   useEffect(() => {
+    if (search.trim()) {
+      setIsSearching(true);
+    }
+
     const delayDebounceFn = setTimeout(async () => {
-      setLoading(true);
       await fetchProductsForSearch(search);
       await fetchFeatured();
+
+      setIsSearching(false);
       setLoading(false);
     }, 300);
 
@@ -257,7 +263,7 @@ export function FeaturedProducts() {
             <span className="text-muted text-sm font-bold tracking-wider uppercase">
               Add Product to Homepage
             </span>
-            {isActionLoading && (
+            {(isActionLoading || isSearching) && (
               <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
             )}
           </div>
