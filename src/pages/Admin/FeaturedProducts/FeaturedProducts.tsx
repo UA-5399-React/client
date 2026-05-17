@@ -118,31 +118,42 @@ export function FeaturedProducts() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchProductsForSearch = async (searchQuery: string) => {
+    try {
+      let url = '/products?status=active&status=draft&limit=10';
 
-        const productsRes = await apiClient.get<{
-          items: FeaturedProductItem[];
-        }>('/products?status=active');
-
-        if (productsRes && 'items' in productsRes) {
-          setAllProducts(productsRes.items);
-        } else {
-          setAllProducts(Array.isArray(productsRes) ? productsRes : []);
-        }
-
-        await fetchFeatured();
-      } catch (error) {
-        console.error('Fetch error:', error);
-      } finally {
-        setLoading(false);
+      if (searchQuery.trim()) {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
       }
-    };
 
-    fetchData();
-  }, []);
+      const productsRes = await apiClient.get<{
+        items: FeaturedProductItem[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>(url);
+
+      if (productsRes && 'items' in productsRes) {
+        setAllProducts(productsRes.items);
+      } else {
+        setAllProducts(Array.isArray(productsRes) ? productsRes : []);
+      }
+    } catch (error) {
+      console.error('Fetch products error:', error);
+    }
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      setLoading(true);
+      await fetchProductsForSearch(search);
+      await fetchFeatured();
+      setLoading(false);
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
 
   const handleAddProduct = async (product: FeaturedProductItem) => {
     if (featured.length >= NEW_ARRIVALS_LIMIT) return;
