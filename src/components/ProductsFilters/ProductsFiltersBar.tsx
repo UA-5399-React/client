@@ -22,6 +22,14 @@ export function ProductFiltersBar({
   const update = (partial: Partial<ProductsFilters>) =>
     onChange({ ...filters, ...partial });
 
+  const toggleStatus = (status: string, checked: boolean) => {
+    const nextStatuses = checked
+      ? [...filters.status, status]
+      : filters.status.filter((value) => value !== status);
+
+    update({ status: nextStatuses });
+  };
+
   const { categories } = useAdminCategories();
   const categoryOptions = categories.map((c) => ({
     label: c.title,
@@ -29,47 +37,56 @@ export function ProductFiltersBar({
   }));
 
   return (
-    <div className="flex flex-wrap items-end gap-6">
-      <CategoryDropdown
-        label="Categories"
-        options={categoryOptions}
-        selectedValues={filters.categories}
-        onChange={(values) =>
-          update({ categories: values.map((item) => item.value) })
-        }
-        placeholder="All categories"
-      />
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-end gap-2">
+    <div className="flex flex-wrap items-center gap-6">
+      <div className="mb-2.5">
+        <CategoryDropdown
+          label="Categories"
+          options={categoryOptions}
+          selectedValues={filters.categories}
+          onChange={(values) =>
+            update({ categories: values.map((item) => item.value) })
+          }
+          placeholder="All categories"
+        />
+      </div>
+
+      <div className="flex">
+        <div className="flex items-center gap-2">
           <Input
             label="Price"
             type="number"
             placeholder="Min"
             value={filters.minPrice}
             onChange={(e) => update({ minPrice: e.target.value })}
-            inputClassName="w-24 text-gray-700"
+            inputClassName="w-24 text-text"
+            isClearable={false}
           />
-          <span className="mb-2 text-gray-400">—</span>
+
+          <span className="h-[15px] text-gray-400">—</span>
+
           <Input
+            labelClassName="invisible"
+            label="Max"
             type="number"
             placeholder="Max"
             value={filters.maxPrice}
             onChange={(e) => update({ maxPrice: e.target.value })}
-            inputClassName="w-24 text-gray-700"
+            inputClassName="w-24 text-text"
+            isClearable={false}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="mb-5 flex flex-col gap-1.5">
         <span className="text-text text-sm font-medium">Status</span>
         <div className="flex items-center gap-4">
           {STATUS_OPTIONS.map((opt) => (
             <Checkbox
               key={opt.value}
               label={opt.label}
-              checked={filters.status === opt.value}
+              checked={filters.status.includes(opt.value)}
               onCheckedChange={(checked) =>
-                update({ status: checked ? opt.value : '' })
+                toggleStatus(opt.value, checked === true)
               }
             />
           ))}
@@ -83,17 +100,18 @@ export function ProductFiltersBar({
             label="From"
             value={filters.dateFrom}
             onChange={(e) => update({ dateFrom: e.target.value })}
-            inputClassName="w-24 text-gray-700"
+            inputClassName="w-24 text-text"
+            isClearable={false}
           />
-          <span className="mt-5 text-gray-400">—</span>
+          <span className="h-[15px] text-gray-400">—</span>
           <Input
             type="date"
             label="To"
             value={filters.dateTo}
             onChange={(e) => update({ dateTo: e.target.value })}
-            inputClassName="w-24 text-gray-700"
+            inputClassName="w-24 text-text"
+            isClearable={false}
           />
-
           <div className="flex items-center gap-2">
             <span className="text-text text-sm font-medium">Date</span>
 

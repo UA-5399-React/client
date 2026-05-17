@@ -36,7 +36,8 @@ import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
-import { ContactUs, Shop } from './pages/Mocks';
+import { Contact } from './pages/Contact/Contact';
+import { Shop } from './pages/Mocks';
 import { NotFound } from './pages/NotFound/NotFound';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
@@ -50,7 +51,7 @@ function App() {
     HOME,
     SHOP,
     PRODUCT,
-    CONTACT_US,
+    CONTACT,
     CART,
     NEWSLETTER_UNSUBSCRIBE,
     CHECKOUT,
@@ -96,7 +97,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path={SHOP} element={<Shop />} />
           <Route path={PRODUCT} element={<ProductDetails />} />
-          <Route path={CONTACT_US} element={<ContactUs />} />
+          <Route path={CONTACT} element={<Contact />} />
           <Route path={CART} element={<Cart />} />
           <Route path={WISHLIST} element={<Wishlist />} />
           <Route

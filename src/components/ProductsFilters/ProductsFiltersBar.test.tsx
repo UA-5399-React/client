@@ -21,7 +21,7 @@ const defaultFilters: ProductsFilters = {
   categories: [],
   minPrice: '',
   maxPrice: '',
-  status: '',
+  status: [],
   dateFrom: '',
   dateTo: '',
   dateField: 'createdAt' as ProductsFilters['dateField'],
@@ -114,7 +114,7 @@ describe('UI Component: ProductFiltersBar', () => {
   it('should check the Active checkbox when status is ACTIVE', () => {
     render(
       <ProductFiltersBar
-        filters={{ ...defaultFilters, status: 'ACTIVE' }}
+        filters={{ ...defaultFilters, status: ['ACTIVE'] }}
         onChange={vi.fn()}
       />,
     );
@@ -140,7 +140,7 @@ describe('UI Component: ProductFiltersBar', () => {
 
     expect(handleChange).toHaveBeenCalledWith({
       ...defaultFilters,
-      status: 'ACTIVE',
+      status: ['ACTIVE'],
     });
   });
 
@@ -155,7 +155,7 @@ describe('UI Component: ProductFiltersBar', () => {
 
     expect(handleChange).toHaveBeenCalledWith({
       ...defaultFilters,
-      status: 'INACTIVE',
+      status: ['INACTIVE'],
     });
   });
 
@@ -164,7 +164,7 @@ describe('UI Component: ProductFiltersBar', () => {
     const handleChange = vi.fn();
     render(
       <ProductFiltersBar
-        filters={{ ...defaultFilters, status: 'ACTIVE' }}
+        filters={{ ...defaultFilters, status: ['ACTIVE'] }}
         onChange={handleChange}
       />,
     );
@@ -173,7 +173,7 @@ describe('UI Component: ProductFiltersBar', () => {
 
     expect(handleChange).toHaveBeenCalledWith({
       ...defaultFilters,
-      status: '',
+      status: [],
     });
   });
 

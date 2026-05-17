@@ -168,6 +168,10 @@ export function AdminProducts() {
     navigate(ROUTES.ADMIN_PRODUCT_CREATE);
   };
 
+  const handleRowClick = (id: string) => {
+    navigate(`/product/${id}`);
+  };
+
   const handleDeleteProduct = (id: string) => {
     const isBulk = selectedIds.includes(id) && selectedIds.length > 1;
     const draftIds = isBulk
@@ -276,7 +280,7 @@ export function AdminProducts() {
       </div>
 
       {showFilters && (
-        <div className="border-b border-[#e5e7eb] bg-gray-50 px-4 py-3 text-gray-700">
+        <div className="bg-backgroundSec border-b border-[#e5e7eb] px-4 py-3">
           <ProductFiltersBar filters={filters} onChange={handleFiltersChange} />
         </div>
       )}
@@ -294,6 +298,7 @@ export function AdminProducts() {
           onDuplicate={handleDuplicate}
           onToggleSelect={toggleSelect}
           onSelectAll={selectAll}
+          onRowClick={handleRowClick}
         />
 
         <Pagination

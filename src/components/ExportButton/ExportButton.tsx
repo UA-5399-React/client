@@ -40,7 +40,7 @@ export function ExportButton(props: ExportButtonProps) {
         const p = props as ExportButtonProductsProps;
         const params: ExportProductsParams = {};
         if (p.filters) {
-          if (p.filters.status) params.status = p.filters.status;
+          if (p.filters.status.length > 0) params.status = p.filters.status;
           if (p.filters.categories.length > 0)
             params.category = p.filters.categories;
           if (p.filters.minPrice) params.minPrice = p.filters.minPrice;

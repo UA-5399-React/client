@@ -3,96 +3,164 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useAuth } from '@/hooks/useAuth';
 import { cartService } from '@/services/cartService';
+import { productService } from '@/services/productService';
 import { useCartStore } from '@/store/useCartStore';
+import type { CartResponse } from '@/types/cart.types';
 
 import { useCartSync } from './useCartSync';
 
 vi.mock('@/hooks/useAuth');
 vi.mock('@/services/cartService');
+vi.mock('@/services/productService');
 vi.mock('@/store/useCartStore');
 
+type MockCartLine = {
+  product: {
+    id?: string;
+    _id?: string;
+    title: string;
+    price: number;
+    status: 'active';
+  };
+  quantity: number;
+};
+
 describe('useCartSync', () => {
+  let cartItems: MockCartLine[];
+  const setCart = vi.fn((next: MockCartLine[]) => {
+    cartItems = next;
+  });
+
+  const buildMockItems = (): MockCartLine[] => [
+    {
+      product: {
+        id: 'prod-1',
+        title: 'Product 1',
+        price: 100,
+        status: 'active' as const,
+      },
+      quantity: 2,
+    },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    cartItems = buildMockItems();
+    setCart.mockImplementation((next: MockCartLine[]) => {
+      cartItems = next;
+    });
+
+    const storeApi = {
+      get items() {
+        return cartItems;
+      },
+      setCart,
+    };
+
+    vi.mocked(useCartStore).mockImplementation(((selector?: unknown) => {
+      if (typeof selector === 'function') {
+        return (selector as (s: typeof storeApi) => unknown)(storeApi);
+      }
+      return storeApi;
+    }) as typeof useCartStore);
+
+    vi.mocked(useCartStore).getState = vi.fn(
+      () =>
+        ({
+          items: cartItems,
+          setCart,
+        }) as unknown as ReturnType<(typeof useCartStore)['getState']>,
+    );
+
+    vi.mocked(productService.getById).mockImplementation(
+      async (id: string) => ({
+        id,
+        title: 'P',
+        price: 1,
+        status: 'active',
+      }),
+    );
+
+    vi.mocked(cartService.updateCart).mockResolvedValue({
+      userId: 'test-user',
+      items: [],
+      total: 0,
+    } as CartResponse);
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  const mockItems = [
-    {
-      product: { id: 'prod-1', name: 'Product 1', price: 100 },
-      quantity: 2,
-    },
-  ];
-
   it('should not sync on initial mount', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     renderHook(() => useCartSync());
 
     vi.advanceTimersByTime(1000);
     expect(cartService.updateCart).not.toHaveBeenCalled();
+    expect(productService.getById).not.toHaveBeenCalled();
   });
 
   it('should not sync if not authenticated', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: false,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { rerender } = renderHook(() => useCartSync());
 
-    // Trigger items change
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...mockItems, { product: { id: 'prod-2' }, quantity: 1 }],
-    } as unknown as ReturnType<typeof useCartStore>);
+    cartItems = [
+      ...buildMockItems(),
+      {
+        product: {
+          id: 'prod-2',
+          title: 'Product 2',
+          price: 50,
+          status: 'active' as const,
+        },
+        quantity: 1,
+      },
+    ];
     rerender();
 
     vi.advanceTimersByTime(1000);
     expect(cartService.updateCart).not.toHaveBeenCalled();
+    expect(productService.getById).not.toHaveBeenCalled();
   });
 
   it('should sync after debounce when items change and authenticated', async () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { rerender } = renderHook(() => useCartSync());
 
-    // Initial mount skip
     expect(cartService.updateCart).not.toHaveBeenCalled();
 
-    // Change items
-    const newItems = [
-      ...mockItems,
+    cartItems = [
+      ...buildMockItems(),
       {
-        product: { id: 'prod-2', name: 'Product 2', price: 50 },
+        product: {
+          id: 'prod-2',
+          title: 'Product 2',
+          price: 50,
+          status: 'active' as const,
+        },
         quantity: 1,
       },
     ];
-    vi.mocked(useCartStore).mockReturnValue({
-      items: newItems,
-    } as unknown as ReturnType<typeof useCartStore>);
     rerender();
 
-    vi.advanceTimersByTime(500);
+    await vi.advanceTimersByTimeAsync(500);
     expect(cartService.updateCart).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(500);
+    await vi.advanceTimersByTimeAsync(500);
 
+    expect(productService.getById).toHaveBeenCalledWith('prod-1');
+    expect(productService.getById).toHaveBeenCalledWith('prod-2');
     expect(cartService.updateCart).toHaveBeenCalledWith([
       { productId: 'prod-1', quantity: 2 },
       { productId: 'prod-2', quantity: 1 },
@@ -103,57 +171,48 @@ describe('useCartSync', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    const itemsWithUnderscoreId = [
-      {
-        product: { _id: 'prod-mongo-1', name: 'Product 1', price: 100 },
-        quantity: 1,
-      },
-    ];
-    vi.mocked(useCartStore).mockReturnValue({
-      items: itemsWithUnderscoreId,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { rerender } = renderHook(() => useCartSync());
 
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...itemsWithUnderscoreId],
-    } as unknown as ReturnType<typeof useCartStore>);
+    cartItems = [
+      {
+        product: {
+          _id: 'prod-mongo-1',
+          title: 'Product 1',
+          price: 100,
+          status: 'active' as const,
+        },
+        quantity: 1,
+      },
+    ];
     rerender();
 
-    vi.advanceTimersByTime(1000);
+    await vi.advanceTimersByTimeAsync(1000);
 
+    expect(productService.getById).toHaveBeenCalledWith('prod-mongo-1');
     expect(cartService.updateCart).toHaveBeenCalledWith([
       { productId: 'prod-mongo-1', quantity: 1 },
     ]);
   });
 
-  it('should debounce multiple changes', () => {
+  it('should debounce multiple changes', async () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { rerender } = renderHook(() => useCartSync());
 
-    // Change 1
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...mockItems],
-    } as unknown as ReturnType<typeof useCartStore>);
+    cartItems = [...cartItems];
     rerender();
-    vi.advanceTimersByTime(500);
+    await vi.advanceTimersByTimeAsync(500);
 
-    // Change 2
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...mockItems],
-    } as unknown as ReturnType<typeof useCartStore>);
+    cartItems = [...cartItems];
     rerender();
-    vi.advanceTimersByTime(500);
+    await vi.advanceTimersByTimeAsync(500);
 
     expect(cartService.updateCart).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(500);
+    await vi.advanceTimersByTimeAsync(500);
     expect(cartService.updateCart).toHaveBeenCalledTimes(1);
   });
 
@@ -162,23 +221,17 @@ describe('useCartSync', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
     vi.mocked(cartService.updateCart).mockRejectedValue(
       new Error('Network error'),
     );
 
     const { rerender } = renderHook(() => useCartSync());
 
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...mockItems],
-    } as unknown as ReturnType<typeof useCartStore>);
+    cartItems = [...cartItems];
     rerender();
 
-    vi.advanceTimersByTime(1000);
+    await vi.advanceTimersByTimeAsync(1000);
 
-    // We need to wait for the promise inside setTimeout
     await vi.waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to sync cart to backend:',
@@ -193,22 +246,13 @@ describe('useCartSync', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { unmount, rerender } = renderHook(() => useCartSync());
 
-    // Trigger sync
-    vi.mocked(useCartStore).mockReturnValue({
-      items: [...mockItems],
-    } as unknown as ReturnType<typeof useCartStore>);
     rerender();
 
-    // Timer should be set
     unmount();
 
-    // Advance time - sync should not be called because timer was cleared
     vi.advanceTimersByTime(1000);
     expect(cartService.updateCart).not.toHaveBeenCalled();
   });
@@ -217,16 +261,58 @@ describe('useCartSync', () => {
     vi.mocked(useAuth).mockReturnValue({
       isAuth: true,
     } as unknown as ReturnType<typeof useAuth>);
-    vi.mocked(useCartStore).mockReturnValue({
-      items: mockItems,
-    } as unknown as ReturnType<typeof useCartStore>);
 
     const { unmount } = renderHook(() => useCartSync());
 
-    // No changes triggered, so no timer set
     unmount();
 
-    // No errors should be thrown, and no calls should be made
     expect(cartService.updateCart).not.toHaveBeenCalled();
+  });
+
+  it('should remove inactive products from cart and omit them from sync', async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuth: true,
+    } as unknown as ReturnType<typeof useAuth>);
+
+    vi.mocked(productService.getById).mockImplementation(async (id: string) => {
+      if (id === 'prod-2') {
+        return {
+          id,
+          title: 'P2',
+          price: 50,
+          status: 'inactive',
+        };
+      }
+      return { id, title: 'P1', price: 100, status: 'active' };
+    });
+
+    const { rerender } = renderHook(() => useCartSync());
+
+    cartItems = [
+      ...buildMockItems(),
+      {
+        product: {
+          id: 'prod-2',
+          title: 'Product 2',
+          price: 50,
+          status: 'active' as const,
+        },
+        quantity: 1,
+      },
+    ];
+    rerender();
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(setCart).toHaveBeenCalled();
+
+    expect(setCart).toHaveBeenCalledWith([
+      {
+        product: expect.objectContaining({ id: 'prod-1' }),
+        quantity: 2,
+      },
+    ]);
+    expect(cartService.updateCart).toHaveBeenCalledWith([
+      { productId: 'prod-1', quantity: 2 },
+    ]);
   });
 });
