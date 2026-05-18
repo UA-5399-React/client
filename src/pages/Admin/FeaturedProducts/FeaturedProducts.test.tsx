@@ -201,12 +201,17 @@ describe('Page: FeaturedProducts', () => {
     vi.useFakeTimers();
 
     let resolveProducts!: (value: unknown) => void;
+    let isFirstCall = true;
 
     (apiClient.get as Mock).mockImplementation((url: string) => {
       if (url.includes('/products')) {
-        return new Promise((resolve) => {
-          resolveProducts = resolve;
-        });
+        if (isFirstCall) {
+          isFirstCall = false;
+          return new Promise((resolve) => {
+            resolveProducts = resolve;
+          });
+        }
+        return Promise.resolve(mockProducts);
       }
 
       if (url.includes('/featured-products')) {
@@ -224,6 +229,7 @@ describe('Page: FeaturedProducts', () => {
 
     resolveProducts(mockProducts);
 
+    await vi.runAllTimersAsync();
     vi.useRealTimers();
 
     expect(await screen.findByText('Manage New Arrivals')).toBeInTheDocument();

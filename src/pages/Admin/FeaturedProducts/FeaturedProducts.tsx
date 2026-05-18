@@ -22,6 +22,7 @@ import { Pencil, Trash } from 'lucide-react';
 import { AdminPageHeader, SearchInput } from '@/components';
 import { ActionMenu } from '@/components';
 import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { apiClient } from '@/services/api';
 import type { Product } from '@/types/product.types';
 
@@ -94,6 +95,7 @@ export function FeaturedProducts() {
   const [allProducts, setAllProducts] = useState<FeaturedProductItem[]>([]);
   const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -149,20 +151,31 @@ export function FeaturedProducts() {
   };
 
   useEffect(() => {
-    if (search.trim()) {
-      setIsSearching(true);
+    const loadInitialData = async () => {
+      setLoading(true);
+
+      await Promise.all([fetchFeatured(), fetchProductsForSearch('')]);
+
+      setLoading(false);
+    };
+
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      fetchProductsForSearch('');
+      return;
     }
 
-    const delayDebounceFn = setTimeout(async () => {
-      await fetchProductsForSearch(search);
-      await fetchFeatured();
-
+    const handleSearch = async () => {
+      setIsSearching(true);
+      await fetchProductsForSearch(debouncedSearch);
       setIsSearching(false);
-      setLoading(false);
-    }, 300);
+    };
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [search]);
+    handleSearch();
+  }, [debouncedSearch]);
 
   const handleAddProduct = async (product: FeaturedProductItem) => {
     if (featured.length >= NEW_ARRIVALS_LIMIT) return;
@@ -203,7 +216,7 @@ export function FeaturedProducts() {
     Array.isArray(allProducts) ? allProducts : []
   ).filter(
     (p) =>
-      p.title?.toLowerCase().includes(search.toLowerCase()) &&
+      p.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
       !featured.some((f) => f._id === p._id),
   );
 
