@@ -6,14 +6,14 @@ import { ENGINEERS } from '@/constants/engineers';
 
 export const Contact: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <section className="border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-white transition-colors duration-300 dark:bg-black">
+      <section className="border-b border-gray-200 bg-white transition-colors duration-300 dark:border-gray-800 dark:bg-black">
         <div className="mx-auto max-w-3xl px-6 pt-12 pb-6 text-center">
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-            Our Best Engineers
+          <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 transition-colors duration-300 sm:text-5xl dark:text-white">
+            Our Best Engineers Our Best Engineers
           </h1>
 
-          <p className="mb-6 text-lg leading-relaxed text-gray-600">
+          <p className="mb-6 text-lg leading-relaxed text-gray-600 transition-colors duration-300 dark:text-gray-400">
             A passionate group of engineers building the future of technology.
             Reach out - we're always happy to connect.
           </p>
