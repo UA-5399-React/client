@@ -19,6 +19,9 @@ export const CategoryDropdown = ({
   hasBorder = true,
   multiple = true,
   disabled = false,
+  required = false,
+  error = false,
+  helperText,
 }: DropdownProps) => {
   const [open, setOpen] = useState(false);
 
@@ -67,7 +70,12 @@ export const CategoryDropdown = ({
         nativeLabel={false}
         render={<div />}
       >
-        {label}
+        {label}{' '}
+        {required && (
+          <span aria-hidden="true" className="font-bold text-red-600">
+            *
+          </span>
+        )}
       </Field.Label>
       <Select.Root
         multiple={multiple}
@@ -78,9 +86,14 @@ export const CategoryDropdown = ({
         onOpenChange={setOpen}
       >
         <Select.Trigger
-          className={clsx(styles.Select, selectClassName)}
+          className={clsx(
+            styles.Select,
+            error && '!border-red-600 focus-visible:!ring-red-600',
+            selectClassName,
+          )}
           data-border={hasBorder}
           data-disabled={disabled || undefined}
+          aria-invalid={error || undefined}
         >
           <Select.Value className="hidden" />
           <span className="truncate">{content}</span>
@@ -113,6 +126,11 @@ export const CategoryDropdown = ({
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
+      {helperText && (
+        <p className="mt-1 text-xs text-red-600" role="alert">
+          {helperText}
+        </p>
+      )}
     </Field.Root>
   );
 };

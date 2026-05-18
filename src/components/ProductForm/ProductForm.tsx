@@ -413,6 +413,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     : []
                 }
                 placeholder="No category selected"
+                required
+                error={!!errors.categories}
+                helperText={errors.categories?.message}
                 onChange={(selected) => {
                   const newValue = selected.map((opt) => opt.value).join(', ');
                   field.onChange(newValue);
