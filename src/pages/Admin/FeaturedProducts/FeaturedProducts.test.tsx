@@ -1,7 +1,15 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from 'vitest';
 
 import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
 import { apiClient } from '@/services/api';
@@ -185,23 +193,46 @@ describe('Page: FeaturedProducts', () => {
     });
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('shows loading state while data is being fetched', async () => {
-    let resolveProducts!: () => void;
+    vi.useFakeTimers();
+
+    let resolveProducts!: (value: unknown) => void;
+    let isFirstCall = true;
+
     (apiClient.get as Mock).mockImplementation((url: string) => {
       if (url.includes('/products')) {
-        return new Promise<void>((resolve) => {
-          resolveProducts = resolve;
-        });
+        if (isFirstCall) {
+          isFirstCall = false;
+          return new Promise((resolve) => {
+            resolveProducts = resolve;
+          });
+        }
+        return Promise.resolve(mockProducts);
       }
-      return Promise.resolve(mockFeaturedSingle);
+
+      if (url.includes('/featured-products')) {
+        return Promise.resolve(mockFeaturedSingle);
+      }
+
+      return Promise.resolve([]);
     });
 
     renderPage();
 
+    await vi.advanceTimersByTimeAsync(300);
+
     expect(document.querySelector('.animate-spin')).toBeInTheDocument();
 
-    resolveProducts();
-    await screen.findByText('Manage New Arrivals');
+    resolveProducts(mockProducts);
+
+    await vi.runAllTimersAsync();
+    vi.useRealTimers();
+
+    expect(await screen.findByText('Manage New Arrivals')).toBeInTheDocument();
   });
 
   it('adds a product from search results and confirms action', async () => {

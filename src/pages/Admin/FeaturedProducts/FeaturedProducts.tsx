@@ -22,6 +22,7 @@ import { Pencil, Trash } from 'lucide-react';
 import { AdminPageHeader, SearchInput } from '@/components';
 import { ActionMenu } from '@/components';
 import { NEW_ARRIVALS_LIMIT, ROUTES } from '@/constants';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { apiClient } from '@/services/api';
 import type { Product } from '@/types/product.types';
 
@@ -94,7 +95,9 @@ export function FeaturedProducts() {
   const [allProducts, setAllProducts] = useState<FeaturedProductItem[]>([]);
   const [featured, setFeatured] = useState<FeaturedProductItem[]>([]);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
@@ -121,31 +124,58 @@ export function FeaturedProducts() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchProductsForSearch = async (searchQuery: string) => {
+    try {
+      let url = '/products?limit=10';
 
-        const productsRes = await apiClient.get<{
-          items: FeaturedProductItem[];
-        }>('/products?status=active');
-
-        if (productsRes && 'items' in productsRes) {
-          setAllProducts(productsRes.items);
-        } else {
-          setAllProducts(Array.isArray(productsRes) ? productsRes : []);
-        }
-
-        await fetchFeatured();
-      } catch (error) {
-        console.error('Fetch error:', error);
-      } finally {
-        setLoading(false);
+      if (searchQuery.trim()) {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
       }
+
+      const productsRes = await apiClient.get<{
+        items: FeaturedProductItem[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>(url);
+
+      if (productsRes && 'items' in productsRes) {
+        setAllProducts(productsRes.items);
+      } else {
+        setAllProducts(Array.isArray(productsRes) ? productsRes : []);
+      }
+    } catch (error) {
+      console.error('Fetch products error:', error);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+
+      await Promise.all([fetchFeatured(), fetchProductsForSearch('')]);
+
+      setLoading(false);
     };
 
-    fetchData();
+    loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      fetchProductsForSearch('');
+      return;
+    }
+
+    const handleSearch = async () => {
+      setIsSearching(true);
+      await fetchProductsForSearch(debouncedSearch);
+      setIsSearching(false);
+    };
+
+    handleSearch();
+  }, [debouncedSearch]);
 
   const handleAddProduct = async (product: FeaturedProductItem) => {
     if (featured.length >= NEW_ARRIVALS_LIMIT) return;
@@ -186,7 +216,7 @@ export function FeaturedProducts() {
     Array.isArray(allProducts) ? allProducts : []
   ).filter(
     (p) =>
-      p.title?.toLowerCase().includes(search.toLowerCase()) &&
+      p.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
       !featured.some((f) => f._id === p._id),
   );
 
@@ -246,7 +276,7 @@ export function FeaturedProducts() {
             <span className="text-muted text-sm font-bold tracking-wider uppercase">
               Add Product to Homepage
             </span>
-            {isActionLoading && (
+            {(isActionLoading || isSearching) && (
               <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
             )}
           </div>
