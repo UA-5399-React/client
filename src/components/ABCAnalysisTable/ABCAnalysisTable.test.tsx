@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useAbcAnalysis } from '@/hooks/useAbcAnalysis';
+import type { AbcAnalysisItem } from '@/types/statistic.types';
 import {
   fireEvent,
   render,
@@ -17,9 +18,11 @@ vi.mock('@/hooks/useAbcAnalysis', () => ({
 
 const mockUseAbcAnalysis = vi.mocked(useAbcAnalysis);
 
+type MockAbcAnalysisReturn = ReturnType<typeof useAbcAnalysis>;
+
 const DASHBOARD_PATH = '/admin/dashboard';
 
-const sampleItem = {
+const sampleItem: AbcAnalysisItem = {
   productName: 'Gorgeous Marble Salad',
   productCode: 'P-1001',
   value: 1200.5,
@@ -27,16 +30,16 @@ const sampleItem = {
   totalValue: 1200.5,
   cumulativePercentage: 33.3,
   percentageByTotal: 33.3,
-  bucket: 'C' as const,
+  bucket: 'C',
 };
 
-const defaultHookReturn = {
+const defaultHookReturn: MockAbcAnalysisReturn = {
   items: [sampleItem],
   summary: {
     aCount: 1,
     bCount: 1,
     cCount: 1,
-    metric: 'REVENUE' as const,
+    metric: 'REVENUE',
     totalValue: 1200.5,
   },
   total: 1,
@@ -49,7 +52,7 @@ const defaultHookReturn = {
   refetch: vi.fn(),
 };
 
-const mockAbcAnalysis = (overrides: Partial<typeof defaultHookReturn> = {}) => {
+const mockAbcAnalysis = (overrides: Partial<MockAbcAnalysisReturn> = {}) => {
   mockUseAbcAnalysis.mockReturnValue({
     ...defaultHookReturn,
     ...overrides,
@@ -106,7 +109,7 @@ describe('UI Component: ABCAnalysisTable', () => {
             cumulativePercentage: 10,
             percentageByTotal: 10,
             bucket: 'A',
-          },
+          } satisfies AbcAnalysisItem,
         ],
         summary: null,
       });
