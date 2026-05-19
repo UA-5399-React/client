@@ -8,6 +8,7 @@ import {
   ProtectedRoute,
   ScrollToTop,
 } from './components';
+import { AccountLayout } from './components/AccountLayout/AccountLayout';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { Message } from './components/Message.tsx/Message';
@@ -99,18 +100,22 @@ function App() {
           <Route path={PRODUCT} element={<ProductDetails />} />
           <Route path={CONTACT} element={<Contact />} />
           <Route path={CART} element={<Cart />} />
-          <Route path={WISHLIST} element={<Wishlist />} />
           <Route
             path={NEWSLETTER_UNSUBSCRIBE}
             element={<NewsletterUnsubscribePage />}
           />
           <Route path="*" element={<NotFound />} />
+
           <Route element={<ProtectedRoute />}>
-            <Route path={PROFILE} element={<Profile />} />
-            <Route path={MYORDERS} element={<MyOrders />} />
-            <Route path={ORDER_DETAIL} element={<OrderDetails />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
+
+            <Route path={PROFILE} element={<AccountLayout />}>
+              <Route index element={<Profile />} />
+              <Route path={MYORDERS} element={<MyOrders />} />
+              <Route path={WISHLIST} element={<Wishlist />} />
+              <Route path={ORDER_DETAIL} element={<OrderDetails />} />
+            </Route>
           </Route>
         </Route>
 

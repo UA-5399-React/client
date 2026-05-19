@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { ROUTES } from '@/constants';
 import type { Order } from '@/types/order.types';
 import { render, screen, userEvent } from '@/utils/test-utils';
 
@@ -11,6 +12,9 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return { ...actual, useNavigate: () => mockNavigate };
 });
+
+const orderDetailPath = (orderId: string) =>
+  ROUTES.ORDER_DETAIL.replace(':orderId', orderId);
 
 const mockOrderCompleted: Order = {
   id: '1',
@@ -53,108 +57,109 @@ const mockOrderCancelled: Order = {
 };
 
 describe('UI Component: OrderCard', () => {
-  it('should render order number and price', () => {
-    render(<OrderCard order={mockOrderCompleted} />);
-
-    expect(screen.getAllByText('#3456_980')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('$345.00')[0]).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('should render correct status label for completed', () => {
-    render(<OrderCard order={mockOrderCompleted} />);
+  describe('order info', () => {
+    it('renders order number and price', () => {
+      render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getAllByText('Completed')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('#3456_980')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('$345.00')[0]).toBeInTheDocument();
+    });
+
+    it.each([
+      { order: mockOrderCompleted, label: 'Completed' },
+      { order: mockOrderCancelled, label: 'Cancelled' },
+      { order: mockOrderProcessed, label: 'In progress' },
+      { order: mockOrderShipped, label: 'In progress' },
+    ])('renders status label "$label"', ({ order, label }) => {
+      render(<OrderCard order={order} />);
+
+      expect(screen.getAllByText(label)[0]).toBeInTheDocument();
+    });
   });
 
-  it('should render correct status label for cancelled', () => {
-    render(<OrderCard order={mockOrderCancelled} />);
+  describe('date formatting', () => {
+    it.each([
+      { order: mockOrderCompleted, expected: 'October 11, 2023' },
+      { order: mockOrderCancelled, expected: 'March 5, 2023' },
+    ])(
+      'renders date without Exp. prefix for $expected',
+      ({ order, expected }) => {
+        render(<OrderCard order={order} />);
 
-    expect(screen.getAllByText('Cancelled')[0]).toBeInTheDocument();
-  });
-
-  it('should render In progress label for processed status', () => {
-    render(<OrderCard order={mockOrderProcessed} />);
-
-    expect(screen.getAllByText('In progress')[0]).toBeInTheDocument();
-  });
-
-  it('should render In progress label for shipped status', () => {
-    render(<OrderCard order={mockOrderShipped} />);
-
-    expect(screen.getAllByText('In progress')[0]).toBeInTheDocument();
-  });
-
-  it('should render date without Exp. prefix for completed order', () => {
-    render(<OrderCard order={mockOrderCompleted} />);
-
-    expect(screen.getAllByText('October 11, 2023')[0]).toBeInTheDocument();
-  });
-
-  it('should render date without Exp. prefix for cancelled order', () => {
-    render(<OrderCard order={mockOrderCancelled} />);
-
-    expect(screen.getAllByText('March 5, 2023')[0]).toBeInTheDocument();
-  });
-
-  it('should render date with Exp. prefix for new order', () => {
-    render(<OrderCard order={mockOrderNew} />);
-
-    expect(screen.getAllByText('Exp. January 14, 2023')[0]).toBeInTheDocument();
-  });
-
-  it('should render date with Exp. prefix for processed order', () => {
-    render(<OrderCard order={mockOrderProcessed} />);
-
-    expect(screen.getAllByText('Exp. December 1, 2025')[0]).toBeInTheDocument();
-  });
-
-  it('should render date with Exp. prefix for shipped order', () => {
-    render(<OrderCard order={mockOrderShipped} />);
-
-    expect(screen.getAllByText('Exp. April 13, 2023')[0]).toBeInTheDocument();
-  });
-
-  it('should render — when createdAt is undefined', () => {
-    render(
-      <OrderCard order={{ ...mockOrderCompleted, createdAt: undefined }} />,
+        expect(screen.getAllByText(expected)[0]).toBeInTheDocument();
+      },
     );
 
-    expect(screen.getAllByText('—')[0]).toBeInTheDocument();
+    it.each([
+      { order: mockOrderNew, expected: 'Exp. January 14, 2023' },
+      { order: mockOrderProcessed, expected: 'Exp. December 1, 2025' },
+      { order: mockOrderShipped, expected: 'Exp. April 13, 2023' },
+    ])(
+      'renders date with Exp. prefix for pending orders',
+      ({ order, expected }) => {
+        render(<OrderCard order={order} />);
+
+        expect(screen.getAllByText(expected)[0]).toBeInTheDocument();
+      },
+    );
+
+    it('renders em dash when createdAt is undefined', () => {
+      render(
+        <OrderCard order={{ ...mockOrderCompleted, createdAt: undefined }} />,
+      );
+
+      expect(screen.getAllByText('—')[0]).toBeInTheDocument();
+    });
   });
 
-  it('should show Details button for non-progress orders', () => {
-    render(<OrderCard order={mockOrderCompleted} />);
+  describe('Details button', () => {
+    it('shows Details button for completed orders', () => {
+      render(<OrderCard order={mockOrderCompleted} />);
 
-    expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
+    });
+
+    it('shows Details button below progress bar for in-progress orders', () => {
+      render(<OrderCard order={mockOrderShipped} />);
+
+      expect(screen.getByText('Processed')).toBeInTheDocument();
+      expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
+    });
+
+    it.each([
+      { order: mockOrderCompleted, expectedPath: orderDetailPath('1') },
+      { order: mockOrderShipped, expectedPath: orderDetailPath('3') },
+    ])(
+      'navigates to order details on Details click ($expectedPath)',
+      async ({ order, expectedPath }) => {
+        const user = userEvent.setup();
+        render(<OrderCard order={order} />);
+
+        await user.click(screen.getAllByText('Details')[0]);
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith(expectedPath);
+      },
+    );
   });
 
-  it('should show Details button below progress bar for in progress orders', () => {
-    render(<OrderCard order={mockOrderShipped} />);
+  describe('progress bar', () => {
+    it('renders progress bar for processed status', () => {
+      render(<OrderCard order={mockOrderProcessed} />);
 
-    expect(screen.getByText('Processed')).toBeInTheDocument();
-    expect(screen.getAllByText('Details').length).toBeGreaterThan(0);
-  });
+      expect(screen.getByText('Processed')).toBeInTheDocument();
+      expect(screen.getByText('En Route')).toBeInTheDocument();
+      expect(screen.getAllByText('Completed')[0]).toBeInTheDocument();
+    });
 
-  it('should navigate to order details on Details click', async () => {
-    const user = userEvent.setup();
-    render(<OrderCard order={mockOrderCompleted} />);
+    it('does not render progress bar for completed status', () => {
+      render(<OrderCard order={mockOrderCompleted} />);
 
-    await user.click(screen.getAllByText('Details')[0]);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/order/1');
-  });
-
-  it('should render progress bar for processed status', () => {
-    render(<OrderCard order={mockOrderProcessed} />);
-
-    expect(screen.getByText('Processed')).toBeInTheDocument();
-    expect(screen.getByText('En Route')).toBeInTheDocument();
-    expect(screen.getAllByText('Completed')[0]).toBeInTheDocument();
-  });
-
-  it('should NOT render progress bar for completed status', () => {
-    render(<OrderCard order={mockOrderCompleted} />);
-
-    expect(screen.queryByText('En Route')).not.toBeInTheDocument();
+      expect(screen.queryByText('En Route')).not.toBeInTheDocument();
+    });
   });
 });
