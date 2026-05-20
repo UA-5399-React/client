@@ -25,7 +25,7 @@ type UseAdminUsersParams = {
 interface GetUsersListData {
   users: {
     items: AdminUser[];
-    totalCount?: number;
+    total?: number;
   };
 }
 
@@ -42,7 +42,7 @@ export const useAdminUsers = ({
 
   const users = useMemo(() => data?.users?.items || [], [data]);
 
-  const totalUsers = users.length;
+  const totalUsers = data?.users?.total || 0;
 
   const activeAdmins = useMemo(
     () =>

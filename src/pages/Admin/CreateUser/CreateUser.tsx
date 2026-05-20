@@ -87,7 +87,7 @@ export const CreateUser = () => {
 
           <div className="space-y-4 rounded-lg border border-[#d0d5dd] bg-[#f9fafb] p-5">
             <div>
-              <p className="text-text text-xs font-semibold tracking-[0.08em] uppercase">
+              <p className="text-xs font-semibold tracking-[0.08em] text-black uppercase">
                 Email
               </p>
               <p className="mt-1 text-base font-medium text-[#141718]">
