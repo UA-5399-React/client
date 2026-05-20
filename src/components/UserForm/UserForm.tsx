@@ -190,7 +190,7 @@ export const UserForm = ({
                 className="gap-2"
                 state={errors.name ? 'error' : 'default'}
                 helperText={errors.name?.message}
-                labelClassName="text-base font-normal leading-6 text-[#141718]"
+                labelClassName="text-base font-normal leading-6 text-black!"
                 helperTextClassName="ml-0 mt-0 text-sm leading-5"
                 inputClassName={baseInputStyles}
               />
@@ -210,7 +210,7 @@ export const UserForm = ({
                 className="gap-2"
                 state={errors.email ? 'error' : 'default'}
                 helperText={errors.email?.message}
-                labelClassName="text-base font-normal leading-6 text-[#141718]"
+                labelClassName="text-base font-normal leading-6 text-black!"
                 helperTextClassName="ml-0 mt-0 text-sm leading-5"
                 inputClassName={`${baseInputStyles} ${
                   isEditMode ? readOnlyInputStyles : ''
@@ -233,7 +233,7 @@ export const UserForm = ({
                   className="gap-2"
                   state={errors.password ? 'error' : 'default'}
                   helperText={errors.password?.message}
-                  labelClassName="text-base font-normal leading-6 text-[#141718]"
+                  labelClassName="text-base font-normal leading-6 text-black!"
                   helperTextClassName="ml-0 mt-0 text-sm leading-5"
                   inputClassName={baseInputStyles}
                 />

@@ -233,7 +233,7 @@ export function AdminOrderForm({
                 <Dropdown
                   label="Status"
                   labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
-                  selectClassName="w-full border-color-red-300! border-1! rounded-md !bg-white"
+                  selectClassName="w-full border-color-red-300! border-1! rounded-md bg-white! text-black!"
                   options={STATUS_OPTIONS}
                   selectedValues={field.value ? [field.value] : []}
                   onChange={(values) => {
@@ -257,8 +257,8 @@ export function AdminOrderForm({
               <div className="w-full *:flex! *:flex-col! *:items-start!">
                 <Dropdown
                   label="Carrier"
-                  labelClassName="!text-left !text-sm !font-medium !text-tex !normal-case"
-                  selectClassName="w-full border-color-red-300! border-1! rounded-md !bg-white"
+                  labelClassName="!text-sm !text-tex !normal-case"
+                  selectClassName="w-full border-color-red-300! border-1! rounded-md bg-white! text-black!"
                   options={CARRIER_OPTIONS}
                   selectedValues={field.value ? [field.value] : []}
                   onChange={(values) => {
@@ -296,7 +296,7 @@ export function AdminOrderForm({
               <div className="w-full">
                 {isNovaPostCarrier ? (
                   <>
-                    <span className="mb-1 block text-sm font-medium text-[#141718]">
+                    <span className="text-text mb-1 block text-sm font-medium">
                       City <span className="font-bold text-red-600">*</span>
                     </span>
                     <SearchableSelect
@@ -343,7 +343,7 @@ export function AdminOrderForm({
               <div className="w-full">
                 {isNovaPostCarrier ? (
                   <>
-                    <span className="mb-1 block text-sm font-medium text-[#141718]">
+                    <span className="text-text mb-1 block text-sm font-medium">
                       Branch Number{' '}
                       <span className="font-bold text-red-600">*</span>
                     </span>
