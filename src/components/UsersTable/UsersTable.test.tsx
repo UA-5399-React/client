@@ -1,8 +1,17 @@
 import { generatePath } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from 'vitest';
 
 import { ROUTES } from '@/constants';
 import { mockUsers } from '@/constants/mockUsers';
+import { useErrorStore } from '@/store/errorStore';
 import type { AdminUser } from '@/types/admin-user.types';
 import {
   fireEvent,
@@ -19,7 +28,14 @@ const mocks = vi.hoisted(() => ({
   handleUpdate: vi.fn(),
   deleteUser: vi.fn(),
   openConfirmModal: vi.fn(),
+  showMessage: vi.fn(),
 }));
+
+vi.mock('@/store/errorStore', () => ({
+  useErrorStore: vi.fn(),
+}));
+
+const mockedUseErrorStore = vi.mocked(useErrorStore) as unknown as Mock;
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
@@ -79,6 +95,10 @@ describe('UsersTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.handleUpdate.mockResolvedValue(undefined);
+    mocks.deleteUser.mockResolvedValue(undefined);
+    mockedUseErrorStore.mockImplementation((selector) =>
+      selector({ show: mocks.showMessage }),
+    );
   });
 
   it('renders "No users found" when list is empty', () => {
@@ -168,7 +188,7 @@ describe('UsersTable', () => {
     expect(onLastLoginSortChange).toHaveBeenLastCalledWith('asc');
   }, 10000);
 
-  it('opens action menu and confirms delete flow', async () => {
+  it('opens action menu, navigates to edit, and opens delete confirmation', async () => {
     const user = userEvent.setup();
     renderTable();
     const firstUser = mockUsers[0];
@@ -200,10 +220,32 @@ describe('UsersTable', () => {
         confirmText: 'Delete',
       }),
     );
+  }, 10000);
 
-    const confirmModalArg = mocks.openConfirmModal.mock.calls[0][0];
-    confirmModalArg.onConfirm();
-    expect(mocks.deleteUser).toHaveBeenCalledWith(firstUser.id);
+  it('shows success toast after user is deleted', async () => {
+    const user = userEvent.setup();
+    renderTable([mockUsers[0]]);
+    const firstUser = mockUsers[0];
+    const fullName = `${firstUser.firstName} ${firstUser.lastName}`;
+
+    await user.click(
+      screen.getByRole('button', {
+        name: new RegExp(`actions for ${fullName}`, 'i'),
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: /^delete$/i }));
+
+    const { onConfirm } = mocks.openConfirmModal.mock.calls[0][0];
+    await onConfirm();
+
+    await waitFor(() => {
+      expect(mocks.deleteUser).toHaveBeenCalledWith(firstUser.id);
+      expect(mocks.showMessage).toHaveBeenCalledWith(
+        'success',
+        'User deleted',
+        'The user has been deleted successfully',
+      );
+    });
   }, 10000);
 
   it('renders dropdowns for status and role', () => {
