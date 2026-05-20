@@ -21,36 +21,26 @@ export function OrderDetails() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
-  const [orderError, setOrderError] = useState('');
 
   useEffect(() => {
     const loadPageData = async () => {
       if (!orderId) {
-        setOrderError('Order ID is missing');
+        setPageError('Order ID is missing');
         setIsLoading(false);
         return;
       }
 
       try {
-        const [currentUser, apiOrders] = await Promise.all([
+        const [currentUser, currentOrder] = await Promise.all([
           usersService.getMe(),
-          orderService.getMyOrders(),
+          orderService.getMyOrderById(orderId),
         ]);
 
-        const currentOrder = apiOrders.find((item) => item.orderId === orderId);
-
         setUser(currentUser);
-
-        if (!currentOrder) {
-          setOrderError('Order not found');
-          return;
-        }
-
         setOrder(mapApiOrderToOrderDetails(currentOrder));
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to load order details';
-
         setPageError(message);
       } finally {
         setIsLoading(false);
@@ -82,10 +72,6 @@ export function OrderDetails() {
 
   if (pageError) {
     return <div className="p-10 text-red-600">{pageError}</div>;
-  }
-
-  if (orderError) {
-    return <div className="p-10 text-red-600">{orderError}</div>;
   }
 
   if (!user) {

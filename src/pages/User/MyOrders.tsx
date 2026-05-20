@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AccountSidebar, BackButton, OrderCard } from '@/components';
-import { ROUTES } from '@/constants';
+import {
+  AccountSidebar,
+  BackButton,
+  OrderCard,
+  Pagination,
+} from '@/components';
+import { CLIENT_PAGE_LIMIT, ROUTES } from '@/constants';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { authService } from '@/services';
 import { orderService } from '@/services/orderService';
 import { usersService } from '@/services/users.service';
@@ -21,6 +27,14 @@ export function MyOrders() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
 
+  const [totalPages, setTotalPages] = useState(1);
+  const {
+    currentPage,
+    setPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -35,11 +49,21 @@ export function MyOrders() {
       }
     };
 
+    void loadUser();
+  }, []);
+
+  useEffect(() => {
     const loadOrders = async () => {
       try {
-        const apiOrders = await orderService.getMyOrders();
-        const mappedOrders = apiOrders.map(mapApiOrderToOrder);
-        setOrders(mappedOrders);
+        setOrdersLoading(true);
+
+        const response = await orderService.getMyOrders(
+          currentPage,
+          CLIENT_PAGE_LIMIT,
+        );
+
+        setOrders(response.items.map(mapApiOrderToOrder));
+        setTotalPages(response.totalPages);
       } catch (err) {
         setOrdersError(
           err instanceof Error ? err.message : 'Failed to load orders',
@@ -49,9 +73,20 @@ export function MyOrders() {
       }
     };
 
-    void loadUser();
     void loadOrders();
-  }, []);
+  }, [currentPage]);
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (ordersLoading) return;
+    normalizeOutOfRangePage(totalPages);
+  }, [ordersLoading, normalizeOutOfRangePage, totalPages]);
+
+  const handlePageChange = (pageNumber: number) => {
+    setPage(pageNumber);
+  };
 
   const handleLogout = async () => {
     try {
@@ -120,6 +155,15 @@ export function MyOrders() {
                 ))
               )}
             </div>
+            {totalPages > 1 && (
+              <div className="mt-4 pb-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
