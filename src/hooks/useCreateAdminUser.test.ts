@@ -2,8 +2,6 @@ import * as ApolloClient from '@apollo/client/react';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { GET_USERS_LIST } from '@/services/graphql/userAdminService';
-
 import { useCreateAdminUser } from './useCreateAdminUser';
 
 vi.mock('@apollo/client/react', () => ({
@@ -42,7 +40,7 @@ describe('useCreateAdminUser', () => {
     const { result } = renderHook(() => useCreateAdminUser());
 
     expect(ApolloClient.useMutation).toHaveBeenCalledWith(expect.anything(), {
-      refetchQueries: [{ query: GET_USERS_LIST }],
+      refetchQueries: 'active',
     });
 
     await act(async () => {

@@ -1,9 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 
-import {
-  CREATE_USER,
-  GET_USERS_LIST,
-} from '@/services/graphql/userAdminService';
+import { CREATE_USER } from '@/services/graphql/userAdminService';
 import type {
   CreateAdminUserInput,
   CreateUserPayload,
@@ -18,7 +15,7 @@ export function useCreateAdminUser() {
     CreateUserMutationData,
     { input: CreateAdminUserInput }
   >(CREATE_USER, {
-    refetchQueries: [{ query: GET_USERS_LIST }],
+    refetchQueries: 'active',
   });
 
   const createUser = async (input: CreateAdminUserInput) => {

@@ -36,8 +36,21 @@ export const useAdminUsers = ({
   roleFilter,
   lastLoginSort,
 }: UseAdminUsersParams) => {
+  const searchQuery = search.trim();
+
+  const queryVariables = useMemo(
+    () => ({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      search: searchQuery || null,
+    }),
+    [currentPage, searchQuery],
+  );
+
   const { data, loading, error } = useQuery<GetUsersListData>(GET_USERS_LIST, {
+    variables: queryVariables,
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
 
   const users = useMemo(() => data?.users?.items || [], [data]);
@@ -103,26 +116,17 @@ export const useAdminUsers = ({
     });
   }, [filteredUsers, lastLoginSort]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedUsers.length / ITEMS_PER_PAGE),
-  );
-
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-
-    return sortedUsers.slice(startIndex, endIndex);
-  }, [currentPage, sortedUsers]);
+  const totalPages = Math.max(1, Math.ceil(totalUsers / ITEMS_PER_PAGE));
 
   return {
     totalUsers,
     activeAdmins,
     blockedUsers,
     totalPages,
-    paginatedUsers,
+    paginatedUsers: sortedUsers,
     filteredUsersCount: sortedUsers.length,
     loading,
     error,
+    queryVariables,
   };
 };
