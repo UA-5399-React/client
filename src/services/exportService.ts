@@ -1,7 +1,7 @@
 import { API_BASE_URL, API_ENDPOINTS } from '@/constants';
 
 export interface ExportProductsParams {
-  status?: string;
+  status?: string[];
   search?: string;
   category?: string[];
   minPrice?: string;
@@ -20,7 +20,9 @@ export const exportService = {
   exportProducts: async (params?: ExportProductsParams): Promise<Blob> => {
     const query = new URLSearchParams();
     if (params) {
-      if (params.status) query.append('status', params.status);
+      if (params.status && params.status.length > 0) {
+        params.status.forEach((status) => query.append('status', status));
+      }
       if (params.search) query.append('search', params.search);
       if (params.category && params.category.length > 0) {
         params.category.forEach((c) => query.append('category', c));

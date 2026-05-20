@@ -66,7 +66,7 @@ export const HeartButton = ({
 
         showMessage('success', 'Removed', 'Product removed from wishlist');
       } else {
-        await wishlistService.addToWishlist(wishlistItem);
+        await wishlistService.addToWishlist(product.id);
 
         showMessage('success', 'Added', 'Product added to wishlist');
       }
@@ -98,7 +98,7 @@ export const HeartButton = ({
       type="button"
       onClick={handleToggle}
       disabled={isLoading}
-      className="absolute top-3 right-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm transition-all hover:scale-110 active:scale-90 disabled:opacity-70 dark:border-neutral-700 dark:bg-neutral-800"
+      className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-full border border-gray-100 bg-white shadow-sm transition-all hover:scale-110 active:scale-90 disabled:opacity-70 dark:border-neutral-700 dark:bg-neutral-800"
       aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
     >
       <Heart

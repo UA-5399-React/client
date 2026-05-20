@@ -14,8 +14,10 @@ export function Switcher({
   ariaLabel = 'Toggle values',
 }: SwitcherProps) {
   return (
-    <div className="inline-flex items-center gap-2 text-sm text-gray-700">
-      <span className={!isRightActive ? 'font-semibold text-gray-900' : ''}>
+    <div className="text-text inline-flex items-center gap-2 text-sm">
+      <span
+        className={!isRightActive ? 'text-text font-semibold' : 'text-text'}
+      >
         {leftLabel}
       </span>
 
@@ -32,7 +34,7 @@ export function Switcher({
         />
       </button>
 
-      <span className={isRightActive ? 'font-semibold text-gray-900' : ''}>
+      <span className={isRightActive ? 'text-text font-semibold' : 'text-text'}>
         {rightLabel}
       </span>
     </div>

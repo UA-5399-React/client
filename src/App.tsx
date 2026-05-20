@@ -8,6 +8,7 @@ import {
   ProtectedRoute,
   ScrollToTop,
 } from './components';
+import { AccountLayout } from './components/AccountLayout/AccountLayout';
 import { AdminLayout } from './components/AdminLayout/AdminLayout';
 import { AuthLayout } from './components/AuthLayout';
 import { Message } from './components/Message.tsx/Message';
@@ -36,7 +37,8 @@ import { AdminUsers } from './pages/Admin/Users/AdminUsers';
 import { EmailConfirmationPage } from './pages/Auth/EmailConfirmationPage';
 import { ForgotPasswordPage } from './pages/Auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/Auth/ResetPasswordPage';
-import { ContactUs, Shop } from './pages/Mocks';
+import { Contact } from './pages/Contact/Contact';
+import { Shop } from './pages/Mocks';
 import { NotFound } from './pages/NotFound/NotFound';
 import { MyOrders } from './pages/User/MyOrders';
 import { OrderDetails } from './pages/User/OrderDetails';
@@ -50,7 +52,7 @@ function App() {
     HOME,
     SHOP,
     PRODUCT,
-    CONTACT_US,
+    CONTACT,
     CART,
     NEWSLETTER_UNSUBSCRIBE,
     CHECKOUT,
@@ -96,20 +98,24 @@ function App() {
           <Route index element={<Home />} />
           <Route path={SHOP} element={<Shop />} />
           <Route path={PRODUCT} element={<ProductDetails />} />
-          <Route path={CONTACT_US} element={<ContactUs />} />
+          <Route path={CONTACT} element={<Contact />} />
           <Route path={CART} element={<Cart />} />
-          <Route path={WISHLIST} element={<Wishlist />} />
           <Route
             path={NEWSLETTER_UNSUBSCRIBE}
             element={<NewsletterUnsubscribePage />}
           />
           <Route path="*" element={<NotFound />} />
+
           <Route element={<ProtectedRoute />}>
-            <Route path={PROFILE} element={<Profile />} />
-            <Route path={MYORDERS} element={<MyOrders />} />
-            <Route path={ORDER_DETAIL} element={<OrderDetails />} />
             <Route path={CHECKOUT} element={<Checkout />} />
             <Route path={ORDER_CONFIRMATION} element={<OrderConfirmation />} />
+
+            <Route path={PROFILE} element={<AccountLayout />}>
+              <Route index element={<Profile />} />
+              <Route path={MYORDERS} element={<MyOrders />} />
+              <Route path={WISHLIST} element={<Wishlist />} />
+              <Route path={ORDER_DETAIL} element={<OrderDetails />} />
+            </Route>
           </Route>
         </Route>
 

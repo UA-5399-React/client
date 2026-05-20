@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ListFilter } from 'lucide-react';
 
 import {
@@ -27,6 +27,7 @@ import {
 } from '@/constants/general';
 import { useAbcAnalysis } from '@/hooks/useAbcAnalysis';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import type { Column } from '@/types';
 import type {
   AbcAnalysisSummary,
@@ -90,9 +91,16 @@ export function ABCAnalysisTable() {
     () => toIsoDateRange(appliedFilter.dateFrom, appliedFilter.dateTo),
     [appliedFilter.dateFrom, appliedFilter.dateTo],
   );
-  const [currentPage, setCurrentPage] = useState(PAGE);
+
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search.trim(), 500);
+
+  const {
+    currentPage,
+    setPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam({ paramName: 'abcPage' });
 
   const { items, summary, totalPages, loading, error } = useAbcAnalysis({
     metric: toMetricEnum(metricMode),
@@ -108,13 +116,23 @@ export function ABCAnalysisTable() {
 
   const handleRedThresholdChange = (value: number) => {
     setRedThreshold(Math.max(LEFT_MIN, Math.min(value, LEFT_MAX)));
-    setCurrentPage(PAGE);
+    setPage(PAGE);
   };
 
   const handleGreenThresholdChange = (value: number) => {
     setGreenThreshold(Math.min(RIGHT_MAX, Math.max(value, RIGHT_MIN)));
-    setCurrentPage(PAGE);
+    setPage(PAGE);
   };
+
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    normalizeOutOfRangePage(totalPages);
+  }, [loading, normalizeOutOfRangePage, totalPages]);
 
   const columns = useMemo<Column[]>(
     () => [
@@ -151,12 +169,12 @@ export function ABCAnalysisTable() {
 
   const renderRow = (item: ABCAnalysisRow) => (
     <>
-      <td className="text-left text-sm text-gray-600">{item.codeProduct}</td>
-      <td className="text-left text-sm text-gray-800">{item.product}</td>
-      <td className="text-left text-sm text-gray-700">
+      <td className="text-text text-left text-sm">{item.codeProduct}</td>
+      <td className="text-text text-left text-sm">{item.product}</td>
+      <td className="text-text text-left text-sm">
         {formatValue(item.value, metricMode)}
       </td>
-      <td className="text-left text-sm text-gray-700">
+      <td className="text-text text-left text-sm">
         {formatPercent(item.percentageByTotal)}
       </td>
       <td className="text-center">
@@ -172,7 +190,7 @@ export function ABCAnalysisTable() {
   const renderSummary = (summary: AbcAnalysisSummary) => {
     return (
       <>
-        <div className="pr-2 text-right text-sm font-bold text-gray-700">
+        <div className="text-text pr-2 text-right text-sm font-bold">
           <p>Total: {summary?.totalValue}</p>
         </div>
       </>
@@ -204,7 +222,7 @@ export function ABCAnalysisTable() {
               setMetricMode((prevMode) =>
                 prevMode === REVENUE ? QUANTITY : REVENUE,
               );
-              setCurrentPage(PAGE);
+              setPage(PAGE);
             }}
             ariaLabel="Toggle between quantity and revenue"
           />
@@ -213,7 +231,7 @@ export function ABCAnalysisTable() {
             value={search}
             onChange={(value) => {
               setSearch(value);
-              setCurrentPage(PAGE);
+              setPage(PAGE);
             }}
             placeholder="Search"
           />
@@ -234,7 +252,7 @@ export function ABCAnalysisTable() {
                 onClose={() => setShowFilters(false)}
                 onApply={(filter) => {
                   setAppliedFilter(filter as FilterState);
-                  setCurrentPage(PAGE);
+                  setPage(PAGE);
                 }}
                 initial={appliedFilter}
                 isRequired={false}
@@ -259,7 +277,7 @@ export function ABCAnalysisTable() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={setPage}
         />
       )}
     </div>

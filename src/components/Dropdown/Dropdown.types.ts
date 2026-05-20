@@ -16,4 +16,6 @@ export interface DropdownProps {
   disabled?: boolean;
   required?: boolean;
   closeOnSelect?: boolean;
+  error?: boolean;
+  helperText?: string;
 }

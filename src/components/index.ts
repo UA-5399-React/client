@@ -14,6 +14,7 @@ export { DownloadOrderButton } from './DownloadOrderButton/DownloadOrderButton';
 export type { DropdownOption, DropdownProps } from './Dropdown';
 export { CategoryDropdown } from './Dropdown';
 export { Dropdown } from './Dropdown';
+export { EngineerCard } from './EngineerCard';
 export { ExportButton } from './ExportButton/ExportButton';
 export { Features } from './Features';
 export { FlyoutCart } from './FlyoutCart';
@@ -24,6 +25,7 @@ export {
 } from './GroupTableFilter/GroupTableFilter';
 export { emptyGroupFilter } from './GroupTableFilter/utils';
 export { Header } from './Header';
+export { HeartButton } from './HeartButton/HeartButton';
 export { ImageSlider } from './ImageSlider/ImageSlider';
 export { ImportProductsModal } from './ImportProductsModal/ImportProductsModal';
 export { Input } from './Input';

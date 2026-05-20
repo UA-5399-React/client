@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/Button';
+import { ROUTES } from '@/constants';
 import type { Order, ProgressStep } from '@/types/order.types';
 
 import {
@@ -24,7 +25,8 @@ export const OrderCard = ({ order }: OrderCardProps) => {
   const { id, orderNumber, createdAt, status, totalPrice } = order;
   const navigate = useNavigate();
   const isInProgress = IN_PROGRESS_STATUSES.has(status);
-  const handleDetails = () => navigate(`/order/${id}`);
+  const handleDetails = () =>
+    navigate(ROUTES.ORDER_DETAIL.replace(':orderId', id));
 
   return (
     <div className="border-b border-[rgb(var(--color-border,226,226,226))] py-6 last:border-b-0 dark:border-gray-700">

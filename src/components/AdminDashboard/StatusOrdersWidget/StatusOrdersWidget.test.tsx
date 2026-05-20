@@ -7,7 +7,13 @@ import { render, screen } from '@/utils/test-utils';
 
 import { StatusOrdersWidget } from './StatusOrdersWidget';
 
+const { mockStatusOrdersChart, mockStatusOrdersLegend } = vi.hoisted(() => ({
+  mockStatusOrdersChart: vi.fn(() => <div data-testid="mock-chart" />),
+  mockStatusOrdersLegend: vi.fn(() => <div data-testid="mock-legend" />),
+}));
+
 const mockNavigate = vi.fn();
+
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof ReactRouter>();
   return {
@@ -21,11 +27,11 @@ vi.mock('@/hooks/useOrdersStatusStats', () => ({
 }));
 
 vi.mock('./StatusOrdersChart', () => ({
-  StatusOrdersChart: vi.fn(() => <div data-testid="mock-chart" />),
+  StatusOrdersChart: mockStatusOrdersChart,
 }));
 
 vi.mock('./StatusOrdersLegend', () => ({
-  StatusOrdersLegend: vi.fn(() => <div data-testid="mock-legend" />),
+  StatusOrdersLegend: mockStatusOrdersLegend,
 }));
 
 describe('UI Component: StatusOrdersWidget', () => {
@@ -65,7 +71,9 @@ describe('UI Component: StatusOrdersWidget', () => {
 
     render(<StatusOrdersWidget />);
 
-    expect(screen.getByText('Error loading data')).toBeInTheDocument();
+    expect(
+      screen.getByText('Something went wrong, please try again later.'),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId('mock-chart')).not.toBeInTheDocument();
   });
 
@@ -78,7 +86,9 @@ describe('UI Component: StatusOrdersWidget', () => {
 
     render(<StatusOrdersWidget />);
 
-    expect(screen.getByText('Error loading data')).toBeInTheDocument();
+    expect(
+      screen.getByText('Something went wrong, please try again later.'),
+    ).toBeInTheDocument();
   });
 
   it('should render the chart, legend, and button when data is successfully loaded', () => {
@@ -92,10 +102,49 @@ describe('UI Component: StatusOrdersWidget', () => {
 
     expect(screen.getByTestId('mock-chart')).toBeInTheDocument();
     expect(screen.getByTestId('mock-legend')).toBeInTheDocument();
-
     expect(
       screen.getByRole('button', { name: /show all/i }),
     ).toBeInTheDocument();
+  });
+
+  it('should pass statuses with recalculated percentages to chart and legend', () => {
+    vi.mocked(useOrdersStatusStats).mockReturnValue({
+      isLoading: false,
+      data: {
+        total: 7,
+        largestSegment: { status: 'completed', count: 4, percentage: 57 },
+        statuses: [
+          { status: 'completed', count: 4, percentage: 0 },
+          { status: 'new', count: 3, percentage: 0 },
+        ],
+      },
+      error: null,
+    } as unknown as ReturnType<typeof useOrdersStatusStats>);
+
+    render(<StatusOrdersWidget />);
+
+    expect(mockStatusOrdersChart).toHaveBeenCalledWith(
+      {
+        data: {
+          total: 7,
+          largestSegment: { status: 'completed', count: 4, percentage: 57 },
+          statuses: [
+            { status: 'completed', count: 4, percentage: 57 },
+            { status: 'new', count: 3, percentage: 43 },
+          ],
+        },
+      },
+      undefined,
+    );
+    expect(mockStatusOrdersLegend).toHaveBeenCalledWith(
+      {
+        statuses: [
+          { status: 'completed', count: 4, percentage: 57 },
+          { status: 'new', count: 3, percentage: 43 },
+        ],
+      },
+      undefined,
+    );
   });
 
   it('should navigate to the orders page when the "Show all" button is clicked', async () => {

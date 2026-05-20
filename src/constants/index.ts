@@ -8,13 +8,13 @@ export const ROUTES = {
   HOME: '/',
   SHOP: '/shop',
   PRODUCT: '/product/:id',
-  CONTACT_US: '/contact',
+  CONTACT: '/contact',
   LOGIN: '/login',
   CART: '/cart',
   NEWSLETTER_UNSUBSCRIBE: '/newsletter/unsubscribe',
   CHECKOUT: '/checkout',
   ORDER_CONFIRMATION: '/order-confirmation',
-  ORDER_DETAIL: '/order/:orderId',
+  ORDER_DETAIL: '/profile/orders/:orderId',
   ADMIN: '/admin',
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
@@ -37,7 +37,7 @@ export const ROUTES = {
   ADMIN_DASHBOARD: '/admin/dashboard',
   WISHLIST: '/profile/wishlist',
   PROFILE: '/profile',
-  MYORDERS: '/profile/myOrders',
+  MYORDERS: '/profile/orders',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
   ADMIN_FEATURED: '/admin/featured',
@@ -47,7 +47,7 @@ export const DEFAULT_FILTER: ProductsFilters = {
   categories: [],
   minPrice: '',
   maxPrice: '',
-  status: '',
+  status: [],
   dateFrom: '',
   dateTo: '',
   dateField: 'createdAt',
@@ -115,3 +115,9 @@ export const API_ENDPOINTS = {
   EXPORT_ORDERS: '/export/orders',
   EXPORT_ORDER_PDF: (id: string) => `/orders/${id}/export?format=pdf`,
 } as const;
+
+export const PAGE_TITLES: Record<string, string> = {
+  [ROUTES.PROFILE]: 'My Account',
+  [ROUTES.MYORDERS]: 'My Orders',
+  [ROUTES.WISHLIST]: 'My Wishlist',
+};

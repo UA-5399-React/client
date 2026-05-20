@@ -65,8 +65,8 @@ export function AdminCreateOrder() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="mx-auto max-w-4xl p-6">
+    <div className="grid place-items-center px-4 py-6">
+      <div className="max-h-[calc(100dvh-3rem)] min-h-0 w-full max-w-4xl overflow-y-auto overscroll-y-contain">
         <AdminOrderForm
           onSubmit={handleCreate}
           onCancel={handleCancel}

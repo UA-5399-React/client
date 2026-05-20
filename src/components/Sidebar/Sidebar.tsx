@@ -78,7 +78,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
 
   return (
     <aside
-      className={`w-full} flex h-full min-h-full flex-col justify-between transition-all duration-300`}
+      className={`flex h-full min-h-full w-full flex-col justify-between transition-all duration-300`}
     >
       <div>
         <div
@@ -114,7 +114,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
                 }`
               }
             >
-              <span className="flex-shrink-0">{icon}</span>
+              <span className="h-6 shrink-0">{icon}</span>
               {!isCollapsed && <span className="truncate">{label}</span>}
             </NavLink>
           ))}
@@ -126,7 +126,7 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }: SidebarProps) => {
               isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'
             } ${isDark ? 'hover:bg-white! hover:text-black!' : 'hover:bg-black! hover:text-white!'}`}
           >
-            <span className="flex-shrink-0">{isDark ? <Sun /> : <Moon />}</span>
+            <span className="h-6 shrink-0">{isDark ? <Sun /> : <Moon />}</span>
             {!isCollapsed && (
               <span className="truncate">
                 {isDark ? 'Light mode' : 'Dark mode'}

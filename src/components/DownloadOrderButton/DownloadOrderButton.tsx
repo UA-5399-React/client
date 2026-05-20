@@ -48,7 +48,7 @@ export function DownloadOrderButton({ orderId }: Props) {
     <Button
       onClick={handleDownload}
       disabled={isLoading}
-      className="flex items-center gap-2 border !border-transparent bg-transparent px-4 py-2 text-sm text-[rgb(var(--color-text))] transition-all hover:!border-green-500 hover:!text-green-500 focus:!ring-0 focus:!outline-none"
+      className="flex items-center gap-2 border !border-transparent bg-transparent px-4 py-2 text-sm text-neutral-900 transition-all hover:!border-green-500 hover:!text-green-500 focus:!ring-0 focus:!outline-none"
     >
       {isLoading ? (
         <span className="animate-spin text-sm">◌</span>

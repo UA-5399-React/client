@@ -114,9 +114,7 @@ describe('UI Component: Header', () => {
     render(<Header />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Shop' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Contact Us' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Contact' })).toBeInTheDocument();
   });
 
   it('should have correct href for Shop nav link', () => {
@@ -129,9 +127,9 @@ describe('UI Component: Header', () => {
 
   it('should have correct href for Contact Us nav link', () => {
     render(<Header />);
-    expect(screen.getByRole('link', { name: 'Contact Us' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute(
       'href',
-      ROUTES.CONTACT_US,
+      ROUTES.CONTACT,
     );
   });
 

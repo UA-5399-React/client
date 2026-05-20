@@ -157,13 +157,13 @@ export function UsersChart({
             label="Period"
             value={selectedPeriod}
             onChange={(event) => onPeriodChange(event.target.value)}
-            inputClassName="w-56 text-gray-700"
+            inputClassName="w-56 text-text"
             isClearable={false}
           />
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 px-2 py-2">
+      <div className="flex flex-col items-center gap-4">
         {error ? (
           <p className="text-center text-sm text-red-600" role="alert">
             {error.message}
