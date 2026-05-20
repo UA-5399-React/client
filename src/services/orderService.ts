@@ -8,7 +8,22 @@ export const orderService = {
     return apiClient.post<CreatedOrder>('/orders', payload);
   },
 
-  getMyOrders(): Promise<ApiMyOrder[]> {
-    return apiClient.get<ApiMyOrder[]>('/orders/my');
+  async getMyOrders(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: ApiMyOrder[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    return apiClient.get('/orders/my', {
+      params: { page, limit, _t: Date.now() },
+    });
+  },
+
+  getMyOrderById(orderId: string): Promise<ApiMyOrder> {
+    return apiClient.get(`/orders/my/${orderId}`);
   },
 };

@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom';
 
 import { OrderDetailsTable } from '@/components';
 import { orderService } from '@/services/orderService';
+import { usersService } from '@/services/users.service';
 import type { OrderDetails as OrderDetailsType } from '@/types/order.types';
+import type { User } from '@/types/user';
 import { mapApiOrderToOrderDetails } from '@/utils/orderMappers';
 
 const formatPrice = (value: number) => `$${value.toFixed(2)}`;
@@ -11,34 +13,32 @@ const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 export function OrderDetails() {
   const { orderId } = useParams<{ orderId: string }>();
 
+  const [user, setUser] = useState<User | null>(null);
+
   const [order, setOrder] = useState<OrderDetailsType | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState('');
-  const [orderError, setOrderError] = useState('');
 
   useEffect(() => {
     const loadPageData = async () => {
       if (!orderId) {
-        setOrderError('Order ID is missing');
+        setPageError('Order ID is missing');
         setIsLoading(false);
         return;
       }
 
       try {
-        const apiOrders = await orderService.getMyOrders();
-        const currentOrder = apiOrders.find((item) => item.orderId === orderId);
+        const [currentUser, currentOrder] = await Promise.all([
+          usersService.getMe(),
+          orderService.getMyOrderById(orderId),
+        ]);
 
-        if (!currentOrder) {
-          setOrderError('Order not found');
-          return;
-        }
-
+        setUser(currentUser);
         setOrder(mapApiOrderToOrderDetails(currentOrder));
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to load order details';
-
         setPageError(message);
       } finally {
         setIsLoading(false);
@@ -56,8 +56,8 @@ export function OrderDetails() {
     return <div className="p-10 text-red-600">{pageError}</div>;
   }
 
-  if (orderError) {
-    return <div className="p-10 text-red-600">{orderError}</div>;
+  if (!user) {
+    return <div className="text-text p-10">User not found</div>;
   }
 
   if (!order) {

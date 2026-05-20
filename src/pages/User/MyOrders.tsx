@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { OrderCard } from '@/components';
+import { OrderCard, Pagination } from '@/components';
+import { CLIENT_PAGE_LIMIT } from '@/constants';
+import { usePaginationPageParam } from '@/hooks/usePaginationPageParam';
 import { orderService } from '@/services/orderService';
 import type { Order } from '@/types/order.types';
 import { mapApiOrderToOrder } from '@/utils/orderMappers';
@@ -9,14 +11,24 @@ export function MyOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
+  const {
+    currentPage,
+    setPage,
+    normalizeInvalidPageParam,
+    normalizeOutOfRangePage,
+  } = usePaginationPageParam();
 
   useEffect(() => {
     const loadOrders = async () => {
       setIsLoading(true);
       try {
-        const apiOrders = await orderService.getMyOrders();
-        const mappedOrders = apiOrders.map(mapApiOrderToOrder);
-        setOrders(mappedOrders);
+        const response = await orderService.getMyOrders(
+          currentPage,
+          CLIENT_PAGE_LIMIT,
+        );
+        setOrders(response.items.map(mapApiOrderToOrder));
+        setTotalPages(response.totalPages);
       } catch (err) {
         setOrdersError(
           err instanceof Error ? err.message : 'Failed to load orders',
@@ -25,9 +37,21 @@ export function MyOrders() {
         setIsLoading(false);
       }
     };
-
     void loadOrders();
-  }, []);
+  }, [currentPage]);
+
+  useEffect(() => {
+    normalizeInvalidPageParam();
+  }, [normalizeInvalidPageParam]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    normalizeOutOfRangePage(totalPages);
+  }, [isLoading, normalizeOutOfRangePage, totalPages]);
+
+  const handlePageChange = (pageNumber: number) => {
+    setPage(pageNumber);
+  };
 
   if (isLoading) {
     return <div className="p-10">Loading...</div>;
@@ -44,7 +68,6 @@ export function MyOrders() {
           <h2 className="text-text mb-6 text-xl font-semibold">
             Orders History
           </h2>
-
           <div className="mb-3 hidden border-b border-gray-200 pb-3 text-sm text-gray-400 md:grid md:grid-cols-[150px_180px_140px_1fr_140px]">
             <span>Number ID</span>
             <span>Dates</span>
@@ -52,7 +75,6 @@ export function MyOrders() {
             <span>Price</span>
             <span />
           </div>
-
           <div className="flex flex-col">
             {orders.length === 0 ? (
               <div className="py-6 text-sm text-gray-500">
@@ -62,6 +84,15 @@ export function MyOrders() {
               orders.map((order) => <OrderCard key={order.id} order={order} />)
             )}
           </div>
+          {totalPages > 1 && (
+            <div className="mt-4 pb-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
         </div>
       </div>
     </section>

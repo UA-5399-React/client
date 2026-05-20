@@ -105,6 +105,7 @@ export const apiClient = {
     let response = await fetch(url, {
       method: 'GET',
       credentials: 'include',
+      cache: 'no-store',
       ...options,
     });
 
@@ -115,6 +116,7 @@ export const apiClient = {
         response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
+          cache: 'no-store',
           ...options,
         });
       } else {

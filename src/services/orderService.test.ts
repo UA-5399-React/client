@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from '@/services/api';
 import type { CreatedOrder, CreateOrderPayload } from '@/types';
 import { PAYMENT_METHODS, SHIPPING_CARRIERS } from '@/types';
-import type { ApiMyOrder } from '@/types/order.api.types';
 
 import { orderService } from './orderService';
 
@@ -59,13 +58,27 @@ describe('orderService', () => {
   });
 
   it('getMyOrders requests /orders/my', async () => {
-    const orders: ApiMyOrder[] = [];
+    const mockResponse = {
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 10,
+      totalPages: 0,
+    };
 
-    vi.mocked(apiClient.get).mockResolvedValueOnce(orders);
+    vi.mocked(apiClient.get).mockResolvedValueOnce(mockResponse);
 
     const result = await orderService.getMyOrders();
 
-    expect(apiClient.get).toHaveBeenCalledWith('/orders/my');
-    expect(result).toEqual(orders);
+    expect(apiClient.get).toHaveBeenCalledWith(
+      '/orders/my',
+      expect.objectContaining({
+        params: expect.objectContaining({
+          page: 1,
+          limit: 10,
+        }),
+      }),
+    );
+    expect(result).toEqual(mockResponse);
   });
 });
