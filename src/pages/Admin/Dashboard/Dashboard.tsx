@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import clsx from 'clsx';
 import { Filter } from 'lucide-react';
 
 import {
@@ -120,24 +121,29 @@ export function Dashboard() {
     <div>
       <section className="bg-background text-text min-h-screen px-4 py-6 transition-colors duration-300 md:px-6">
         <div className="mx-auto space-y-3">
-          <div className="grid gap-3 xl:grid-cols-2">
+          <div
+            className={clsx(
+              'grid gap-3',
+              isSuperAdmin ? 'xl:grid-cols-2' : 'grid-cols-1',
+            )}
+          >
             <DashboardCard title="Status Orders" isFlexColumn>
               <StatusOrdersWidget />
             </DashboardCard>
 
-            <UsersChart
-              registrationsThisMonth={registrationsThisMonth}
-              dailyCounts={dailyCounts}
-              dateLabel={dateLabel}
-              highlightBarIndex={highlightBarIndex}
-              selectedPeriod={selectedPeriod}
-              onPeriodChange={setSelectedPeriod}
-              loading={periodLoading}
-              error={periodError}
-              onShowAll={
-                isSuperAdmin ? () => navigate(ROUTES.ADMIN_USERS) : undefined
-              }
-            />
+            {isSuperAdmin && (
+              <UsersChart
+                registrationsThisMonth={registrationsThisMonth}
+                dailyCounts={dailyCounts}
+                dateLabel={dateLabel}
+                highlightBarIndex={highlightBarIndex}
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={setSelectedPeriod}
+                loading={periodLoading}
+                error={periodError}
+                onShowAll={() => navigate(ROUTES.ADMIN_USERS)}
+              />
+            )}
           </div>
 
           <DashboardCard title="Number of Sales" className="min-h-[320px]">

@@ -1,9 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 
-import {
-  GET_USERS_LIST,
-  UPDATE_USER,
-} from '@/services/graphql/userAdminService';
+import { UPDATE_USER } from '@/services/graphql/userAdminService';
 import type { UpdateUserInput } from '@/types/admin-user.types';
 
 interface UpdateUserMutationData {
@@ -23,7 +20,7 @@ export const useUpdateAdminUser = () => {
       variables: {
         input,
       },
-      refetchQueries: [{ query: GET_USERS_LIST }],
+      refetchQueries: 'active',
       awaitRefetchQueries: true,
     });
 

@@ -86,7 +86,14 @@ export function UsersTable({
       description: 'Are you sure you want to delete this user?',
       isCritical: true,
       confirmText: 'Delete',
-      onConfirm: () => deleteUser(id),
+      onConfirm: () =>
+        deleteUser(id).then(() => {
+          showMessage(
+            'success',
+            'User deleted',
+            'The user has been deleted successfully',
+          );
+        }),
     });
   };
 

@@ -2,10 +2,7 @@ import * as ApolloClient from '@apollo/client/react';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  GET_USERS_LIST,
-  UPDATE_USER,
-} from '@/services/graphql/userAdminService';
+import { UPDATE_USER } from '@/services/graphql/userAdminService';
 
 import { useUpdateAdminUser } from './useUpdateAdminUser';
 
@@ -63,7 +60,7 @@ describe('useUpdateAdminUser', () => {
 
     expect(updateUserMutationMock).toHaveBeenCalledWith({
       variables: { input: { id: 'user-1', role: 'ADMIN' } },
-      refetchQueries: [{ query: GET_USERS_LIST }],
+      refetchQueries: 'active',
       awaitRefetchQueries: true,
     });
     expect(payload).toEqual(updated);
@@ -111,7 +108,7 @@ describe('useUpdateAdminUser', () => {
 
     expect(updateUserMutationMock).toHaveBeenCalledWith({
       variables: { input: { id: 'u-2', firstName: 'Ann' } },
-      refetchQueries: [{ query: GET_USERS_LIST }],
+      refetchQueries: 'active',
       awaitRefetchQueries: true,
     });
   });

@@ -165,8 +165,9 @@ export const AdminUsers = () => {
   });
 
   useEffect(() => {
+    if (usersState.loading) return;
     normalizeOutOfRangePage(usersState.totalPages);
-  }, [usersState.totalPages, normalizeOutOfRangePage]);
+  }, [usersState.loading, usersState.totalPages, normalizeOutOfRangePage]);
 
   return (
     <section className="bg-background text-text min-h-screen p-4 transition-colors duration-300 sm:p-6 lg:p-8">
